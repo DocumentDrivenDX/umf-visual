@@ -7,7 +7,7 @@ Chromium 153.0.8010.12. These observations do not establish a broader matrix.
 
 ## Source and package ownership
 
-Imported 66 source/spec/test/fixture/governed-document files. A hash comparison
+Imported 70 source/spec/test/fixture/governed-document files. A hash comparison
 against their source snapshot finds only two changed files: the implementation's
 core imports and the tests' core-helper imports. Schemas, semantic code, fixtures
 and the four governed documents otherwise remain byte-equivalent. The local

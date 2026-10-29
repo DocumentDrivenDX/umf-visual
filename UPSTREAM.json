@@ -81,6 +81,10 @@
     "spec/extensions/visual/package.json": "839e69d63dd784f23e655a8a4227602fe96abe3cdf8687231f3974f8de9f01b8",
     "spec/extensions/visual/schema.json": "659ec61d834d4a410f06405fb4197e152f954d280b9265f71be32e992b038ec8",
     "src/extensions/visual/index.ts": "aa9590035d0b40bbdece13d10801907b7e256e72e6ab4872a6a8721a2cb02ca2",
-    "tests/visual/vocabulary.test.ts": "9fdd06681e0de340025a49e383a908c62c974b0f198e70f992f8c25ee9fe1330"
+    "tests/visual/vocabulary.test.ts": "9fdd06681e0de340025a49e383a908c62c974b0f198e70f992f8c25ee9fe1330",
+    "docs/helix/01-frame/user-stories/US-093-visual-vocabulary.md": "c094edcf03cc5334337fbcbd1d12c3ea066a3b3f0fe2cf13782826a288650834",
+    "docs/helix/01-frame/features/FEAT-034-visual-vocabulary.md": "744be47245e7c5598b94b12bcf750bd0f340298ac6743d6238d1c71dea135276",
+    "docs/helix/02-design/contracts/CONTRACT-083-visual-vocabulary.md": "310a50df779afdb56f312b18b077a5b366f40482b09b856a49a878d95facc79c",
+    "docs/helix/02-design/technical-designs/TD-093-visual-vocabulary.md": "173f489336ec40ba92aac7cd45da01a5bcb7134660b91d2c54fafeec96689450"
   }
 }
