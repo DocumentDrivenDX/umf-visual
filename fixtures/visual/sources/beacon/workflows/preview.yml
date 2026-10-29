@@ -1,0 +1,19 @@
+name: Preview
+on: pull_request
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: make build
+  preview:
+    name: Deploy a preview
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - run: make preview
+  smoke:
+    name: Smoke-test the preview
+    needs: preview
+    runs-on: ubuntu-latest
+    steps:
+      - run: make smoke

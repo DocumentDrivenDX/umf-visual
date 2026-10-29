@@ -1,0 +1,529 @@
+# A fictional system's architecture model, in HELIX documentor's architecture-model.toml shape.
+# Beacon drafts replies to customer support tickets for a support team to review and send. It
+# exists only to give umf.visual's fixtures a realistic, non-HELIX source: the views, zones,
+# journey and statuses below exercise the forms the visuals inventory names.
+#
+# kind:   person | system | container | store | external
+# status: built | placeholder (a stand-in) | decided (not built) | unknown
+# owner:  person | beacon | platform; defaults from kind
+# step:   a relation's place in its view's numbered reading order, with a `note` that explains it
+
+[system]
+id = "beacon"
+repo = "example/beacon"
+
+[[zone]]
+name = "App platform"
+caption = "Deployed by CI on every merge"
+
+[[zone]]
+name = "Data"
+caption = "Provisioned with Terraform"
+
+# --- People ---------------------------------------------------------------------------------------
+
+[[element]]
+id = "customer"
+name = "Customer"
+kind = "person"
+status = "built"
+layer = "People"
+tier = 1
+zone = "Outside"
+
+[[element]]
+id = "agent"
+name = "Support agent"
+kind = "person"
+status = "built"
+layer = "People"
+tier = 1
+zone = "Support team"
+
+[[element]]
+id = "admin"
+name = "Workspace admin"
+detail = "sets policies and rules"
+kind = "person"
+status = "built"
+layer = "People"
+tier = 1
+zone = "Support team"
+
+# --- The front door -------------------------------------------------------------------------------
+
+[[element]]
+id = "idp"
+name = "Identity provider"
+detail = "single sign-on"
+kind = "external"
+owner = "platform"
+status = "built"
+layer = "Front door"
+tier = 2
+zone = "Edge"
+
+[[element]]
+id = "proxy"
+name = "Sign-in proxy"
+detail = "checks identity, forwards the agent's token"
+kind = "external"
+owner = "platform"
+status = "built"
+layer = "Front door"
+tier = 2
+zone = "Edge"
+
+# --- Beacon ---------------------------------------------------------------------------------------
+
+[[element]]
+id = "beacon"
+name = "Beacon"
+detail = "drafts replies for agents to review"
+kind = "system"
+status = "built"
+layer = "Beacon"
+
+[[element]]
+id = "web"
+name = "Web app"
+detail = "the agent's inbox and draft editor"
+kind = "container"
+status = "built"
+layer = "Beacon"
+tier = 3
+zone = "App platform"
+
+[[element]]
+id = "api"
+name = "Beacon API"
+detail = "every request runs as the agent"
+kind = "container"
+status = "built"
+layer = "Beacon"
+tier = 3
+zone = "App platform"
+
+[[element]]
+id = "drafter"
+name = "Reply drafter"
+detail = "builds the prompt from the ticket and its history"
+kind = "container"
+status = "built"
+layer = "Beacon"
+tier = 3
+zone = "App platform"
+
+[[element]]
+id = "worker"
+name = "Job worker"
+detail = "imports, re-indexing, nightly digests"
+kind = "container"
+status = "built"
+layer = "Beacon"
+tier = 3
+zone = "App platform"
+
+[[element]]
+id = "rules"
+name = "Policy rules"
+detail = "a fixed allow-list until the rules engine lands"
+kind = "container"
+status = "placeholder"
+layer = "Beacon"
+tier = 3
+zone = "App platform"
+
+[[element]]
+id = "db"
+name = "Beacon database"
+detail = "tickets, drafts, reviews"
+kind = "store"
+status = "built"
+layer = "Beacon data"
+tier = 4
+zone = "Data"
+
+[[element]]
+id = "queue"
+name = "Job queue"
+kind = "store"
+status = "built"
+layer = "Beacon data"
+tier = 4
+zone = "Data"
+
+[[element]]
+id = "files"
+name = "Attachment store"
+detail = "object storage"
+kind = "store"
+status = "unknown"
+layer = "Beacon data"
+tier = 4
+zone = "Data"
+
+# --- The platform ---------------------------------------------------------------------------------
+
+[[element]]
+id = "gateway"
+name = "Model gateway"
+detail = "rate limits, usage, model choice"
+kind = "external"
+owner = "platform"
+status = "built"
+layer = "Platform"
+tier = 3
+zone = "Model services"
+
+[[element]]
+id = "models"
+name = "Language models"
+kind = "external"
+owner = "platform"
+status = "built"
+layer = "Platform"
+tier = 3
+zone = "Model services"
+
+[[element]]
+id = "telemetry"
+name = "Telemetry collector"
+detail = "traces and audit spans"
+kind = "external"
+owner = "platform"
+status = "built"
+layer = "Platform"
+tier = 3
+zone = "Model services"
+
+[[element]]
+id = "secrets"
+name = "Secret vault"
+kind = "external"
+owner = "platform"
+status = "built"
+layer = "Platform"
+tier = 3
+zone = "Model services"
+
+# --- Neighbours and delivery ----------------------------------------------------------------------
+
+[[element]]
+id = "helpdesk"
+name = "Helpdesk"
+detail = "where tickets live"
+kind = "external"
+status = "built"
+layer = "Neighbours"
+
+[[element]]
+id = "kb"
+name = "Knowledge base"
+detail = "published help articles"
+kind = "external"
+status = "built"
+layer = "Neighbours"
+
+[[element]]
+id = "ci"
+name = "CI runner"
+kind = "external"
+status = "built"
+layer = "Delivery"
+
+# --- Relations ------------------------------------------------------------------------------------
+
+[[relation]]
+from = "customer"
+to = "helpdesk"
+label = "writes in"
+
+[[relation]]
+from = "agent"
+to = "proxy"
+label = "opens a ticket"
+why = "nothing reaches Beacon without a signed-in agent"
+step = 1
+note = "The proxy signs the agent in through the identity provider and keeps their token."
+
+[[relation]]
+from = "admin"
+to = "proxy"
+label = "sets policies"
+
+[[relation]]
+from = "proxy"
+to = "idp"
+label = "signs in"
+
+[[relation]]
+from = "agent"
+to = "beacon"
+label = "reviews and sends drafts"
+
+[[relation]]
+from = "admin"
+to = "beacon"
+label = "sets policies"
+
+[[relation]]
+from = "beacon"
+to = "idp"
+label = "signs agents in"
+
+[[relation]]
+from = "beacon"
+to = "helpdesk"
+label = "reads tickets, posts replies"
+
+[[relation]]
+from = "beacon"
+to = "kb"
+label = "searches articles"
+
+[[relation]]
+from = "beacon"
+to = "gateway"
+label = "asks for drafts"
+
+[[relation]]
+from = "gateway"
+to = "models"
+label = "routes to a model"
+why = "the gateway, not Beacon, chooses and meters the model"
+step = 4
+note = "Beacon names a purpose, not a model, so the platform can change models without a release."
+
+[[relation]]
+from = "beacon"
+to = "telemetry"
+label = "sends traces"
+
+[[relation]]
+from = "beacon"
+to = "secrets"
+label = "reads keys"
+
+[[relation]]
+from = "ci"
+to = "beacon"
+label = "deploys"
+
+[[relation]]
+from = "proxy"
+to = "web"
+label = "forwards with the agent's token"
+
+[[relation]]
+from = "proxy"
+to = "api"
+label = "forwards with the agent's token"
+why = "the API acts as the agent, never as a service account"
+step = 2
+note = "Every later call carries the agent's identity, so the helpdesk's own permissions still apply."
+
+[[relation]]
+from = "web"
+to = "api"
+label = "asks for a draft"
+
+[[relation]]
+from = "api"
+to = "web"
+label = "returns the draft"
+kind = "return"
+
+[[relation]]
+from = "api"
+to = "drafter"
+label = "hands over the ticket and its history"
+
+[[relation]]
+from = "api"
+to = "rules"
+label = "checks the reply against policy"
+status = "placeholder"
+
+[[relation]]
+from = "api"
+to = "db"
+label = "loads ticket history"
+
+[[relation]]
+from = "worker"
+to = "queue"
+label = "takes jobs"
+
+[[relation]]
+from = "worker"
+to = "db"
+label = "re-indexes tickets"
+
+[[relation]]
+from = "api"
+to = "files"
+label = "stores attachments"
+status = "unknown"
+
+[[relation]]
+from = "api"
+to = "helpdesk"
+label = "posts the sent reply"
+
+[[relation]]
+from = "drafter"
+to = "kb"
+label = "searches articles"
+
+[[relation]]
+from = "drafter"
+to = "gateway"
+label = "sends the prompt"
+
+[[relation]]
+from = "api"
+to = "gateway"
+label = "asks for a draft"
+why = "drafting is the only call that leaves the platform's trust boundary"
+step = 3
+note = "The API sends the ticket, its history and the matching articles in one prompt."
+
+[[relation]]
+from = "api"
+to = "secrets"
+label = "reads the gateway key"
+
+[[relation]]
+from = "api"
+to = "telemetry"
+label = "audit spans, OTLP"
+why = "every draft and every send is traced back to the agent who asked"
+throughout = true
+note = "Spans carry the ticket and the agent, never the ticket's text."
+
+# --- Views ----------------------------------------------------------------------------------------
+
+[[view]]
+id = "context"
+title = "Beacon and its neighbours"
+takeaway = "Beacon sits between the support team and the helpdesk, and asks the platform's model gateway for every draft."
+elements = ["customer", "agent", "admin", "idp", "proxy", "beacon", "helpdesk", "kb", "gateway", "models", "telemetry", "secrets", "ci"]
+
+[[view]]
+id = "containers"
+title = "Inside Beacon"
+takeaway = "One API owns every request; the drafter and the worker never face an agent directly."
+elements = ["proxy", "web", "api", "drafter", "worker", "rules", "db", "queue", "files"]
+
+[[view.group]]
+id = "app"
+label = "Beacon app"
+elements = ["web", "api", "drafter", "worker", "rules"]
+
+[[view.group]]
+id = "state"
+label = "Beacon data"
+elements = ["db", "queue", "files"]
+
+[[view]]
+id = "integrations"
+title = "What Beacon calls outside"
+takeaway = "Only the API and the drafter call out, and each call has one job."
+elements = ["api", "drafter", "gateway", "models", "helpdesk", "kb"]
+
+[[view.group]]
+id = "process"
+label = "Beacon"
+elements = ["api", "drafter"]
+
+[[view]]
+id = "overview"
+title = "One draft, end to end"
+takeaway = "A draft is asked for by the agent, built by the drafter, and written by a model the gateway chooses."
+elements = ["agent", "proxy", "web", "api", "drafter", "gateway", "models"]
+
+[[view]]
+id = "field-guide"
+title = "A developer's first map of Beacon"
+takeaway = "Start at the API: it is the only part that acts for an agent, and the only part that calls the model gateway."
+elements = ["agent", "proxy", "api", "gateway", "models", "telemetry", "secrets"]
+
+[[view.group]]
+id = "people"
+label = "People"
+elements = ["agent"]
+
+[[view.group]]
+id = "front-door"
+label = "Front door"
+elements = ["proxy"]
+
+[[view.group]]
+id = "beacon-app"
+label = "Beacon"
+elements = ["api"]
+
+[[view.group]]
+id = "platform"
+label = "Platform"
+elements = ["gateway", "models", "telemetry", "secrets"]
+
+[[view]]
+id = "stack"
+title = "Where each piece sits"
+takeaway = "Beacon's own code is one band between the front door and the platform."
+elements = ["agent", "admin", "idp", "proxy", "web", "api", "drafter", "worker", "rules", "db", "queue", "files", "gateway", "models", "telemetry"]
+
+[[view]]
+id = "deployment"
+title = "Where Beacon runs"
+takeaway = "Beacon's code runs on the app platform; its data and the models run beside it, each deployed its own way."
+elements = ["agent", "admin", "idp", "proxy", "web", "api", "drafter", "worker", "db", "queue", "files", "gateway", "models"]
+
+# --- Journeys -------------------------------------------------------------------------------------
+
+[[journey]]
+id = "reply-draft"
+title = "Drafting a reply"
+takeaway = "Eight hand-offs from an open ticket to a draft the agent can edit, and every one runs as the agent."
+
+[[journey.step]]
+from = "agent"
+to = "proxy"
+label = "opens a ticket"
+
+[[journey.step]]
+from = "proxy"
+to = "web"
+label = "forwards with the agent's token"
+
+[[journey.step]]
+from = "web"
+to = "api"
+label = "asks for a draft"
+
+[[journey.step]]
+from = "api"
+to = "db"
+label = "loads ticket history"
+
+[[journey.step]]
+from = "api"
+to = "drafter"
+label = "hands over the ticket and its history"
+
+[[journey.step]]
+from = "drafter"
+to = "gateway"
+label = "sends the prompt"
+
+[[journey.step]]
+from = "gateway"
+to = "models"
+label = "routes to a model"
+
+[[journey.step]]
+from = "api"
+to = "web"
+label = "returns the draft"

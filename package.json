@@ -1,0 +1,46 @@
+{
+  "name": "@documentdrivendx/umf-visual",
+  "version": "0.1.0",
+  "private": true,
+  "description": "UMF visual vocabulary and format interchange library",
+  "license": "MIT OR Apache-2.0",
+  "type": "module",
+  "packageManager": "bun@1.4.3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DocumentDrivenDX/umf-visual.git"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schema": "./spec/extensions/visual/schema.json",
+    "./manifest": "./spec/extensions/visual/package.json"
+  },
+  "files": [
+    "dist",
+    "spec",
+    "LICENSE-MIT",
+    "LICENSE-APACHE",
+    "README.md",
+    "UPSTREAM.json"
+  ],
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "build": "bun scripts/build.ts",
+    "check:source": "bun scripts/check-source.ts",
+    "test:browser": "bun scripts/browser.ts",
+    "test:package": "bun scripts/package-smoke.ts"
+  },
+  "dependencies": {
+    "@umf/core": "https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.2",
+    "typescript": "7.0.2",
+    "playwright": "1.63.0",
+    "typescript-api": "npm:typescript@5.9.3"
+  }
+}

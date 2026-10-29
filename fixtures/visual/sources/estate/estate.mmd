@@ -1,0 +1,10 @@
+flowchart LR
+  beacon["Beacon<br>drafts support replies"]
+  ledger["Ledger<br>billing and invoices"]
+  portal["Customer portal<br>self-service help"]
+  insight["Insight<br>support analytics"]
+  portal -->|"hands unsolved questions to"| beacon
+  beacon -->|"looks up a customer's plan in"| ledger
+  portal -->|"shows invoices from"| ledger
+  beacon -->|"sends ticket events to"| insight
+  ledger -.->|"sends usage to"| insight

@@ -1,0 +1,14 @@
+name: Nightly
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+jobs:
+  eval:
+    name: Draft quality evaluation
+    runs-on: ubuntu-latest
+    steps:
+      - run: make eval
+  report:
+    needs: eval
+    uses: ./.github/workflows/report.yml

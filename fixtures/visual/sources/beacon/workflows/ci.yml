@@ -1,0 +1,30 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: make lint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: make test
+  migrations:
+    name: Migrations apply cleanly
+    runs-on: ubuntu-latest
+    steps:
+      - run: make migrate-check
+  build:
+    needs: [lint, test, migrations]
+    runs-on: ubuntu-latest
+    steps:
+      - run: make build
+  deploy:
+    name: Deploy to the app platform
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - run: make deploy

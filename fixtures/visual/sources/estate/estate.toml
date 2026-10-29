@@ -1,0 +1,19 @@
+# A fictional estate: the systems a support organisation runs, each in its own repository.
+title = "Support tools estate"
+takeaway = "Four systems, each owned by one team; Beacon is the only one that writes to customers."
+
+[[system]]
+id = "beacon"
+repo = "example/beacon"
+
+[[system]]
+id = "ledger"
+repo = "example/ledger"
+
+[[system]]
+id = "portal"
+repo = "example/customer-portal"
+
+[[system]]
+id = "insight"
+repo = "example/insight"
