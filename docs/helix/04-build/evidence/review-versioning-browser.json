@@ -1,0 +1,164 @@
+{
+  "ok": true,
+  "fixtures": 50,
+  "roundTrips": 100,
+  "atomicEdit": true,
+  "versioning": {
+    "legacyFrozen": true,
+    "explicitUpgrade": true,
+    "modernSize": true,
+    "earlyDate": true,
+    "modernEntities": true
+  },
+  "wave2": [
+    {
+      "id": "helix-field-guide",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "beacon-deployment",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "beacon-integrations",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "tpl-arch-deployment",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "helix-request",
+      "format": "mermaid",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "beacon-containers",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "helix-solution-overview",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "helix-deployment",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "beacon-reply-draft",
+      "format": "mermaid",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "beacon-field-guide",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "helix-containers",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "tpl-arch-dataflow",
+      "format": "mermaid",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "documentor-pipeline",
+      "format": "mermaid",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "tpl-so-map",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "beacon-reply-presentation",
+      "format": "dot",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    },
+    {
+      "id": "helix-request-ladder",
+      "format": "mermaid",
+      "retainedReplay": true,
+      "staleReplayRefused": true
+    }
+  ],
+  "interchange": {
+    "nativeMermaid": {
+      "version": "12.2.0",
+      "cases": [
+        {
+          "name": "graph",
+          "nativeParse": true,
+          "nativeRender": true,
+          "titleFidelity": true
+        },
+        {
+          "name": "entities",
+          "nativeParse": true,
+          "nativeRender": true,
+          "titleFidelity": true
+        }
+      ],
+      "labelFidelity": true,
+      "titleEdgeFidelity": true
+    },
+    "nativeLini": {
+      "version": "1.1.0",
+      "labelFidelity": true,
+      "cases": [
+        {
+          "name": "graph",
+          "diagnostics": [],
+          "detailFidelity": true,
+          "svgSha256": "668b1fc3376e39d386e385340730bc7c89b5fbd04de65bb62032fb0266c9f325"
+        },
+        {
+          "name": "entities",
+          "diagnostics": [],
+          "detailFidelity": true,
+          "svgSha256": "f7b8898cfd5e081069148b344a653251e242dd0893e06f614134517f0d51508f"
+        }
+      ]
+    },
+    "portableRoundTrips": [
+      "dot",
+      "mermaid",
+      "lini"
+    ]
+  },
+  "miro": {
+    "nativeExtension": true,
+    "roundTrip": true,
+    "semanticChanges": 2,
+    "sdk": "in-memory-test-double",
+    "liveMiro": false
+  },
+  "browser": "153.0.8010.12",
+  "errors": []
+}
