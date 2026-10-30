@@ -1,0 +1,4 @@
+digraph {
+  a [tooltip="  spaced  "];
+  b [tooltip="one  two   three"];
+}

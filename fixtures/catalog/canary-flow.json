@@ -1,0 +1,26 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:catalog-canary-flow",
+  "vocabularies": {
+    "umf.visual": { "version": "1.0.0" }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "catalog-canary-flow",
+      "kind": "flow",
+      "form": "network",
+      "title": "Quoted labels, Unicode, and projection loss",
+      "question": "How does a label survive export and rendering?",
+      "nodes": [
+        { "id": "parser", "label": "Parser says \"ready\" · π" },
+        { "id": "renderer", "label": "Renderer & output" }
+      ],
+      "edges": [
+        { "id": "parse-to-render", "from": "parser", "to": "renderer", "label": "keeps \"meaning\"" }
+      ],
+      "source": { "path": "catalog:canary-flow" },
+      "omissions": ["Unknown adapter-specific extensions stay in the source document."]
+    }
+  },
+  "modules": []
+}

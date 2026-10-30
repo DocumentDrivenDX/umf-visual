@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f5f2">
+  <meta name="description" content="A reference for the typed umf.visual language, with sample documents and bounded DOT, Mermaid, and Lini interchange evidence.">
+  <title>umf.visuals — language reference</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#language">Skip to language reference</a>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="umf.visuals home"><span class="brand-mark" aria-hidden="true">u<span>·</span>v</span><span>umf.visuals</span></a>
+    <nav aria-label="Primary"><a href="#language" class="active">Language</a><a href="#examples">Examples</a><a href="https://github.com/DocumentDrivenDX/umf-visual" target="_blank" rel="noreferrer">Repository <span aria-hidden="true">↗</span></a></nav>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Use dark color theme" title="Toggle color theme">◐</button>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div class="intro-copy">
+        <p class="eyebrow"><span class="live-dot"></span> UMF VISUAL VOCABULARY <span class="eyebrow-sep">/</span> INTERCHANGE</p>
+        <h1 id="page-title">A shared visual model.<br><span>Many native tools.</span></h1>
+        <p class="lede">A typed language for semantic producers to author visual meaning, with adapters that interchange bounded subsets with native formats.</p>
+        <p class="architecture-line"><span>SEMANTIC PRODUCER</span><b aria-hidden="true">→</b><strong>umf.visual</strong><b aria-hidden="true">→</b><span>NATIVE TARGETS</span></p>
+        <p class="model-note">umf.visual is a typed authoring target for semantic producers and an interchange model for native tools. This catalogue shows initial, bounded DOT, Mermaid, and Lini profiles; reported loss may signal a model gap or an unfinished mapping.</p>
+        <p class="scope-note"><strong>Scope matters.</strong> The initial DOT, Mermaid, and Lini profiles measure export and rendering per sample. Reported loss can expose a model gap or an unfinished mapping.</p>
+      </div>
+      <aside class="intro-aside" aria-label="Language shape">
+        <div class="aside-label">LANGUAGE SHAPE</div>
+        <div class="snapshot-number" id="kind-count">—</div>
+        <div class="snapshot-label">kind families</div>
+        <div class="aside-rule"></div>
+        <div class="form-count"><strong id="form-count">—</strong><span>forms</span></div>
+        <a class="text-link" href="#language">Explore the vocabulary <span aria-hidden="true">↓</span></a>
+      </aside>
+      <div class="intro-grid-mark" aria-hidden="true"></div>
+    </section>
+
+    <section class="language-section" id="language" aria-labelledby="language-title">
+      <div class="section-head"><div><p class="eyebrow">THE LANGUAGE</p><h2 id="language-title">Typed meaning, composed from shared parts</h2></div><p class="section-description">This reference is rendered from the vocabulary schema and kind/form declarations in the repository.</p></div>
+      <div class="language-provenance" id="language-provenance"></div>
+      <div class="language-overview">
+        <article class="language-panel"><p class="eyebrow">DOCUMENT SHAPE</p><h3>Shared document fields</h3><div id="document-fields" class="schema-fields"></div></article>
+        <article class="language-panel"><p class="eyebrow">REUSABLE ELEMENTS</p><h3>Common typed content</h3><div id="shared-elements" class="schema-fields"></div></article>
+        <article class="language-panel"><p class="eyebrow">KIND-SPECIFIC DATA</p><h3>Payload families</h3><div id="kind-payloads" class="schema-fields"></div></article>
+      </div>
+      <div class="type-details-wrap"><details class="type-details"><summary>Inspect schema type definitions</summary><div id="type-definitions" class="type-definition-grid"></div></details></div>
+      <div class="kind-reference-head"><div><p class="eyebrow">CANONICAL KINDS & FORMS</p><h3>Seven kind families, twenty-two forms</h3></div><p>Names below come from the package's <code>visualForms</code> declaration.</p></div>
+      <div class="kind-reference-grid" id="kind-reference-grid"></div>
+      <p class="vocabulary-limits"><strong>Current vocabulary limits.</strong> A question is required, and the graph validator caps nodes at 15. Inherited architecture roles and status values remain under review; they are not universal diagram requirements.</p>
+    </section>
+
+    <section class="coverage-section" id="coverage" aria-labelledby="coverage-title">
+      <div class="section-head compact-head"><div><p class="eyebrow">INTERCHANGE EVIDENCE · SAMPLE INSTANCES</p><h2 id="coverage-title">What current profiles emit</h2></div><p class="section-description">Counts summarize these application and form examples; they describe measured adapter outcomes, not support for every language concept.</p></div>
+      <div class="coverage-grid" id="coverage-grid" aria-live="polite"></div>
+      <p class="coverage-footnote"><span class="legend-dot supported"></span> Supported <span class="legend-dot loss"></span> Reported loss <span class="legend-dot unsupported"></span> Unsupported <span class="legend-dot unevaluated"></span> Not evaluated</p>
+    </section>
+
+    <section class="catalogue-section" id="examples" aria-labelledby="catalogue-title">
+      <div class="section-head catalogue-heading"><div><p class="eyebrow">SAMPLE DOCUMENTS</p><h2 id="catalogue-title">Examples of the language in use</h2></div><p class="section-description">These are example instances, not language definitions. Form examples lead; open the secondary gallery for application and canary samples.</p></div>
+      <details id="secondary-gallery" class="secondary-gallery"><summary id="secondary-gallery-summary">Show application and canary examples</summary><p id="sample-scope-note" class="sample-scope-note"></p></details>
+      <div class="browse-layout">
+        <aside class="filter-panel" aria-label="Example filters">
+          <div class="filter-top"><span class="filter-title">FILTERS</span><button id="reset-filters" class="reset-button" type="button">Reset</button></div>
+          <label class="search-label" for="search">Search</label>
+          <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Name, question, ID…" autocomplete="off"></div>
+          <fieldset><legend>Kind</legend><div id="kind-filters" class="checkbox-list"></div></fieldset>
+          <fieldset><legend>Form</legend><div id="form-filters" class="checkbox-list"></div></fieldset>
+          <fieldset><legend>Target</legend><div id="target-filters" class="checkbox-list"></div></fieldset>
+          <fieldset><legend>Target status</legend><div id="status-filters" class="checkbox-list"></div></fieldset>
+          <div class="filter-foot"><span class="mini-spark" aria-hidden="true">✳</span> A fixture is an example document, not a type definition.</div>
+        </aside>
+
+        <div class="results-column">
+          <div class="results-toolbar"><p id="result-count" aria-live="polite">Loading examples…</p><label for="sort-select">Sort <select id="sort-select"><option value="title">Name A–Z</option><option value="kind">Kind</option><option value="form">Form</option></select></label></div>
+          <div class="definition-list" id="definition-list" aria-label="Example documents"></div>
+          <div class="empty-state" id="empty-state" hidden><span aria-hidden="true">⌕</span><h3>No examples match</h3><p>Try clearing a filter or searching for a broader term.</p><button class="button-secondary" id="empty-reset" type="button">Clear filters</button></div>
+          <div class="load-error" id="load-error" hidden role="alert">The catalogue could not be loaded. Try refreshing this page.</div>
+        </div>
+      </div>
+    </section>
+    <footer><span class="brand-mark small" aria-hidden="true">u<span>·</span>v</span><span>UMF visual language reference</span><a href="https://github.com/DocumentDrivenDX/umf-visual" target="_blank" rel="noreferrer">Source and evidence <span aria-hidden="true">↗</span></a><span class="footer-version" id="catalog-version">CATALOGUE V—</span></footer>
+  </main>
+
+  <dialog id="detail-dialog" aria-labelledby="detail-title">
+    <div class="detail-shell">
+      <header class="detail-header"><div><p class="eyebrow" id="detail-kicker">EXAMPLE INSTANCE</p><h2 id="detail-title"></h2></div><button class="close-button" id="close-detail" aria-label="Close details" type="button">×</button></header>
+      <div class="detail-meta" id="detail-meta"></div>
+      <p class="detail-question" id="detail-question"></p>
+      <div class="detail-grid">
+        <section class="source-pane"><div class="pane-heading"><div><p class="eyebrow">UMF EXAMPLE</p><h3>Sample document</h3></div><div class="source-actions"><button class="icon-button" id="copy-umf" type="button">Copy JSON</button><button class="icon-button" id="download-umf" type="button">Download</button></div></div><div class="provenance" id="provenance"></div><pre class="code-block"><code id="umf-source"></code></pre></section>
+        <section class="target-pane"><div class="pane-heading"><div><p class="eyebrow">TARGET PROFILE</p><h3>Native evidence</h3></div></div>
+          <div class="target-tabs" role="tablist" aria-label="Target profile"><button role="tab" id="tab-dot" aria-controls="target-panel" data-target="dot" type="button">DOT</button><button role="tab" id="tab-mermaid" aria-controls="target-panel" data-target="mermaid" type="button">Mermaid</button><button role="tab" id="tab-lini" aria-controls="target-panel" data-target="lini" type="button">Lini</button></div>
+          <div id="target-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-dot"></div>
+        </section>
+      </div>
+    </div>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

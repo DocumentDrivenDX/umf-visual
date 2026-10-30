@@ -1,0 +1,64 @@
+{
+  "observedOn": "2026-10-29",
+  "timezone": "America/New_York",
+  "kind": "sanitized-live-evidence-summary",
+  "versions": {
+    "miroBrowserClient": "1.105493.0",
+    "sdk": "Miro Web SDK v2 remotely served stable script; experimental shape reads explicitly requested",
+    "visual": "1.0.0",
+    "nativeExtension": "umf.visual.miro 1.0.0",
+    "clipboardProfile": "miro.browser-clipboard/observed-2026-10-29",
+    "coreSdk": "0.5.7",
+    "bun": "1.4.3",
+    "chromiumConsumer": "153.0.8010.12"
+  },
+  "networkRoundTrip": {
+    "exportedItems": 4,
+    "exportState": "complete",
+    "recoveryRequired": false,
+    "nativeEditMethod": "Miro UI text editor",
+    "importedChange": {
+      "path": "/extensions/umf.visual/nodes/0/label",
+      "before": "Final proof source",
+      "after": "Final proof edited in Miro"
+    },
+    "repeatImportChanges": 0,
+    "receiptFixture": "tests/miro/fixtures/live-clean-roundtrip.json"
+  },
+  "complexSource": {
+    "diagrams": 2,
+    "stableVisibleItems": 72,
+    "stableOpaqueStencils": 22,
+    "experimentalOpaqueStencils": 2,
+    "experimentalTypes": {
+      "shape": 34,
+      "connector": 24,
+      "frame": 1,
+      "group": 4,
+      "text": 7,
+      "stencil": 2
+    },
+    "sourceMutations": 0
+  },
+  "nativeReproduction": {
+    "sourceItems": 72,
+    "replayedItems": 72,
+    "extraNewItems": 0,
+    "meaningfulFieldDifferences": {},
+    "maxConnectorDimensionRounding": 3.979039320256561e-13,
+    "maxRootTranslationResidual": 3.2155493553843715e-13,
+    "path": "Miro UI copy -> native UMF JSON/YAML -> app Copy native content from UMF -> Miro UI paste",
+    "scope": "Equivalence for the explicitly compared SDK-visible fields/references; opaque symbol objects retained; no comprehensive visual or native-data proof"
+  },
+  "privacy": {
+    "rawCompanyCaptures": "retained locally under ignored .cache/miro-live; excluded from Git",
+    "opaqueCompanyClipboard": "excluded from Git",
+    "publishedFixtures": "synthetic diagram labels; board/export/item IDs and audit fields sanitized"
+  },
+  "limits": [
+    "Summary is an observation receipt, not an independently replayable private-board fixture.",
+    "Comparisons cover the explicitly tested SDK-visible fields/references; opaque symbol objects survive native browser copy but their full appearance is not independently compared.",
+    "No comprehensive pixel, inaccessible-data, whole-board backup or stable native clipboard format guarantee.",
+    "Arbitrary native boards are preserved in a native extension; automatic full shared-semantic projection is not implemented."
+  ]
+}

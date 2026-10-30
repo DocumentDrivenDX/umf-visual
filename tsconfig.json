@@ -19,6 +19,8 @@
   "include": [
     "src",
     "tests",
-    "scripts"
+    "scripts",
+    "microsite/build.ts",
+    "examples"
   ]
 }

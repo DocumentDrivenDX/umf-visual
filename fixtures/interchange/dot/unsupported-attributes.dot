@@ -1,0 +1,8 @@
+digraph service {
+  rankdir=LR
+  graph [label="Service flow", bgcolor=lightblue]
+  node [shape=box]
+  edge [color=gray]
+  a [label="Start", style=filled]
+  a -> b [label="submit", weight=2]
+}

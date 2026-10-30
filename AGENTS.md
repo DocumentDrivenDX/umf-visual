@@ -11,7 +11,9 @@ conformance outcomes. Do not invent market, revenue or hosted-service requiremen
 `UPSTREAM.json` pins the extraction from UMF PR #62. Preserve imported artifact
 IDs/frontmatter and resolve inherited upstream links using the provenance guide.
 The current schema/types/semantic implementation is handwritten; generated
-UMF-authored authority and DOT/Mermaid/Lini interchange are future work.
+UMF-authored authority remains future work. DOT/Mermaid/Lini interchange has bounded
+profiles; read CONTRACT-086 and native execution evidence before expanding them.
+The catalog microsite is governed by CONTRACT-085; source lives in microsite/.
 
 Use TypeScript and browser-compatible ESM. Development uses Bun. Import core
 through the released `@umf/core` public package, never sibling/private source.
@@ -21,5 +23,6 @@ qualify every support claim by version, subset, direction and observed evidence.
 
 Run `bun run check:source`, `bun run typecheck`, `bun test`, `bun run build`
 and `bun run test:browser` for extraction/public-boundary changes. The browser
-test is a real Chromium consumer. Install hooks with
+test is a real Chromium consumer. Native/catalog changes also require fetch:lini,
+test:native (Graphviz on PATH), build:catalog, build:site and test:site. Install hooks with
 `git config core.hooksPath .githooks`.
