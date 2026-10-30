@@ -17,8 +17,9 @@ ddx:
 ## Scope
 
 The extraction owns the visual package, schema/types/semantics and behavioral
-corpus from #62. The user authorized independent repository ownership. Native interchange is governed by FEAT-035 and CONTRACT-086. Generated model
-authority remains a subsequent governed change. The desired model is a typed
+corpus from #62. The user authorized independent repository ownership. Native interchange is governed by FEAT-035 and CONTRACT-086. The latest authored schema
+generates 1.1.0 types and manifest; UMF-authored metamodel authority remains a
+subsequent governed change. The desired model is a typed
 authoring target for common native visual concepts as well as an interchange
 representation; the current schema and adapters are an initial bounded subset.
 
@@ -57,6 +58,14 @@ There is no hosted service or database. The library runs inside its consumer.
 src/interchange facade owns native adapter selection, policy, safe admission and
 source replay. Each format directory owns its parser, mappings and serializer.
 Native engines run only in scripts/tests; renderers remain consumers.
+
+CONTRACT-087 adds explicitly selected readable annotation profiles. A portable
+shared helper compiles registered typed fields; format owners emit/read actual
+native carriers. The facade independently reconstructs values and grants exact
+per-pointer coverage before changing any loss disposition. Metadata must remain
+visible and owner-associated; it cannot replace intrinsic diagram constructs.
+Catalog profile variants preserve ordinary native results and expose which
+qualified projection meets the example-completion release gate.
 
 The Miro adapter owns network correspondence, receipts and native extension
 `umf.visual.miro` 1.0.0. Its example app injects Web SDK I/O and owns board-scoped

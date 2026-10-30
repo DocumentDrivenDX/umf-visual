@@ -12,6 +12,8 @@ ddx:
       kind: informed_by
     - id: TP-001
       kind: informed_by
+    - id: CONTRACT-087
+      kind: informed_by
 ---
 
 # Story Test Plan: STP-095 visual catalog
@@ -97,6 +99,26 @@ Completion requires passing evidence for all ACs and real source/native versions
 No fake drawing may fill an unsupported target. Native/build dependencies remain
 outside portable library source. Hosting success is verified separately from the
 local static artifact and may not be inferred from a local build.
+
+## Example Completion Increment
+
+FEAT-035 INT-08/09, FEAT-036 CAT-09/10 and CONTRACT-087 add the owner-selected
+release gate: every unchanged current example has at least one suitable strict,
+complete target with independent native readback and a faithful preview. Preserve
+native defaults and historical receipts; profile variants do not replace them.
+
+| Gate | Required new evidence | Primary layer |
+| --- | --- | --- |
+| Field coverage | Exact typed annotation readback; per-pointer presence/order/member assertions; no parent-prefix suppression | Portable adapter and independent native |
+| Edited recovery | Visible value edit adopted; missing/copied carrier, type/path conflict and stale receipt refuse atomically | Bun and actual Chromium |
+| Complete corpus | 53 unchanged current source hashes, separate original/canary counts, selected strict target for each and all 22 forms | Catalog build/release |
+| Faithful previews | Exact text/numbers/units/endpoints/order/membership; readable owner legends, no clipping/overlap; full and focused views | Native witnesses and browser visual review |
+| Honest variants | Explicit annotation/native distinction, unchanged native targets, stable legacy and profile links | Catalog data and UI |
+
+Tests MUST use actual current corpus enumeration. A nonempty SVG, source capture,
+or self-roundtrip alone cannot satisfy these gates. The
+[example completion plan](../../04-build/example-completion-plan.md) sequences
+the packages and preserves post-release integration work as a later milestone.
 
 ## UX Coverage
 

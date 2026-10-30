@@ -18,15 +18,17 @@ read/write/inspect/create/edit APIs were extracted from
 [UMF #62](https://github.com/DocumentDrivenDX/umf/pull/62), commit
 `351c4802caf34eb7f4174e7b730f86f4befcf909`; see [provenance](UPSTREAM.json).
 
-The package is `@documentdrivendx/umf-visual` 0.1.0, distributed as a
+The last published package is `@documentdrivendx/umf-visual` 0.1.0, distributed as a
 [GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.1.0).
 It is not published to npm.
 
 Browse the [umf.visuals catalog](https://documentdrivendx.github.io/umf-visual/).
-Default authoring remains `umf.visual` 1.0.0 and the core envelope 0.10.0. This branch adds opt-in vocabulary 1.1.0 for a future package 0.2.0.
+Default authoring remains `umf.visual` 1.0.0 and the core envelope 0.10.0. The
+working package is 0.2.0; release is pending final visual review and CI. It adds
+opt-in vocabulary 1.1.0 and explicit readable annotation profiles.
 Core comes from the pinned released SDK `umf-v0.5.7`; only its public APIs are used.
-The implementation is handwritten; generated UMF-authored model authority remains
-future work.
+The authored latest schema generates the 1.1.0 manifest and TypeScript shapes;
+released 1.0.0 assets and interpretation remain frozen.
 
 ```sh
 bun install --frozen-lockfile --ignore-scripts
@@ -38,11 +40,14 @@ bun run test:package
 bun run fetch:lini
 bunx playwright install chromium
 bun run test:native       # requires Graphviz dot and Python 3 on PATH
+bun run test:native:annotated
 bun run test:browser
 bun run build:catalog     # actual DOT, Mermaid and Lini native SVG generation
 bun run test:catalog     # validate exact source and SVG hashes
 bun run build:site        # assemble dist-site/
 bun run test:site
+bun run test:release:catalog
+bun run test:site:profiles
 ```
 
 Serve `dist-site/` with any static HTTP server to browse the microsite. Source lives
@@ -96,6 +101,49 @@ and subsets. These adapters do not translate every UMF form. Unsupported content
 layout, styling and richer semantics produce located diagnostics; the catalog
 shows refusals as well as emitted results. A native render success is recorded
 separately from semantic support. Native input is bounded to 256 KiB UTF-8.
+
+## Complete examples through explicit profiles
+
+The candidate evaluates all 53 unchanged examples across all 22 forms. Each has
+a selected strict, complete projection through one suitable target: 43 DOT and
+ten Lini profiles. Final high-fidelity preview review remains pending; native
+acceptance, exact text and semantic readback do not establish good geometry.
+See [milestone evidence and release gates](docs/helix/04-build/example-completion-evidence.md).
+
+Select a readable annotation profile explicitly:
+
+```ts
+const profile = 'umf.visual.dot.annotated/1' as const;
+const projected = exportVisual(document, {format: 'dot', profile});
+if (projected.ok) {
+  console.log(projected.text, projected.coverage);
+  const recovered = importVisual(projected.text!, {
+    format: 'dot', profile, id: 'service-map', question: 'What calls the API?',
+  });
+  // Store recovered.document and recovered.source together for exact replay.
+}
+```
+
+`umf.visual.dot.annotated/1` covers bounded flow, structural/entity, state and
+sequence views. `umf.visual.lini.annotated/1` covers bounded metric, timeline and
+comparison views. Initial mapping version is 0.1.0; both currently require the
+canonical frozen 1.0.0 vocabulary declaration. Generated 1.1.0 types do not
+establish native support for stable field IDs or exact multiplicities.
+
+Intrinsic meaning uses native connections, markers, ports, chart data or
+table/grid geometry. Registered additional metadata uses visible, typed native
+notes/cells with independent identities. Coverage distinguishes these two
+representations. No opaque whole-document JSON, hidden scalar copy or source
+companion counts as native semantic support. The catalog labels qualified
+profiles separately and keeps ordinary target losses/refusals visible.
+
+Import reconstructs the complete document and refuses native content outside
+the qualified subset. Supported text/data edits require valid native identity,
+typing and readback; arbitrary styling, structural edits and host-specific
+content remain unqualified and can refuse. Exact replay reparses the companion
+and compares its derived document with the baseline/current document. It proves
+consistency, not cryptographic provenance. Omitting `profile` keeps the existing
+native behavior and historical receipts unchanged.
 
 The first loss-reduction wave preserves Mermaid diagram titles and secondary node
 descriptions as DOT tooltips/Lini card hints. `bun run report:loss` compares actual

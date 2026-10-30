@@ -49,7 +49,12 @@
     "report:loss": "bun scripts/catalog/loss-progress.ts",
     "report:loss:wave2": "bun scripts/catalog/loss-progress.ts --since-v0.1.0",
     "test:native:wave2": "bun scripts/native-wave-2.ts",
-    "dev:miro": "bun scripts/miro-dev.ts"
+    "dev:miro": "bun scripts/miro-dev.ts",
+    "test:native:annotated": "bun scripts/native-annotated.ts && bun scripts/native-lini-annotated.ts",
+    "report:loss:ledger": "bun scripts/catalog/loss-ledger-report.ts",
+    "test:release:catalog": "bun scripts/catalog/verify.ts --release",
+    "test:site:profiles": "bun scripts/catalog-profile-ui-browser.ts",
+    "test:native:layout": "bun scripts/native-lini-visual-layout.ts"
   },
   "dependencies": {
     "@umf/core": "https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz"

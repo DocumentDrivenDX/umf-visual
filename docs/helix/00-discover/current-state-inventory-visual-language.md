@@ -14,7 +14,7 @@ ddx:
     - id: umf.visual
       version: "1.0.0"
       title: Visual vocabulary
-      path: spec/extensions/visual/schema.json
+      path: spec/extensions/visual/1.0.0/schema.json
       schemaFormat: json-schema
 ---
 
@@ -28,11 +28,17 @@ asks whether this is a common visual language or an architectural-communication
 profile. This inventory records existing structure; the architecture and model
 roadmap own the proposed separation and future revisions.
 
-Sources: [payload schema](../../../spec/extensions/visual/schema.json),
+Sources: [frozen payload schema](../../../spec/extensions/visual/1.0.0/schema.json),
 [types and semantic rules](../../../src/extensions/visual/index.ts),
 [CONTRACT-083](../02-design/contracts/CONTRACT-083-visual-vocabulary.md), and
 [fixture corpus](../../../fixtures/visual/). Evidence is source-level; no general
 native semantic equivalence is inferred from the schema or example renders.
+
+Merged-foundation qualification: this inventory records frozen 1.0.0. Explicit
+latest 1.1.0 now has 20 reusable definitions and 19 root properties, generated
+types/manifest, exact multiplicities and stable field IDs. Both versions register;
+default aliases and original examples remain 1.0.0. See
+[versioned integration](../04-build/visual-1-1-integration.md).
 
 ## Evidence Grades
 

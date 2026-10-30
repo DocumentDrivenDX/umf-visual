@@ -61,6 +61,13 @@ existing visual/core APIs own document validity. Independent native engines
 verify emitted syntax outside portable source. TD-094 applies this decomposition;
 TP-001 supplies the verification strategy.
 
+The owner-authorized example-completion increment adds optional readable native
+annotation carriers under CONTRACT-087. Shared helpers own typed scalar/container
+tokens; native format modules own compact owner legends and real diagram forms.
+The facade owns readback-derived coverage and existing strict policy. The catalog
+keeps native defaults alongside explicit qualified variants; retained source alone
+does not establish coverage. The example completion plan sequences the work.
+
 ## Traceability
 
 Expected semantic/identity assertions and native counterexamples prove mapping

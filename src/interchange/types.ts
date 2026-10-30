@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import type {Document} from '@umf/core';
 import type {Visual} from '../extensions/visual';
+import type {ProjectionCoverage} from './annotations';
 
 export type InterchangeFormat = 'dot' | 'mermaid' | 'lini';
 export type InterchangeMode = 'strict' | 'allow-reported-loss';
+/** Explicit opt-in; omitted profiles retain the released native behavior. */
+export type AnnotatedInterchangeProfile = 'umf.visual.dot.annotated/1'|'umf.visual.lini.annotated/1';
 export interface SourceRange {start:number;end:number;}
 /** Paths are JSON Pointers. Import paths begin /source; export paths address the document. */
 export interface InterchangeDiagnostic {
@@ -17,7 +20,7 @@ export interface InterchangeDiagnostic {
  range?:SourceRange;
 }
 export interface IdentityMapping {
- kind:'node'|'edge'|'group'|'field'|'reference'|'participant'|'message';
+ kind:'node'|'edge'|'group'|'field'|'reference'|'participant'|'message'|'series'|'category'|'point'|'event'|'span'|'period'|'lane'|'criterion'|'item'|'value';
  /** Exact native identity, or an explicitly occurrence-qualified identity for anonymous edges. */
  nativeId:string;
  /** Field identities use their owning node id; path disambiguates individual fields. */
@@ -26,7 +29,7 @@ export interface IdentityMapping {
  path:string;
  sourcePath?:string;
 }
-export interface AdapterContext {id:string;question:string;}
+export interface AdapterContext {id:string;question:string;profile?:AnnotatedInterchangeProfile;}
 export interface AdapterParseResult {
  visual?:Visual;
  diagnostics:InterchangeDiagnostic[];
@@ -60,6 +63,7 @@ export interface RetainedVisualSource {
 }
 export interface ExportVisualOptions {
  format:InterchangeFormat;
+ profile?:AnnotatedInterchangeProfile;
  mode?:InterchangeMode;
  source?:RetainedVisualSource;
  /** Request exact retained source. Requires matching format and an unchanged, reparsed document. */
@@ -72,6 +76,8 @@ export interface ImportVisualResult {
  source:RetainedVisualSource;
  diagnostics:InterchangeDiagnostic[];
  identityMap:IdentityMapping[];
+ profile?:AnnotatedInterchangeProfile;
+ coverage?:ProjectionCoverage[];
 }
 export interface ExportVisualResult {
  ok:boolean;
@@ -79,6 +85,8 @@ export interface ExportVisualResult {
  source?:RetainedVisualSource;
  diagnostics:InterchangeDiagnostic[];
  identityMap:IdentityMapping[];
+ profile?:AnnotatedInterchangeProfile;
+ coverage?:ProjectionCoverage[];
 }
 
 /** Declaration of a bounded mapping; executed native evidence belongs in verification receipts. */

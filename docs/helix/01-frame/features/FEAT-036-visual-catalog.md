@@ -67,6 +67,12 @@ reported loss, or failed in its native renderer.
   controls and narrow screens without page-wide horizontal overflow.
 - CAT-08: Catalog generation must be reproducible from repository-owned sources
   and current adapters. It must retain source identities and native qualifications.
+- CAT-09: The catalog must retain ordinary native-profile results while exposing
+  opt-in qualified profile variants and the chosen complete example projection.
+  Intrinsic native meaning and readable profile annotations must be distinguished.
+- CAT-10: The example-completion release must have one suitable strict target and
+  faithful native preview for each of the 53 unchanged current examples, covering
+  all 22 forms. A loaded image alone is not evidence of readable, complete output.
 
 ## User Stories
 
@@ -82,7 +88,8 @@ available. Missing catalog or image assets show a recoverable error state.
 
 The current corpus contains 50 fixture instances spanning 22 forms: 12 under
 forms/ and 38 under inventory/. The language has seven kinds and the schema has
-19 reusable definitions; those are distinct counts. The build
+19 reusable definitions in frozen 1.0.0 and 20 in explicit latest 1.1.0;
+those are distinct counts. The build
 must enumerate and verify the corpus rather than silently retain a stale count.
 The microsite brand is `umf.visuals`; the vocabulary remains `umf.visual`.
 The catalog is a static library demonstration with no user-content upload or
@@ -95,5 +102,6 @@ visual meaning. Native engine receipts establish observed render acceptance.
 
 ## Out of Scope
 
-New adapters, unsupported-form rendering, vocabulary/model generation, production
-telemetry, user-content execution and support claims beyond the observed subsets.
+Vocabulary/model generation, production telemetry, user-content execution and
+support claims beyond observed subsets. New qualified forms are governed by
+FEAT-035 and CONTRACT-087; the catalog consumes their actual results and evidence.

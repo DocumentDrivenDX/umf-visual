@@ -58,6 +58,8 @@ size limit or cardinality values to admit a native construct.
 | `src/interchange/shared.ts` | Diagnostic, identity and path helpers | Adapter contract tests |
 | `src/interchange/index.ts` | Facade, capabilities, admission, policy, companions and replay | Cross-format and forged-receipt tests |
 | `src/interchange/dot/index.ts` | Bounded DOT parsing and emission | DOT corpus and Graphviz oracle |
+| `src/interchange/dot/structure.ts` | Opt-in tree, nested-containment and stack profiles with visible exact labels/details | Strict readback plus Graphviz JSON endpoint and cluster bounds |
+| `src/interchange/dot/sequence.ts` | Opt-in DOT-native sequence/lifelines and ladder rows, participant rails, message forms and nested contiguous group blocks | Sequence round-trip tests plus Graphviz JSON geometry and SVG labels |
 | `src/interchange/mermaid/index.ts` | Flowchart and ER parsing/emission | Mermaid corpus and native parser oracle |
 | `src/interchange/lini/index.ts` | Graph/entity parsing/emission | Lini corpus and pinned WASM oracle |
 | `src/index.ts` | Export portable interchange API | Built-package and Chromium consumers |
@@ -74,6 +76,19 @@ remains the executable public-core and host-dependency boundary check.
 CONTRACT-086 and `types.ts` own exact fields and signatures. Adapter parse results
 are candidates until the facade admits them. A warning with semantic loss and a
 nonblocking advisory are different cases; the facade applies policy centrally.
+
+The DOT structural profile distinguishes tree and nested containment in native
+geometry. Trees use directed parent-to-child containment edges, keyed to the
+child's source `parent` field; these edges are structural containment, never
+authored flow relationships. Graphviz JSON checks the edge endpoints and that
+parents sit above their children. Nested structures use native containment
+clusters, with explicit invisible constraints arranging each parent's direct
+children in compact rows; the parser validates those constraints but does not
+import them as authored relationships. Cluster membership is the parent
+identity. Both forms place exact label and optional detail values in visible
+node labels. Stack layers remain ordered native bands with separately checked
+rank and ordering constraints. These qualified layouts avoid presenting a tree
+as a flat cluster or a nested form as one long horizontal row.
 
 ## Integration Points
 
@@ -157,9 +172,56 @@ decoded controls, carriage returns, unpaired surrogates and whitespace outside
 ASCII space/tab/line feed refuse in sequence labels. Other unknown
 syntax, alternative fragments, metadata and ladder layout remain loss/refusal.
 
+The separate DOT sequence profile maps both released `sequence/lifelines` and
+`sequence/ladder` forms through explicit native geometry. Participant headers
+share a native rank and use invisible ordered constraints to retain source
+column order. The profile fixes `nodesep=0.7` and `ranksep=1.5` so long header details
+and message labels do not touch; the importer requires these geometry settings. Native message text is carried by external edge labels (`xlabel`) while the native message edges use straight-line splines, preventing long cross-column messages from curving through other rows. The importer requires `splines=line`; native JSON checks each non-self rung has effectively constant y coordinates, while self-messages retain their visible native loop. Each message has a same-rank row of participant anchors; ordered
+participant rails connect the header through every row. Lifelines use dashed
+rails and ladder uses solid rails, while the directed message rungs remain
+independent native edges. Calls use solid normal arrows, returns use dashed
+normal arrows, and async messages use open arrowheads. A note is a native note
+node attached without arrowheads to its declared two row anchors. Self-messages
+remain directed self-edges. Layout-only rails never become authored messages.
+
+Loop, phase, and alternative groups are nested native clusters with visible
+typed labels. Every group must cover a nonempty contiguous interval; nested
+intervals must form a proper hierarchy. Import checks cluster membership against
+each message's participant anchors and identity descriptors, and refuses
+unknown DOT statements or altered rail/rung constraints. Native identity attributes carry participant and message IDs, while the visible labels carry names, optional detail and participant role. Status, emphasis, evidence, provenance, question and walkthrough data remain annotation-profile responsibilities. This mapping is
+limited to visual model 1.0.0 and does not claim that the DOT profile is a
+general-purpose UML sequence grammar.
+
+Sequence labels use compact typed lines (`Participant`, `Role`, `Detail`, `From`, `To`, `Message`, `Kind`, and the visible group role) with JSON-quoted text values for exact multiline recovery; native IDs stay in identity attributes. The entities profile uses a visible entity title and a `Field / Type / Keys / Nullable` table, with JSON-quoted text values and explicit unspecified cells. Flow group and edge labels use `Role / Tier / Label / Detail` and `Kind / Label / Why` rows. These user-facing carriers avoid debug prefixes and length codes while preserving strict parsing. The DOT entities profile fixes `rankdir=LR`, `ranksep=2.5`, and `splines=polyline`; the wider inter-card span separates the visible reference label from both endpoint cardinality labels. Its Graphviz JSON regression checks label text bounds against each other and against both native cards for the quoted/Unicode entities canary.
+
+The sequence profile's native qualification uses `dot -Tjson` to assert
+participant column order, message row order, directed endpoints, nested group
+membership, and the form-specific rail geometry. SVG checks verify that the
+headers, message text, group labels, and native arrow forms render visibly.
+Portable parser tests separately prove exact edited-source readback and
+refusal of foreign attributes or changed identities. This is the bounded DOT
+profile addition; Mermaid's native sequence subset and its alternative-fragment
+limitations above remain unchanged.
+
 `test:native:wave2` uses independent Graphviz JSON memberships/endpoints/tooltips
 and Mermaid 12.2 parser database order/endpoints/arrow types plus SVG text. The
 browser library consumer independently checks public import/export and source
 replay for all sixteen affected original examples. `report:loss:wave2` checks
 the v0.1.0 source hashes and separates reduced losses on previously emitted pairs
 from newly emitted pairs. Existing full semantic support claims remain unchanged.
+
+## Opt-in Readable Annotation Profiles
+
+CONTRACT-087 governs optional DOT/Lini profiles with compact owner-scoped
+legends. Shared helpers in src/interchange/annotations own typed values and exact
+candidate pointers; format modules derive owner headings and actual native
+carrier locators. Root integrates optional profile/coverage results, independently
+parses emitted carriers, and compares recovered values/presence/order before
+admitting coverage. A parent container cannot suppress unknown descendant losses.
+
+Default native profiles, frozen 1.0.0 companions and replay checks retain their
+behavior. Explicit generated 1.1.0 support requires a declared profile/model
+implementation. CONTRACT-085 variants keep old native outcomes visible and show
+which readable profile satisfies the 53-example/22-form release gate. No native
+engine enters portable source; independent native and Chromium witnesses qualify
+carrier fidelity and edited recovery separately from local self-roundtrip.

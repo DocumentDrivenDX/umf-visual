@@ -8,6 +8,7 @@ if(!build.success)throw Error(build.logs.join('\n'));
 const js=await build.outputs[0]!.text();
 const fixtures:unknown[]=[];
 for await(const file of new Bun.Glob('fixtures/visual/{forms,inventory}/*.json').scan('.'))if(!file.endsWith('/index.json'))fixtures.push(await Bun.file(file).json());
+for await(const file of new Bun.Glob('fixtures/catalog/*.json').scan('.'))fixtures.push(await Bun.file(file).json());
 const server=Bun.serve({hostname:'127.0.0.1',port:0,fetch(req){
  const path=new URL(req.url).pathname;
  if(path==='/app.js')return new Response(js,{headers:{'content-type':'text/javascript'}});

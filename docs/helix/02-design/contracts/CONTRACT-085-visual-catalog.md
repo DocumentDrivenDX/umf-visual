@@ -12,17 +12,24 @@ ddx:
       kind: informed_by
     - id: CONTRACT-083
       kind: informed_by
+    - id: CONTRACT-087
+      kind: references
   schemas:
     - id: umf.visual
-      version: "1.0.0"
-      title: Visual vocabulary
+      version: "1.1.0"
+      title: Latest explicitly versioned visual vocabulary
       path: spec/extensions/visual/schema.json
+      schemaFormat: json-schema
+    - id: umf.visual
+      version: "1.0.0"
+      title: Frozen released visual vocabulary and current example model
+      path: spec/extensions/visual/1.0.0/schema.json
       schemaFormat: json-schema
 ---
 
 # CONTRACT-085: Static visual catalog data
 
-**Type:** build/browser data interface. **Version:** 1.0.0.
+**Type:** build/browser data interface. **Version:** 1.1.0.
 
 ## Purpose
 
@@ -52,6 +59,11 @@ bytes. The builder MUST check kind/form enum agreement with the schema, while
 qualifying that semantic pairing rules live in TypeScript rather than the flat
 schema enums. The browser MUST present this language reference before the
 secondary example gallery and MUST distinguish its counts from example counts.
+
+The primary schema reference currently exposes explicit latest version 1.1.0;
+the original example documents and public default aliases remain frozen 1.0.0.
+The UI must show that distinction. Generating latest TypeScript shapes does not
+upgrade example documents or establish a native profile's 1.1.0 interpretation.
 
 Capabilities are copied from the public interchange API. Each example item MUST contain:
 
@@ -89,6 +101,28 @@ Otherwise it MUST call `allow-reported-loss`; success gives `reported-loss`, and
 failure gives `unsupported`. The record MUST retain the selected actual result.
 A supported status means an export under the recorded mapping profile, not full
 native-format support, rendering success or equivalence outside that example.
+
+### Opt-in profile variants
+
+Items MAY additionally contain `profileVariants` and `preferredRelease` without
+replacing `targets.dot/mermaid/lini`. Each variant contains `profileId`,
+`mappingVersion`, `modelVersion`, `format`, `result` and `coverage`; result obeys
+the same actual-export/native-render rules as a target. CONTRACT-087 owns the
+readable annotation profile and per-pointer coverage semantics. Variant IDs must
+be unique per item and match a declared capability; versions stay independent.
+
+`preferredRelease:{format,profileId}` selects either an existing native target's
+declared profile or a variant. Its actual strict export and native readback/render
+must pass before it qualifies for release. All 53 unchanged current examples must
+have a qualified choice, spanning all 22 forms; the builder must check the actual
+corpus rather than perpetually assume those counts. Canaries remain distinct.
+
+The UI MUST label a qualified annotation profile explicitly, keep native defaults
+accessible, and expose which fields use annotations versus intrinsic constructs.
+A compact diagram view MAY focus on the diagram, but the complete annotated view
+and native download must retain all meaning. Owner-scoped legends must remain
+readable without obscuring the diagram. Existing links without a profile parameter
+retain native-target meaning; an optional profile parameter selects a variant.
 
 A render record MUST contain `ok`, `engine` and `nativeVersion`. Engine is
 `graphviz`, `mermaid` or `lini` for the corresponding target. `nativeVersion` MUST

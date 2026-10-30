@@ -1,0 +1,175 @@
+{
+  "ok": true,
+  "interim": false,
+  "qualifiedExamples": 53,
+  "totalExamples": 53,
+  "forms": 22,
+  "renderAssets": 178,
+  "sample": "visual-catalog-canary-entities",
+  "preferred": {
+    "format": "dot",
+    "profileId": "umf.visual.dot.annotated/1"
+  },
+  "focusedWidth": 1004,
+  "completeNativeWidth": 1139,
+  "visualReview": [
+    {
+      "form": "comparison/before-after",
+      "width": 1666,
+      "height": 277,
+      "ratio": 6.01
+    },
+    {
+      "form": "comparison/matrix",
+      "width": 1947,
+      "height": 373,
+      "ratio": 5.22
+    },
+    {
+      "form": "comparison/quadrant",
+      "width": 1565,
+      "height": 717,
+      "ratio": 2.18
+    },
+    {
+      "form": "flow/lanes",
+      "width": 1863,
+      "height": 820,
+      "ratio": 2.27
+    },
+    {
+      "form": "flow/network",
+      "width": 632,
+      "height": 177,
+      "ratio": 3.57
+    },
+    {
+      "form": "flow/pipeline",
+      "width": 1097,
+      "height": 196,
+      "ratio": 5.6
+    },
+    {
+      "form": "flow/zoned",
+      "width": 2465,
+      "height": 816,
+      "ratio": 3.02
+    },
+    {
+      "form": "metric/bar",
+      "width": 1306,
+      "height": 550,
+      "ratio": 2.37
+    },
+    {
+      "form": "metric/line",
+      "width": 1106,
+      "height": 550,
+      "ratio": 2.01
+    },
+    {
+      "form": "metric/meter",
+      "width": 1106,
+      "height": 370,
+      "ratio": 2.99
+    },
+    {
+      "form": "metric/stat",
+      "width": 746,
+      "height": 341,
+      "ratio": 2.19
+    },
+    {
+      "form": "sequence/ladder",
+      "width": 2243,
+      "height": 957,
+      "ratio": 2.34
+    },
+    {
+      "form": "sequence/lifelines",
+      "width": 3228,
+      "height": 1247,
+      "ratio": 2.59
+    },
+    {
+      "form": "state/lifecycle",
+      "width": 1820,
+      "height": 287,
+      "ratio": 6.34
+    },
+    {
+      "form": "state/machine",
+      "width": 1081,
+      "height": 188,
+      "ratio": 5.75
+    },
+    {
+      "form": "structure/entities",
+      "width": 1004,
+      "height": 248,
+      "ratio": 4.05
+    },
+    {
+      "form": "structure/nested",
+      "width": 968,
+      "height": 904,
+      "ratio": 1.07
+    },
+    {
+      "form": "structure/stack",
+      "width": 2008,
+      "height": 619,
+      "ratio": 3.24
+    },
+    {
+      "form": "structure/tree",
+      "width": 1579,
+      "height": 184,
+      "ratio": 8.58
+    },
+    {
+      "form": "timeline/history",
+      "width": 1049,
+      "height": 909,
+      "ratio": 1.15
+    },
+    {
+      "form": "timeline/milestones",
+      "width": 1049,
+      "height": 509,
+      "ratio": 2.06
+    },
+    {
+      "form": "timeline/roadmap",
+      "width": 1806,
+      "height": 286,
+      "ratio": 6.31
+    }
+  ],
+  "checks": [
+    "all 178 baseline, focused and complete SVG assets load with intrinsic dimensions",
+    "all 22 canonical forms have focused native review images; seven dense/key cases exported individually",
+    "full-width native diagram, fit/zoom/100% controls and new-tab SVG access",
+    "complete annotated native render/source, coverage and representation distinctions; example JSON stays collapsed",
+    "unchanged dot baseline remains reachable with its own outcome",
+    "keyboard-operable profile tabs and 375px mobile dialog"
+  ],
+  "screenshots": [
+    ".cache/catalog-profile-focused.png",
+    ".cache/catalog-profile-complete.png",
+    ".cache/catalog-profile-baseline.png",
+    ".cache/catalog-profile-mobile.png",
+    ".cache/catalog-profile-forms-contact.png"
+  ],
+  "keyScreenshots": [
+    ".cache/catalog-profile-form-review/sequence-lifelines.png",
+    ".cache/catalog-profile-form-review/sequence-ladder.png",
+    ".cache/catalog-profile-form-review/structure-entities.png",
+    ".cache/catalog-profile-form-review/flow-lanes.png",
+    ".cache/catalog-profile-form-review/comparison-matrix.png",
+    ".cache/catalog-profile-form-review/metric-line.png",
+    ".cache/catalog-profile-form-review/timeline-roadmap.png"
+  ],
+  "browser": "153.0.8010.12",
+  "errors": []
+}

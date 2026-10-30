@@ -6,7 +6,9 @@ import {join, relative, resolve, sep} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {chromium, type Browser, type Page} from 'playwright';
 import mermaidPackage from 'mermaid/package.json';
-import {exportVisual, inspectVisual, interchangeCapabilities, visualForms, type ExportVisualResult, type IdentityMapping, type InterchangeDiagnostic, type InterchangeFormat} from '../../src';
+import {exportVisual, inspectVisual, interchangeCapabilities, visualForms, type AnnotatedInterchangeProfile,type ExportVisualResult, type IdentityMapping, type InterchangeDiagnostic, type InterchangeFormat} from '../../src';
+import type {ProjectionCoverage} from '../../src/interchange/annotations';
+import {focusedProfileSource} from './profile-views';
 import {liniDirectory, verifyLiniRuntime} from '../interchange-runtime';
 
 export type TargetName = InterchangeFormat;
@@ -27,6 +29,17 @@ export interface CatalogTarget {
   identityMap: IdentityMapping[];
   render?: NativeRender;
 }
+export interface CatalogProfileVariant {
+  profileId:AnnotatedInterchangeProfile;
+  format:TargetName;
+  mappingVersion:string;
+  modelVersion:string;
+  result:CatalogTarget;
+  coverage:ProjectionCoverage[];
+  diagramRender?:NativeRender;
+  diagramSourceSha256?:string;
+  diagramDescription:string;
+}
 export interface CatalogItem {
   id: string;
   title: string;
@@ -38,6 +51,8 @@ export interface CatalogItem {
   sourceSha256: string;
   document: unknown;
   targets: Record<TargetName, CatalogTarget>;
+  profileVariants?:CatalogProfileVariant[];
+  preferredRelease?:{format:TargetName;profileId:AnnotatedInterchangeProfile};
 }
 export interface VisualCatalog {
   schemaVersion: 1;
@@ -79,9 +94,10 @@ async function fixturePaths(): Promise<string[]> {
   });
 }
 
-function targetFrom(document: any, format: TargetName): CatalogTarget {
-  const strict = exportVisual(document, {format, mode: 'strict'});
-  const result = strict.ok ? strict : exportVisual(document, {format, mode: 'allow-reported-loss'});
+function targetFrom(document: any, format: TargetName,profile?:AnnotatedInterchangeProfile): CatalogTarget {
+  const selected=profile?{profile}:{};
+  const strict = exportVisual(document, {format, ...selected,mode: 'strict'});
+  const result = strict.ok ? strict : exportVisual(document, {format,...selected, mode: 'allow-reported-loss'});
   const emitted = result.ok && typeof result.text === 'string';
   return {
     status: emitted ? strict.ok ? 'supported' : 'reported-loss' : 'unsupported',
@@ -136,8 +152,13 @@ export async function createCatalogData(): Promise<VisualCatalog> {
     if (!inspection.valid || !inspection.complete) throw new Error(`Invalid or incomplete visual document ${sourcePath}: ${JSON.stringify(inspection.diagnostics)}`);
     const title = typeof visual.title === 'string' && visual.title.trim() ? visual.title : visual.id ?? stem;
     const targets = Object.fromEntries(formats.map(format => [format, targetFrom(document, format)])) as Record<TargetName, CatalogTarget>;
+    const profileVariants:CatalogProfileVariant[]=(['dot','lini'] as const).map(format=>{
+      const profileId=`umf.visual.${format}.annotated/1` as AnnotatedInterchangeProfile;
+      const result=targetFrom(document,format,profileId),strict=exportVisual(document,{format,profile:profileId});
+      return {profileId,format,mappingVersion:'0.1.0',modelVersion:document.vocabularies['umf.visual'].version,result,coverage:strict.ok?strict.coverage??[]:[],diagramDescription:'Focused native shape view. The complete annotated view includes supplemental identity, constraint and note tables, plus typed application and provenance annotations. Downloaded native source always contains the complete representation.'};
+    });
     items.push({id, title, kind: visual.kind, form: visual.form, question: visual.question,
-      origin: sourcePath.startsWith('fixtures/catalog/') ? 'canary' : 'fixture', sourcePath, sourceSha256: sha256(bytes), document, targets});
+      origin: sourcePath.startsWith('fixtures/catalog/') ? 'canary' : 'fixture', sourcePath, sourceSha256: sha256(bytes), document, targets,profileVariants});
   }
   return {schemaVersion: 1, capabilities: structuredClone(interchangeCapabilities), language, items};
 }
@@ -223,7 +244,7 @@ function validateLiniDiagnostics(reportText: string): void {
 }
 
 // @covers US-095-AC3: only verified native SVG bytes receive a path and SHA-256 receipt.
-async function saveRender(item: CatalogItem, format: TargetName, render: NativeRender, svg: string, outputDir: string): Promise<void> {
+async function saveRender(item: CatalogItem, format: string, render: NativeRender, svg: string, outputDir: string): Promise<void> {
   if (!svg.includes('<svg')) throw new Error(`${format} renderer returned no SVG for ${item.id}`);
   const svgSha256 = sha256(svg);
   const fileName = `${item.id}-${format}-${svgSha256}.svg`;
@@ -305,6 +326,21 @@ export async function renderCatalog(catalog: VisualCatalog, outputDir: string): 
             throw new Error(`Native ${format} render failed for ${target.status} item ${item.id}: ${render.error}`);
           }
         }
+      }
+      for(const variant of item.profileVariants??[]){
+        const target=variant.result;if(!target.ok||target.source===undefined)continue;
+        const format=variant.format;if(format!=='dot'&&format!=='lini')throw new Error('Unqualified annotation renderer');
+        const renderOne=async(source:string,label:string):Promise<NativeRender>=>{
+          let svg:string,version:string;
+          if(format==='dot'){const result=await renderDot(source,graphviz);svg=result.svg;version=result.version;}
+          else {validateLiniDiagnostics(lini.compiler.diagnostics(source,{}));svg=lini.compiler.compile(source,{});version=lini.version;}
+          const render:NativeRender={ok:true,engine:format==='dot'?'graphviz':'lini',nativeVersion:version};
+          await saveRender(item,format+'-annotated-'+label,render,svg,outputDir);return render;
+        };
+        target.render=await renderOne(target.source,'complete');
+        const focused=focusedProfileSource(target.source,format);variant.diagramSourceSha256=sha256(focused);
+        variant.diagramRender=await renderOne(focused,'diagram');
+        if(target.status==='supported'&&target.render.ok&&variant.diagramRender.ok)item.preferredRelease={format,profileId:variant.profileId};
       }
     }
   } finally {
