@@ -1,4 +1,5 @@
 import {readVisualDocument,writeVisualDocument,inspectVisual,editVisual,getVisual} from '../src';
+import {runInterchangeBrowserChecks} from './interchange/browser-checks';
 declare global {interface Window {visualResult?:unknown;}}
 try{
  const fixtures=await fetch('/fixtures').then(r=>r.json()) as unknown[];
@@ -17,5 +18,6 @@ try{
  const before=JSON.stringify(doc);
  const edited=editVisual(doc,v=>({...v,takeaway:'Browser consumer edit'}));
  if(getVisual(edited).takeaway!=='Browser consumer edit'||JSON.stringify(doc)!==before)throw Error('Atomic edit failure');
- window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true};
+ const interchange=await runInterchangeBrowserChecks();
+ window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,interchange};
 }catch(error){window.visualResult={ok:false,error:String(error)};}

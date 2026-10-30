@@ -3,3 +3,4 @@ dist/
 .cache/
 *.tgz
 .DS_Store
+dist-site/
