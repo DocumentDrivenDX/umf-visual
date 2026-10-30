@@ -20,6 +20,7 @@ test('released schema, manifest, validator and imported fixture bytes remain fro
 
 test('1.1 size admission is explicit and does not broaden native profiles',()=>{
  expect(()=>createVisualDocument(flow(16))).toThrow();
+ expect(()=>createVisualDocument(flow(1),undefined,'2.0.0' as any)).toThrow();
  const document=createVisualDocument(flow(16),undefined,'1.1.0');
  expect(inspectVisual(document)).toMatchObject({valid:true,complete:true});expect(inspectVisual(document).advice.some(d=>d.code==='VISUAL_SPLIT')).toBe(true);
  expect(()=>createVisualDocument(flow(501),undefined,'1.1.0')).toThrow();
@@ -37,6 +38,8 @@ test('early-year correction requires a copied, validated upgrade; new fields sta
  const node=v.structure!.entities!.find(e=>e.node===reference.to.node)!;const field=node.fields.find(f=>f.name===reference.to.field)!;field.id='stable';reference.to.fieldId='stable';delete reference.toCardinality;reference.toMultiplicity={min:2,max:5,text:'2..5'};
  entity.extensions!['umf.visual']=v as any;
  expect(inspectVisual(entity)).toMatchObject({valid:true,complete:false});
+ const bad=structuredClone(entity);(bad.extensions!["umf.visual"] as any).structure.references[0].toMultiplicity={min:5,max:2};
+ const before=JSON.stringify(bad);expect(()=>upgradeVisualDocument(bad)).toThrow();expect(JSON.stringify(bad)).toBe(before);
  const upgraded=upgradeVisualDocument(entity);expect(inspectVisual(upgraded)).toMatchObject({valid:true,complete:true});expect(getVisual(upgraded)).toEqual(v);
  const result=exportVisual(upgraded,{format:'mermaid',mode:'allow-reported-loss'});
  expect(result.ok).toBe(false);for(const suffix of ['/to/fieldId','/toMultiplicity','/id'])expect(result.diagnostics.some(d=>d.loss&&d.path.endsWith(suffix)),suffix).toBe(true);
