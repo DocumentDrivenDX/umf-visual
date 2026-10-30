@@ -36,15 +36,25 @@ exercise (`timeline`, `metric`, and the other forms), are the acceptance set.
   reference, steps on a kind without walkthroughs, an unnumbered step's `when: other` without a
   `tag` or a `tag` without a `when`, a parent cycle, a form rule violation, a
   comparison value that disagrees with its criterion, a metric point off its axis, an invalid
-  or reversed date, more than 15 nodes, or a payload outside document scope, then validation
-  fails with the declared code and read/write refuse it.
+  or reversed date (a year below 100 included), more than 500 nodes, a duplicate field id, a
+  reference field or field id its entity lacks or that names two fields, a multiplicity whose
+  upper bound is below its lower bound or that contradicts its cardinality, or a payload outside
+  document scope, then validation fails with the declared code and read/write refuse it.
 - **US-093-AC3:** Given a visual with an unknown field, when it is read, written and inspected,
   then the field survives, interpretation is incomplete (`VISUAL_UNKNOWN`) and conservative
   edits are refused.
 - **US-093-AC4:** Given a complete visual, when it is edited, then the edit is atomic, the input
   is unchanged and an edit that makes the visual invalid is refused.
 - **US-093-AC5:** Given a visual with more than seven nodes or eight participants, when it is
-  inspected, then it stays valid and complete and the advice lists the density concern.
+  inspected, then it stays valid and complete and the advice lists the density concern; above
+  fifteen nodes it stays valid, round-trips, and the advice says to split it (`VISUAL_SPLIT`).
+- **US-093-AC6:** Given an entity reference whose source states `2..5`, when it carries that as
+  exact bounds and text, and names its field by a stable id, then it is valid, round-trips
+  unchanged, is never widened to a conventional cardinality, and stays resolved when the
+  field's displayed name changes.
+- **US-093-AC7:** Given the standalone schema, when the generated outputs (the manifest's schema
+  and the TypeScript shapes) are checked without writing, then they equal what the schema
+  generates, and a change to the schema changes both.
 
 ## Edge Cases
 

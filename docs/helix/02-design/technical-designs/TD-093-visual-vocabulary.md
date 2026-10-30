@@ -34,21 +34,40 @@ unknown keys as `VISUAL_UNKNOWN`, as the dashboard walker does. Rules that depen
 or on other items (form membership, kind blocks, references, cycles, form rules, dates and
 values) are semantic, so each failure has its own code rather than a generic structure error.
 
-Composition advice (`VISUAL_DENSITY`) is computed outside the registry. Core sets `complete`
-false on any diagnostic, so emitting density as a warning would make ordinary 8–15 node
-visuals uneditable.
+Composition advice (`VISUAL_DENSITY`, `VISUAL_SPLIT`) is computed outside the registry. Core
+sets `complete` false on any diagnostic, so emitting density as a warning would make ordinary
+visuals of eight or more nodes uneditable. The registry keeps only a resource limit
+(`VISUAL_SIZE`: 500 nodes, 10,000 connections per list); how many nodes read well is advice that
+a profile such as HELIX's may enforce (review of UMF #62, 2026-10-30).
+
+Dates are built with `setUTCFullYear` rather than `Date.UTC`, which reads years 0–99 as
+1900–1999; the month-length check and the epoch value use the same construction, so years
+0000–9999 validate and order as written.
+
+Exact multiplicities sit beside the four cardinalities rather than replacing them: a renderer
+that draws crow's feet keeps reading the markers, a source's `2..5` survives as bounds and text,
+and the validator rejects any disagreement instead of choosing one. Field ids are scoped to their
+entity so a schema's column identity need not fit the visual-wide namespace.
 
 ## Component Changes
 
 ### New: `spec/extensions/visual/`
 
-`package.json` (scopes `["document"]`, semantic validation, evidence
-`tests/visual/vocabulary.test.ts`) and the identical standalone `schema.json`.
+`schema.json`, the authored definition, and `package.json` (scopes `["document"]`, semantic
+validation, evidence `tests/visual/vocabulary.test.ts`), whose embedded schema
+`scripts/generate.ts` writes from `schema.json`.
+
+### New: `scripts/generate.ts` and `src/extensions/visual/generated.ts`
+
+The generator turns the schema into the manifest's copy and into TypeScript: one entry of
+`VisualDefs` per definition, and `VisualShape` for the payload. `--check`, run by
+`check:source` and the pre-commit hook, fails without writing when an output is stale.
 
 ### New: `src/extensions/visual/index.ts`
 
-Types, the kind-to-forms table, the semantic validator and the API. Form rules are one table
-of functions keyed by form, so adding a form is a schema enum change, a table row and a test.
+Public type names (aliases of the generated shapes), the kind-to-forms table (checked against
+the schema), the semantic validator and the API. Form rules are one table of functions keyed by
+form, so adding a form is a schema enum change, a regeneration, a table row and a test.
 
 ### Modified: `src/index.ts`
 
@@ -94,13 +113,15 @@ retained and never opened.
 
 ## Performance
 
-Validation is linear in items, plus cycle walks bounded by node count (≤ 15 for graph kinds).
+Validation is linear in items, plus cycle walks bounded by node count (≤ 500, the resource
+limit).
 
 ## Testing
 
 `tests/visual/vocabulary.test.ts`: every fixture round-trips and is complete (AC1); a mutation
 table checks each code independently (AC2); unknown fields (AC3); atomic edits (AC4); advice
-(AC5). The package and schema audits must pass.
+(AC5); exact multiplicities and field ids (AC6). `tests/generate.test.ts`: generated outputs
+match the schema, and a changed schema changes both (AC7). The source check must pass.
 
 ## Migration & Rollback
 

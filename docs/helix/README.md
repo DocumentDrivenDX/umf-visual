@@ -10,8 +10,10 @@ compatibility, preservation and portable behavior are its outcomes.
 - [FEAT-034](01-frame/features/FEAT-034-visual-vocabulary.md),
   [US-093](01-frame/user-stories/US-093-visual-vocabulary.md),
   [CONTRACT-083](02-design/contracts/CONTRACT-083-visual-vocabulary.md) and
-  [TD-093](02-design/technical-designs/TD-093-visual-vocabulary.md) are unchanged
-  imported semantic authorities from #62, including their IDs/frontmatter.
+  [TD-093](02-design/technical-designs/TD-093-visual-vocabulary.md) are the
+  semantic authorities imported from #62, with their IDs/frontmatter, amended
+  2026-10-30 for that PR's review (early-year dates, size as advice, exact
+  multiplicities and field ids, the schema as the single authored definition).
   Their repository-location/ownership descriptions and inherited graph links
   refer to that source cut; extraction packaging is governed locally below.
 - [Architecture](02-design/architecture.md) defines the public package boundary.

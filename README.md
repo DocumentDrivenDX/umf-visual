@@ -44,9 +44,12 @@ UMF-authored definition and versioned DOT, Mermaid and Lini interchange profiles
 Those profiles require native source retention, identity maps and explicit loss
 reports. They are not blanket equivalence or round-trip claims.
 
-The inherited 15-node rule, restricted IDs, four conventional cardinalities and
-early-year date conversion issue remain visible in the extraction record. They
-need governed revisions before broad interchange claims.
+The #62 review is applied: more than fifteen nodes is advice to split
+(`VISUAL_SPLIT`), with `VISUAL_SIZE` kept as a resource limit; entity references
+carry exact multiplicities and stable field ids; dates keep years below 100. The
+schema is the single authored definition: `bun run generate` writes the manifest
+schema and the TypeScript shapes, and `bun run check:source` fails when they are
+stale. Authoring it in `umf.metamodel` waits for UMF to publish its compiler.
 
 License: MIT OR Apache-2.0. Original attribution is retained in the license files.
 

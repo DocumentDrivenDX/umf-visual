@@ -87,5 +87,6 @@ adapter must report unsupported meaning before renderer execution.
 | --- | --- | --- | --- |
 | Independent repository/package | User-authorized | Separate lifecycle from core and rendering | Consumer migrations |
 | Use SDK 0.5.7 public release | Bootstrap choice | Avoid private source dependency | Expand version matrix through evidence |
-| Retain #62 semantic baseline | Extraction scope | Make movement reviewable | Date bug and interchange contract revisions |
+| Retain #62 semantic baseline | Extraction scope, then amended | Make movement reviewable | #62 review applied 2026-10-30: early-year dates, size as advice, exact multiplicities and field ids |
+| Schema as the single authored definition | Adopted | One source for the manifest schema and TypeScript shapes, checked without writing | Move the definition into `umf.metamodel` once UMF publishes its compiler |
 | UMF-authored model and native adapters | Planned | Single authority and preservation discipline | Frame/design before implementation |

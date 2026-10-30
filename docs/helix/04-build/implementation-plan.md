@@ -49,8 +49,8 @@ See extraction-evidence.md for completed gates and runtime receipts. Next work:
 Frame native adapter subsets, independent consumers and preservation contracts;
 define the authoritative visual model in UMF; qualify generic constraint coverage;
 then implement DOT/Mermaid/Lini profiles one at a time with source retention and
-native parser/compiler oracles. Fix the known date issue with a regression before
-a release. Adopt code-shape ratchets before growing the inherited module.
+native parser/compiler oracles. The #62 review changes (early-year dates, size as
+advice, exact multiplicities, field ids, generated shapes) are applied. Adopt code-shape ratchets before growing the inherited module.
 
 ## Optional Tracking
 

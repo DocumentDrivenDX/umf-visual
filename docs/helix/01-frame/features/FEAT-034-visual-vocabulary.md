@@ -76,7 +76,16 @@ Vocabulary (kinds, forms, roles), identity and references, walkthroughs and evid
 - VIS-06: Reject form contradictions a renderer would otherwise guess at: a zoned flow with an
   untiered zone, a stack without layers, a tree with several roots, a parent cycle, an
   incomplete comparison matrix, a quadrant without rated axes, a meter without a target,
-  invalid or reversed dates, more than 15 nodes in a graph kind.
+  invalid or reversed dates. Dates are proleptic-Gregorian UTC for years 0000–9999, so a year
+  below 100 keeps its value and order.
+- VIS-06a: Bound resources, not legibility: more than 500 nodes, or more than 10,000 edges,
+  references, transitions or messages, is invalid. How many nodes read well is advice (VIS-09),
+  which a profile such as HELIX's explanatory visuals may enforce.
+- VIS-06b: An entity reference may state exact multiplicities (lower bound, optional upper
+  bound, and the source's own notation such as `2..5`) beside or instead of the four
+  conventional cardinalities, which must agree with them; a source's bounds are never widened
+  to a conventional marker. A field may carry a stable id, separate from its displayed name,
+  that a reference end can name, so a renamed field stays traceable.
 
 #### Walkthroughs and evidence
 
@@ -88,15 +97,18 @@ Vocabulary (kinds, forms, roles), identity and references, walkthroughs and evid
 #### API
 
 - VIS-09: Read, write, inspect, copy and atomically edit a visual document; wrap a payload in a
-  document; report composition advice (more than seven nodes, more than eight participants)
-  separately from validity.
+  document; report composition advice (more than seven nodes, more than eight participants,
+  and above fifteen nodes a split) separately from validity.
 
 ### Non-Functional Requirements
 
 Browser-compatible TypeScript under ADR-002. Unknown fields survive round trips as incomplete
 interpretation (`VISUAL_UNKNOWN`) and block conservative edits, as in every UMF extension.
 Composition advice does not affect `valid` or `complete`. The standalone payload schema is plain
-JSON Schema 2020-12 so non-TypeScript producers can check structure without UMF.
+JSON Schema 2020-12 so non-TypeScript producers can check structure without UMF. That schema
+is the one authored definition of the shapes: the manifest's copy and the TypeScript types are
+generated from it and checked without writing. Authoring the definition in `umf.metamodel`
+waits for UMF to publish its compiler.
 
 ## User Stories
 
@@ -117,7 +129,8 @@ is rejected independently; documents round-trip JSON/YAML unchanged.
 
 ## Constraints and Assumptions
 
-Version `1.0.0` stands for the PRD's `umf.visual/1`. Adding an optional field or a form is a
+Version `1.0.0` stands for the PRD's `umf.visual/1`. It is unreleased, so the review changes
+above (2026-10-30) amend it in place; after a release they would be `1.1.0`. Adding an optional field or a form is a
 minor version; changing or removing a field's meaning is `2.0.0`. No Python binding in M1 (owner
 decision, 2026-10-22): the renderer validates through TypeScript, and ADR-006 places future
 shared semantics in Rust. Python producers may check structure with the standalone schema.
