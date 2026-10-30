@@ -26,3 +26,9 @@ The installed HELIX catalog supplies templates and workflow definitions. It is
 not copied here. Next: Frame the interchange requirements, then define the model
 and adapter contracts before changing vocabulary semantics. Existing source
 evidence covers vocabulary validation, not native-format interchange.
+
+[Google Slides integration spike](02-design/spikes/SPIKE-001-google-slides.md)
+demonstrates export, actual Google Slides UI label/movement edits, validated
+import and a second native export for an adapter-owned flow/network diagram.
+Bun/Chromium replays cover preservation and refusal; arbitrary native import and
+structural edit reconciliation remain unqualified. The prototype is outside the public API.

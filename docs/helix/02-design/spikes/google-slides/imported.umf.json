@@ -1,0 +1,36 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:service-map",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "service-map",
+      "kind": "flow",
+      "form": "network",
+      "question": "What calls the API?",
+      "nodes": [
+        {
+          "id": "client",
+          "label": "Browser client"
+        },
+        {
+          "id": "api",
+          "label": "API"
+        }
+      ],
+      "edges": [
+        {
+          "id": "request",
+          "from": "client",
+          "to": "api",
+          "label": "HTTPS request"
+        }
+      ]
+    }
+  },
+  "modules": []
+}
