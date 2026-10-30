@@ -105,7 +105,9 @@ do not promise arbitrary host editing or vanilla DOT/Lini types for every field.
 Linux CI found and corrected a false-positive sequence box-width assertion and
 a five-second full-corpus test timeout. It also identified real roadmap text
 overflow with Linux font metrics. Native span blocks now reserve 28 pixels per
-visible text line; local native, browser and full-suite proofs were refreshed.
+visible text line and period columns provide 240 pixels for the unchanged
+22-character wrap limit. The height change alone did not resolve the CI
+overflow. Local native, browser and full-suite proofs were refreshed.
 Linux validation of that correction remains pending.
 
 ## Candidate gate status

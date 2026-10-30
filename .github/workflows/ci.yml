@@ -46,6 +46,7 @@ jobs:
       - run: bun run test:site
       - run: bun run test:site:profiles
       - uses: actions/upload-artifact@v4
+        if: ${{ always() && !cancelled() }}
         with:
           name: umf-visual-profile-evidence
           path: |
@@ -53,6 +54,7 @@ jobs:
             .cache/native-lini-annotated.json
             .cache/native-lini-visual-layout.json
             .cache/lini-visual-layout/*.png
+            .cache/lini-visual-layout/*.json
             .cache/browser.json
             .cache/loss-ledger.json
             .cache/catalog-profile-ui-browser.json

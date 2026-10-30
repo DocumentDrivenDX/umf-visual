@@ -118,7 +118,7 @@ function buildRoadmap(visual:Visual,timeline:Timeline,diagnostics:InterchangeDia
  if(diagnostics.some(d=>d.severity==='error'))return[];
  const groupId='timeline-roadmap',title=visual.title??visual.question,{placements,rows}=assignSubrows(timeline);let row=2;
  const laneRows=lanes.map((_,index)=>{const value=row;row+=rows[index]!;return value;});
- const lines=['|group#'+groupId+'| '+quote(title)+' { layout: grid; columns: 220, repeat('+periods.length+', 180); gap: 4; gap-fill: --gray-soft; padding: 12; } [','  |block#roadmap-header-lane| "Lane" { cell: 1 1; }'];
+ const lines=['|group#'+groupId+'| '+quote(title)+' { layout: grid; columns: 220, repeat('+periods.length+', 240); gap: 4; gap-fill: --gray-soft; padding: 12; } [','  |block#roadmap-header-lane| "Lane" { cell: 1 1; }'];
  periods.forEach((period,index)=>lines.push('  |block#'+encodeId('period_',period.id)+'| '+quote(wrapRoadmapLabel(period.label,22))+' { cell: '+(index+2)+' 1; }'));
  lanes.forEach((lane,index)=>{
   const native=encodeId('lane_',lane.id),at=p('/lanes/'+index),first=laneRows[index]!,height=rows[index]!;
@@ -190,7 +190,7 @@ function parseRoadmap(nodes:LiniProfileNode[],diagnostics:InterchangeDiagnostic[
  const headers=blockNodes.filter(node=>node.id==='roadmap-header-lane');if(headers.length!==1||headers[0]?.label!=='Lane'||cell(headers[0]!)?.join(' ')!=='1 1')fail(diagnostics,'LINI_TIMELINE_HEADER','Roadmap needs the Lane header at grid cell 1,1.');if(headers[0])onlyProperties(headers[0],['cell'],diagnostics);
  const periodNodes=blockNodes.filter(node=>node.id.startsWith('period_')),periods:NonNullable<Extract<Timeline['scale'],{kind:'period'}>>['periods']=[],periodIds=new Set<string>();
  const columnTokens=property(group,'columns'),columnText=columnTokens?.map(token=>token.value).join(' ');
- if(columnText!=='220 , repeat ( '+periodNodes.length+' , 180 )'||numeric(property(group,'gap'))!==4||word(property(group,'gap-fill'))!=='--gray-soft'||numeric(property(group,'padding'))!==12)fail(diagnostics,'LINI_TIMELINE_LAYOUT','Roadmap grid column, spacing and fill properties must match the declared profile.');
+ if(columnText!=='220 , repeat ( '+periodNodes.length+' , 240 )'||numeric(property(group,'gap'))!==4||word(property(group,'gap-fill'))!=='--gray-soft'||numeric(property(group,'padding'))!==12)fail(diagnostics,'LINI_TIMELINE_LAYOUT','Roadmap grid column, spacing and fill properties must match the declared profile.');
  periodNodes.sort((a,b)=>(cell(a)?.[0]??0)-(cell(b)?.[0]??0));
  for(const[nodeIndex,node]of periodNodes.entries()){
   onlyProperties(node,['cell'],diagnostics);

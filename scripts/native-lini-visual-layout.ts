@@ -35,7 +35,7 @@ try{
     const blocks=[...rootSvg.querySelectorAll('g.lini-block[data-id^="period_"],g.lini-block[data-id^="lane_"],g.lini-block[data-id^="span_"]')];
     const boxes=blocks.map(group=>({id:group.getAttribute('data-id')!,group,box:rect(group.querySelector(':scope > rect')!)}));
     for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++)if(overlap(boxes[i]!.box,boxes[j]!.box))errors.push('native blocks overlap: '+boxes[i]!.id+' / '+boxes[j]!.id);
-    const labelBoxes=boxes.flatMap(({id,group})=>{const text=group.querySelector(':scope > text'),shape=group.querySelector(':scope > rect');if(!text||!shape)return[];const tb=rect(text),rb=rect(shape),outside=Math.max(rb.x-tb.x,tb.right-rb.right,rb.y-tb.y,tb.bottom-rb.bottom,0);if(outside>5)errors.push('roadmap label exceeds grid block by '+outside.toFixed(1)+'px: '+id);return[{id,box:tb}];});
+    const labelBoxes=boxes.flatMap(({id,group})=>{const text=group.querySelector(':scope > text'),shape=group.querySelector(':scope > rect');if(!text||!shape)return[];const tb=rect(text),rb=rect(shape),outside=Math.max(rb.x-tb.x,tb.right-rb.right,rb.y-tb.y,tb.bottom-rb.bottom,0);if(outside>5)errors.push('roadmap label exceeds grid block by '+outside.toFixed(1)+'px: '+id+' '+JSON.stringify({text:tb,block:rb}));return[{id,box:tb}];});
     for(let i=0;i<labelBoxes.length;i++)for(let j=i+1;j<labelBoxes.length;j++)if(overlap(labelBoxes[i]!.box,labelBoxes[j]!.box))errors.push('roadmap labels overlap: '+labelBoxes[i]!.id+' / '+labelBoxes[j]!.id);
     return{blocks:blocks.length,tables:0,labels:blocks.length,errors};
    }
@@ -45,8 +45,9 @@ try{
    for(let i=0;i<labels.length;i++)for(let j=i+1;j<labels.length;j++)if(overlap(labels[i]!.box,labels[j]!.box))errors.push('table labels overlap: '+labels[i]!.id+' / '+labels[j]!.id);
    return{blocks:0,tables:tables.length,labels:labels.length,errors};
   },entry.form);
-  if(geometry.errors.length)throw new Error(entry.form+': browser geometry failed '+JSON.stringify(geometry.errors));
   const screenshot='.cache/lini-visual-layout/'+entry.form+'.png';await page.screenshot({path:screenshot,fullPage:true});
+  await Bun.write('.cache/lini-visual-layout/'+entry.form+'.json',JSON.stringify(geometry,null,2)+'\n');
+  if(geometry.errors.length)throw new Error(entry.form+': browser geometry failed '+JSON.stringify(geometry.errors));
   proof.push({form:entry.form,fixture:entry.file,inputSha256:hash(input),sourceSha256:hash(result.text),svgSha256:hash(svg),nativeDiagnostics:nativeDiagnostics.diagnostics??[],browserGeometry:geometry,screenshot});
   await page.close();
  }
