@@ -17,7 +17,7 @@ export interface InterchangeDiagnostic {
  range?:SourceRange;
 }
 export interface IdentityMapping {
- kind:'node'|'edge'|'group'|'field'|'reference';
+ kind:'node'|'edge'|'group'|'field'|'reference'|'participant'|'message';
  /** Exact native identity, or an explicitly occurrence-qualified identity for anonymous edges. */
  nativeId:string;
  /** Field identities use their owning node id; path disambiguates individual fields. */
