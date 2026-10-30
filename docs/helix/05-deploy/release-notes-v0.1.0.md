@@ -30,6 +30,11 @@ Library consumers receive a compiled ESM package with declarations and schemas.
 Renderer and semantic-tool developers can inspect the GitHub Pages catalog or
 download its static archive. Both archives have SHA-256 checksums.
 
+## Highlights
+
+The release combines the extracted vocabulary, explicit native interchange and
+a public catalog built from real engine output.
+
 ## Changes and Fixes
 
 - Portable validation, inspection, read/write, creation and edit APIs, using
