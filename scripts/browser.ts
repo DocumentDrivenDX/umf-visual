@@ -1,5 +1,8 @@
 import {chromium} from 'playwright';
 import {mkdir} from 'node:fs/promises';
+import {join} from 'node:path';
+import {liniDirectory,verifyLiniRuntime} from './interchange-runtime';
+await verifyLiniRuntime();
 const build=await Bun.build({entrypoints:['tests/browser-entry.ts'],target:'browser',format:'esm'});
 if(!build.success)throw Error(build.logs.join('\n'));
 const js=await build.outputs[0]!.text();
@@ -9,6 +12,8 @@ const server=Bun.serve({hostname:'127.0.0.1',port:0,fetch(req){
  const path=new URL(req.url).pathname;
  if(path==='/app.js')return new Response(js,{headers:{'content-type':'text/javascript'}});
  if(path==='/fixtures')return Response.json(fixtures);
+ if(path==='/lini_wasm.js')return new Response(Bun.file(join(liniDirectory,'lini_wasm.js')),{headers:{'content-type':'text/javascript'}});
+ if(path==='/lini_wasm_bg.wasm')return new Response(Bun.file(join(liniDirectory,'lini_wasm_bg.wasm')),{headers:{'content-type':'application/wasm'}});
  if(path==='/')return new Response('<!doctype html><title>UMF visual conformance</title><script type="module" src="/app.js"></script>',{headers:{'content-type':'text/html'}});
  return new Response('Not found',{status:404});
 }});

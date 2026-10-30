@@ -33,7 +33,14 @@
     "generate": "bun scripts/generate.ts",
     "check:source": "bun scripts/check-source.ts",
     "test:browser": "bun scripts/browser.ts",
-    "test:package": "bun scripts/package-smoke.ts"
+    "test:package": "bun scripts/package-smoke.ts",
+    "fetch:lini": "bun scripts/fetch-lini.ts",
+    "test:native": "bun scripts/native-interchange.ts",
+    "build:catalog": "bun scripts/catalog/build.ts",
+    "build:site": "bun microsite/build.ts",
+    "test:site": "bun scripts/catalog-ui-browser.ts",
+    "test:catalog": "bun scripts/catalog/verify.ts",
+    "report:loss": "bun scripts/catalog/loss-progress.ts"
   },
   "dependencies": {
     "@umf/core": "https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz"
@@ -42,6 +49,7 @@
     "@types/bun": "1.4.2",
     "typescript": "7.0.2",
     "playwright": "1.63.0",
-    "typescript-api": "npm:typescript@5.9.3"
+    "typescript-api": "npm:typescript@5.9.3",
+    "mermaid": "12.2.0"
   }
 }

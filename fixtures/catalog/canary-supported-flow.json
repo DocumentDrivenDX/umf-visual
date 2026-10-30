@@ -1,0 +1,23 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:catalog-canary-supported-flow",
+  "vocabularies": {
+    "umf.visual": { "version": "1.0.0" }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "catalog-canary-supported-flow",
+      "kind": "flow",
+      "form": "network",
+      "question": "Can two nodes and one edge be emitted without loss?",
+      "nodes": [
+        { "id": "source", "label": "Source · π" },
+        { "id": "target", "label": "Target \"quoted\"" }
+      ],
+      "edges": [
+        { "id": "source-target", "from": "source", "to": "target", "label": "transfers data" }
+      ]
+    }
+  },
+  "modules": []
+}

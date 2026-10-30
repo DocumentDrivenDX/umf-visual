@@ -1,0 +1,8 @@
+{
+  "project_id": "appgprj_6ae3e30adce88191b98b637f2ebcdd94",
+  "expected_url": "https://umf-visual-catalog.erik-labianca834702.chatgpt.site",
+  "audience": "owner-private",
+  "source_directory": "microsite",
+  "build_directory": "dist-site",
+  "publication": "The Sites checkout receives this repository source under source/ and the verified dist-site build under dist/. Its .openai/hosting.json declares static.directory=dist. This file contains no credentials."
+}

@@ -1,0 +1,9 @@
+digraph {
+  node [tooltip="default tip"];
+  a [label="A", URL="https://example.invalid/a", tooltip="quote \" slash \\ newline\nnext 😀 & <B>"];
+  b [label="B", URL="https://example.invalid/b", tooltip=" leading and trailing "];
+  node [tooltip="later default"];
+  c [label="C", URL="https://example.invalid/c"];
+  a -> b;
+  b -> c;
+}

@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "fixtures": 50,
+  "roundTrips": 100,
+  "atomicEdit": true,
+  "interchange": {
+    "nativeMermaid": {
+      "version": "12.2.0",
+      "cases": [
+        {
+          "name": "graph",
+          "nativeParse": true,
+          "nativeRender": true,
+          "titleFidelity": true
+        },
+        {
+          "name": "entities",
+          "nativeParse": true,
+          "nativeRender": true,
+          "titleFidelity": true
+        }
+      ],
+      "labelFidelity": true,
+      "titleEdgeFidelity": true
+    },
+    "nativeLini": {
+      "version": "1.1.0",
+      "labelFidelity": true,
+      "cases": [
+        {
+          "name": "graph",
+          "diagnostics": [],
+          "detailFidelity": true,
+          "svgSha256": "668b1fc3376e39d386e385340730bc7c89b5fbd04de65bb62032fb0266c9f325"
+        },
+        {
+          "name": "entities",
+          "diagnostics": [],
+          "detailFidelity": true,
+          "svgSha256": "f7b8898cfd5e081069148b344a653251e242dd0893e06f614134517f0d51508f"
+        }
+      ]
+    },
+    "portableRoundTrips": [
+      "dot",
+      "mermaid",
+      "lini"
+    ]
+  },
+  "browser": "153.0.8010.12",
+  "errors": []
+}

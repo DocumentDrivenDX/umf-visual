@@ -25,6 +25,29 @@ compatibility, preservation and portable behavior are its outcomes.
   upstream HELIX improvement without inventing a local methodology fork.
 
 The installed HELIX catalog supplies templates and workflow definitions. It is
-not copied here. Next: Frame the interchange requirements, then define the model
-and adapter contracts before changing vocabulary semantics. Existing source
-evidence covers vocabulary validation, not native-format interchange.
+not copied here. [FEAT-035](01-frame/features/FEAT-035-native-interchange.md),
+[US-094](01-frame/user-stories/US-094-native-interchange.md),
+[CONTRACT-086](02-design/contracts/CONTRACT-086-native-interchange.md) and
+[TD-094](02-design/technical-designs/TD-094-native-interchange.md) govern bounded
+DOT/Mermaid/Lini interchange. The existing vocabulary semantics remain unchanged.
+Extraction evidence establishes vocabulary behavior; native adapter qualification
+requires its own versioned execution receipts.
+
+
+[FEAT-036](01-frame/features/FEAT-036-visual-catalog.md),
+[US-095](01-frame/user-stories/US-095-visual-catalog.md),
+[CONTRACT-085](02-design/contracts/CONTRACT-085-visual-catalog.md) and
+[STP-095](03-test/test-plans/STP-095-visual-catalog.md) govern the umf.visuals
+catalog microsite. It compares original definitions, real export outcomes and
+independent native render results across the complete fixture corpus.
+
+
+The [visual-language source inventory](00-discover/current-state-inventory-visual-language.md)
+distinguishes the current 1.0.0 language declarations from example instances and
+identifies application-profile constraints requiring explicit future model design.
+
+[Interchange and catalog execution evidence](04-build/interchange-catalog-evidence.md)
+records native, packed-package, browser, catalog and reproducibility checks.
+
+[First loss-reduction wave](04-build/loss-reduction-wave-1.md) records measured
+title/description mappings, native character limits and the next worklist.
