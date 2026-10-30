@@ -9,10 +9,14 @@ const consumer=await mkdtemp(resolve('.cache/consumer-'));
 await Bun.write(join(consumer,'package.json'),JSON.stringify({private:true,type:'module',dependencies:{'@documentdrivendx/umf-visual':'file:'+archive}}));
 const install=Bun.spawn([process.execPath,'install','--ignore-scripts'],{cwd:consumer,stdout:'inherit',stderr:'inherit'});
 if(await install.exited)throw Error('Packed consumer installation failed');
-await Bun.write(join(consumer,'consumer.mjs'),`import {createVisualDocument,inspectVisual,importVisual,exportVisual} from '@documentdrivendx/umf-visual';
+await Bun.write(join(consumer,'consumer.mjs'),`import {createVisualDocument,inspectVisual,importVisual,exportVisual,upgradeVisualDocument,latestVisualPackage} from '@documentdrivendx/umf-visual';
+import legacySchema from '@documentdrivendx/umf-visual/schema' with {type:'json'};
+import modernSchema from '@documentdrivendx/umf-visual/schema/1.1.0' with {type:'json'};
 import {planMiroExport} from '@documentdrivendx/umf-visual/miro';
 const doc=createVisualDocument({id:'consumer',kind:'flow',form:'network',question:'Does installation work?',nodes:[{id:'n',label:'Installed consumer'}]});
 if(planMiroExport(doc).shapes.length!==2)throw Error('Installed Miro entrypoint failed');
+if(legacySchema.$id!=='urn:umf:visual:1.0.0'||modernSchema.$id!=='urn:umf:visual:1.1.0'||latestVisualPackage.version!=='1.1.0')throw Error('Versioned package assets failed');
+if(!inspectVisual(upgradeVisualDocument(doc)).complete||doc.vocabularies['umf.visual'].version!=='1.0.0')throw Error('Installed upgrade failed');
 const report=inspectVisual(doc);if(!report.valid||!report.complete)throw Error('Installed package rejected valid data');
 for(const format of ['dot','mermaid','lini']){
  const output=exportVisual(doc,{format});if(!output.ok)throw Error('Installed export failed '+format);
