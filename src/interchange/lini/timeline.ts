@@ -33,6 +33,9 @@ const validDate=(text:string)=>{
 };
 const textSafe=(value:string)=>{try{quote(value);return true;}catch{return false;}};
 const trimNative=(value:string)=>value.replace(/^\p{White_Space}+|\p{White_Space}+$/gu,'');
+// Lini's grid sizing uses fixed line-height estimates that vary from the
+// browser's font metrics. Reserve a generous height per explicit label line.
+const ROADMAP_SPAN_LINE_HEIGHT=28;
 function nativeLabel(value:string,at:string,diagnostics:InterchangeDiagnostic[]):string{const normalized=trimNative(value);if(normalized!==value)diagnostics.push(diagnostic('LINI_TIMELINE_TRIM',at,'Native Lini trims boundary whitespace from visible labels.'));return normalized;}
 function wrapRoadmapLabel(value:string,max:number):string{
  if(value.includes('\n'))return value;
@@ -42,6 +45,7 @@ function wrapRoadmapLabel(value:string,max:number):string{
 }
 const longestRoadmapWord=(value:string):number=>Math.max(0,...(value.match(/[^ ]+/g)??[]).map(word=>word.length));
 function unwrapRoadmapLabel(value:string):string{return value.replace(/\n/g,' ');}
+function roadmapSpanHeight(value:string,max:number):number{return wrapRoadmapLabel(value,max).split('\n').length*ROADMAP_SPAN_LINE_HEIGHT;}
 const statusPaths=['detail','status','emphasis'] as const;
 type Timeline=VisualDefs['timeline'];
 
@@ -123,7 +127,8 @@ function buildRoadmap(visual:Visual,timeline:Timeline,diagnostics:InterchangeDia
  periods.forEach((period,index)=>{const native=encodeId('period_',period.id),at=p('/scale/periods/'+index);identityMap.push({kind:'period',nativeId:native,visualId:period.id,path:at+'/id',sourcePath:'block#'+native});coverage.push(...covers(at+'/id',['identity'],{id:native,slot:'block#'+native}),...covers(at+'/label',['value'],{id:native,slot:'block#'+native}));});
  for(const placement of placements){
   const {span,index,laneIndex,start,end,subrow}=placement,native=encodeId('span_',span.id),at=p('/spans/'+index),cellColumn=start+2,cellRow=laneRows[laneIndex]!+subrow,width=end-start+1;
-  lines.push('  |block#'+native+'| '+quote(wrapRoadmapLabel(span.label,Math.max(12,width*22)))+' { cell: '+cellColumn+' '+cellRow+'; span: '+width+' 1; }');
+  const wrappedLabel=wrapRoadmapLabel(span.label,Math.max(12,width*22));
+  lines.push('  |block#'+native+'| '+quote(wrappedLabel)+' { cell: '+cellColumn+' '+cellRow+'; span: '+width+' 1; height: '+roadmapSpanHeight(span.label,Math.max(12,width*22))+'; }');
   const loc={id:native,slot:'block#'+native};identityMap.push({kind:'span',nativeId:native,visualId:span.id,path:at+'/id',sourcePath:loc.slot});coverage.push(...covers(at+'/id',['identity'],loc),...covers(at+'/label',['value'],loc),...covers(at+'/start',['value'],loc),...covers(at+'/end',['value'],loc),...covers(at+'/lane',['value'],loc));
  }
  lines.push(']');coverage.push(...covers(p('/scale/periods'),['presence','order'],{id:groupId,slot:'group#'+groupId+'/period-headers'}),...covers(p('/lanes'),['presence','order'],{id:groupId,slot:'group#'+groupId+'/lane-headers'}),...covers(p('/spans'),['presence','order'],{id:groupId,slot:'group#'+groupId+'/span-blocks'}));
@@ -201,11 +206,12 @@ function parseRoadmap(nodes:LiniProfileNode[],diagnostics:InterchangeDiagnostic[
  }
  const spanNodes=blockNodes.filter(node=>node.id.startsWith('span_')),spans:NonNullable<Timeline['spans']>=[],spanIds=new Set<string>(),periodCount=periods.length,occupied=new Map<string,Array<{start:number;end:number;row:number}>>();
  for(const[index,node]of spanNodes.entries()){
-  onlyProperties(node,['cell','span'],diagnostics);
+  onlyProperties(node,['cell','span','height'],diagnostics);
   const id=exactId(node.id,'span_'),position=cell(node),size=span(node),label=node.label;
   const laneEntry=[...laneRows.entries()].find(([,lane])=>position&&position[1]>=lane.start&&position[1]<=lane.end);
   const lane=laneEntry?.[1],start=position?position[0]-2:-1,end=size?start+size[0]-1:-1;
   if(!id||spanIds.has(id)||!position||!size||size[1]!==1||start<0||end<start||end>=periodCount||label===undefined||!lane){fail(diagnostics,'LINI_TIMELINE_SPAN','Span block needs a unique reversible ID, one-row grid placement within a declared lane and period range.');continue;}
+  if(numeric(property(node,'height'))!==label.split('\n').length*ROADMAP_SPAN_LINE_HEIGHT)fail(diagnostics,'LINI_TIMELINE_HEIGHT','Roadmap span height must reserve the declared cross-platform line-height for its visible label.');
   spanIds.add(id);const occurrences=occupied.get(lane.id)??[];if(occurrences.some(item=>start<=item.end&&end>=item.start&&position[1]===item.row))fail(diagnostics,'LINI_TIMELINE_OVERLAP','Overlapping spans must use distinct deterministic subrows.');occurrences.push({start,end,row:position[1]});occupied.set(lane.id,occurrences);
   const startPeriod=periods[start]?.id,endPeriod=periods[end]?.id;if(!startPeriod||!endPeriod)continue;
   const path=p('/spans/'+spans.length),visibleLabel=nativeLabel(unwrapRoadmapLabel(label),path+'/label',diagnostics);spans.push({id,label:visibleLabel,start:startPeriod,end:endPeriod,lane:lane.id});const loc={id:node.id,slot:'block#'+node.id};identityMap.push({kind:'span',nativeId:node.id,visualId:id,path:path+'/id',sourcePath:loc.slot});coverage.push(...covers(path+'/id',['identity'],loc),...covers(path+'/label',['value'],loc),...covers(path+'/start',['value'],loc),...covers(path+'/end',['value'],loc),...covers(path+'/lane',['value'],loc));
