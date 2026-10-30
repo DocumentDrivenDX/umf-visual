@@ -49,3 +49,6 @@ records native, packed-package, browser, catalog and reproducibility checks.
 
 [First loss-reduction wave](04-build/loss-reduction-wave-1.md) records measured
 title/description mappings, native character limits and the next worklist.
+
+[Second loss-reduction wave](04-build/loss-reduction-wave-2.md) records native
+cluster/sequence mappings, 13 additional renders and qualified remaining losses.

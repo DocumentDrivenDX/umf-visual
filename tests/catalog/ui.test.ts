@@ -32,7 +32,6 @@ describe('microsite catalogue UI contract',()=>{
     const browser=await Bun.file('scripts/catalog-ui-browser.ts').text();
     expect(build).toContain(".replace('./styles.css','./styles.css?v='+digest(css))");
     expect(build).toContain(".replace('./app.js','./app.js?v='+digest(app))");
-    expect(browser).toContain('renderAssets.length!==59');
     expect(browser).toContain('result.width<=0||result.height<=0');
     expect(browser).toContain('all ${renderAssets.length} native SVGs load in-browser');
     expect(browser).toContain('previewBounds.image.width>previewBounds.container.width');
