@@ -1,5 +1,8 @@
 name: Library conformance
 on: [push, pull_request, workflow_dispatch]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:

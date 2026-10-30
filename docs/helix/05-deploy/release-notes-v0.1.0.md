@@ -30,7 +30,7 @@ Library consumers receive a compiled ESM package with declarations and schemas.
 Renderer and semantic-tool developers can inspect the GitHub Pages catalog or
 download its static archive. Both archives have SHA-256 checksums.
 
-## Highlights
+## Changes and Fixes
 
 - Portable validation, inspection, read/write, creation and edit APIs, using
   released @umf/core SDK 0.5.7 through its public boundary.
@@ -43,7 +43,7 @@ download its static archive. Both archives have SHA-256 checksums.
 - Atomic catalog updates and content-addressed SVGs fix stale inline renderings.
   Title and description mappings remove 129 previously reported loss diagnostics.
 
-## Required Actions Summary
+## Breaking Changes and Required Actions
 
 Install the package archive from this release using Bun or npm with its download
 URL. Its pinned public core dependency requires network access during install.
@@ -54,7 +54,9 @@ backend is required at browsing time. There is no prior release to migrate.
 
 The implementation passed 88 Bun tests (3,254 assertions), source boundaries,
 typechecking, packed Bun/Node consumers, real Chromium library/UI checks and
-native Graphviz, Mermaid and Lini checks. Both Linux CI runs passed at the
+native Graphviz, Mermaid and Lini checks.
+
+Both Linux CI runs passed at the
 implementation cut. The publication workflow repeats conformance before Pages
 publication. UI verification checks all 59 SVGs, errors, deep links and 375px layout.
 Native evidence is qualified by the versions recorded in the generated catalog
@@ -64,10 +66,14 @@ and execution reports; rendering success does not establish semantic equivalence
 
 The current vocabulary and adapter profiles are an initial bounded subset, not
 a finished superset of native diagram tools. Unsupported forms refuse explicitly;
-reported-loss exports require opt-in. Styles, ports, richer relationships and
+reported-loss exports require opt-in.
+
+Styles, ports, richer relationships and
 common model/profile separation remain future work. Original native source must
 be retained with its companion receipt for exact replay. Model authority remains
-handwritten. Bundler declaration resolution is verified; NodeNext remains limited
+handwritten.
+
+Bundler declaration resolution is verified; NodeNext remains limited
 by upstream SDK declarations. No npm publication or Miro integration is claimed.
 
 ## Migration or Rollback Guidance
