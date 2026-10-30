@@ -12,6 +12,16 @@ const statusFor = (item, target) => item?.targets?.[target]?.status || 'unevalua
 const isFormFixture = item => typeof item.sourcePath === 'string' && item.sourcePath.startsWith('fixtures/visual/forms/');
 const sampleSetFor = item => item.origin === 'canary' ? 'canary' : isFormFixture(item) ? 'form-example' : 'application-example';
 const sampleSetLabel = item => ({'form-example':'Form fixture example','application-example':'Application sample','canary':'Canary sample'}[sampleSetFor(item)]);
+function findItemForUrl(id) {
+  const exact = allItems().find(item => item.id === id);
+  if (exact) return exact;
+  const legacy = allItems().filter(item => {
+    const fileName = String(item.sourcePath || '').split('/').pop() || '';
+    const stem = fileName.endsWith('.json') ? fileName.slice(0, -5) : '';
+    return stem && `visual-${stem}` === id;
+  });
+  return legacy.length === 1 ? legacy[0] : undefined;
+}
 
 function themeInit() {
   const stored = localStorage.getItem('umf-visual-theme');
@@ -178,7 +188,7 @@ function makeCard(item) {
   const preview = el('div', 'definition-preview');
   const previewTarget = (state.profiles.size ? TARGETS.filter(target => state.profiles.has(target)) : TARGETS).find(target => item.targets?.[target]?.render?.ok && safeRenderPath(item.targets[target].render.svgPath));
   if (previewTarget) {
-    const render = item.targets[previewTarget].render; const img = document.createElement('img'); img.src = safeRenderPath(render.svgPath); img.alt = `${LABELS[previewTarget]} native render preview of ${item.title}`; img.loading = 'lazy';
+    const render = item.targets[previewTarget].render; const img = document.createElement('img'); img.src = safeRenderPath(render.svgPath, render.svgSha256); img.alt = `${LABELS[previewTarget]} native render preview of ${item.title}`; img.loading = 'lazy';
     img.addEventListener('error', () => { preview.replaceChildren(el('span', 'no-preview', 'PREVIEW UNAVAILABLE')); }); preview.setAttribute('aria-label', `${LABELS[previewTarget]} native render preview`); preview.append(img, el('span', 'preview-label', `${LABELS[previewTarget]} RENDER`));
   } else { preview.setAttribute('aria-label', 'No native render was recorded'); preview.append(el('span', 'no-preview', 'NO NATIVE RENDER')); }
   const strip = el('div', 'status-strip'); strip.setAttribute('aria-label', 'Target profile status');
@@ -208,9 +218,11 @@ function openDetail(id, target = state.target) {
   showTarget(item, state.target); setUrl(item.id, state.target);
   const dialog = $('detail-dialog'); if (!dialog.open) dialog.showModal();
 }
-function safeRenderPath(path) {
+function safeRenderPath(path, sha256) {
   if (typeof path !== 'string' || !/^renders\/[A-Za-z0-9._/-]+\.svg$/.test(path) || path.split('/').some(part => part === '..')) return null;
-  return new URL(path, new URL('./', location.href)).href;
+  const url = new URL(path, new URL('./', location.href));
+  if (typeof sha256 === 'string' && /^[a-f0-9]{64}$/i.test(sha256)) url.searchParams.set('v', sha256);
+  return url.href;
 }
 function addDiagnostics(panel, diagnostics) {
   if (!Array.isArray(diagnostics) || !diagnostics.length) return;
@@ -240,11 +252,11 @@ function showTarget(item, target) {
   panel.append(el('p', 'target-explainer', reason));
   const render = result.render;
   if (render?.ok && render.svgPath) {
-    const src = safeRenderPath(render.svgPath);
+    const src = safeRenderPath(render.svgPath, render.svgSha256);
     if (src) {
       const preview = el('div', 'render-preview'); const img = document.createElement('img'); img.src = src; img.alt = `${LABELS[target]} native render of ${item.title}`; img.loading = 'lazy';
       img.addEventListener('error', () => { preview.replaceChildren(el('p', 'render-error', 'Native render preview could not be loaded from the recorded SVG asset.')); });
-      preview.append(img); panel.append(preview); panel.append(el('p', 'render-caption', `Rendered by ${render.engine || LABELS[target]} ${render.nativeVersion || ''} · this SVG was generated from the emitted source`.trim()));
+      preview.append(img); panel.append(preview); const openSvg=el('a','text-link','Open native SVG ↗'); openSvg.href=src; openSvg.target='_blank'; openSvg.rel='noopener noreferrer'; openSvg.setAttribute('aria-label',`Open ${LABELS[target]} SVG for ${item.title}`); panel.append(openSvg); panel.append(el('p', 'render-caption', `Rendered by ${render.engine || LABELS[target]} ${render.nativeVersion || ''} · this SVG was generated from the emitted source`.trim()));
     } else panel.append(el('p', 'render-error', 'Native render asset path is invalid; preview withheld.'));
   } else if (render) {
     panel.append(el('p', 'render-error', `Native render unavailable: ${render.error || 'no render output was recorded.'}`));
@@ -270,7 +282,7 @@ function resetFilters() {
 async function init() {
   themeInit();
   try {
-    const response = await fetch('./catalog.json'); if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const response = await fetch('./catalog.json', {cache: 'no-store'}); if (!response.ok) throw new Error(`HTTP ${response.status}`);
     state.catalog = await response.json();
     if (state.catalog.schemaVersion !== 1 || !Array.isArray(state.catalog.items)) throw new Error('Unsupported catalogue schema');
     if (!state.catalog.language?.schema?.schema || !state.catalog.language?.forms?.kinds) throw new Error('Language reference is missing');
@@ -293,7 +305,10 @@ async function init() {
     });
     const initialParams = new URLSearchParams(location.search); const initialId = initialParams.get('id'); const initialTarget = initialParams.get('target');
     updateList();
-    if (initialId && allItems().some(item => item.id === initialId)) openDetail(initialId, initialTarget || 'dot');
+    if (initialId) {
+      const item = findItemForUrl(initialId);
+      if (item) openDetail(item.id, initialTarget || 'dot');
+    }
   } catch (error) {
     console.error('Catalogue load failed', error); $('load-error').hidden = false; $('result-count').textContent = 'Catalogue unavailable';
   }

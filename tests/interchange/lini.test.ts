@@ -8,21 +8,64 @@ const fixture=(name:string)=>readFileSync(new URL('../../fixtures/interchange/li
 test('Lini flow profile maps native card paths and directed links',()=>{
  const parsed=liniAdapter.parse(fixture('flow-basic.lini'),context);
  expect(parsed.diagnostics.some(d=>d.severity==='error')).toBe(false);
- expect(parsed.visual).toMatchObject({kind:'flow',form:'network',nodes:[{label:'Ingress'},{label:'Store'}],edges:[{from:'n1',to:'n2',label:'writes'}]});
+ expect(liniAdapter.version).toBe('0.2.0');
+ expect(parsed.visual).toMatchObject({kind:'flow',form:'network',nodes:[{label:'Ingress',detail:'Receives API requests'},{label:'Store',detail:'Durable storage'}],edges:[{from:'n1',to:'n2',label:'writes'}]});
  expect(parsed.identityMap.some(item=>item.kind==='node'&&item.nativeId==='n_1')).toBe(true);
  expect(parsed.identityMap.some(item=>item.kind==='edge'&&item.path==='/extensions/umf.visual/edges/0/id')).toBe(true);
  const output=liniAdapter.serialize(parsed.visual!,context);
  expect(output.text).toContain('|block#n_0| "Ingress"');
+ expect(output.text).toContain('{ hint: "Receives API requests"; }');
  expect(output.text).toContain('n_0 -> n_1 "writes"');
+ const roundtrip=liniAdapter.parse(output.text!,context);
+ expect(roundtrip.visual?.nodes?.map(node=>node.detail)).toEqual(['Receives API requests','Durable storage']);
 });
 
 test('Lini entity profile preserves field display text and field endpoints',()=>{
  const parsed=liniAdapter.parse(fixture('entities-basic.lini'),context);
  expect(parsed.diagnostics.some(d=>d.severity==='error')).toBe(false);
- expect(parsed.visual).toMatchObject({kind:'structure',form:'entities',structure:{entities:[{fields:[{name:'account id',type:'uuid'}]},{fields:[{name:'payload',type:'json'}]},],references:[{from:{field:'account id'},to:{field:'payload'},label:'emits'}]}});
+ expect(parsed.visual).toMatchObject({kind:'structure',form:'entities',nodes:[{detail:'Customer account record'},{detail:'Stored event payload'}],structure:{entities:[{fields:[{name:'account id',type:'uuid'}]},{fields:[{name:'payload',type:'json'}]},],references:[{from:{field:'account id'},to:{field:'payload'},label:'emits'}]}});
  const output=liniAdapter.serialize(parsed.visual!,context);
+ expect(output.text).toContain('|entity#n_0| "Account" { hint: "Customer account record"; } [');
  expect(output.text).toContain('|cell#f_0| "account id"');
  expect(output.text).toContain('n_0.f_0 -> n_1.f_0 "emits"');
+ const roundtrip=liniAdapter.parse(output.text!,context);
+ expect(roundtrip.visual?.nodes?.map(node=>node.detail)).toEqual(['Customer account record','Stored event payload']);
+});
+
+test('card hints map to exact Visual detail text while field hints remain reported loss',()=>{
+ const detail='  Ask "Sam" \\path\nnext\tline  ';
+ const visual={id:'x',kind:'flow' as const,form:'network' as const,question:'q',nodes:[{id:'node',label:'Card',detail}]};
+ const serialized=liniAdapter.serialize(visual,context);
+ expect(serialized.text).toContain('hint: '+JSON.stringify(detail));
+ expect(serialized.diagnostics.some(d=>d.code==='LINI_NODE_FIELD')).toBe(false);
+ expect(serialized.diagnostics.some(d=>d.code==='LINI_DETAIL_TRIM'&&d.loss)).toBe(true);
+ const parsed=liniAdapter.parse(serialized.text!,context);
+ expect(parsed.visual?.nodes?.[0]?.detail).toBe(detail.trim());
+ expect(parsed.diagnostics.some(d=>d.code==='LINI_DETAIL_TRIM'&&d.loss)).toBe(true);
+ const nativeTrim=liniAdapter.parse('|block#a| "Card" { hint: "  tooltip  "; }',context);
+ expect(nativeTrim.visual?.nodes?.[0]?.detail).toBe('tooltip');
+ expect(nativeTrim.diagnostics.some(d=>d.code==='LINI_DETAIL_TRIM'&&d.loss)).toBe(true);
+ const fieldHint=liniAdapter.parse('|entity#a| "A" [\n|cell#pk| "key" { hint: "tooltip"; }; "uuid"\n]',context);
+ expect(fieldHint.visual).toBeDefined();expect(fieldHint.diagnostics.some(d=>d.code==='LINI_HINT_LOSS'&&d.loss)).toBe(true);
+ const emptyNative=liniAdapter.parse('|block#a| "A" { hint: ""; }',context);
+ expect(emptyNative.visual).toBeUndefined();expect(emptyNative.diagnostics.some(d=>d.code==='LINI_EMPTY_HINT'&&d.severity==='error')).toBe(true);
+ const blankNative=liniAdapter.parse('|block#a| "A" { hint: "  "; }',context);
+ expect(blankNative.visual).toBeUndefined();expect(blankNative.diagnostics.some(d=>d.code==='LINI_EMPTY_HINT'&&d.severity==='error')).toBe(true);
+ const emptyVisual=liniAdapter.serialize({...visual,nodes:[{id:'node',label:'Card',detail:''}]},context);
+ expect(emptyVisual.text).toBeUndefined();expect(emptyVisual.diagnostics.some(d=>d.code==='LINI_DETAIL'&&d.severity==='error')).toBe(true);
+});
+
+test('native Unicode whitespace trims NEL but preserves BOM at label and hint boundaries',()=>{
+ const nel='\u0085',bom='\ufeff';
+ const nelParsed=liniAdapter.parse(`|block#nel| "${nel}Label${nel}" { hint: "${nel}detail${nel}"; }`,context);
+ expect(nelParsed.visual?.nodes?.[0]).toMatchObject({label:'Label',detail:'detail'});
+ expect(nelParsed.diagnostics.some(d=>d.code==='LINI_TEXT_TRIM')).toBe(true);
+ expect(nelParsed.diagnostics.some(d=>d.code==='LINI_DETAIL_TRIM')).toBe(true);
+ const bomParsed=liniAdapter.parse(`|block#bom| "${bom}Label${bom}" { hint: "${bom}detail${bom}"; }`,context);
+ expect(bomParsed.visual?.nodes?.[0]).toMatchObject({label:`${bom}Label${bom}`,detail:`${bom}detail${bom}`});
+ expect(bomParsed.diagnostics.some(d=>d.code==='LINI_TEXT_TRIM'||d.code==='LINI_DETAIL_TRIM')).toBe(false);
+ const bomSerialized=liniAdapter.serialize({id:'x',kind:'flow',form:'network',question:'q',nodes:[{id:'bom',label:`${bom}Label${bom}`,detail:`${bom}detail${bom}`}]},context);
+ expect(bomSerialized.diagnostics.some(d=>d.code==='LINI_TEXT_TRIM'||d.code==='LINI_DETAIL_TRIM')).toBe(false);
 });
 
 test('Lini field references resolve arbitrary declared flat paths rather than row positions or hints',()=>{

@@ -5,8 +5,8 @@ import type {AdapterParseResult,AdapterSerializeResult,IdentityMapping,Interchan
 
 /** Bounded Mermaid 12.2 profile: simple directed flowcharts and entity ER diagrams. */
 export const mermaidAdapter:VisualInterchangeAdapter={
- format:'mermaid',version:'1.0.0',
- subset:'Mermaid 12.2.0 flowchart: bare/rectangular nodes and directed links with plain text/numeric-escaped labels; erDiagram: entities, fields, four cardinalities and relationship labels. Raw HTML, Markdown, named entities, and literal angle brackets are outside this profile.',
+ format:'mermaid',version:'1.1.0',
+ subset:'Mermaid 12.2.0 flowchart: bare/rectangular nodes, directed links and JSON-quoted YAML frontmatter titles; erDiagram: entities, fields, four cardinalities, relationship labels and JSON-quoted YAML frontmatter titles. Titles preserve plain Unicode, quotes, backslashes, hashes, tabs, and line feeds; carriage returns, ampersands, and angle brackets altered by strict rendering are refused. Labels are plain text/numeric-escaped; raw HTML, Markdown, named entities, and literal angle brackets are outside this profile.',
  parse(source,context){return parseMermaid(source,context);},
  serialize(visual,context){return serializeMermaid(visual,context);},
 };
@@ -16,6 +16,8 @@ const advisory=(code:string,path:string,message:string,range?:{start:number;end:
 const ptr=(part:string|number)=>'/source/'+String(part).replace(/~/g,'~0').replace(/\//g,'~1');
 const visualPath=(part:string)=>{const suffix=part.replace(/^\/+/, '');return suffix?'/extensions/umf.visual/'+suffix:'/extensions/umf.visual';};
 const quote=(value:string)=>'"'+value.replace(/#/g,'#35;').replace(/&/g,'#38;').replace(/\\/g,'#92;').replace(/"/g,'#34;').replace(/</g,'#60;').replace(/>/g,'#62;').replace(/\|/g,'#124;').replace(/`/g,'#96;').replace(/\r/g,'#13;').replace(/\n/g,'#10;')+'"';
+const frontmatter=(title:string|undefined):string[]=>title===undefined?[]:['---','title: '+JSON.stringify(title),'---'];
+const validTitle=(title:string):boolean=>title.length>0&&!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f&<>\r]/.test(title)&&!Array.from(title).some(char=>char.length===1&&char.charCodeAt(0)>=0xd800&&char.charCodeAt(0)<=0xdfff);
 const decodeEntities=(value:string)=>value.replace(/#(\d+);/g,(_entity,number:string)=>String.fromCodePoint(Number(number)));
 const invalidEntityCode=(value:string):string|undefined=>{
  for(const match of value.matchAll(/#(\d+);/g)){
@@ -37,12 +39,32 @@ function parseMermaid(source:string,context:{id:string;question:string}):Adapter
  const diagnostics:InterchangeDiagnostic[]=[],identityMap:IdentityMapping[]=[];
  const lines=source.split(/\r\n|\n|\r/);const offsets:number[]=[];let offset=0;
  for(const line of lines){offsets.push(offset);offset+=line.length+(source.startsWith('\r\n',offset+line.length)?2:offset+line.length<source.length?1:0);}
- const meaningful=lines.map((text,index)=>({text:text.trim(),index,range:{start:offsets[index],end:offsets[index]+lines[index].length}})).filter(x=>x.text&&!/^%%/.test(x.text));
+ let meaningful=lines.map((text,index)=>({text:text.trim(),index,range:{start:offsets[index],end:offsets[index]+lines[index].length}})).filter(x=>x.text&&!/^%%/.test(x.text));
  if(!meaningful.length)return{diagnostics:[diagnostic('MERMAID_EMPTY','/source','No Mermaid diagram header was found.',{start:0,end:source.length},'error')],identityMap};
+ let title:string|undefined;
+ if(meaningful[0].text==='---'){
+  const close=meaningful.slice(1).find(row=>row.text==='---');
+  if(!close)return{diagnostics:[diagnostic('MERMAID_FRONTMATTER',ptr(meaningful[0].index),'Frontmatter opening delimiter has no closing delimiter.',meaningful[0].range,'error')],identityMap};
+  const closePosition=meaningful.indexOf(close);
+  for(const row of meaningful.slice(1,closePosition)){
+   if(/^\s/.test(lines[row.index]))return{diagnostics:[...diagnostics,diagnostic('MERMAID_FRONTMATTER',ptr(row.index),'Indented frontmatter entries are outside the supported root-key YAML subset.',row.range,'error')],identityMap};
+   const match=/^title:\s*("(?:[^"\\]|\\.)*")\s*$/.exec(row.text);
+   if(match){
+    if(title!==undefined)return{diagnostics:[...diagnostics,diagnostic('MERMAID_TITLE',ptr(row.index),'Duplicate frontmatter title is ambiguous.',row.range,'error')],identityMap};
+    try{title=JSON.parse(match[1]) as string;}catch{return{diagnostics:[...diagnostics,diagnostic('MERMAID_TITLE',ptr(row.index),'Frontmatter title must be a valid JSON-quoted YAML string.',row.range,'error')],identityMap};}
+    if(typeof title!=='string'||!validTitle(title))return{diagnostics:[...diagnostics,diagnostic('MERMAID_TITLE',ptr(row.index),'Frontmatter title must be nonempty, use supported Unicode scalars, and exclude controls, carriage returns, and angle brackets or ampersands altered by Mermaid rendering.',row.range,'error')],identityMap};
+    continue;
+   }
+   if(/^title\s*:/.test(row.text))return{diagnostics:[...diagnostics,diagnostic('MERMAID_TITLE',ptr(row.index),'Only JSON-quoted YAML title scalars are supported for exact title preservation.',row.range,'error')],identityMap};
+   if(!/^[A-Za-z_][\w-]*\s*:/.test(row.text))return{diagnostics:[...diagnostics,diagnostic('MERMAID_FRONTMATTER',ptr(row.index),'Frontmatter entry is outside the supported YAML key/value subset.',row.range,'error')],identityMap};
+   diagnostics.push(diagnostic('MERMAID_METADATA',ptr(row.index),'Non-title Mermaid frontmatter metadata is not represented in Visual 1.0.',row.range));
+  }
+  meaningful=meaningful.slice(closePosition+1);
+  if(!meaningful.length)return{diagnostics:[...diagnostics,diagnostic('MERMAID_PROFILE','/source','Frontmatter must be followed by a supported diagram header.',undefined,'error')],identityMap};
+ }
  const header=meaningful[0];const flow=/^(?:flowchart|graph)\s+(TB|TD|BT|RL|LR)\s*$/.exec(header.text);
- if(flow)return parseFlow(source,context,lines,offsets,meaningful,flow[1].toUpperCase(),diagnostics,identityMap);
- if(/^erDiagram\s*$/.test(header.text))return parseEr(source,context,lines,offsets,meaningful,diagnostics,identityMap);
- if(header.text==='---')return{diagnostics:[diagnostic('MERMAID_METADATA',ptr(header.index),'Mermaid frontmatter, including title and configuration/source metadata, is outside this profile.',header.range,'error')],identityMap};
+ if(flow)return parseFlow(source,context,lines,offsets,meaningful,flow[1].toUpperCase(),diagnostics,identityMap,title);
+ if(/^erDiagram\s*$/.test(header.text))return parseEr(source,context,lines,offsets,meaningful,diagnostics,identityMap,title);
  return{diagnostics:[diagnostic('MERMAID_PROFILE',ptr(header.index),'Only a simple flowchart or erDiagram is in this Mermaid profile.',header.range,'error')],identityMap};
 }
 function admission(visual:Visual,diagnostics:InterchangeDiagnostic[]):boolean{
@@ -55,7 +77,7 @@ function admission(visual:Visual,diagnostics:InterchangeDiagnostic[]):boolean{
  }
  return false;
 }
-function parseFlow(source:string,context:{id:string;question:string},lines:string[],offsets:number[],meaningful:{text:string;index:number;range:{start:number;end:number}}[],direction:string,diagnostics:InterchangeDiagnostic[],identityMap:IdentityMapping[]):AdapterParseResult{
+function parseFlow(source:string,context:{id:string;question:string},lines:string[],offsets:number[],meaningful:{text:string;index:number;range:{start:number;end:number}}[],direction:string,diagnostics:InterchangeDiagnostic[],identityMap:IdentityMapping[],title?:string):AdapterParseResult{
  const nodes:{id:string;label:string;sourceId:string;line:number}[]=[],edges:{id:string;from:string;to:string;label?:string;line:number}[]=[];
  const byNative=new Map<string,typeof nodes[number]>();let fatal=false;
  const nodeExpr=String.raw`([A-Za-z_][A-Za-z0-9_-]*)(?:\[\s*("(?:[^"\\]|\\.)*"|[^\]]*)\s*\])?`;
@@ -79,13 +101,13 @@ function parseFlow(source:string,context:{id:string;question:string},lines:strin
  if(nodes.length>15){diagnostics.push(diagnostic('MERMAID_SIZE','/source','Flowchart has more than the Visual 1.0 limit of 15 nodes.',undefined,'error'));fatal=true;}
  if(fatal)return{diagnostics,identityMap};
  for(const row of lines.map((text,index)=>({text:text.trim(),index})).filter(x=>/^%%/.test(x.text)))diagnostics.push(commentDiagnostic(row.text,row.index,offsets[row.index],offsets[row.index]+lines[row.index].length));
- const visual:Visual={id:context.id,kind:'flow',form:'network',question:context.question,nodes:nodes.map(({id,label})=>({id,label})),...(edges.length?{edges:edges.map(({id,from,to,label})=>({id,from,to,...(label===undefined?{}:{label})}))}:{})};
+ const visual:Visual={id:context.id,kind:'flow',form:'network',question:context.question,...(title===undefined?{}:{title}),nodes:nodes.map(({id,label})=>({id,label})),...(edges.length?{edges:edges.map(({id,from,to,label})=>({id,from,to,...(label===undefined?{}:{label})}))}:{})};
  if(!admission(visual,diagnostics))return{diagnostics,identityMap};
  nodes.forEach((node,index)=>identityMap.push(identityMapping('node',node.sourceId,node.id,visualPath('/nodes/'+index+'/id'),ptr(node.line))));
  edges.forEach((edge,index)=>{const sourceId='edge@'+(index+1);identityMap.push(identityMapping('edge',sourceId,edge.id,visualPath('/edges/'+index+'/id'),ptr(edge.line)));});
  return{visual,diagnostics,identityMap};
 }
-function parseEr(source:string,context:{id:string;question:string},lines:string[],offsets:number[],meaningful:{text:string;index:number;range:{start:number;end:number}}[],diagnostics:InterchangeDiagnostic[],identityMap:IdentityMapping[]):AdapterParseResult{
+function parseEr(source:string,context:{id:string;question:string},lines:string[],offsets:number[],meaningful:{text:string;index:number;range:{start:number;end:number}}[],diagnostics:InterchangeDiagnostic[],identityMap:IdentityMapping[],title?:string):AdapterParseResult{
  const nodes:{id:string;label:string;line:number}[]=[],entityDecls:VisualEntity[]=[],edges:VisualReference[]=[];const nodeMap=new Map<string,typeof nodes[number]>();let fatal=false;
  const entityName=String.raw`("[^"]*"|[\p{L}_][\p{L}\p{N}_-]*)`;
  const unquote=(s:string)=>decodeEntities(s.startsWith('"')&&s.endsWith('"')?s.slice(1,-1).replace(/\\(["\\])/g,'$1'):s);
@@ -128,7 +150,7 @@ function parseEr(source:string,context:{id:string;question:string},lines:string[
  if(fatal)return{diagnostics,identityMap};
  for(const row of lines.map((text,index)=>({text:text.trim(),index})).filter(x=>/^%%/.test(x.text)))diagnostics.push(commentDiagnostic(row.text,row.index,offsets[row.index],offsets[row.index]+lines[row.index].length));
  for(const node of nodes)if(!entityDecls.some(entity=>entity.node===node.id))entityDecls.push({node:node.id,fields:[]});
- const visual:Visual={id:context.id,kind:'structure',form:'entities',question:context.question,nodes:nodes.map(({id,label})=>({id,label})),structure:{entities:entityDecls,...(edges.length?{references:edges}:{})}};
+ const visual:Visual={id:context.id,kind:'structure',form:'entities',question:context.question,...(title===undefined?{}:{title}),nodes:nodes.map(({id,label})=>({id,label})),structure:{entities:entityDecls,...(edges.length?{references:edges}:{})}};
  if(!admission(visual,diagnostics))return{diagnostics,identityMap};
  nodes.forEach((node,index)=>identityMap.push(identityMapping('node',[...nodeMap].find(([,value])=>value===node)?.[0]??node.label,node.id,visualPath('/nodes/'+index+'/id'),ptr(node.line))));
  return{visual,diagnostics,identityMap};
@@ -136,10 +158,10 @@ function parseEr(source:string,context:{id:string;question:string},lines:string[
 
 function serializeMermaid(visual:Visual,context:{id:string;question:string}):AdapterSerializeResult{
  const diagnostics:InterchangeDiagnostic[]=[],identityMap:IdentityMapping[]=[];
+ if(has(visual,'title')&&(typeof visual.title!=='string'||!validTitle(visual.title))){diagnostics.push(diagnostic('MERMAID_TITLE',visualPath('/title'),'Mermaid frontmatter requires a nonempty title with supported Unicode scalar values and excludes controls, carriage returns, angle brackets, and ampersands altered by rendering.',undefined,'error'));return{text:undefined,diagnostics,identityMap};}
  if(visual.kind==='flow'&&(visual.form==='network'||visual.form==='pipeline')){
-  const out=['flowchart TD'];const nodes=visual.nodes??[];const nodeIds=new Set(nodes.map(n=>n.id));const nativeIds=new Map<string,string>();const used=new Set<string>();
+  const out=frontmatter(visual.title);out.push('flowchart TD');const nodes=visual.nodes??[];const nodeIds=new Set(nodes.map(n=>n.id));const nativeIds=new Map<string,string>();const used=new Set<string>();
   for(const [index,node]of nodes.entries()){let candidate=node.id==='end'?'umf_end':node.id;while(used.has(candidate))candidate='umf_'+candidate;used.add(candidate);nativeIds.set(node.id,candidate);}
-  if(visual.title)diagnostics.push(diagnostic('MERMAID_TITLE',visualPath('/title'),'Visual title is not represented in the Mermaid flowchart subset.',undefined));
   for(const [i,node]of nodes.entries()){
    const native=nativeIds.get(node.id)!;out.push('  '+native+'['+quote(node.label)+']');
    if(['detail','role','status','emphasis','evidence'].some(key=>has(node,key)))diagnostics.push(diagnostic('MERMAID_NODE_FIELDS',visualPath('/nodes/'+i),'Visual node fields beyond its label have no encoding in this Mermaid subset.',undefined));
@@ -156,9 +178,8 @@ function serializeMermaid(visual:Visual,context:{id:string;question:string}):Ada
  if(visual.kind==='structure'&&visual.form==='entities'){
   const nodes=visual.nodes??[], entityByNode=new Map((visual.structure?.entities??[]).map(e=>[e.node,e]));
   if(nodes.some(n=>!entityByNode.has(n.id))){diagnostics.push(diagnostic('MERMAID_ENTITY',visualPath('/structure/entities'),'Every Mermaid entity node needs a Visual entity field block.',undefined,'error'));return{diagnostics,identityMap};}
-  const out=['erDiagram'];const nativeIds=new Map(nodes.map(node=>[node.id,safeName(node.label)]));
+  const out=frontmatter(visual.title);out.push('erDiagram');const nativeIds=new Map(nodes.map(node=>[node.id,safeName(node.label)]));
   if(new Set(nativeIds.values()).size!==nativeIds.size){diagnostics.push(diagnostic('MERMAID_ENTITY_ID',visualPath('/nodes'),'Entity labels must be unique Mermaid identifiers.',undefined,'error'));return{diagnostics,identityMap};}
-  if(visual.title)diagnostics.push(diagnostic('MERMAID_TITLE',visualPath('/title'),'Visual title is not represented in the Mermaid ER subset.',undefined));
   for(const [i,node]of nodes.entries()){
    const n=nativeIds.get(node.id)!,entity=entityByNode.get(node.id)!;const entityIndex=(visual.structure?.entities??[]).findIndex(entry=>entry.node===node.id);out.push('  '+n+' {');
    if(['detail','role','status','emphasis','evidence'].some(key=>has(node,key)))diagnostics.push(diagnostic('MERMAID_NODE_FIELDS',visualPath('/nodes/'+i),'Visual node fields beyond its label have no encoding in this Mermaid subset.',undefined));

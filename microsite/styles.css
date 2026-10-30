@@ -19,3 +19,4 @@ dialog{width:min(1180px,calc(100vw - 36px));max-width:none;max-height:calc(100dv
 /* Keep reference content readable and retain both primary navigation links on phones. */
 .schema-field{font-size:11px}.schema-field-name{font-size:11px}.type-definition>summary{font-size:11px}.code-block{font-size:11px}.diagnostic-list li{font-size:11px;overflow-wrap:anywhere}
 @media(max-width:620px){.topbar{gap:14px}nav{gap:12px}nav a[href^="https:"]{display:none}.architecture-line{flex-wrap:wrap}.schema-field{grid-template-columns:76px minmax(0,1fr) auto}.code-block{font-size:10px}}
+.definition-preview img{width:auto;height:auto}

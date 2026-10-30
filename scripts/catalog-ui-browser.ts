@@ -29,6 +29,19 @@ try{
   });
   await page.goto(baseUrl,{waitUntil:'networkidle'});
   await page.waitForFunction(()=>((document.querySelector('#definition-list')?.children.length??0)>0));
+  const renderAssets=catalog.items.flatMap(item=>TARGETS.flatMap(target=>{
+    const render=item.targets[target]?.render;
+    return render?.ok&&render.svgPath?[{id:item.id,target,path:render.svgPath,sha256:render.svgSha256}]:[];
+  }));
+  if(renderAssets.length!==59)throw new Error(`Expected 59 native SVG assets, saw ${renderAssets.length}`);
+  const assetResults=await page.evaluate(async assets=>Promise.all(assets.map(asset=>new Promise<{id:string;target:string;ok:boolean;width:number;height:number;url:string}>(resolve=>{
+    const image=new Image();const url=new URL(asset.path,location.href);if(asset.sha256)url.searchParams.set('v',asset.sha256);
+    const finish=(ok:boolean)=>resolve({id:asset.id,target:asset.target,ok,width:image.naturalWidth,height:image.naturalHeight,url:url.href});
+    image.onload=()=>finish(true);image.onerror=()=>finish(false);image.src=url.href;
+  }))),renderAssets);
+  const failedAssets=assetResults.filter(result=>!result.ok||result.width<=0||result.height<=0);
+  if(failedAssets.length)throw new Error(`Native SVG previews failed browser image loading: ${JSON.stringify(failedAssets.slice(0,5))}`);
+  exercised.push(`all ${renderAssets.length} native SVGs load in-browser with positive dimensions`);
   if(await page.locator('#kind-count').textContent()!=='07'||await page.locator('#form-count').textContent()!=='22')throw new Error('Language counts do not reflect canonical kinds/forms');
   if(await page.locator('.form-chip').count()!==22)throw new Error('Primary reference does not list all 22 canonical forms');
   const languageText=(await page.locator('#language').innerText()).toLowerCase();
@@ -67,6 +80,20 @@ try{
   if(!(await page.getByRole('tab',{name:'Mermaid'}).getAttribute('aria-selected')==='true'))throw new Error('Initial deep link did not restore its selected target');
   await page.locator('#close-detail').click();
 
+  const renamedCanary=catalog.items.find(item=>item.origin==='canary'&&item.sourcePath.endsWith('/canary-supported-flow.json'));
+  if(renamedCanary){
+    const legacyId='visual-canary-supported-flow';
+    if(renamedCanary.id===legacyId)throw new Error('Canary identifier unexpectedly matches the legacy alias');
+    await page.goto(`${baseUrl}?id=${legacyId}&target=dot`);
+    await page.locator('#detail-dialog').waitFor({state:'visible'});
+    if(new URL(page.url()).searchParams.get('id')!==renamedCanary.id)throw new Error('Legacy sample deep link did not canonicalize to the current ID');
+    const canaryImage=page.locator('#target-panel .render-preview img');
+    await canaryImage.waitFor({state:'visible'});
+    await page.waitForFunction(()=>{const img=document.querySelector('#target-panel .render-preview img') as HTMLImageElement|null;return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0});
+    exercised.push('legacy sample deep link resolves to current ID and native SVG');
+    await page.locator('#close-detail').click();
+  }
+
   const targetLabel=page.locator('#target-filters').getByLabel('mermaid');
   await targetLabel.check();
   const targetStatus=await page.locator('.status-cell').first().textContent();
@@ -98,12 +125,15 @@ try{
   if(rendered){
     const target=TARGETS.find(key=>rendered.targets[key]?.render?.ok&&rendered.targets[key]?.render?.svgPath)!;
     await page.goto(`${baseUrl}?id=${encodeURIComponent(rendered.id)}&target=${target}`);
-    const image=page.locator('.render-preview img');await image.waitFor({state:'visible'});await page.waitForFunction(()=>{const img=document.querySelector('.render-preview img') as HTMLImageElement|null;return !!img&&img.complete&&img.naturalWidth>0});await page.screenshot({path:'.cache/catalog-ui-render.png'});
-    exercised.push('native SVG render loads');
-    const svgUrl=new URL(rendered.targets[target].render.svgPath,baseUrl).href;
-    await page.route(svgUrl,route=>route.fulfill({status:404,body:'missing render fixture'}));
+    const image=page.locator('.render-preview img');await image.waitFor({state:'visible'});await page.waitForFunction(()=>{const img=document.querySelector('.render-preview img') as HTMLImageElement|null;return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0});
+    const previewBounds=await image.evaluate(element=>{const rect=element.getBoundingClientRect();const parent=element.parentElement!.getBoundingClientRect();return {image:{width:rect.width,height:rect.height},container:{width:parent.width,height:parent.height}}});
+    if(previewBounds.image.width<=0||previewBounds.image.height<=0||previewBounds.image.width>previewBounds.container.width||previewBounds.image.height>previewBounds.container.height)throw new Error(`Inline render preview did not scale into its container: ${JSON.stringify(previewBounds)}`);
+    await page.screenshot({path:'.cache/catalog-ui-render.png'});
+    exercised.push('native SVG detail render loads and scales within preview');
+    const svgUrl=new URL(rendered.targets[target].render.svgPath,baseUrl);if(rendered.targets[target].render.svgSha256)svgUrl.searchParams.set('v',rendered.targets[target].render.svgSha256);
+    await page.route(svgUrl.href,route=>route.fulfill({status:404,body:'missing render fixture'}));
     await page.reload();await page.locator('.render-preview .render-error').waitFor({state:'visible'});
-    await page.unroute(svgUrl);
+    await page.unroute(svgUrl.href);
     exercised.push('broken SVG asset shows an explicit error');
   }
 

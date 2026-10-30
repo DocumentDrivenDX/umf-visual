@@ -110,10 +110,52 @@ become `exactly-one`, `zero-or-many` or another native default.
 
 | Profile area | Supported meaning | Meaning requiring report or refusal |
 | --- | --- | --- |
-| DOT directed graph | Explicit nodes, directed edges, supported string labels | Undirected edges, unsupported attributes/defaults, ports, HTML labels, subgraph semantics and other syntax outside the adapter subset |
-| Mermaid flowchart | Explicit/implicit nodes, supported labels, directed links | Shapes with unrepresented meaning, undirected/multiple arrow markers, styles, clicks, directives, subgraph semantics and other syntax outside the adapter subset |
-| Mermaid ER | Entities, supported fields and keys, relationships with the four explicit cardinalities | Identifying/nonidentifying distinction, field comments, unsupported types/attributes and relationship meanings not carried by VisualReference |
-| Lini graph/entity | Explicit node identities/labels, supported entity rows, directed links and qualified field endpoints | Layout/styles, drawing/schematic/chart operations, unsupported markers, nested identity scope and other syntax outside the adapter subset |
+| DOT directed graph | Explicit nodes, directed edges, supported string labels and node tooltip/detail | Undirected edges, unsupported attributes/defaults, ports, HTML labels, subgraph semantics and other syntax outside the adapter subset |
+| Mermaid flowchart | Explicit/implicit nodes, supported labels, directed links and bounded frontmatter title | Shapes with unrepresented meaning, undirected/multiple arrow markers, styles, clicks, directives, subgraph semantics and other syntax outside the adapter subset |
+| Mermaid ER | Entities, supported fields/keys, bounded frontmatter title and relationships with four explicit cardinalities | Identifying/nonidentifying distinction, field comments, unsupported types/attributes and relationship meanings not carried by VisualReference |
+| Lini graph/entity | Explicit node identities/labels, card hint/detail, supported entity rows, directed links and qualified field endpoints | Layout/styles, drawing/schematic/chart operations, unsupported markers, nested identity scope and other syntax outside the adapter subset |
+
+### Existing-field descriptive mappings
+
+The additive profiles Mermaid 1.1.0, DOT 0.2.0 and Lini 0.2.0 map existing visual
+fields; the visual vocabulary remains 1.0.0. Public capability records MUST name
+the implemented adapter profile version; these numbers do not name native engines.
+
+Mermaid title transport uses a single JSON-quoted YAML frontmatter `title` scalar
+for both flowchart and ER output. The current exact-title subset refuses
+ampersands, angle brackets and carriage returns altered by the qualified
+Mermaid renderer. Line feeds, tabs, boundary spaces, quotes, backslashes,
+literal backticks and supported Unicode scalars retain their title text under
+the native checks; this does not broaden Mermaid label syntax.
+Frontmatter keys must be unindented root entries; nested/indented metadata is
+refused to prevent a nested title from being mistaken for the document title.
+The bounded importer MUST reject duplicate,
+malformed, empty or unrepresentable titles and report other frontmatter meaning;
+it MUST NOT apply native configuration directives. Native title display and
+escaping require independent engine checks. Metadata outside this subset remains
+retained with loss or a safe refusal.
+
+DOT node `tooltip` and Lini card `hint` transport VisualNode.detail as descriptive
+text. Native tooltip presentation is a qualified rendering choice: it does not
+promise that every renderer displays a persistent caption. These values MUST NOT
+be used as native/visual identity, project status or role. Actual native path
+identities remain in the identity map. Missing optional detail stays absent; an
+explicit native empty hint/tooltip MUST NOT silently become absence if that
+would discard native meaning or create an invalid empty visual detail.
+
+Imports/exports MUST preserve supported detail string values and qualify each
+native's escape, whitespace and default semantics. A DOT default tooltip applies
+according to native node creation/override behavior or MUST be refused/reported.
+Graphviz's raw tooltip value retains ordinary spaces; its SVG renderer may
+encode consecutive spaces as nonbreaking spaces to preserve visible spacing.
+Native checks must distinguish that display encoding from raw attribute text.
+Unknown attributes and unsupported escapes remain losses/errors. Lini native
+card hints normalize boundary whitespace: import maps the native-canonical
+detail value and emits LINI_DETAIL_TRIM when normalization occurs; export must
+report the same native alteration without mutating the supplied visual. Exact
+source whitespace remains in the companion. Lini field hints
+remain unrepresented because current VisualEntity fields have no detail slot;
+card-detail support MUST NOT remove those field-level loss diagnostics.
 
 The concrete supported grammar MUST be named in each capability's subset and
 its tests. A construct MAY be refused even under reported-loss mode when the

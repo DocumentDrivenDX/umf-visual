@@ -1,4 +1,4 @@
 { layout: grid; columns: repeat(2); gap: 100 140; clearance: 16; padding: 32; }
-|block#n_0| "Ingress"
-|block#n_1| "Store"
+|block#n_0| "Ingress" { hint: "Receives API requests"; }
+|block#n_1| "Store" { hint: "Durable storage"; }
 n_0 -> n_1 "writes"

@@ -35,6 +35,48 @@ test('maps graph labels and only reports attributes the projection does not unde
  expect(result.diagnostics.every(d=>d.severity==='warning')).toBe(true);
 });
 
+test('maps native node tooltips to descriptive detail with defaults applying at creation time',()=>{
+ const source=String.raw`digraph { node [tooltip="default tip"]; a; node [tooltip="later tip"]; b; a [tooltip="explicit tip"]; c [tooltip=""]; }`;
+ const result=dotAdapter.parse(source,context);
+ expect(result.visual?.nodes).toEqual([
+  {id:'n1',label:'a',detail:'explicit tip'},
+  {id:'n2',label:'b',detail:'later tip'},
+  {id:'n3',label:'c'}
+ ]);
+ expect(result.diagnostics.filter(d=>d.code==='DOT_TOOLTIP_EMPTY')).toHaveLength(1);
+ expect(result.diagnostics.find(d=>d.code==='DOT_TOOLTIP_EMPTY')?.loss).toBe(true);
+ expect(inspectVisual(createVisualDocument(result.visual!)).complete).toBe(true);
+});
+
+test('imports a native tooltip fixture including exact text and defaults',async()=>{
+ const result=dotAdapter.parse(await fixture('tooltip-text'),context);
+ expect(result.visual?.nodes?.map(node=>node.detail)).toEqual([
+  'quote " slash \\ newline\nnext 😀 & <B>',
+  ' leading and trailing ',
+  'later default'
+ ]);
+ expect(result.diagnostics.filter(d=>d.code==='DOT_ATTRIBUTE_LOSS')).toHaveLength(3); // URL links stay in source.
+});
+
+test('preserves consecutive native tooltip spaces in visual detail and exported DOT text',async()=>{
+ const result=dotAdapter.parse(await fixture('tooltip-spacing'),context);
+ const details=result.visual?.nodes?.map(node=>node.detail);
+ expect(details).toEqual(['  spaced  ','one  two   three']);
+ const exported=dotAdapter.serialize(result.visual!,context);
+ expect(exported.text).toContain('tooltip="  spaced  "');
+ expect(exported.text).toContain('tooltip="one  two   three"');
+ expect(exported.diagnostics.some(d=>d.loss)).toBe(false);
+});
+
+test('decodes only tooltip escapes proven to preserve displayed text and leaves attribute names case-sensitive',()=>{
+ const source=String.raw`digraph { a [tooltip="quote \" slash \\ newline\nnext emoji UNICODEX & <B>"]; b [Tooltip="not recognized"]; }`.replace('UNICODEX','😀');
+ const result=dotAdapter.parse(source,context);
+ expect(result.visual?.nodes?.[0]?.detail).toBe('quote " slash \\ newline\nnext emoji 😀 & <B>');
+ expect(result.visual?.nodes?.[1]).toEqual({id:'n2',label:'b'});
+ expect(result.diagnostics.some(d=>d.code==='DOT_ATTRIBUTE_LOSS'&&d.path.endsWith('/Tooltip'))).toBe(true);
+ expect(dotAdapter.parse(String.raw`digraph { a [tooltip="\N"]; }`,context).diagnostics[0]?.code).toBe('DOT_TOOLTIP_ESCAPE');
+});
+
 test('keeps case-sensitive attribute names out of recognized labels and direction controls',async()=>{
  const result=dotAdapter.parse(await fixture('case-sensitive-attributes'),context);
  expect(result.visual?.nodes).toEqual([{id:'n1',label:'a'},{id:'n2',label:'b'}]);
@@ -115,14 +157,21 @@ test('bounds direct adapter inputs before tokenizing',()=>{
 
 test('exports quoted directed network source and reports visual fields DOT cannot carry',()=>{
  const visual:Visual={id:'exported graph',kind:'flow',form:'network',question:'What changes?',title:'Deployment',nodes:[
-  {id:'start',label:'Start service',role:'own',detail:'',evidence:[]},{id:'db',label:'Ticket store'}
+  {id:'start',label:'Start service',role:'own',detail:'Primary "entry" \\ path\nnext',evidence:[]},{id:'db',label:'Ticket store'}
  ],edges:[{id:'write',from:'start',to:'db',label:'writes',kind:'data'}]};
  const result=dotAdapter.serialize(visual,context);
- expect(result.text).toBe('digraph "exported graph" {\n  graph [label="Deployment"];\n  "start" [label="Start service"];\n  "db" [label="Ticket store"];\n  "start" -> "db" [label="writes"];\n}\n');
- expect(result.diagnostics.map(d=>d.code)).toEqual(['DOT_NODE_DETAIL','DOT_NODE_FIELD','DOT_NODE_FIELD','DOT_EDGE_FIELD']);
+ expect(result.text).toBe('digraph "exported graph" {\n  graph [label="Deployment"];\n  "start" [label="Start service", tooltip="Primary \\"entry\\" \\\\ path\\nnext"];\n  "db" [label="Ticket store"];\n  "start" -> "db" [label="writes"];\n}\n');
+ expect(result.diagnostics.map(d=>d.code)).toEqual(['DOT_NODE_FIELD','DOT_NODE_FIELD','DOT_EDGE_FIELD']);
  const reparsed=dotAdapter.parse(result.text!,context);
  expect(reparsed.visual?.nodes?.map(n=>n.label)).toEqual(['Start service','Ticket store']);
+ expect(reparsed.visual?.nodes?.[0]?.detail).toBe(visual.nodes?.[0]?.detail);
  expect(reparsed.visual?.edges?.map(e=>[e.from,e.to,e.label])).toEqual([['n1','n2','writes']]);
+});
+
+test('refuses empty visual details because Graphviz falls back to the node label',()=>{
+ const visual:Visual={id:'g',kind:'flow',form:'network',question:'Q',nodes:[{id:'a',label:'A',detail:''}]};
+ const result=dotAdapter.serialize(visual,context);
+ expect(result.text).toBeUndefined();expect(result.diagnostics[0]?.code).toBe('DOT_TOOLTIP_EMPTY');
 });
 
 test('quotes labels containing quotes, literal backslashes and newlines without changing their text',()=>{

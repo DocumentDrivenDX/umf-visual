@@ -128,3 +128,20 @@ and cannot pad coverage. The matrix includes every target even when unsupported.
 Native-render failure is a visible result, while missing engines or missing
 sources block a fully qualified catalog build. Existing library/browser/package
 checks remain required because the site demonstrates the public facade.
+
+
+## Existing-field Loss Reduction
+
+The first follow-on mapping wave uses existing fields only: Visual.title through
+Mermaid native frontmatter, and VisualNode.detail through DOT tooltip/Lini card
+hint. Bun tests must assert the actual text/mapping values, absence versus empty
+cases, safe refusals, unknown metadata, native default/override behavior and
+strict policy. Independent native output checks must inspect actual SVG title/
+tooltip content for quotes, backslashes, Unicode, newline/whitespace and supported
+escapes. Self-roundtrip alone cannot establish native value preservation.
+
+Rebuild the complete language/example catalog and compare path-level loss counts.
+Remaining loss diagnostics, especially Lini field hints, status/role, grouping,
+layout and unimplemented forms, stay explicit. A sidecar alone cannot justify
+removing a projection-loss report. Adapter profile versions change independently
+of the unchanged visual vocabulary version.

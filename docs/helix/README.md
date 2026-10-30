@@ -46,3 +46,6 @@ identifies application-profile constraints requiring explicit future model desig
 
 [Interchange and catalog execution evidence](04-build/interchange-catalog-evidence.md)
 records native, packed-package, browser, catalog and reproducibility checks.
+
+[First loss-reduction wave](04-build/loss-reduction-wave-1.md) records measured
+title/description mappings, native character limits and the next worklist.

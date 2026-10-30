@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 // Build the reproducible visual interchange catalogue and its native SVG renders.
-import {createHash} from 'node:crypto';
-import {mkdir, readdir, rm, writeFile} from 'node:fs/promises';
+import {createHash, randomUUID} from 'node:crypto';
+import {mkdir, readFile, readdir, rename, rm, writeFile} from 'node:fs/promises';
 import {join, relative, resolve, sep} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {chromium, type Browser, type Page} from 'playwright';
@@ -225,12 +225,30 @@ function validateLiniDiagnostics(reportText: string): void {
 // @covers US-095-AC3: only verified native SVG bytes receive a path and SHA-256 receipt.
 async function saveRender(item: CatalogItem, format: TargetName, render: NativeRender, svg: string, outputDir: string): Promise<void> {
   if (!svg.includes('<svg')) throw new Error(`${format} renderer returned no SVG for ${item.id}`);
-  const fileName = `${item.id}-${format}.svg`;
+  const svgSha256 = sha256(svg);
+  const fileName = `${item.id}-${format}-${svgSha256}.svg`;
   const outputFile = join(outputDir, 'renders', fileName);
-  await mkdir(join(outputDir, 'renders'), {recursive: true});
-  await writeFile(outputFile, svg, 'utf8');
+  const renderDirectory = join(outputDir, 'renders');
+  await mkdir(renderDirectory, {recursive: true});
+  let existing: Uint8Array | undefined;
+  try { existing = await readFile(outputFile); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+  if (existing) {
+    if (sha256(existing) !== svgSha256) throw new Error(`Content-addressed SVG path has different bytes: ${fileName}`);
+    render.svgPath = `renders/${fileName}`;
+    render.svgSha256 = svgSha256;
+    return;
+  }
+  const temporaryFile = join(renderDirectory, `.${fileName}.${randomUUID()}.tmp`);
+  try {
+    await writeFile(temporaryFile, svg, {encoding: 'utf8', flag: 'wx'});
+    await rename(temporaryFile, outputFile);
+  } catch (error) {
+    await rm(temporaryFile, {force: true});
+    throw error;
+  }
   render.svgPath = `renders/${fileName}`;
-  render.svgSha256 = sha256(svg);
+  render.svgSha256 = svgSha256;
 }
 
 /** @covers US-095-AC3, US-095-AC7: add actual native renders; emitted canaries must render, unsupported targets have no SVG. */
@@ -299,10 +317,16 @@ export async function buildCatalog(outputDirectory = 'dist-site'): Promise<Visua
   const outputDir = resolve(root, outputDirectory);
   const catalog = await createCatalogData();
   await mkdir(outputDir, {recursive: true});
-  await rm(join(outputDir, 'catalog.json'), {force: true});
-  await rm(join(outputDir, 'renders'), {recursive: true, force: true});
   await renderCatalog(catalog, outputDir);
-  await writeFile(join(outputDir, 'catalog.json'), JSON.stringify(catalog, null, 2) + '\n', 'utf8');
+  const catalogFile = join(outputDir, 'catalog.json');
+  const temporaryFile = join(outputDir, `.catalog.json.${randomUUID()}.tmp`);
+  try {
+    await writeFile(temporaryFile, JSON.stringify(catalog, null, 2) + '\n', {encoding: 'utf8', flag: 'wx'});
+    await rename(temporaryFile, catalogFile);
+  } catch (error) {
+    await rm(temporaryFile, {force: true});
+    throw error;
+  }
   return catalog;
 }
 

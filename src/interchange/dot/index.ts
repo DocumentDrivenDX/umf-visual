@@ -9,7 +9,7 @@ import type {AdapterContext,AdapterParseResult,AdapterSerializeResult,IdentityMa
  * the explicit labels and directed endpoints described by this subset.
  */
 export const dotAdapter:VisualInterchangeAdapter={
- format:'dot',version:'0.1.0',
+ format:'dot',version:'0.2.0',
  subset:'Graphviz DOT digraphs with explicit node/edge labels, quoted or bare IDs, comments, attribute lists, and directed node chains; no subgraphs, ports, HTML labels, or undirected graphs.',
  parse(source,context){return parseDot(source,context);},
  serialize(visual,context){return serializeDot(visual,context);}
@@ -18,7 +18,7 @@ export const dotAdapter:VisualInterchangeAdapter={
 type TokenKind='id'|'quoted'|'html'|'arrow'|'undirected'|'{'|'}'|'['|']'|'='|';'|','|':'|'+'|'eof';
 interface Token {kind:TokenKind;text:string;start:number;end:number;escaped:boolean;}
 interface Attr {key:string;value:string;token:Token;escaped:boolean;}
-interface NativeNode {nativeId:string;visualId:string;label:string;first:Token;labelSet:boolean;}
+interface NativeNode {nativeId:string;visualId:string;label:string;detail?:string;first:Token;labelSet:boolean;}
 interface NativeEdge {from:NativeNode;to:NativeNode;visualId:string;label:string;labelSet:boolean;token:Token;}
 class DotFailure extends Error {constructor(readonly code:string,message:string,readonly token:Token){super(message);}}
 const MAX_SOURCE_LENGTH=1_000_000,MAX_TOKENS=100_000,MAX_EDGES=10_000;
@@ -69,6 +69,20 @@ function decodeLabel(value:string,token:Token):string{
  }
  return out;
 }
+function decodeTooltip(value:string,token:Token):string{
+ let out='';
+ for(let i=0;i<value.length;i++){
+  if(value[i]!=='\\'){out+=value[i];continue;}
+  const next=value[i+1];
+  // Native probes confirm \n is a line break in SVG titles and \\ is one
+  // literal backslash. Other substitutions (notably \N) cannot be projected
+  // as descriptive text without changing their native meaning.
+  if(next==='\\'){out+='\\';i++;continue;}
+  if(next==='n'){out+='\n';i++;continue;}
+  throw new DotFailure('DOT_TOOLTIP_ESCAPE','DOT tooltip escape '+JSON.stringify('\\'+(next??''))+' has no exact descriptive-text equivalent.',token);
+ }
+ return out;
+}
 function isDotBareId(value:string):boolean{
  if(['strict','graph','digraph','node','edge','subgraph'].includes(value.toLowerCase()))return false;
  return /^[A-Za-z_\u0080-\u00ff][A-Za-z0-9_\u0080-\u00ff]*$/.test(value)||/^-?(?:\.[0-9]+|[0-9]+(?:\.[0-9]*)?)$/.test(value);
@@ -78,7 +92,7 @@ class Parser {
  private at=0;private readonly nodes=new Map<string,NativeNode>();private readonly nodeList:NativeNode[]=[];private readonly edges:NativeEdge[]=[];
  private readonly diagnostics:InterchangeDiagnostic[]=[];private graphTitle:string|undefined;private graphTitleSet=false;
  private graphName:Token|undefined;
- private nodeDefault:string|undefined;private nodeDefaultSet=false;private edgeDefault:string|undefined;private edgeDefaultSet=false;
+ private nodeDefault:string|undefined;private nodeDefaultSet=false;private nodeTooltipDefault:string|undefined;private nodeTooltipDefaultSet=false;private edgeDefault:string|undefined;private edgeDefaultSet=false;
  private strict=false;private readonly strictEdges=new Map<string,NativeEdge>();
  constructor(private readonly source:string,private readonly tokens:Token[],private readonly context:AdapterContext){}
  parse():AdapterParseResult{
@@ -100,7 +114,7 @@ class Parser {
   if(escapedDefault)this.fail('DOT_LABEL_ESCAPE','An unlabelled node identifier contains a Graphviz label escape; its default `\\N` label cannot be projected exactly.',escapedDefault.first);
   if(this.graphName)this.diagnostics.push(interchangeDiagnostic('DOT_GRAPH_IDENTITY','/source/graph/name','The native graph name is retained in the original source but is not part of the visual vocabulary.',{severity:'warning',loss:true,range:{start:this.graphName.start,end:this.graphName.end}}));
   if(this.nodeList.length>15){const token=this.nodeList[15]?.first??this.peek();this.diagnostics.push(interchangeDiagnostic('DOT_VISUAL_SIZE','/source/nodes','The flow exceeds umf.visual 1.0’s 15-node limit; split the graph before import.',{severity:'error',loss:false,range:{start:token.start,end:token.end}}));return {diagnostics:this.diagnostics,identityMap:[]};}
-  const nodes=this.nodeList.map(n=>({id:n.visualId,label:n.label}));
+  const nodes=this.nodeList.map(n=>({id:n.visualId,label:n.label,...(n.detail!==undefined?{detail:n.detail}:{})}));
   const edges=this.edges.map(e=>({id:e.visualId,from:e.from.visualId,to:e.to.visualId,...(e.labelSet?{label:e.label}:{})}));
   const visual:Visual={id:this.context.id,kind:'flow',form:'network',question:this.context.question,...(this.graphTitleSet?{title:this.graphTitle??''}:{}),nodes,...(edges.length?{edges}:{})};
   const identityMap:IdentityMapping[]=[];
@@ -146,7 +160,7 @@ class Parser {
  private readNodeId():Token{if(this.word('subgraph'))this.fail('DOT_SUBGRAPH','Subgraphs and clusters are outside the supported DOT subset.');const t=this.readId();if(this.peek().kind===':')this.fail('DOT_PORT','Node ports and compass points are outside the supported subset.',this.peek());return t;}
  private node(token:Token):NativeNode{
   if(token.kind==='html')this.fail('DOT_HTML','HTML strings are not supported as node identifiers or labels.',token);
-  let n=this.nodes.get(token.text);if(!n){if(this.nodeList.length>=15)this.fail('DOT_VISUAL_SIZE','The flow exceeds umf.visual 1.0’s 15-node limit; split the graph before import.',token);n={nativeId:token.text,visualId:syntheticId('node',this.nodeList.length),label:this.nodeDefaultSet?this.nodeDefault??'':token.text,first:token,labelSet:this.nodeDefaultSet};this.nodes.set(token.text,n);this.nodeList.push(n);}return n;
+  let n=this.nodes.get(token.text);if(!n){if(this.nodeList.length>=15)this.fail('DOT_VISUAL_SIZE','The flow exceeds umf.visual 1.0’s 15-node limit; split the graph before import.',token);n={nativeId:token.text,visualId:syntheticId('node',this.nodeList.length),label:this.nodeDefaultSet?this.nodeDefault??'':token.text,...(this.nodeTooltipDefaultSet&&this.nodeTooltipDefault!==undefined?{detail:this.nodeTooltipDefault}:{}),first:token,labelSet:this.nodeDefaultSet};this.nodes.set(token.text,n);this.nodeList.push(n);}return n;
  }
  private readValue():{value:string;escaped:boolean;token:Token}{
   const first=this.peek();if(first.kind!=='id'&&first.kind!=='quoted'&&first.kind!=='html')this.fail('DOT_SYNTAX','Expected an attribute value.');
@@ -167,9 +181,10 @@ class Parser {
  private reportAttr(attr:Attr,scope:string):void{this.diagnostics.push(interchangeDiagnostic('DOT_ATTRIBUTE_LOSS','/source/'+scope+'/'+pointerSegment(attr.key),'DOT '+scope+' attribute '+JSON.stringify(attr.key)+' is retained in the original source but is not projected by the visual subset.',{severity:'warning',loss:true,range:{start:attr.token.start,end:attr.token.end}}));}
  private defaultAttrs(type:string,attrs:Attr[]):void{
   if(type==='graph'){for(const attr of attrs)this.setGraphAttr(attr.key,attr.value,attr.token,attr.escaped);return;}
-  const defaultLabels=new Map<string,Attr>();
-  for(const attr of attrs){const key=attr.key;if(type==='edge')this.checkDirectionAttribute(attr);if(key==='label')defaultLabels.set(key,attr);else if(!(type==='edge'&&key==='dir'&&attr.value.toLowerCase()==='forward'))this.reportAttr(attr,type+'-defaults');}
+  const defaultLabels=new Map<string,Attr>(),defaultTooltips=new Map<string,Attr>();
+  for(const attr of attrs){const key=attr.key;if(type==='edge')this.checkDirectionAttribute(attr);if(key==='label')defaultLabels.set(key,attr);else if(type==='node'&&key==='tooltip')defaultTooltips.set(key,attr);else if(!(type==='edge'&&key==='dir'&&attr.value.toLowerCase()==='forward'))this.reportAttr(attr,type+'-defaults');}
   if(type==='node'&&defaultLabels.has('label')){const attr=defaultLabels.get('label')!;this.nodeDefault=decodeLabel(attr.value,attr.token);this.nodeDefaultSet=true;}
+  if(type==='node'&&defaultTooltips.has('tooltip')){const attr=defaultTooltips.get('tooltip')!;this.nodeTooltipDefault=attr.value===''?undefined:decodeTooltip(attr.value,attr.token);this.nodeTooltipDefaultSet=true;if(attr.value==='')this.emptyTooltip(attr);}
   if(type==='edge'&&defaultLabels.has('label')){const attr=defaultLabels.get('label')!;this.edgeDefault=decodeLabel(attr.value,attr.token);this.edgeDefaultSet=true;}
  }
  private setGraphAttr(key:string,value:string,token:Token,escaped:boolean):void{
@@ -177,8 +192,10 @@ class Parser {
   else this.diagnostics.push(interchangeDiagnostic('DOT_ATTRIBUTE_LOSS','/source/graph/'+pointerSegment(key),'DOT graph attribute '+JSON.stringify(key)+' is retained in the original source but is not projected by the visual subset.',{severity:'warning',loss:true,range:{start:token.start,end:token.end}}));
  }
  private applyNodeAttrs(node:NativeNode,attrs:Attr[]):void{
-  for(const attr of attrs){if(attr.key==='label'){node.label=decodeLabel(attr.value,attr.token);node.labelSet=true;}else this.reportAttr(attr,'nodes/'+pointerSegment(node.nativeId));}
+  let lastTooltip=-1;for(const [index,attr]of attrs.entries())if(attr.key==='tooltip')lastTooltip=index;
+  for(const [index,attr]of attrs.entries()){if(attr.key==='label'){node.label=decodeLabel(attr.value,attr.token);node.labelSet=true;}else if(attr.key==='tooltip'){if(index!==lastTooltip)continue;node.detail=attr.value===''?undefined:decodeTooltip(attr.value,attr.token);if(attr.value==='')this.emptyTooltip(attr);}else this.reportAttr(attr,'nodes/'+pointerSegment(node.nativeId));}
  }
+ private emptyTooltip(attr:Attr):void{this.diagnostics.push(interchangeDiagnostic('DOT_TOOLTIP_EMPTY','/source/tooltip','An empty DOT tooltip falls back to the node label in Graphviz and cannot be represented as a non-empty visual detail.',{severity:'warning',loss:true,range:{start:attr.token.start,end:attr.token.end}}));}
  private addEdge(from:NativeNode,to:NativeNode,attrs:Attr[],token:Token):void{
   let label=this.edgeDefault??'';let labelSet=this.edgeDefaultSet,explicitLabel=false;
   for(const attr of attrs){this.checkDirectionAttribute(attr);if(attr.key==='label'){label=decodeLabel(attr.value,attr.token);labelSet=true;explicitLabel=true;}else if(!(attr.key==='dir'&&attr.value.toLowerCase()==='forward'))this.reportAttr(attr,'edges/'+pointerSegment(`${from.nativeId}->${to.nativeId}`));}
@@ -222,14 +239,13 @@ function serializeDot(visual:Visual,_context:AdapterContext):AdapterSerializeRes
  const nodes=visual.nodes??[],edges=visual.edges??[];const lines=['digraph '+quote(visual.id)+' {'];
  const checkText=(value:string,path:string)=>{const reason=unsafeTextReason(value);if(reason)diagnostics.push(interchangeDiagnostic('DOT_TEXT',path,'The value '+reason+'.',{severity:'error',loss:false}));};
  checkText(visual.id,VISUAL_PATH+'/id');if(visual.title!==undefined)checkText(visual.title,VISUAL_PATH+'/title');
- for(const [i,node]of nodes.entries()){checkText(node.id,VISUAL_PATH+'/nodes/'+i+'/id');checkText(node.label,VISUAL_PATH+'/nodes/'+i+'/label');}
+ for(const [i,node]of nodes.entries()){checkText(node.id,VISUAL_PATH+'/nodes/'+i+'/id');checkText(node.label,VISUAL_PATH+'/nodes/'+i+'/label');if(node.detail!==undefined){checkText(node.detail,VISUAL_PATH+'/nodes/'+i+'/detail');if(node.detail==='')diagnostics.push(interchangeDiagnostic('DOT_TOOLTIP_EMPTY',VISUAL_PATH+'/nodes/'+i+'/detail','Graphviz treats an empty tooltip as a request to fall back to the node label.',{severity:'error',loss:false}));}}
  for(const [i,edge]of edges.entries()){checkText(edge.from,VISUAL_PATH+'/edges/'+i+'/from');checkText(edge.to,VISUAL_PATH+'/edges/'+i+'/to');if(edge.label!==undefined)checkText(edge.label,VISUAL_PATH+'/edges/'+i+'/label');}
  if(diagnostics.some(d=>d.severity==='error'))return {diagnostics,identityMap};
  if(visual.title!==undefined)lines.push('  graph [label='+quote(visual.title)+'];');
  for(const [i,node]of nodes.entries()){
-  lines.push('  '+quote(node.id)+' [label='+quote(node.label)+'];');
+  lines.push('  '+quote(node.id)+' [label='+quote(node.label)+(node.detail!==undefined?', tooltip='+quote(node.detail):'')+'];');
   identityMap.push(identityMapping('node',node.id,node.id,VISUAL_PATH+'/nodes/'+i));
-  if(Object.hasOwn(node,'detail'))lost('DOT_NODE_DETAIL',VISUAL_PATH+'/nodes/'+i+'/detail','DOT does not carry the node detail field.');
   for(const key of ['role','status','emphasis','group','parent','layer','evidence'] as const)if(Object.hasOwn(node,key))lost('DOT_NODE_FIELD',VISUAL_PATH+'/nodes/'+i+'/'+key,'DOT export does not represent node '+key+'.');
  }
  const occurrences=new Map<string,number>();

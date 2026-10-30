@@ -41,6 +41,61 @@ describe('Mermaid 12.2 bounded adapter',()=>{
   }
  });
 
+ test('imports JSON-quoted frontmatter titles exactly for flow and ER diagrams',async()=>{
+  const flow=mermaidAdapter.parse(await fixture('flowchart-titled.mmd'),ctx);
+  expect(flow.visual?.title).toBe('Customer "handoff" \\ α #1\nsecond line');
+  expect(flow.diagnostics.some(d=>d.code==='MERMAID_TITLE'&&d.loss)).toBe(false);
+  expect(inspectVisual(createVisualDocument(flow.visual!)).complete).toBe(true);
+  const er=mermaidAdapter.parse(await fixture('entities-titled.mmd'),ctx);
+  expect(er.visual?.title).toBe('Entity "catalog" \\ β #2');
+  expect(er.diagnostics.some(d=>d.code==='MERMAID_TITLE'&&d.loss)).toBe(false);
+ });
+
+ test('exports frontmatter titles as JSON-quoted YAML strings for both supported diagrams',()=>{
+  const title='Customer "handoff" \\ α #1\nsecond line';
+  const flow=mermaidAdapter.serialize({id:'diagram',kind:'flow',form:'network',question:ctx.question,title,nodes:[{id:'n1',label:'Intake'}]},ctx);
+  expect(flow.text?.startsWith('---\ntitle: '+JSON.stringify(title)+'\n---\nflowchart TD\n')).toBe(true);
+  expect(flow.diagnostics.some(d=>d.code==='MERMAID_TITLE'&&d.loss)).toBe(false);
+  expect(mermaidAdapter.parse(flow.text!,ctx).visual?.title).toBe(title);
+  const er=mermaidAdapter.serialize({id:'diagram',kind:'structure',form:'entities',question:ctx.question,title:'Entity "catalog" \\ β #2',nodes:[{id:'n1',label:'Person'}],structure:{entities:[{node:'n1',fields:[{name:'id',type:'string'}]}]}},ctx);
+  expect(er.text?.startsWith('---\ntitle: '+JSON.stringify('Entity "catalog" \\ β #2')+'\n---\nerDiagram\n')).toBe(true);
+  expect(er.diagnostics.some(d=>d.code==='MERMAID_TITLE'&&d.loss)).toBe(false);
+  expect(mermaidAdapter.parse(er.text!,ctx).visual?.title).toBe('Entity "catalog" \\ β #2');
+ });
+
+ test('refuses ambiguous or invalid title metadata and reports other frontmatter fields',()=>{
+  for(const frontmatter of [
+   'title: ""\n',
+   'title: "first"\ntitle: "second"\n',
+   'title: "\\ud800"\n',
+   'title: "\\u0000"\n',
+  ]){
+   const result=mermaidAdapter.parse('---\n'+frontmatter+'---\nflowchart TD\n A\n',ctx);
+   expect(result.visual).toBeUndefined();
+   expect(result.diagnostics.some(d=>d.severity==='error'&&d.code==='MERMAID_TITLE')).toBe(true);
+  }
+  const metadata=mermaidAdapter.parse('---\ntitle: "Known title"\nconfig: {}\n---\nflowchart TD\n A\n',ctx);
+  expect(metadata.visual?.title).toBe('Known title');
+  expect(metadata.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_METADATA',path:'/source/2',loss:true}));
+  const invalidExport=mermaidAdapter.serialize({id:'x',kind:'flow',form:'network',question:'q',title:'',nodes:[{id:'n',label:'A'}]},ctx);
+  expect(invalidExport.text).toBeUndefined();
+  expect(invalidExport.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_TITLE',severity:'error'}));
+ });
+
+ test('refuses nested title metadata and titles changed by Mermaid strict rendering',()=>{
+  const nested=mermaidAdapter.parse('---\nconfig:\n  title: "Nested title"\n---\nflowchart TD\n A\n',ctx);
+  expect(nested.visual).toBeUndefined();
+  expect(nested.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_FRONTMATTER',severity:'error',path:'/source/2'}));
+  for(const title of ['A <tag>','A > B','A & B','A\rB']){
+   const source=mermaidAdapter.parse('---\ntitle: '+JSON.stringify(title)+'\n---\nflowchart TD\n A\n',ctx);
+   expect(source.visual).toBeUndefined();
+   expect(source.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_TITLE',severity:'error',path:'/source/1'}));
+   const exported=mermaidAdapter.serialize({id:'x',kind:'flow',form:'network',question:'q',title,nodes:[{id:'n',label:'A'}]},ctx);
+   expect(exported.text).toBeUndefined();
+   expect(exported.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_TITLE',severity:'error',path:'/extensions/umf.visual/title'}));
+  }
+ });
+
  test('imports ER entities, fields, cardinalities, and explicitly reports identifying semantics',async()=>{
   const source=await fixture('entities-basic.mmd');const result=mermaidAdapter.parse(source,ctx);
   expect(result.visual?.kind).toBe('structure');expect(result.visual?.form).toBe('entities');
@@ -129,7 +184,7 @@ describe('Mermaid 12.2 bounded adapter',()=>{
   expect(field.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_FIELD_COMMENT',loss:true,path:'/source/2'}));
   const frontmatter=mermaidAdapter.parse('---\ntitle: Customer diagram\n---\nerDiagram\n  A\n',ctx);
   expect(frontmatter.visual).toBeUndefined();
-  expect(frontmatter.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_METADATA',severity:'error'}));
+  expect(frontmatter.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_TITLE',severity:'error'}));
   const directive=mermaidAdapter.parse('flowchart TD\n  %%{init: {"theme":"base"}}%%\n  A\n',ctx);
   expect(directive.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_DIRECTIVE',loss:true}));
   const title=mermaidAdapter.parse('flowchart TD\n  title My Flow\n  A\n',ctx);

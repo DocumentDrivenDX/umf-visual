@@ -38,7 +38,8 @@
     "build:catalog": "bun scripts/catalog/build.ts",
     "build:site": "bun microsite/build.ts",
     "test:site": "bun scripts/catalog-ui-browser.ts",
-    "test:catalog": "bun scripts/catalog/verify.ts"
+    "test:catalog": "bun scripts/catalog/verify.ts",
+    "report:loss": "bun scripts/catalog/loss-progress.ts"
   },
   "dependencies": {
     "@umf/core": "https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz"

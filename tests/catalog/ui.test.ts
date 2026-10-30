@@ -19,8 +19,23 @@ describe('microsite catalogue UI contract',()=>{
     expect(app).toContain('language.forms.kinds');
     expect(app).toContain("startsWith('fixtures/visual/forms/')");
     expect(app).toContain('sample instance');
+    expect(app).toContain("fetch('./catalog.json', {cache: 'no-store'})");
+    expect(app).toContain('url.searchParams.set(\'v\', sha256)');
+    expect(app).toContain('function findItemForUrl(id)');
+    expect(app).toContain('return legacy.length === 1 ? legacy[0] : undefined');
     expect(app).not.toContain('innerHTML');
     expect(app).toContain("/^renders\\/[A-Za-z0-9._/-]+\\.svg$/");
+  });
+
+  it('versions static browser assets from their content and verifies all native renders in-browser',async()=>{
+    const build=await Bun.file('microsite/build.ts').text();
+    const browser=await Bun.file('scripts/catalog-ui-browser.ts').text();
+    expect(build).toContain(".replace('./styles.css','./styles.css?v='+digest(css))");
+    expect(build).toContain(".replace('./app.js','./app.js?v='+digest(app))");
+    expect(browser).toContain('renderAssets.length!==59');
+    expect(browser).toContain('result.width<=0||result.height<=0');
+    expect(browser).toContain('all ${renderAssets.length} native SVGs load in-browser');
+    expect(browser).toContain('previewBounds.image.width>previewBounds.container.width');
   });
 
   it('provides the built catalogue when the site build has run',()=>{

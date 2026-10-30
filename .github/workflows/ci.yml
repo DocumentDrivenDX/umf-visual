@@ -26,6 +26,7 @@ jobs:
       - run: bun run test:browser
       - run: bun run build:catalog
       - run: bun run test:catalog
+      - run: bun run report:loss
       - run: bun run build:site
       - run: bun run test:site
       - uses: actions/upload-artifact@v4

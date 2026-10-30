@@ -1,5 +1,8 @@
 # Interchange and catalog execution evidence
 
+This records baseline commit 1fc99e5. See loss-reduction-wave-1.md for the
+subsequent mappings, 88-test result and inline-preview repair.
+
 Observed locally on macOS, 2026-10-29, with Bun 1.4.3, Node 26.12.1,
 Chromium 153.0.8010.12, Graphviz 16.1.0, Mermaid 12.2.0 and the SHA-256-pinned
 Lini 1.1.0 WASM. Core remains the released SDK 0.5.7. This is a bounded local

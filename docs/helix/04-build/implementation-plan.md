@@ -197,3 +197,26 @@ CONTRACT-085 remains the catalog contract. A read-only scan found no collision
 between this increment's other newly introduced artifact IDs and the real
 checkout's current documents. This correction changes identity/traceability,
 not the native interchange behavior.
+
+
+## Existing-field Loss-reduction Wave
+
+The user asks to work through examples and eliminate losses. The first bounded
+increment maps existing typed meaning before redesigning the model: Mermaid
+frontmatter title, DOT node.detail/tooltip and Lini node.detail/card hint. Native
+profiles advance additively to Mermaid 1.1.0, DOT 0.2.0 and Lini 0.2.0; visual
+1.0.0 and imported CONTRACT-083 semantics remain unchanged.
+
+1. Pin a current path-level diagnostic census over the real examples.
+2. Implement each existing-field mapping with strict policy and malformed/empty/
+   unknown-content regressions; preserve native identity and remaining losses.
+3. Verify actual Mermaid titles, Graphviz tooltips and Lini hint text through
+   independent native engines, including escaping and default/override semantics.
+4. Rebuild catalog JSON/SVGs, compare loss counts and review representative
+   examples. Record actual reductions and residual diagnostics, not blanket
+   lossless support. Refresh public/package/browser checks after integration.
+
+Descriptive detail in a native tooltip is a qualified text transport and does
+not imply identical caption placement. Lini field hints remain unmapped because
+there is no current field-detail concept. Broader common-model/profile evolution
+continues as separately governed work identified by the source audit.

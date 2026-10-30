@@ -33,7 +33,7 @@ bun run build
 bun run test:package
 bun run fetch:lini
 bunx playwright install chromium
-bun run test:native       # requires Graphviz dot on PATH
+bun run test:native       # requires Graphviz dot and Python 3 on PATH
 bun run test:browser
 bun run build:catalog     # actual DOT, Mermaid and Lini native SVG generation
 bun run test:catalog     # validate exact source and SVG hashes
@@ -92,6 +92,11 @@ and subsets. These adapters do not translate every UMF form. Unsupported content
 layout, styling and richer semantics produce located diagnostics; the catalog
 shows refusals as well as emitted results. A native render success is recorded
 separately from semantic support. Native input is bounded to 256 KiB UTF-8.
+
+The first loss-reduction wave preserves Mermaid diagram titles and secondary node
+descriptions as DOT tooltips/Lini card hints. `bun run report:loss` compares actual
+results with the unchanged example baseline; [evidence and remaining work](docs/helix/04-build/loss-reduction-wave-1.md)
+record native text limits.
 
 The build produces browser-compatible ESM and declarations with core external.
 CI exercises source, packed consumers, native engines, Chromium and the catalog.

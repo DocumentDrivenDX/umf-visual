@@ -81,9 +81,9 @@ function auditVisualProjection(format:InterchangeFormat,visual:any,diagnostics:I
  else if(format!=='dot'&&visual.kind==='structure'&&visual.form==='entities')rootFields.push('nodes','structure');
  allowed.set(root,rootFields);
  if(visual.kind==='flow'){
-  allowed.set(root+'/nodes',['id','label']);allowed.set(root+'/edges',['id','from','to','label']);
+  allowed.set(root+'/nodes',format==='dot'||format==='lini'?['id','label','detail']:['id','label']);allowed.set(root+'/edges',['id','from','to','label']);
  }else if(format!=='dot'&&visual.kind==='structure'&&visual.form==='entities'){
-  allowed.set(root+'/nodes',['id','label']);allowed.set(root+'/structure',['entities','references']);
+  allowed.set(root+'/nodes',format==='lini'?['id','label','detail']:['id','label']);allowed.set(root+'/structure',['entities','references']);
   allowed.set(root+'/structure/entities/*',['node','fields']);allowed.set(root+'/structure/entities/*/fields/*',['name','type']);
   if(format==='mermaid')for(const p of [root+'/structure/entities/*/fields/*'])allowed.get(p)!.push('keys','nullable');
   allowed.set(root+'/structure/references/*',['id','from','to','label','fromCardinality','toCardinality']);

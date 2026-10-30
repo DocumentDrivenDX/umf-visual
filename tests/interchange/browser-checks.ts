@@ -16,7 +16,20 @@ export async function runInterchangeBrowserChecks(){
    const labels=[...dom.querySelectorAll('.nodeLabel,.edgeLabel')].map(n=>n.textContent);
    for(const label of [oracleGraph.nodes![0]!.label,oracleGraph.nodes![1]!.label,oracleGraph.edges![0]!.label!])assert(labels.includes(label),'Native Mermaid changed label '+JSON.stringify(label)+' to '+JSON.stringify(labels));
   }
-  nativeMermaid.push({name,nativeParse:true,nativeRender:true});
+  const expectedTitle=(document.extensions!['umf.visual'] as any).title;
+  const nativeTitle=dom.querySelector('.flowchartTitleText,.erDiagramTitleText')?.textContent;
+  assert(nativeTitle===expectedTitle,'Native Mermaid changed title '+JSON.stringify(expectedTitle)+' to '+JSON.stringify(nativeTitle));
+  const importedTitle=importVisual(exported.text,{format:'mermaid',id:'title-check',question:'What title?',mode:'allow-reported-loss'});
+  assert(importedTitle.ok&&(importedTitle.document!.extensions!['umf.visual'] as any).title===expectedTitle,'Mermaid title did not reimport');
+  nativeMermaid.push({name,nativeParse:true,nativeRender:true,titleFidelity:true});
+ }
+ const titleEdges='  Quotes " and slash \\ · 東京 #1\t`literal`\u2028\u2029\nSecond line  ';
+ for(const [name,base]of [['flow',oracleGraph],['er',oracleEntities]] as const){
+  const output=exportVisual(createVisualDocument({...base,title:titleEdges}),{format:'mermaid',mode:'allow-reported-loss'});
+  assert(output.ok,'Mermaid refused qualified edge title');
+  const rendered=await mermaid.render('title-edge-'+name,output.text!);
+  const dom=new DOMParser().parseFromString(rendered.svg,'image/svg+xml');
+  assert(dom.querySelector('.flowchartTitleText,.erDiagramTitleText')?.textContent===titleEdges,'Native Mermaid normalized a qualified title character');
  }
  const formats=['dot','mermaid','lini'] as const;const replays=[];
  for(const format of formats){
@@ -41,8 +54,11 @@ export async function runInterchangeBrowserChecks(){
   const labels=[...dom.querySelectorAll('text')].map(n=>n.textContent);
   const expected=name==='graph'?oracleGraph.nodes!.map(n=>n.label):oracleEntities.nodes!.map(n=>n.label);
   for(const label of expected)assert(labels.includes(label),'Native Lini changed label '+JSON.stringify(label)+' to '+JSON.stringify(labels));
+  const nativeHints=[...dom.querySelectorAll('title')].map(n=>n.textContent);
+  const expectedHints=((document.extensions!['umf.visual'] as any).nodes??[]).flatMap((node:any)=>node.detail===undefined?[]:[node.detail]);
+  for(const detail of expectedHints)assert(nativeHints.includes(detail),'Native Lini changed descriptive hint '+JSON.stringify(detail)+' to '+JSON.stringify(nativeHints));
   const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(svg));
-  nativeLini.push({name,diagnostics,svgSha256:[...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('')});
+  nativeLini.push({name,diagnostics,detailFidelity:true,svgSha256:[...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('')});
  }
- return{nativeMermaid:{version:'12.2.0',cases:nativeMermaid,labelFidelity:true},nativeLini:{version:lini.version(),labelFidelity:true,cases:nativeLini},portableRoundTrips:replays};
+ return{nativeMermaid:{version:'12.2.0',cases:nativeMermaid,labelFidelity:true,titleEdgeFidelity:true},nativeLini:{version:lini.version(),labelFidelity:true,cases:nativeLini},portableRoundTrips:replays};
 }
