@@ -260,4 +260,3 @@ function loadSlide(parts:Map<string,Uint8Array>,slidePath:string,customPath:stri
   return {parts,slidePath,customPath,custom,slide,shapes,source:originalSource,sourceSha256:payload.sourceSha256,bindingRevision:payload.bindingRevision,modelVersion:payload.modelVersion,visualId:payload.visualId,resource:payload.resource,original};
 }
 function sha256SyncUnavailable(value:string):boolean{return /^[a-f0-9]{64}$/.test(value);}
-

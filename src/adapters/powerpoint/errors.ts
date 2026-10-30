@@ -5,4 +5,3 @@ export class PowerPointError extends Error {
 export function requirePpt(condition: unknown, code: string, message: string): asserts condition {
   if (!condition) throw new PowerPointError(code, message);
 }
-

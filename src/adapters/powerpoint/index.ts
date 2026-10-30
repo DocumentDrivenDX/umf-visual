@@ -233,4 +233,3 @@ export async function updatePowerPoint(previous:PowerPointImportResult,document:
   const currentVisual=getVisual(document),mappings=hostMappings(currentVisual,updatedProfile.shapes,updatedProfile.slidePath),binding=await admitHostBinding({profile:POWERPOINT_PROFILE,modelVersion:payload.modelVersion,resource:previousBinding.resource,bindingRevision,source:copyHostJson(document),sourceDigestSha256:await hostDigest(document),baselineNative:capture,mappings,losses,state:'complete'});
   return {bytes,profile:POWERPOINT_PROFILE,modelVersion:payload.modelVersion,sourceSha256,bindingRevision,mappings,losses,binding,capture};
 }
-

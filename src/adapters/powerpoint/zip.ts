@@ -103,4 +103,3 @@ export function partText(parts:PartMap,path:string):string {
   try{return new TextDecoder('utf-8',{fatal:true}).decode(bytes);}catch{throw new PowerPointError('PACKAGE_ENCODING','Package part is not valid UTF-8: '+path);}
 }
 export function putText(parts:PartMap,path:string,text:string):void {parts.set(path,new TextEncoder().encode(text));}
-

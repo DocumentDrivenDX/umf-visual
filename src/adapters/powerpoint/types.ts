@@ -59,4 +59,3 @@ export interface PowerPointImportResult {
 }
 export interface PowerPointUpdateOptions extends PowerPointImportOptions {mode?: PowerPointMode;currentArtifactSha256?:string;currentArtifactBytes?:Uint8Array;}
 export interface PowerPointUpdateResult extends PowerPointExportResult {}
-
