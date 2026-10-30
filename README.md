@@ -124,3 +124,15 @@ deploying. A manual workflow dispatch on `main` can redeploy a verified build.
 The site uses relative assets so catalog selections work below `/umf-visual/`.
 To restore a previous site, revert the affected source change on `main` and let
 the same verification and deployment workflow complete.
+
+## Miro integration spike
+
+Miro development app: `bun run dev:miro`. It exports question/node shapes and
+connectors, then adopts plain-label and attached-endpoint edits into the original
+visual. Keep the companion with the document. Additional kinds and arbitrary
+semantic board import require separate profiles. A live label round trip and
+a 72-item native UMF reproduction pass. `umf.visual.miro` preserves API-visible
+JSON and optional opaque native browser-copy content, with qualified fidelity
+and shared-model gaps recorded in the guide.
+
+See the [Miro integration guide](docs/helix/04-build/miro-integration.md) for the runnable app, versioned scope and native evidence.

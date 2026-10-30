@@ -37,7 +37,9 @@ unsupported content belong in a separately versioned adapter-owned extension or
 native companion, preserved without fabricated interpretation. Register extension
 identity/version and specify portable JSON admission, unknown content retention,
 reference ownership and upgrade behavior. Do not infer semantic IDs from tooltips.
-No Miro extension identity is invented by this coordination note.
+`umf.visual.miro` 1.0.0 is now registered by CONTRACT-084 and the Miro
+adapter. Its optional browser-copy profile is explicitly observed/client-qualified;
+its native-only documents do not fabricate shared visual semantics.
 
 ## Example ownership and privacy
 
@@ -62,3 +64,10 @@ new artifact IDs before reserving one. Coordinate real examples and proposed typ
 gaps through this note and explicit human-authorized task messages. Source receipt
 replay proves original recovery only; edited-source/native adoption needs separate
 three-way reconciliation and repeated round-trip tests.
+
+The Miro task supplied sanitized structural counterexamples in
+`docs/helix/02-design/spikes/miro/counterexamples.md`, plus live 72-item native
+UMF reproduction evidence. Two distinct diagrams share that private source:
+a development/data flow and nested deployment environments. Shared schema
+changes remain with the diagram-language owner; no raw company data entered
+the catalog or public fixtures.

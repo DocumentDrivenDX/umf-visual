@@ -10,7 +10,9 @@ await Bun.write(join(consumer,'package.json'),JSON.stringify({private:true,type:
 const install=Bun.spawn([process.execPath,'install','--ignore-scripts'],{cwd:consumer,stdout:'inherit',stderr:'inherit'});
 if(await install.exited)throw Error('Packed consumer installation failed');
 await Bun.write(join(consumer,'consumer.mjs'),`import {createVisualDocument,inspectVisual,importVisual,exportVisual} from '@documentdrivendx/umf-visual';
+import {planMiroExport} from '@documentdrivendx/umf-visual/miro';
 const doc=createVisualDocument({id:'consumer',kind:'flow',form:'network',question:'Does installation work?',nodes:[{id:'n',label:'Installed consumer'}]});
+if(planMiroExport(doc).shapes.length!==2)throw Error('Installed Miro entrypoint failed');
 const report=inspectVisual(doc);if(!report.valid||!report.complete)throw Error('Installed package rejected valid data');
 for(const format of ['dot','mermaid','lini']){
  const output=exportVisual(doc,{format});if(!output.ok)throw Error('Installed export failed '+format);

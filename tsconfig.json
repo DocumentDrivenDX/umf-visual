@@ -20,6 +20,7 @@
     "src",
     "tests",
     "scripts",
-    "microsite/build.ts"
+    "microsite/build.ts",
+    "examples"
   ]
 }
