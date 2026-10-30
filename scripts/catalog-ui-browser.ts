@@ -33,7 +33,7 @@ try{
     const render=item.targets[target]?.render;
     return render?.ok&&render.svgPath?[{id:item.id,target,path:render.svgPath,sha256:render.svgSha256}]:[];
   }));
-  if(renderAssets.length!==59)throw new Error(`Expected 59 native SVG assets, saw ${renderAssets.length}`);
+  if(renderAssets.length<72)throw new Error(`Expected at least the 72 verified native SVG assets, saw ${renderAssets.length}`);
   const assetResults=await page.evaluate(async assets=>Promise.all(assets.map(asset=>new Promise<{id:string;target:string;ok:boolean;width:number;height:number;url:string}>(resolve=>{
     const image=new Image();const url=new URL(asset.path,location.href);if(asset.sha256)url.searchParams.set('v',asset.sha256);
     const finish=(ok:boolean)=>resolve({id:asset.id,target:asset.target,ok,width:image.naturalWidth,height:image.naturalHeight,url:url.href});
@@ -52,6 +52,14 @@ try{
   const count=await page.locator('.definition-card').count();
   if(count!==formExamples.length)throw new Error(`Expected ${formExamples.length} form example cards, saw ${count}`);
   if(await page.locator('.coverage-card').count()!==3)throw new Error('Expected coverage for all three targets');
+  for(const [index,target]of TARGETS.entries()){
+    const results=catalog.items.map(item=>item.targets[target]);
+    const rendered=results.filter(result=>result.render?.ok).length;
+    const losses=results.filter(result=>result.ok).reduce((sum,result)=>sum+result.diagnostics.filter((diagnostic:any)=>diagnostic.loss).length,0);
+    const expected=`${rendered} native renders · ${losses} remaining loss reports across emitted samples`;
+    if(await page.locator('.native-coverage').nth(index).innerText()!==expected)throw Error('Native progress counters differ from catalog for '+target);
+  }
+  exercised.push('native render counts remain separate from semantic loss counts');
   const firstCardLabel=await page.locator('.definition-card').first().getAttribute('aria-label');
   if(!firstCardLabel?.includes('DOT')||!firstCardLabel.includes('Mermaid')||!firstCardLabel.includes('Lini'))throw new Error('Definition card accessible name omits one or more profile outcomes');
   await mkdir('.cache',{recursive:true});

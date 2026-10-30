@@ -1,0 +1,3160 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "10fdb00af3820f72a7704e7a23b949995c450424",
+  "baselineSha256": "f25de6bcb92a9dfc27406e36a3f92744190a1792b0c07ce50527fe837df992a1",
+  "profiles": [
+    {
+      "format": "dot",
+      "profile": "umf.visual.dot/1",
+      "version": "0.3.0",
+      "subset": "Graphviz 16.1-compatible directed DOT: quoted or bare IDs, comments, labels/tooltips, directed node chains, and nested named cluster subgraphs (`subgraph cluster_*`) with scoped label/tooltip defaults; no anonymous or non-cluster subgraphs, ports, HTML labels, or undirected graphs. Import projects group role as region with a reported loss and reports unknown tier/layout semantics.",
+      "directions": [
+        "import",
+        "export"
+      ]
+    },
+    {
+      "format": "mermaid",
+      "profile": "umf.visual.mermaid/1",
+      "version": "1.2.0",
+      "subset": "Mermaid 12.2.0 flowchart: bare/rectangular nodes, directed links and JSON-quoted YAML frontmatter titles; erDiagram: entities, fields, four cardinalities, relationship labels and JSON-quoted YAML frontmatter titles; sequenceDiagram: participants, native solid-call/dotted-return/open-async arrow forms, notes over two participants, and loop groups. Sequence form/layout and non-native visual fields are reported as losses. Sequence labels support ASCII spaces, tabs, and line feeds, which are numeric-escaped; other Unicode whitespace, controls except tab/line feed, and unpaired surrogates are refused. Titles preserve plain Unicode, quotes, backslashes, hashes, tabs, and line feeds; carriage returns, ampersands, and angle brackets altered by strict rendering are refused. Labels are plain text/numeric-escaped; raw HTML, Markdown, named entities, and literal angle brackets are outside this profile.",
+      "directions": [
+        "import",
+        "export"
+      ]
+    },
+    {
+      "format": "lini",
+      "profile": "umf.visual.lini/1",
+      "version": "0.2.0",
+      "subset": "Lini 1.1.0 flat block/entity cards with quoted labels and optional tooltip hints mapped to Visual node detail, quoted field display types, and directed links between cards or declared fields; undirected links refuse; field tooltips and layout/style declarations are retained with loss reports.",
+      "directions": [
+        "import",
+        "export"
+      ]
+    }
+  ],
+  "policy": "Native source emitted; counted diagnostics have loss:true. Refused targets are counted separately, not as emitted loss.",
+  "summary": [
+    {
+      "format": "dot",
+      "priorEmittedLossesBefore": 234,
+      "priorEmittedLossesAfter": 190,
+      "newlyEmitted": [
+        {
+          "id": "visual-inventory-beacon-deployment",
+          "losses": 45
+        },
+        {
+          "id": "visual-inventory-beacon-field-guide",
+          "losses": 48
+        },
+        {
+          "id": "visual-inventory-beacon-reply-presentation",
+          "losses": 70
+        },
+        {
+          "id": "visual-inventory-helix-deployment",
+          "losses": 78
+        },
+        {
+          "id": "visual-inventory-helix-field-guide",
+          "losses": 99
+        },
+        {
+          "id": "visual-inventory-helix-solution-overview",
+          "losses": 73
+        },
+        {
+          "id": "visual-inventory-tpl-arch-deployment",
+          "losses": 16
+        },
+        {
+          "id": "visual-inventory-tpl-so-map",
+          "losses": 10
+        }
+      ],
+      "emittedBefore": 11,
+      "emittedAfter": 19,
+      "strictBefore": 1,
+      "strictAfter": 1,
+      "changes": [
+        {
+          "code": "DOT_EDGE_FIELD",
+          "before": 30,
+          "after": 64
+        },
+        {
+          "code": "DOT_FLOW_LAYOUT",
+          "before": 0,
+          "after": 8
+        },
+        {
+          "code": "DOT_GROUP_FIELD",
+          "before": 0,
+          "after": 58
+        },
+        {
+          "code": "DOT_NODE_FIELD",
+          "before": 108,
+          "after": 222
+        },
+        {
+          "code": "DOT_VISUAL_FIELD",
+          "before": 23,
+          "after": 45
+        },
+        {
+          "code": "INTERCHANGE_UNREPRESENTED_FIELD",
+          "before": 73,
+          "after": 232
+        }
+      ]
+    },
+    {
+      "format": "mermaid",
+      "priorEmittedLossesBefore": 627,
+      "priorEmittedLossesAfter": 627,
+      "newlyEmitted": [
+        {
+          "id": "visual-forms-helix-request-ladder",
+          "losses": 49
+        },
+        {
+          "id": "visual-inventory-beacon-reply-draft",
+          "losses": 60
+        },
+        {
+          "id": "visual-inventory-documentor-pipeline",
+          "losses": 4
+        },
+        {
+          "id": "visual-inventory-helix-request",
+          "losses": 48
+        },
+        {
+          "id": "visual-inventory-tpl-arch-dataflow",
+          "losses": 4
+        }
+      ],
+      "emittedBefore": 24,
+      "emittedAfter": 29,
+      "strictBefore": 1,
+      "strictAfter": 1,
+      "changes": [
+        {
+          "code": "INTERCHANGE_UNREPRESENTED_FIELD",
+          "before": 466,
+          "after": 590
+        },
+        {
+          "code": "MERMAID_PARTICIPANT_FIELDS",
+          "before": 0,
+          "after": 20
+        },
+        {
+          "code": "MERMAID_PARTICIPANT_ROLE",
+          "before": 0,
+          "after": 17
+        },
+        {
+          "code": "MERMAID_SEQUENCE_LAYOUT",
+          "before": 0,
+          "after": 1
+        },
+        {
+          "code": "MERMAID_SEQUENCE_STEPS",
+          "before": 0,
+          "after": 3
+        }
+      ]
+    },
+    {
+      "format": "lini",
+      "priorEmittedLossesBefore": 553,
+      "priorEmittedLossesAfter": 553,
+      "newlyEmitted": [],
+      "emittedBefore": 24,
+      "emittedAfter": 24,
+      "strictBefore": 1,
+      "strictAfter": 1,
+      "changes": []
+    }
+  ],
+  "records": [
+    {
+      "id": "visual-catalog-canary-entities",
+      "sourcePath": "fixtures/catalog/canary-entities.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-catalog-canary-entities",
+      "sourcePath": "fixtures/catalog/canary-entities.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "MERMAID_IDENTIFICATION": 1,
+          "MERMAID_NULLABLE": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "MERMAID_IDENTIFICATION": 1,
+          "MERMAID_NULLABLE": 1
+        }
+      }
+    },
+    {
+      "id": "visual-catalog-canary-entities",
+      "sourcePath": "fixtures/catalog/canary-entities.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "LINI_CARDINALITY": 2,
+          "LINI_FIELD_KEYS": 1,
+          "LINI_FIELD_NULLABILITY": 1,
+          "LINI_REFERENCE_DIRECTION": 1,
+          "LINI_REFERENCE_LABEL": 1,
+          "LINI_TITLE": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "LINI_CARDINALITY": 2,
+          "LINI_FIELD_KEYS": 1,
+          "LINI_FIELD_NULLABILITY": 1,
+          "LINI_REFERENCE_DIRECTION": 1,
+          "LINI_REFERENCE_LABEL": 1,
+          "LINI_TITLE": 1
+        }
+      }
+    },
+    {
+      "id": "visual-catalog-canary-flow",
+      "sourcePath": "fixtures/catalog/canary-flow.json",
+      "format": "dot",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_VISUAL_FIELD": 2,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_VISUAL_FIELD": 2,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 1
+        }
+      }
+    },
+    {
+      "id": "visual-catalog-canary-flow",
+      "sourcePath": "fixtures/catalog/canary-flow.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-catalog-canary-flow",
+      "sourcePath": "fixtures/catalog/canary-flow.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 2
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 2
+        }
+      }
+    },
+    {
+      "id": "visual-catalog-canary-supported-flow",
+      "sourcePath": "fixtures/catalog/canary-supported-flow.json",
+      "format": "dot",
+      "before": {
+        "status": "supported",
+        "emitted": true,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "supported",
+        "emitted": true,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-catalog-canary-supported-flow",
+      "sourcePath": "fixtures/catalog/canary-supported-flow.json",
+      "format": "mermaid",
+      "before": {
+        "status": "supported",
+        "emitted": true,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "supported",
+        "emitted": true,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-catalog-canary-supported-flow",
+      "sourcePath": "fixtures/catalog/canary-supported-flow.json",
+      "format": "lini",
+      "before": {
+        "status": "supported",
+        "emitted": true,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "supported",
+        "emitted": true,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-helix-authoring-state",
+      "sourcePath": "fixtures/visual/forms/helix-authoring-state.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-helix-authoring-state",
+      "sourcePath": "fixtures/visual/forms/helix-authoring-state.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-helix-authoring-state",
+      "sourcePath": "fixtures/visual/forms/helix-authoring-state.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-helix-releases",
+      "sourcePath": "fixtures/visual/forms/helix-releases.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-helix-releases",
+      "sourcePath": "fixtures/visual/forms/helix-releases.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-helix-releases",
+      "sourcePath": "fixtures/visual/forms/helix-releases.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-helix-request-ladder",
+      "sourcePath": "fixtures/visual/forms/helix-request-ladder.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-helix-request-ladder",
+      "sourcePath": "fixtures/visual/forms/helix-request-ladder.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 36,
+          "MERMAID_PARTICIPANT_FIELDS": 6,
+          "MERMAID_PARTICIPANT_ROLE": 5,
+          "MERMAID_SEQUENCE_LAYOUT": 1,
+          "MERMAID_SEQUENCE_STEPS": 1
+        }
+      }
+    },
+    {
+      "id": "visual-forms-helix-request-ladder",
+      "sourcePath": "fixtures/visual/forms/helix-request-ladder.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-layout-engines",
+      "sourcePath": "fixtures/visual/forms/layout-engines.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-layout-engines",
+      "sourcePath": "fixtures/visual/forms/layout-engines.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-layout-engines",
+      "sourcePath": "fixtures/visual/forms/layout-engines.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-coverage",
+      "sourcePath": "fixtures/visual/forms/umf-ac-coverage.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-coverage",
+      "sourcePath": "fixtures/visual/forms/umf-ac-coverage.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-coverage",
+      "sourcePath": "fixtures/visual/forms/umf-ac-coverage.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-satisfied",
+      "sourcePath": "fixtures/visual/forms/umf-ac-satisfied.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-satisfied",
+      "sourcePath": "fixtures/visual/forms/umf-ac-satisfied.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-satisfied",
+      "sourcePath": "fixtures/visual/forms/umf-ac-satisfied.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-status",
+      "sourcePath": "fixtures/visual/forms/umf-ac-status.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-status",
+      "sourcePath": "fixtures/visual/forms/umf-ac-status.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-status",
+      "sourcePath": "fixtures/visual/forms/umf-ac-status.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-trend",
+      "sourcePath": "fixtures/visual/forms/umf-ac-trend.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-trend",
+      "sourcePath": "fixtures/visual/forms/umf-ac-trend.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-ac-trend",
+      "sourcePath": "fixtures/visual/forms/umf-ac-trend.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-extensions",
+      "sourcePath": "fixtures/visual/forms/umf-extensions.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-extensions",
+      "sourcePath": "fixtures/visual/forms/umf-extensions.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-extensions",
+      "sourcePath": "fixtures/visual/forms/umf-extensions.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-releases",
+      "sourcePath": "fixtures/visual/forms/umf-releases.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-releases",
+      "sourcePath": "fixtures/visual/forms/umf-releases.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-umf-releases",
+      "sourcePath": "fixtures/visual/forms/umf-releases.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-visuals-before-after",
+      "sourcePath": "fixtures/visual/forms/visuals-before-after.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-visuals-before-after",
+      "sourcePath": "fixtures/visual/forms/visuals-before-after.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-visuals-before-after",
+      "sourcePath": "fixtures/visual/forms/visuals-before-after.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-visuals-roadmap",
+      "sourcePath": "fixtures/visual/forms/visuals-roadmap.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-visuals-roadmap",
+      "sourcePath": "fixtures/visual/forms/visuals-roadmap.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-forms-visuals-roadmap",
+      "sourcePath": "fixtures/visual/forms/visuals-roadmap.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ci-ci",
+      "sourcePath": "fixtures/visual/inventory/beacon-ci-ci.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ci-ci",
+      "sourcePath": "fixtures/visual/inventory/beacon-ci-ci.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 10,
+          "MERMAID_NODE_FIELDS": 5
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 10,
+          "MERMAID_NODE_FIELDS": 5
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ci-ci",
+      "sourcePath": "fixtures/visual/inventory/beacon-ci-ci.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ci-nightly",
+      "sourcePath": "fixtures/visual/inventory/beacon-ci-nightly.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ci-nightly",
+      "sourcePath": "fixtures/visual/inventory/beacon-ci-nightly.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 7,
+          "MERMAID_NODE_FIELDS": 2
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 7,
+          "MERMAID_NODE_FIELDS": 2
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ci-nightly",
+      "sourcePath": "fixtures/visual/inventory/beacon-ci-nightly.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ci-preview",
+      "sourcePath": "fixtures/visual/inventory/beacon-ci-preview.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ci-preview",
+      "sourcePath": "fixtures/visual/inventory/beacon-ci-preview.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 8,
+          "MERMAID_NODE_FIELDS": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 8,
+          "MERMAID_NODE_FIELDS": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ci-preview",
+      "sourcePath": "fixtures/visual/inventory/beacon-ci-preview.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-containers",
+      "sourcePath": "fixtures/visual/inventory/beacon-containers.json",
+      "format": "dot",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 4,
+          "DOT_NODE_FIELD": 26,
+          "DOT_VISUAL_FIELD": 4,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 9
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 3,
+          "DOT_GROUP_FIELD": 2,
+          "DOT_NODE_FIELD": 18,
+          "DOT_VISUAL_FIELD": 3,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-containers",
+      "sourcePath": "fixtures/visual/inventory/beacon-containers.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 51,
+          "MERMAID_EDGE_FIELDS": 4,
+          "MERMAID_NODE_FIELDS": 9
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 51,
+          "MERMAID_EDGE_FIELDS": 4,
+          "MERMAID_NODE_FIELDS": 9
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-containers",
+      "sourcePath": "fixtures/visual/inventory/beacon-containers.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 9,
+          "LINI_EDGE_FIELD": 4,
+          "LINI_NODE_FIELD": 26,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 4
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 9,
+          "LINI_EDGE_FIELD": 4,
+          "LINI_NODE_FIELD": 26,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 4
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-context",
+      "sourcePath": "fixtures/visual/inventory/beacon-context.json",
+      "format": "dot",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 2,
+          "DOT_NODE_FIELD": 26,
+          "DOT_VISUAL_FIELD": 3,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_NODE_FIELD": 26,
+          "DOT_VISUAL_FIELD": 3,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-context",
+      "sourcePath": "fixtures/visual/inventory/beacon-context.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 42,
+          "MERMAID_EDGE_FIELDS": 2,
+          "MERMAID_NODE_FIELDS": 13
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 42,
+          "MERMAID_EDGE_FIELDS": 2,
+          "MERMAID_NODE_FIELDS": 13
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-context",
+      "sourcePath": "fixtures/visual/inventory/beacon-context.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_EDGE_FIELD": 2,
+          "LINI_NODE_FIELD": 26,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_EDGE_FIELD": 2,
+          "LINI_NODE_FIELD": 26,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-deployment",
+      "sourcePath": "fixtures/visual/inventory/beacon-deployment.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 2,
+          "DOT_FLOW_LAYOUT": 1,
+          "DOT_GROUP_FIELD": 10,
+          "DOT_NODE_FIELD": 26,
+          "DOT_VISUAL_FIELD": 3,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-deployment",
+      "sourcePath": "fixtures/visual/inventory/beacon-deployment.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-deployment",
+      "sourcePath": "fixtures/visual/inventory/beacon-deployment.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-estate-landscape",
+      "sourcePath": "fixtures/visual/inventory/beacon-estate-landscape.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-estate-landscape",
+      "sourcePath": "fixtures/visual/inventory/beacon-estate-landscape.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-estate-landscape",
+      "sourcePath": "fixtures/visual/inventory/beacon-estate-landscape.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-estate",
+      "sourcePath": "fixtures/visual/inventory/beacon-estate.json",
+      "format": "dot",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 1,
+          "DOT_NODE_FIELD": 4,
+          "DOT_VISUAL_FIELD": 1,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 1,
+          "DOT_NODE_FIELD": 4,
+          "DOT_VISUAL_FIELD": 1,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-estate",
+      "sourcePath": "fixtures/visual/inventory/beacon-estate.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 12,
+          "MERMAID_EDGE_FIELDS": 1,
+          "MERMAID_NODE_FIELDS": 4
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 12,
+          "MERMAID_EDGE_FIELDS": 1,
+          "MERMAID_NODE_FIELDS": 4
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-estate",
+      "sourcePath": "fixtures/visual/inventory/beacon-estate.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_EDGE_FIELD": 1,
+          "LINI_NODE_FIELD": 4,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_EDGE_FIELD": 1,
+          "LINI_NODE_FIELD": 4,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-field-guide",
+      "sourcePath": "fixtures/visual/inventory/beacon-field-guide.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_FLOW_LAYOUT": 1,
+          "DOT_GROUP_FIELD": 4,
+          "DOT_NODE_FIELD": 14,
+          "DOT_VISUAL_FIELD": 5,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 24
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-field-guide",
+      "sourcePath": "fixtures/visual/inventory/beacon-field-guide.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-field-guide",
+      "sourcePath": "fixtures/visual/inventory/beacon-field-guide.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-integrations",
+      "sourcePath": "fixtures/visual/inventory/beacon-integrations.json",
+      "format": "dot",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 2,
+          "DOT_NODE_FIELD": 14,
+          "DOT_VISUAL_FIELD": 4,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 6
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_GROUP_FIELD": 1,
+          "DOT_NODE_FIELD": 12,
+          "DOT_VISUAL_FIELD": 3,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-integrations",
+      "sourcePath": "fixtures/visual/inventory/beacon-integrations.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 31,
+          "MERMAID_EDGE_FIELDS": 2,
+          "MERMAID_NODE_FIELDS": 6
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 31,
+          "MERMAID_EDGE_FIELDS": 2,
+          "MERMAID_NODE_FIELDS": 6
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-integrations",
+      "sourcePath": "fixtures/visual/inventory/beacon-integrations.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 6,
+          "LINI_EDGE_FIELD": 2,
+          "LINI_NODE_FIELD": 14,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 4
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 6,
+          "LINI_EDGE_FIELD": 2,
+          "LINI_NODE_FIELD": 14,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 4
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-overview",
+      "sourcePath": "fixtures/visual/inventory/beacon-overview.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-overview",
+      "sourcePath": "fixtures/visual/inventory/beacon-overview.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 47,
+          "MERMAID_EDGE_FIELDS": 5,
+          "MERMAID_NODE_FIELDS": 7
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 47,
+          "MERMAID_EDGE_FIELDS": 5,
+          "MERMAID_NODE_FIELDS": 7
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-overview",
+      "sourcePath": "fixtures/visual/inventory/beacon-overview.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 19,
+          "LINI_EDGE_FIELD": 5,
+          "LINI_FORM_LOSS": 1,
+          "LINI_NODE_FIELD": 14,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 4
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 19,
+          "LINI_EDGE_FIELD": 5,
+          "LINI_FORM_LOSS": 1,
+          "LINI_NODE_FIELD": 14,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 4
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-reply-draft",
+      "sourcePath": "fixtures/visual/inventory/beacon-reply-draft.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-reply-draft",
+      "sourcePath": "fixtures/visual/inventory/beacon-reply-draft.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 44,
+          "MERMAID_PARTICIPANT_FIELDS": 8,
+          "MERMAID_PARTICIPANT_ROLE": 7,
+          "MERMAID_SEQUENCE_STEPS": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-reply-draft",
+      "sourcePath": "fixtures/visual/inventory/beacon-reply-draft.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-reply-presentation",
+      "sourcePath": "fixtures/visual/inventory/beacon-reply-presentation.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 2,
+          "DOT_FLOW_LAYOUT": 1,
+          "DOT_GROUP_FIELD": 10,
+          "DOT_NODE_FIELD": 26,
+          "DOT_VISUAL_FIELD": 4,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 27
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-reply-presentation",
+      "sourcePath": "fixtures/visual/inventory/beacon-reply-presentation.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-reply-presentation",
+      "sourcePath": "fixtures/visual/inventory/beacon-reply-presentation.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-schema-tickets",
+      "sourcePath": "fixtures/visual/inventory/beacon-schema-tickets.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-schema-tickets",
+      "sourcePath": "fixtures/visual/inventory/beacon-schema-tickets.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 15,
+          "MERMAID_FIELD_REFERENCE": 9,
+          "MERMAID_IDENTIFICATION": 9,
+          "MERMAID_NODE_FIELDS": 10
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 15,
+          "MERMAID_FIELD_REFERENCE": 9,
+          "MERMAID_IDENTIFICATION": 9,
+          "MERMAID_NODE_FIELDS": 10
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-schema-tickets",
+      "sourcePath": "fixtures/visual/inventory/beacon-schema-tickets.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_CARDINALITY": 18,
+          "LINI_FIELD_KEYS": 20,
+          "LINI_NODE_FIELD": 10,
+          "LINI_REFERENCE_DIRECTION": 9,
+          "LINI_REFERENCE_LABEL": 9,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_CARDINALITY": 18,
+          "LINI_FIELD_KEYS": 20,
+          "LINI_NODE_FIELD": 10,
+          "LINI_REFERENCE_DIRECTION": 9,
+          "LINI_REFERENCE_LABEL": 9,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-schema-workspace",
+      "sourcePath": "fixtures/visual/inventory/beacon-schema-workspace.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-schema-workspace",
+      "sourcePath": "fixtures/visual/inventory/beacon-schema-workspace.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 12,
+          "MERMAID_FIELD_REFERENCE": 6,
+          "MERMAID_IDENTIFICATION": 6,
+          "MERMAID_NODE_FIELDS": 7
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 12,
+          "MERMAID_FIELD_REFERENCE": 6,
+          "MERMAID_IDENTIFICATION": 6,
+          "MERMAID_NODE_FIELDS": 7
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-schema-workspace",
+      "sourcePath": "fixtures/visual/inventory/beacon-schema-workspace.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_CARDINALITY": 12,
+          "LINI_FIELD_KEYS": 12,
+          "LINI_NODE_FIELD": 7,
+          "LINI_REFERENCE_DIRECTION": 6,
+          "LINI_REFERENCE_LABEL": 6,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_CARDINALITY": 12,
+          "LINI_FIELD_KEYS": 12,
+          "LINI_NODE_FIELD": 7,
+          "LINI_REFERENCE_DIRECTION": 6,
+          "LINI_REFERENCE_LABEL": 6,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-stack",
+      "sourcePath": "fixtures/visual/inventory/beacon-stack.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-stack",
+      "sourcePath": "fixtures/visual/inventory/beacon-stack.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-stack",
+      "sourcePath": "fixtures/visual/inventory/beacon-stack.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ticket-lifecycle",
+      "sourcePath": "fixtures/visual/inventory/beacon-ticket-lifecycle.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ticket-lifecycle",
+      "sourcePath": "fixtures/visual/inventory/beacon-ticket-lifecycle.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-beacon-ticket-lifecycle",
+      "sourcePath": "fixtures/visual/inventory/beacon-ticket-lifecycle.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-documentor-pipeline",
+      "sourcePath": "fixtures/visual/inventory/documentor-pipeline.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-documentor-pipeline",
+      "sourcePath": "fixtures/visual/inventory/documentor-pipeline.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 4
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-documentor-pipeline",
+      "sourcePath": "fixtures/visual/inventory/documentor-pipeline.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-activities",
+      "sourcePath": "fixtures/visual/inventory/helix-activities.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-activities",
+      "sourcePath": "fixtures/visual/inventory/helix-activities.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 10,
+          "MERMAID_NODE_FIELDS": 7
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 10,
+          "MERMAID_NODE_FIELDS": 7
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-activities",
+      "sourcePath": "fixtures/visual/inventory/helix-activities.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-adr-options",
+      "sourcePath": "fixtures/visual/inventory/helix-adr-options.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-adr-options",
+      "sourcePath": "fixtures/visual/inventory/helix-adr-options.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-adr-options",
+      "sourcePath": "fixtures/visual/inventory/helix-adr-options.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-containers",
+      "sourcePath": "fixtures/visual/inventory/helix-containers.json",
+      "format": "dot",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_NODE_FIELD": 14,
+          "DOT_VISUAL_FIELD": 3,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 12
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_GROUP_FIELD": 3,
+          "DOT_NODE_FIELD": 7,
+          "DOT_VISUAL_FIELD": 2,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-containers",
+      "sourcePath": "fixtures/visual/inventory/helix-containers.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 36,
+          "MERMAID_NODE_FIELDS": 7
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 36,
+          "MERMAID_NODE_FIELDS": 7
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-containers",
+      "sourcePath": "fixtures/visual/inventory/helix-containers.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 12,
+          "LINI_NODE_FIELD": 14,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 12,
+          "LINI_NODE_FIELD": 14,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-context",
+      "sourcePath": "fixtures/visual/inventory/helix-context.json",
+      "format": "dot",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 21,
+          "DOT_NODE_FIELD": 21,
+          "DOT_VISUAL_FIELD": 3,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 31
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 14,
+          "DOT_NODE_FIELD": 21,
+          "DOT_VISUAL_FIELD": 3,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 31
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-context",
+      "sourcePath": "fixtures/visual/inventory/helix-context.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 83,
+          "MERMAID_EDGE_FIELDS": 7,
+          "MERMAID_NODE_FIELDS": 7
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 83,
+          "MERMAID_EDGE_FIELDS": 7,
+          "MERMAID_NODE_FIELDS": 7
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-context",
+      "sourcePath": "fixtures/visual/inventory/helix-context.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 31,
+          "LINI_EDGE_FIELD": 21,
+          "LINI_NODE_FIELD": 21,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 31,
+          "LINI_EDGE_FIELD": 21,
+          "LINI_NODE_FIELD": 21,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-deployment",
+      "sourcePath": "fixtures/visual/inventory/helix-deployment.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 14,
+          "DOT_FLOW_LAYOUT": 1,
+          "DOT_GROUP_FIELD": 8,
+          "DOT_NODE_FIELD": 21,
+          "DOT_VISUAL_FIELD": 3,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 31
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-deployment",
+      "sourcePath": "fixtures/visual/inventory/helix-deployment.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-deployment",
+      "sourcePath": "fixtures/visual/inventory/helix-deployment.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-field-guide",
+      "sourcePath": "fixtures/visual/inventory/helix-field-guide.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 14,
+          "DOT_FLOW_LAYOUT": 1,
+          "DOT_GROUP_FIELD": 4,
+          "DOT_NODE_FIELD": 21,
+          "DOT_VISUAL_FIELD": 4,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 55
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-field-guide",
+      "sourcePath": "fixtures/visual/inventory/helix-field-guide.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-field-guide",
+      "sourcePath": "fixtures/visual/inventory/helix-field-guide.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-overview-map",
+      "sourcePath": "fixtures/visual/inventory/helix-overview-map.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-overview-map",
+      "sourcePath": "fixtures/visual/inventory/helix-overview-map.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 62,
+          "MERMAID_EDGE_FIELDS": 1,
+          "MERMAID_NODE_FIELDS": 6
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 62,
+          "MERMAID_EDGE_FIELDS": 1,
+          "MERMAID_NODE_FIELDS": 6
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-overview-map",
+      "sourcePath": "fixtures/visual/inventory/helix-overview-map.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 33,
+          "LINI_EDGE_FIELD": 1,
+          "LINI_FORM_LOSS": 1,
+          "LINI_NODE_FIELD": 18,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 4
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 33,
+          "LINI_EDGE_FIELD": 1,
+          "LINI_FORM_LOSS": 1,
+          "LINI_NODE_FIELD": 18,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 4
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-parts",
+      "sourcePath": "fixtures/visual/inventory/helix-parts.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-parts",
+      "sourcePath": "fixtures/visual/inventory/helix-parts.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-parts",
+      "sourcePath": "fixtures/visual/inventory/helix-parts.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-request",
+      "sourcePath": "fixtures/visual/inventory/helix-request.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-request",
+      "sourcePath": "fixtures/visual/inventory/helix-request.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 36,
+          "MERMAID_PARTICIPANT_FIELDS": 6,
+          "MERMAID_PARTICIPANT_ROLE": 5,
+          "MERMAID_SEQUENCE_STEPS": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-request",
+      "sourcePath": "fixtures/visual/inventory/helix-request.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-solution-overview",
+      "sourcePath": "fixtures/visual/inventory/helix-solution-overview.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_EDGE_FIELD": 14,
+          "DOT_FLOW_LAYOUT": 1,
+          "DOT_GROUP_FIELD": 4,
+          "DOT_NODE_FIELD": 21,
+          "DOT_VISUAL_FIELD": 2,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 31
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-helix-solution-overview",
+      "sourcePath": "fixtures/visual/inventory/helix-solution-overview.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-helix-solution-overview",
+      "sourcePath": "fixtures/visual/inventory/helix-solution-overview.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-components",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-components.json",
+      "format": "dot",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_NODE_FIELD": 1,
+          "DOT_VISUAL_FIELD": 1,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_NODE_FIELD": 1,
+          "DOT_VISUAL_FIELD": 1,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-components",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-components.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 5,
+          "MERMAID_NODE_FIELDS": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 5,
+          "MERMAID_NODE_FIELDS": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-components",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-components.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_NODE_FIELD": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_NODE_FIELD": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-containers",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-containers.json",
+      "format": "dot",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_NODE_FIELD": 2,
+          "DOT_VISUAL_FIELD": 1,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_NODE_FIELD": 2,
+          "DOT_VISUAL_FIELD": 1,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-containers",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-containers.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 6,
+          "MERMAID_NODE_FIELDS": 2
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 6,
+          "MERMAID_NODE_FIELDS": 2
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-containers",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-containers.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_NODE_FIELD": 2,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_NODE_FIELD": 2,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-context",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-context.json",
+      "format": "dot",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_VISUAL_FIELD": 1,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_VISUAL_FIELD": 1,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-context",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-context.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 4
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 4
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-context",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-context.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-dataflow",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-dataflow.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-dataflow",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-dataflow.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 4
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-dataflow",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-dataflow.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-deployment",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-deployment.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_FLOW_LAYOUT": 1,
+          "DOT_GROUP_FIELD": 8,
+          "DOT_NODE_FIELD": 2,
+          "DOT_VISUAL_FIELD": 2,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-deployment",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-deployment.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-arch-deployment",
+      "sourcePath": "fixtures/visual/inventory/tpl-arch-deployment.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-design-investigation",
+      "sourcePath": "fixtures/visual/inventory/tpl-design-investigation.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-design-investigation",
+      "sourcePath": "fixtures/visual/inventory/tpl-design-investigation.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 6,
+          "MERMAID_EDGE_FIELDS": 2
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 6,
+          "MERMAID_EDGE_FIELDS": 2
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-design-investigation",
+      "sourcePath": "fixtures/visual/inventory/tpl-design-investigation.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_EDGE_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_EDGE_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-design-process",
+      "sourcePath": "fixtures/visual/inventory/tpl-design-process.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-design-process",
+      "sourcePath": "fixtures/visual/inventory/tpl-design-process.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 6,
+          "MERMAID_EDGE_FIELDS": 2
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 6,
+          "MERMAID_EDGE_FIELDS": 2
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-design-process",
+      "sourcePath": "fixtures/visual/inventory/tpl-design-process.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_EDGE_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_EDGE_FIELD": 2,
+          "LINI_FORM_LOSS": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-sd-components",
+      "sourcePath": "fixtures/visual/inventory/tpl-sd-components.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-sd-components",
+      "sourcePath": "fixtures/visual/inventory/tpl-sd-components.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 5,
+          "MERMAID_NODE_FIELDS": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 5,
+          "MERMAID_NODE_FIELDS": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-sd-components",
+      "sourcePath": "fixtures/visual/inventory/tpl-sd-components.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_FORM_LOSS": 1,
+          "LINI_NODE_FIELD": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_FORM_LOSS": 1,
+          "LINI_NODE_FIELD": 1,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 1
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-sd-domain",
+      "sourcePath": "fixtures/visual/inventory/tpl-sd-domain.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-sd-domain",
+      "sourcePath": "fixtures/visual/inventory/tpl-sd-domain.json",
+      "format": "mermaid",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 5,
+          "MERMAID_IDENTIFICATION": 6
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 5,
+          "MERMAID_IDENTIFICATION": 6
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-sd-domain",
+      "sourcePath": "fixtures/visual/inventory/tpl-sd-domain.json",
+      "format": "lini",
+      "before": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_CARDINALITY": 12,
+          "LINI_REFERENCE_DIRECTION": 6,
+          "LINI_REFERENCE_LABEL": 6,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 2
+        }
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3,
+          "LINI_CARDINALITY": 12,
+          "LINI_REFERENCE_DIRECTION": 6,
+          "LINI_REFERENCE_LABEL": 6,
+          "LINI_TITLE": 1,
+          "LINI_VISUAL_FIELD": 2
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-so-map",
+      "sourcePath": "fixtures/visual/inventory/tpl-so-map.json",
+      "format": "dot",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "reported-loss",
+        "emitted": true,
+        "lossCounts": {
+          "DOT_FLOW_LAYOUT": 1,
+          "DOT_GROUP_FIELD": 4,
+          "DOT_VISUAL_FIELD": 2,
+          "INTERCHANGE_UNREPRESENTED_FIELD": 3
+        }
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-so-map",
+      "sourcePath": "fixtures/visual/inventory/tpl-so-map.json",
+      "format": "mermaid",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    },
+    {
+      "id": "visual-inventory-tpl-so-map",
+      "sourcePath": "fixtures/visual/inventory/tpl-so-map.json",
+      "format": "lini",
+      "before": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      },
+      "after": {
+        "status": "unsupported",
+        "emitted": false,
+        "lossCounts": {}
+      }
+    }
+  ]
+}
