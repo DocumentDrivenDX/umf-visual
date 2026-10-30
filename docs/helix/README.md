@@ -26,3 +26,9 @@ The installed HELIX catalog supplies templates and workflow definitions. It is
 not copied here. Next: Frame the interchange requirements, then define the model
 and adapter contracts before changing vocabulary semantics. Existing source
 evidence covers vocabulary validation, not native-format interchange.
+
+[PowerPoint integration spike](02-design/spikes/SPIKE-094-powerpoint-integration.md)
+records an actual PowerPoint 16.114.3 export/edit/save/import round trip.
+Bun and Chromium recover edited labels and a reconnected edge from embedded source;
+native layout is retained separately. Structural edits and broader forms remain
+unqualified.

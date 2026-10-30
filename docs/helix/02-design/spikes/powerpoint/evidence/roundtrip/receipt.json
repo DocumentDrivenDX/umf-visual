@@ -1,0 +1,53 @@
+{
+  "bun": "1.4.3",
+  "chromium": "153.0.8010.12",
+  "dependencies": {
+    "pptxgenjs": "4.0.1",
+    "jszip": "3.10.1",
+    "xml-js": "1.6.11"
+  },
+  "powerpoint": "16.114.3",
+  "sha256": {
+    "baseline": "2b918148e06273ad31234aeea6811162faf699587cd8860ead4a5b09f1e08d74",
+    "nativeNoop": "b89906d609f120f3e84705fd3f10e1298b346f03de0d23a07c9b4d4c2b768817",
+    "nativeEdited": "aea4d2fb34364051599311dad14fb4261c29418d7b46f9d72c9bf3fc5c08aef0",
+    "imported": "ffd6404f1a67c606b145f498389f76e9e143e9ea7a0b01af2c5abffd2484f596"
+  },
+  "checks": {
+    "nativeNoopExactSemantics": true,
+    "nativeLabelEdits": true,
+    "nativeReconnection": true,
+    "nativeMovementRetained": true,
+    "untouchedSemanticsPreserved": true,
+    "secondSemanticCycle": true
+  },
+  "browser": {
+    "ok": true,
+    "controls": {
+      "passed": [
+        "no-op recovers full embedded semantic source without sidecar",
+        "Unicode XML text edits load into semantic labels",
+        "multiple text runs and paragraphs retain line breaks",
+        "renamed node is not guessed by position",
+        "duplicate shape identity is ambiguous",
+        "deleted node refuses partial import",
+        "unattached edge refuses inferred relation",
+        "tampered source digest refuses import",
+        "duplicate metadata refuses source selection",
+        "DTD is not accepted",
+        "original semantic source remains immutable"
+      ],
+      "count": 11
+    },
+    "checks": {
+      "nativeNoopExactSemantics": true,
+      "nativeLabelEdits": true,
+      "nativeReconnection": true,
+      "nativeMovementRetained": true,
+      "untouchedSemanticsPreserved": true,
+      "secondSemanticCycle": true
+    },
+    "imported": "{\n  \"umf\": \"0.10.0\",\n  \"id\": \"visual:powerpoint-roundtrip\",\n  \"vocabularies\": {\n    \"umf.visual\": {\n      \"version\": \"1.0.0\"\n    }\n  },\n  \"extensions\": {\n    \"umf.visual\": {\n      \"id\": \"powerpoint-roundtrip\",\n      \"kind\": \"flow\",\n      \"form\": \"network\",\n      \"title\": \"Native round trip verified\",\n      \"question\": \"What changed in PowerPoint?\",\n      \"takeaway\": \"Semantic annotations survive native edits.\",\n      \"source\": {\n        \"path\": \"synthetic/powerpoint-roundtrip\",\n        \"digest\": \"authored-spike-fixture\"\n      },\n      \"nodes\": [\n        {\n          \"id\": \"client\",\n          \"label\": \"Browser café 東京\",\n          \"role\": \"actor\",\n          \"status\": \"built\",\n          \"evidence\": [\n            {\n              \"path\": \"synthetic/client\"\n            }\n          ]\n        },\n        {\n          \"id\": \"api\",\n          \"label\": \"API\",\n          \"role\": \"own\"\n        },\n        {\n          \"id\": \"store\",\n          \"label\": \"Store\",\n          \"role\": \"store\"\n        }\n      ],\n      \"edges\": [\n        {\n          \"id\": \"request\",\n          \"from\": \"client\",\n          \"to\": \"store\",\n          \"label\": \"Fetch via PowerPoint\",\n          \"kind\": \"action\",\n          \"why\": \"Exercise native reconnection\"\n        }\n      ]\n    }\n  },\n  \"modules\": []\n}\n"
+  },
+  "errors": []
+}
