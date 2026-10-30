@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-import {createVisualDocument,inspectVisual,type Visual,type VisualCardinality,type VisualEntity,type VisualReference} from '../../extensions/visual';
+import {createVisualDocument,inspectVisual,type Visual,type VisualCardinality,type VisualEntity,type VisualReference,type VisualGroup,type VisualMessage,type VisualParticipant} from '../../extensions/visual';
 import {identityMapping,interchangeDiagnostic,syntheticId} from '../shared';
 import type {AdapterParseResult,AdapterSerializeResult,IdentityMapping,InterchangeDiagnostic,VisualInterchangeAdapter} from '../types';
 
-/** Bounded Mermaid 12.2 profile: simple directed flowcharts and entity ER diagrams. */
+/** Bounded Mermaid 12.2 profile: simple flowcharts, ER diagrams and sequence diagrams. */
 export const mermaidAdapter:VisualInterchangeAdapter={
- format:'mermaid',version:'1.1.0',
- subset:'Mermaid 12.2.0 flowchart: bare/rectangular nodes, directed links and JSON-quoted YAML frontmatter titles; erDiagram: entities, fields, four cardinalities, relationship labels and JSON-quoted YAML frontmatter titles. Titles preserve plain Unicode, quotes, backslashes, hashes, tabs, and line feeds; carriage returns, ampersands, and angle brackets altered by strict rendering are refused. Labels are plain text/numeric-escaped; raw HTML, Markdown, named entities, and literal angle brackets are outside this profile.',
+ format:'mermaid',version:'1.2.0',
+ subset:'Mermaid 12.2.0 flowchart: bare/rectangular nodes, directed links and JSON-quoted YAML frontmatter titles; erDiagram: entities, fields, four cardinalities, relationship labels and JSON-quoted YAML frontmatter titles; sequenceDiagram: participants, native solid-call/dotted-return/open-async arrow forms, notes over two participants, and loop groups. Sequence form/layout and non-native visual fields are reported as losses. Sequence labels support ASCII spaces, tabs, and line feeds, which are numeric-escaped; other Unicode whitespace, controls except tab/line feed, and unpaired surrogates are refused. Titles preserve plain Unicode, quotes, backslashes, hashes, tabs, and line feeds; carriage returns, ampersands, and angle brackets altered by strict rendering are refused. Labels are plain text/numeric-escaped; raw HTML, Markdown, named entities, and literal angle brackets are outside this profile.',
  parse(source,context){return parseMermaid(source,context);},
  serialize(visual,context){return serializeMermaid(visual,context);},
 };
@@ -25,6 +25,7 @@ const invalidEntityCode=(value:string):string|undefined=>{
  }
  return;
 };
+const invalidSequenceText=(value:string):boolean=>value.length===0||Array.from(value).some(char=>(/\p{Cc}/u.test(char)&&char!=='\t'&&char!=='\n')||(/\s/u.test(char)&&char!==' '&&char!=='\t'&&char!=='\n')||(char.length===1&&char.charCodeAt(0)>=0xd800&&char.charCodeAt(0)<=0xdfff));
 const unsupportedRichText=(value:string):boolean=>value.includes('`')||/[<>]/.test(value.replace(/-->/g,''))||/(?:#[A-Za-z][A-Za-z0-9]*;|&(?:[A-Za-z][A-Za-z0-9]*|#(?:x[\da-f]+|\d+));)/i.test(value);
 const has=(value:object,key:string)=>Object.prototype.hasOwnProperty.call(value,key);
 const commentDiagnostic=(text:string,index:number,start:number,end:number)=>/^%%\{[\s\S]*\}%%$/.test(text.trim())
@@ -65,7 +66,8 @@ function parseMermaid(source:string,context:{id:string;question:string}):Adapter
  const header=meaningful[0];const flow=/^(?:flowchart|graph)\s+(TB|TD|BT|RL|LR)\s*$/.exec(header.text);
  if(flow)return parseFlow(source,context,lines,offsets,meaningful,flow[1].toUpperCase(),diagnostics,identityMap,title);
  if(/^erDiagram\s*$/.test(header.text))return parseEr(source,context,lines,offsets,meaningful,diagnostics,identityMap,title);
- return{diagnostics:[diagnostic('MERMAID_PROFILE',ptr(header.index),'Only a simple flowchart or erDiagram is in this Mermaid profile.',header.range,'error')],identityMap};
+ if(/^sequenceDiagram\s*$/.test(header.text))return parseSequence(source,context,lines,offsets,meaningful,diagnostics,identityMap,title);
+ return{diagnostics:[diagnostic('MERMAID_PROFILE',ptr(header.index),'Only a simple flowchart, erDiagram, or sequenceDiagram is in this Mermaid profile.',header.range,'error')],identityMap};
 }
 function admission(visual:Visual,diagnostics:InterchangeDiagnostic[]):boolean{
  try{
@@ -156,9 +158,79 @@ function parseEr(source:string,context:{id:string;question:string},lines:string[
  return{visual,diagnostics,identityMap};
 }
 
+function parseSequence(source:string,context:{id:string;question:string},lines:string[],offsets:number[],meaningful:{text:string;index:number;range:{start:number;end:number}}[],diagnostics:InterchangeDiagnostic[],identityMap:IdentityMapping[],title?:string):AdapterParseResult{
+ const participants:VisualParticipant[]=[],messages:VisualMessage[]=[],groups:VisualGroup[]=[],participantRows:number[]=[],messageRows:number[]=[],groupRows:number[]=[];
+ const byNative=new Map<string,VisualParticipant>(),declared=new Set<string>(),groupStack:{id:string;index:number}[]=[];let fatal=false,contentStarted=false;
+ const addError=(code:string,row:{index:number;range:{start:number;end:number}},message:string)=>{diagnostics.push(diagnostic(code,ptr(row.index),message,row.range,'error'));fatal=true;};
+ const checkedText=(value:string,row:{index:number;range:{start:number;end:number}},path:string):string|undefined=>{
+  if(invalidEntityCode(value)){addError('MERMAID_ENTITY_CODE',row,'Sequence '+path+' contains an invalid numeric Mermaid entity.');return;}
+  if(unsupportedRichText(value)){addError('MERMAID_RICH_TEXT',row,'Sequence '+path+' is outside the plain-text/numeric-escaped profile.');return;}
+  const decoded=decodeEntities(value);
+  if(invalidSequenceText(decoded)){addError('MERMAID_SEQUENCE_TEXT',row,'Sequence '+path+' is empty or contains unsupported whitespace, controls other than tab/line feed, or an unpaired surrogate.');return;}
+  return decoded;
+ };
+ const participant=(native:string,row:{index:number;range:{start:number;end:number}},label?:string,actor=false):VisualParticipant|undefined=>{
+  if(native.toLowerCase()==='end'){addError('MERMAID_RESERVED_ID',row,'Sequence participant id "end" is reserved by Mermaid.');return;}
+  let item=byNative.get(native);
+  const decoded=label===undefined?native:checkedText(label,row,'participant label');if(decoded===undefined)return;
+  if(item){if(label!==undefined&&(item.label!==decoded||actor!==(item.role==='actor'))){addError('MERMAID_PARTICIPANT_DUPLICATE',row,'A sequence participant alias cannot be redeclared with a different label or actor shape.');return;}return item;}
+  item={id:'p'+(participants.length+1),label:decoded,...(actor?{role:'actor' as const}:{})};byNative.set(native,item);participants.push(item);participantRows.push(row.index);return item;
+ };
+ for(const row of meaningful.slice(1)){
+  const text=row.text;
+  if(Array.from(lines[row.index]).some(char=>/\s/u.test(char)&&char!==' '&&char!=='\t')){addError('MERMAID_SEQUENCE_TEXT',row,'Sequence statement contains unsupported Unicode whitespace, including at a line boundary.');continue;}
+  if(/^%%/.test(text)){continue;}
+  if(/^participant\s+|^actor\s+/.test(text)){
+   const declaration=/^(participant|actor)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s+as\s+(.+))?$/.exec(text);
+   if(!declaration){addError('MERMAID_PARTICIPANT',row,'Participant declaration is outside the supported alias subset.');continue;}
+   if(contentStarted){addError('MERMAID_PARTICIPANT_ORDER',row,'Explicit participant declarations must precede messages and loop fragments to preserve Mermaid appearance order.');continue;}
+   if(declared.has(declaration[2])||byNative.has(declaration[2])){addError('MERMAID_PARTICIPANT_DUPLICATE',row,'A native participant alias may be declared only once in this profile.');continue;}
+   declared.add(declaration[2]);
+   participant(declaration[2],row,declaration[3],declaration[1]==='actor');continue;
+  }
+  const loop=/^loop\s+(.+)$/.exec(text);
+  if(loop){contentStarted=true;const label=checkedText(loop[1],row,'loop label');if(label===undefined)continue;const id=syntheticId('group',groups.length);groups.push({id,label,role:'loop',...(groupStack.length?{parent:groupStack.at(-1)!.id}:{})});groupRows.push(row.index);groupStack.push({id,index:messages.length});continue;}
+  if(/^alt\s+/.test(text)||/^else(?:\s|$)/.test(text)||/^(?:opt|par|critical|break|rect|and)\b/.test(text)){
+   addError('MERMAID_SEQUENCE_GROUP',row,'Only loop blocks map to Visual sequence groups in this profile; alternatives and combined fragments are not projected.');continue;
+  }
+  if(text==='end'){
+   const closed=groupStack.pop();if(!closed){addError('MERMAID_SEQUENCE_GROUP',row,'Sequence end has no open supported loop block.');continue;}
+   if(messages.length===closed.index){addError('MERMAID_SEQUENCE_GROUP',row,'Empty sequence loop blocks have no Visual message assignment.');}
+   continue;
+  }
+  const note=/^Note\s+over\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.+)$/.exec(text);
+  if(note){
+   contentStarted=true;
+   const label=checkedText(note[3],row,'note text');if(label===undefined)continue;
+   const from=participant(note[1],row),to=participant(note[2],row);if(!from||!to)continue;
+   messages.push({id:'m'+(messages.length+1),from:from.id,to:to.id,label,kind:'note',...(groupStack.length?{group:groupStack.at(-1)!.id}:{})});messageRows.push(row.index);continue;
+  }
+  const message=/^([A-Za-z_][A-Za-z0-9_]*)\s*(-->>|->>|-\))\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.+)$/.exec(text);
+  if(message){
+   contentStarted=true;
+   const label=checkedText(message[4],row,'message label');if(label===undefined)continue;
+   const from=participant(message[1],row),to=participant(message[3],row);if(!from||!to)continue;
+   const kind:VisualMessage['kind']=message[2]==='->>'?'call':message[2]==='-->>'?'return':'async';
+   messages.push({id:'m'+(messages.length+1),from:from.id,to:to.id,label,kind,...(groupStack.length?{group:groupStack.at(-1)!.id}:{})});messageRows.push(row.index);continue;
+  }
+  if(/^Note\b/.test(text)){addError('MERMAID_SEQUENCE_NOTE',row,'Only Note over A,B statements map to a Visual note message.');continue;}
+  addError('MERMAID_SEQUENCE_UNSUPPORTED',row,'Statement is outside the supported participant, message, note-over, or loop subset.');
+ }
+ for(const open of groupStack){const row=meaningful.at(-1)!;addError('MERMAID_SEQUENCE_GROUP',row,'Sequence loop block is not closed with end.');}
+ if(fatal)return{diagnostics,identityMap};
+ for(const row of lines.map((text,index)=>({text:text.trim(),index})).filter(x=>/^%%/.test(x.text)))diagnostics.push(commentDiagnostic(row.text,row.index,offsets[row.index],offsets[row.index]+lines[row.index].length));
+ const visual:Visual={id:context.id,kind:'sequence',form:'lifelines',question:context.question,...(title===undefined?{}:{title}),...(groups.length?{groups}:{}),sequence:{participants,messages}};
+ if(!admission(visual,diagnostics))return{diagnostics,identityMap};
+ participants.forEach((item,index)=>identityMap.push(identityMapping('participant', [...byNative].find(([,value])=>value===item)?.[0]??item.id,item.id,visualPath('/sequence/participants/'+index+'/id'),ptr(participantRows[index]??meaningful[0].index))));
+ messages.forEach((item,index)=>identityMap.push(identityMapping('message','message@'+(index+1),item.id,visualPath('/sequence/messages/'+index+'/id'),ptr(messageRows[index]))));
+ groups.forEach((item,index)=>identityMap.push(identityMapping('group','loop@'+(index+1),item.id,visualPath('/groups/'+index+'/id'),ptr(groupRows[index]))));
+ return{visual,diagnostics,identityMap};
+}
+
 function serializeMermaid(visual:Visual,context:{id:string;question:string}):AdapterSerializeResult{
  const diagnostics:InterchangeDiagnostic[]=[],identityMap:IdentityMapping[]=[];
  if(has(visual,'title')&&(typeof visual.title!=='string'||!validTitle(visual.title))){diagnostics.push(diagnostic('MERMAID_TITLE',visualPath('/title'),'Mermaid frontmatter requires a nonempty title with supported Unicode scalar values and excludes controls, carriage returns, angle brackets, and ampersands altered by rendering.',undefined,'error'));return{text:undefined,diagnostics,identityMap};}
+ if(visual.kind==='sequence'&&(visual.form==='lifelines'||visual.form==='ladder'))return serializeSequence(visual,diagnostics,identityMap);
  if(visual.kind==='flow'&&(visual.form==='network'||visual.form==='pipeline')){
   const out=frontmatter(visual.title);out.push('flowchart TD');const nodes=visual.nodes??[];const nodeIds=new Set(nodes.map(n=>n.id));const nativeIds=new Map<string,string>();const used=new Set<string>();
   for(const [index,node]of nodes.entries()){let candidate=node.id==='end'?'umf_end':node.id;while(used.has(candidate))candidate='umf_'+candidate;used.add(candidate);nativeIds.set(node.id,candidate);}
@@ -204,4 +276,62 @@ function serializeMermaid(visual:Visual,context:{id:string;question:string}):Ada
  }
  diagnostics.push(diagnostic('MERMAID_FORM',visualPath('/form'),'This visual kind and form are outside the Mermaid 12.2 adapter profile.',undefined,'error'));
  return{diagnostics,identityMap};
+}
+
+function sequenceText(value:string):string{const entities:Record<string,string>={'#':'#35;','&':'#38;','<':'#60;','>':'#62;','"':'#34;','\\':'#92;','`':'#96;',';':'#59;','\t':'#9;','\n':'#10;',' ':'#32;'};return Array.from(value).map(char=>entities[char]??char).join('');}
+function serializeSequence(visual:Visual,diagnostics:InterchangeDiagnostic[],identityMap:IdentityMapping[]):AdapterSerializeResult{
+ const seq=visual.sequence!,participants=seq.participants,messages=seq.messages;
+ const out=frontmatter(visual.title);out.push('sequenceDiagram');
+ if(visual.form==='ladder')diagnostics.push(diagnostic('MERMAID_SEQUENCE_LAYOUT',visualPath('/form'),'Mermaid sequenceDiagram uses lifelines and has no native ladder layout distinction.',undefined));
+ if(has(visual,'steps'))diagnostics.push(diagnostic('MERMAID_SEQUENCE_STEPS',visualPath('/steps'),'Mermaid sequenceDiagram has no equivalent of Visual walkthrough steps.',undefined));
+ const native=new Map<string,string>();
+ for(const [i,participant]of participants.entries()){
+  native.set(participant.id,'P'+(i+1));
+  if(['detail','status','emphasis','evidence'].some(key=>has(participant,key)))diagnostics.push(diagnostic('MERMAID_PARTICIPANT_FIELDS',visualPath('/sequence/participants/'+i),'Participant detail, status, emphasis, and evidence have no Mermaid sequence encoding.',undefined));
+  if(participant.role!==undefined&&participant.role!=='actor')diagnostics.push(diagnostic('MERMAID_PARTICIPANT_ROLE',visualPath('/sequence/participants/'+i+'/role'),'Mermaid distinguishes actor shape from participant shape but cannot encode the Visual role '+participant.role+'.',undefined));
+  if(invalidSequenceText(participant.label)){diagnostics.push(diagnostic('MERMAID_SEQUENCE_LABEL',visualPath('/sequence/participants/'+i+'/label'),'Participant label is empty or contains unsupported whitespace, controls other than tab/line feed, or an unpaired surrogate.',undefined,'error'));continue;}
+  out.push('  '+(participant.role==='actor'?'actor ':'participant ')+native.get(participant.id)+' as '+sequenceText(participant.label));
+  identityMap.push(identityMapping('participant',native.get(participant.id)!,participant.id,visualPath('/sequence/participants/'+i+'/id')));
+ }
+ const groupMap=new Map((visual.groups??[]).map(group=>[group.id,group]));
+ const groupIndexes=new Map((visual.groups??[]).map((group,index)=>[group.id,index]));
+ const emittedGroups=new Set<string>();let active:string[]=[];const closed=new Set<string>();let nativeLoopIndex=0;
+ const ancestors=(id:string|undefined):string[]=>{
+  const result:string[]=[],seen=new Set<string>();let group=id?groupMap.get(id):undefined;
+  while(group){if(seen.has(group.id)){diagnostics.push(diagnostic('MERMAID_SEQUENCE_GROUP',visualPath('/groups/'+(groupIndexes.get(group.id)??0)),'Sequence group parent relationships contain a cycle.',undefined,'error'));return[];}seen.add(group.id);result.unshift(group.id);group=group.parent?groupMap.get(group.parent):undefined;}
+  if(id&&!groupMap.has(id))diagnostics.push(diagnostic('MERMAID_SEQUENCE_GROUP',visualPath('/sequence/messages'),'Message references a missing Visual group.',undefined,'error'));
+  return result;
+ };
+ for(const [i,message]of messages.entries()){
+  const target=ancestors(message.group).filter(id=>groupMap.get(id)?.role==='loop');
+  let common=0;while(common<active.length&&common<target.length&&active[common]===target[common])common++;
+  for(const id of active.slice(common).reverse()){out.push('  end');active.pop();closed.add(id);}
+  for(const id of target.slice(common)){
+   if(closed.has(id)){diagnostics.push(diagnostic('MERMAID_SEQUENCE_GROUP',visualPath('/sequence/messages/'+i+'/group'),'A Visual loop group is used by noncontiguous messages and cannot be serialized as one Mermaid block.',undefined,'error'));continue;}
+   const group=groupMap.get(id)!;const index=groupIndexes.get(id)??0;
+   if(invalidSequenceText(group.label)){diagnostics.push(diagnostic('MERMAID_SEQUENCE_GROUP',visualPath('/groups/'+index+'/label'),'Loop label is empty or contains unsupported whitespace, controls other than tab/line feed, or an unpaired surrogate.',undefined,'error'));continue;}
+   if(['detail','status','emphasis','tier'].some(key=>has(group,key)))diagnostics.push(diagnostic('MERMAID_GROUP_FIELDS',visualPath('/groups/'+index),'Group detail, status, emphasis, and tier have no Mermaid loop encoding.',undefined));
+   if(group.role!=='loop')diagnostics.push(diagnostic('MERMAID_SEQUENCE_GROUP',visualPath('/groups/'+index+'/role'),'Only Visual loop groups have a direct Mermaid loop encoding.',undefined));
+   out.push('  loop '+sequenceText(group.label));active.push(id);emittedGroups.add(id);
+   identityMap.push(identityMapping('group','loop@'+(++nativeLoopIndex),group.id,visualPath('/groups/'+index+'/id')));
+  }
+  if(!native.has(message.from)||!native.has(message.to)){diagnostics.push(diagnostic('MERMAID_SEQUENCE_ENDPOINT',visualPath('/sequence/messages/'+i),'Message endpoint does not reference a declared participant.',undefined,'error'));continue;}
+  if(['status','emphasis','evidence'].some(key=>has(message,key)))diagnostics.push(diagnostic('MERMAID_MESSAGE_FIELDS',visualPath('/sequence/messages/'+i),'Message status, emphasis, and evidence have no Mermaid sequence encoding.',undefined));
+  let line:string;
+  const from=native.get(message.from)!,to=native.get(message.to)!,label=sequenceText(message.label);
+  if(invalidSequenceText(message.label)){diagnostics.push(diagnostic('MERMAID_SEQUENCE_TEXT',visualPath('/sequence/messages/'+i+'/label'),'Message label is empty or contains unsupported whitespace, controls other than tab/line feed, or an unpaired surrogate.',undefined,'error'));continue;}
+  if(message.group&&groupMap.get(message.group)?.role!=='loop')diagnostics.push(diagnostic('MERMAID_MESSAGE_GROUP',visualPath('/sequence/messages/'+i+'/group'),'This message uses a non-loop group which Mermaid cannot encode as a loop fragment.',undefined));
+  switch(message.kind){
+   case 'call':line='  '+from+'->>'+to+': '+label;break;
+   case 'return':line='  '+from+'-->>'+to+': '+label;break;
+   case 'async':line='  '+from+'-)'+to+': '+label;break;
+   case 'note':if(message.from===message.to){diagnostics.push(diagnostic('MERMAID_SEQUENCE_NOTE',visualPath('/sequence/messages/'+i),'A self-targeted Visual note has no verified Mermaid note-over encoding.',undefined,'error'));continue;}line='  Note over '+from+','+to+': '+label;break;
+   default:diagnostics.push(diagnostic('MERMAID_MESSAGE_KIND',visualPath('/sequence/messages/'+i+'/kind'),'Message kind is absent; Mermaid requires an arrow form, so no call/return meaning is inferred.',undefined));line='  '+from+'->>'+to+': '+label;
+  }
+  out.push(line);
+  identityMap.push(identityMapping('message','message@'+(i+1),message.id,visualPath('/sequence/messages/'+i+'/id')));
+ }
+ for(const id of active.slice().reverse()){out.push('  end');closed.add(id);}
+ for(const group of visual.groups??[])if(!emittedGroups.has(group.id)){const index=groupIndexes.get(group.id)??0;diagnostics.push(diagnostic('MERMAID_SEQUENCE_GROUP',visualPath('/groups/'+index),'Sequence group has no message interval or is not a loop, so it has no direct Mermaid encoding.',undefined));}
+ return{text:diagnostics.some(d=>d.severity==='error')?undefined:out.join('\n')+'\n',diagnostics,identityMap};
 }

@@ -220,3 +220,15 @@ Descriptive detail in a native tooltip is a qualified text transport and does
 not imply identical caption placement. Lini field hints remain unmapped because
 there is no current field-detail concept. Broader common-model/profile evolution
 continues as separately governed work identified by the source audit.
+
+
+## Second loss-reduction wave
+
+User-authorized continuation after v0.1.0 targets native DOT cluster membership,
+edge explanations and Mermaid sequence diagrams under CONTRACT-086's additive
+mapping bounds. Preserve the 53 example source hashes and all 59 prior emitted
+pairs. Capture a v0.1.0 comparison baseline; report newly emitted pairs separately
+from loss reductions on the old emitted set. Run portable tests, packed consumers,
+independent Graphviz/Chromium checks, complete catalog/UI checks and Sol review.
+All original fixtures retain provenance; native rendering gains do not imply
+full semantic losslessness. Miro/model evolution remains a separate change.

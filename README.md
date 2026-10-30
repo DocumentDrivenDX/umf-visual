@@ -87,8 +87,8 @@ Canonical conversion is a projection, not an equivalence claim.
 
 | Format | Implemented profile subset | Native qualification |
 | --- | --- | --- |
-| Graphviz DOT | Directed flow/network nodes and labeled edges; source defaults and chains | Graphviz native parser/render |
-| Mermaid | Bounded flowchart nodes/links and ER entities, fields and four cardinalities | Mermaid 12.2.0 in Chromium |
+| Graphviz DOT | Directed flows, nested named clusters/membership, labels and descriptive tooltips; scoped defaults and chains | Graphviz native parser/render |
+| Mermaid | Bounded flowchart and ER diagrams; ordered sequences with call/return/async messages, notes and loops | Mermaid 12.2.0 in Chromium |
 | Lini | Flat block/entity cards, quoted fields and directed links to cards/declared fields | Pinned Lini 1.1.0 WASM |
 
 The public `interchangeCapabilities` array describes the exact profile versions
@@ -128,6 +128,14 @@ deploying. A manual workflow dispatch on `main` can redeploy a verified build.
 The site uses relative assets so catalog selections work below `/umf-visual/`.
 To restore a previous site, revert the affected source change on `main` and let
 the same verification and deployment workflow complete.
+
+The second mapping wave adds eight DOT grouped-flow projections and five Mermaid
+sequence projections from the unchanged existing examples. DOT cluster hierarchy,
+node membership and edge explanations now survive their native mappings. Sequence
+participants, message order, endpoints and explicit arrow kinds have independent
+native checks. Group roles, tier/lane layout, walkthrough steps, provenance and
+other unrepresented metadata remain explicit losses. The catalog reports native
+render counts separately from full semantic support; these are qualified subsets.
 
 ## Miro integration spike
 
