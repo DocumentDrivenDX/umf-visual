@@ -1,0 +1,17 @@
+{
+  "profile": "google-slides-v1-flow-network-spike/0.1",
+  "nativePresentationId": "1wcMKS2kuZWlmfHCvtKcY6gDxr2T4DOULrNG7zo3rHfk",
+  "nativeBeforeRevision": "qzO9g779dlPNWw",
+  "nativeAfterRevision": "ovgPRI9pgytczg",
+  "editMethod": "Google Slides browser UI: two label edits and node movement",
+  "bun": "1.4.3",
+  "chromium": "153.0.8010.12",
+  "bunAssertions": 20,
+  "browserAssertions": 20,
+  "browserErrors": [],
+  "snapshotReplay": true,
+  "limits": [
+    "One adapter-owned flow/network fixture",
+    "Endpoint reversal and refusal cases use local mutations of native readback"
+  ]
+}
