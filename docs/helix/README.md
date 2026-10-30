@@ -52,3 +52,9 @@ title/description mappings, native character limits and the next worklist.
 
 [Second loss-reduction wave](04-build/loss-reduction-wave-2.md) records native
 cluster/sequence mappings, 13 additional renders and qualified remaining losses.
+
+[Miro integration spike](02-design/spikes/SPIKE-011-miro-integration.md) and
+[CONTRACT-084](02-design/contracts/CONTRACT-084-miro-network.md) govern the
+bounded network adapter and native preservation extension. The
+[implementation evidence](04-build/miro-integration.md) records actual Miro UI
+edit/adoption, a 72-item native reproduction and scoped fidelity limits.

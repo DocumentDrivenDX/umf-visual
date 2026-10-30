@@ -132,3 +132,15 @@ participants, message order, endpoints and explicit arrow kinds have independent
 native checks. Group roles, tier/lane layout, walkthrough steps, provenance and
 other unrepresented metadata remain explicit losses. The catalog reports native
 render counts separately from full semantic support; these are qualified subsets.
+
+## Miro integration spike
+
+Miro development app: `bun run dev:miro`. It exports question/node shapes and
+connectors, then adopts plain-label and attached-endpoint edits into the original
+visual. Keep the companion with the document. Additional kinds and arbitrary
+semantic board import require separate profiles. A live label round trip and
+a 72-item native UMF reproduction pass. `umf.visual.miro` preserves API-visible
+JSON and optional opaque native browser-copy content, with qualified fidelity
+and shared-model gaps recorded in the guide.
+
+See the [Miro integration guide](docs/helix/04-build/miro-integration.md) for the runnable app, versioned scope and native evidence.

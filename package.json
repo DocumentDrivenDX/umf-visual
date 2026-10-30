@@ -16,7 +16,11 @@
       "import": "./dist/index.js"
     },
     "./schema": "./spec/extensions/visual/schema.json",
-    "./manifest": "./spec/extensions/visual/package.json"
+    "./manifest": "./spec/extensions/visual/package.json",
+    "./miro": {
+      "types": "./dist/adapters/miro/index.d.ts",
+      "import": "./dist/miro.js"
+    }
   },
   "files": [
     "dist",
@@ -41,7 +45,8 @@
     "test:catalog": "bun scripts/catalog/verify.ts",
     "report:loss": "bun scripts/catalog/loss-progress.ts",
     "report:loss:wave2": "bun scripts/catalog/loss-progress.ts --since-v0.1.0",
-    "test:native:wave2": "bun scripts/native-wave-2.ts"
+    "test:native:wave2": "bun scripts/native-wave-2.ts",
+    "dev:miro": "bun scripts/miro-dev.ts"
   },
   "dependencies": {
     "@umf/core": "https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz"

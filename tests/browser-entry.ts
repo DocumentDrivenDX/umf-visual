@@ -1,3 +1,4 @@
+import {exerciseMiroBrowser} from './miro-browser.js';
 import {readVisualDocument,writeVisualDocument,inspectVisual,editVisual,getVisual,exportVisual,importVisual} from '../src';
 import {runInterchangeBrowserChecks} from './interchange/browser-checks';
 declare global {interface Window {visualResult?:unknown;}}
@@ -38,5 +39,5 @@ try{
  }
  if(wave2.length!==16)throw Error('Expected 11 grouped flows and 5 sequences in browser');
  const interchange=await runInterchangeBrowserChecks();
- window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,wave2,interchange};
+ window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,wave2,interchange,miro:await exerciseMiroBrowser()};
 }catch(error){window.visualResult={ok:false,error:String(error)};}

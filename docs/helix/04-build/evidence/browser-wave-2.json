@@ -145,6 +145,13 @@
       "lini"
     ]
   },
+  "miro": {
+    "nativeExtension": true,
+    "roundTrip": true,
+    "semanticChanges": 2,
+    "sdk": "in-memory-test-double",
+    "liveMiro": false
+  },
   "browser": "153.0.8010.12",
   "errors": []
 }

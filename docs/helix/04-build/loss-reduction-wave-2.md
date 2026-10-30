@@ -73,3 +73,12 @@ metadata to improve support badges.
 [Progress receipt](evidence/loss-progress-wave-2.json),
 [native receipt](evidence/native-wave-2.json), and
 [browser receipt](evidence/browser-wave-2.json) record actual outcomes.
+
+
+## Main integration
+
+Integrated Miro PR #5 from main `abc043457c22c3be90b9bfac789a700e4f9671e3`.
+Both package exports and browser hooks are retained. Combined source/type checks
+and 138 tests / 3,524 assertions pass. Chromium verifies the sixteen wave-two
+public round trips plus Miro's sanitized in-memory SDK checks; this browser run
+is not additional live Miro evidence. The common schema remains unchanged.

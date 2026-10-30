@@ -1,0 +1,578 @@
+{
+  "evidence": "Miro Web SDK v2 live sample capture, 2026-10-29; synthetic diagram; IDs and audit fields sanitized",
+  "bundle": {
+    "profile": "umf.visual.miro.network/1",
+    "boardId": "live-board",
+    "exportId": "live-export",
+    "source": {
+      "umf": "0.10.0",
+      "id": "visual:miro-roundtrip",
+      "vocabularies": {
+        "umf.visual": {
+          "version": "1.0.0"
+        }
+      },
+      "extensions": {
+        "umf.visual": {
+          "id": "miro-roundtrip",
+          "kind": "flow",
+          "form": "network",
+          "question": "What calls the API?",
+          "nodes": [
+            {
+              "id": "client",
+              "label": "Edited in Miro"
+            },
+            {
+              "id": "api",
+              "label": "UMF test API"
+            },
+            {
+              "id": "worker",
+              "label": "UMF test worker"
+            }
+          ],
+          "edges": [
+            {
+              "id": "request",
+              "from": "client",
+              "to": "api",
+              "label": "Request"
+            }
+          ]
+        }
+      },
+      "modules": []
+    },
+    "mode": "strict",
+    "losses": [],
+    "mappings": [
+      {
+        "logicalId": "miro-roundtrip",
+        "kind": "question",
+        "nativeId": "native-1"
+      },
+      {
+        "logicalId": "client",
+        "kind": "node",
+        "nativeId": "native-2"
+      },
+      {
+        "logicalId": "api",
+        "kind": "node",
+        "nativeId": "native-3"
+      },
+      {
+        "logicalId": "worker",
+        "kind": "node",
+        "nativeId": "native-4"
+      },
+      {
+        "logicalId": "request",
+        "kind": "edge",
+        "nativeId": "native-5"
+      }
+    ],
+    "baseline": [
+      {
+        "id": "native-1",
+        "type": "shape",
+        "data": {
+          "type": "shape",
+          "content": "What calls the API?",
+          "shape": "rectangle",
+          "style": {
+            "fillColor": "transparent",
+            "fontFamily": "arial",
+            "fontSize": 14,
+            "textAlign": "center",
+            "textAlignVertical": "middle",
+            "borderStyle": "normal",
+            "borderOpacity": 1,
+            "borderColor": "#1a1a1a",
+            "borderWidth": 2,
+            "fillOpacity": 1,
+            "color": "#1a1a1a"
+          },
+          "id": "native-1",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "linkedTo": "",
+          "connectorIds": [],
+          "x": 0,
+          "y": -180,
+          "width": 500,
+          "height": 100,
+          "rotation": 0
+        },
+        "metadata": {
+          "profile": "umf.visual.miro.network/1",
+          "boardId": "live-board",
+          "exportId": "live-export",
+          "visualId": "miro-roundtrip",
+          "logicalId": "miro-roundtrip",
+          "kind": "question"
+        }
+      },
+      {
+        "id": "native-2",
+        "type": "shape",
+        "data": {
+          "type": "shape",
+          "content": "<p>Edited in Miro</p>",
+          "shape": "rectangle",
+          "style": {
+            "fillColor": "transparent",
+            "fontFamily": "arial",
+            "fontSize": 14,
+            "textAlign": "center",
+            "textAlignVertical": "middle",
+            "borderStyle": "normal",
+            "borderOpacity": 1,
+            "borderColor": "#1a1a1a",
+            "borderWidth": 2,
+            "fillOpacity": 1,
+            "color": "#1a1a1a"
+          },
+          "id": "native-2",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "linkedTo": "",
+          "connectorIds": [
+            "native-5",
+            "native-6"
+          ],
+          "x": 0,
+          "y": 0,
+          "width": 220,
+          "height": 100,
+          "rotation": 0
+        },
+        "metadata": {
+          "profile": "umf.visual.miro.network/1",
+          "boardId": "live-board",
+          "exportId": "live-export",
+          "visualId": "miro-roundtrip",
+          "logicalId": "client",
+          "kind": "node"
+        }
+      },
+      {
+        "id": "native-3",
+        "type": "shape",
+        "data": {
+          "type": "shape",
+          "content": "UMF test API",
+          "shape": "rectangle",
+          "style": {
+            "fillColor": "transparent",
+            "fontFamily": "arial",
+            "fontSize": 14,
+            "textAlign": "center",
+            "textAlignVertical": "middle",
+            "borderStyle": "normal",
+            "borderOpacity": 1,
+            "borderColor": "#1a1a1a",
+            "borderWidth": 2,
+            "fillOpacity": 1,
+            "color": "#1a1a1a"
+          },
+          "id": "native-3",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "linkedTo": "",
+          "connectorIds": [
+            "native-5"
+          ],
+          "x": 300,
+          "y": 0,
+          "width": 220,
+          "height": 100,
+          "rotation": 0
+        },
+        "metadata": {
+          "profile": "umf.visual.miro.network/1",
+          "boardId": "live-board",
+          "exportId": "live-export",
+          "visualId": "miro-roundtrip",
+          "logicalId": "api",
+          "kind": "node"
+        }
+      },
+      {
+        "id": "native-4",
+        "type": "shape",
+        "data": {
+          "type": "shape",
+          "content": "UMF test worker",
+          "shape": "rectangle",
+          "style": {
+            "fillColor": "transparent",
+            "fontFamily": "arial",
+            "fontSize": 14,
+            "textAlign": "center",
+            "textAlignVertical": "middle",
+            "borderStyle": "normal",
+            "borderOpacity": 1,
+            "borderColor": "#1a1a1a",
+            "borderWidth": 2,
+            "fillOpacity": 1,
+            "color": "#1a1a1a"
+          },
+          "id": "native-4",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "linkedTo": "",
+          "connectorIds": [
+            "native-6"
+          ],
+          "x": 600,
+          "y": 0,
+          "width": 220,
+          "height": 100,
+          "rotation": 0
+        },
+        "metadata": {
+          "profile": "umf.visual.miro.network/1",
+          "boardId": "live-board",
+          "exportId": "live-export",
+          "visualId": "miro-roundtrip",
+          "logicalId": "worker",
+          "kind": "node"
+        }
+      },
+      {
+        "id": "native-5",
+        "type": "connector",
+        "data": {
+          "type": "connector",
+          "shape": "straight",
+          "start": {
+            "item": "native-2",
+            "snapTo": "auto"
+          },
+          "end": {
+            "item": "native-3",
+            "snapTo": "auto"
+          },
+          "style": {
+            "startStrokeCap": "none",
+            "endStrokeCap": "stealth",
+            "strokeStyle": "normal",
+            "strokeWidth": 1,
+            "strokeColor": "#000000",
+            "fontSize": 14,
+            "color": "#1a1a1a",
+            "textOrientation": "aligned"
+          },
+          "captions": [
+            {
+              "content": "Request",
+              "position": 0.5,
+              "textAlignVertical": "middle"
+            }
+          ],
+          "id": "native-5",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "width": 80,
+          "height": 0
+        },
+        "metadata": {
+          "profile": "umf.visual.miro.network/1",
+          "boardId": "live-board",
+          "exportId": "live-export",
+          "visualId": "miro-roundtrip",
+          "logicalId": "request",
+          "kind": "edge"
+        },
+        "omittedApiMembers": [
+          "/start/position",
+          "/end/position"
+        ]
+      }
+    ],
+    "state": "complete"
+  },
+  "capture": {
+    "boardId": "live-board",
+    "items": [
+      {
+        "id": "native-1",
+        "type": "shape",
+        "data": {
+          "type": "shape",
+          "content": "What calls the API?",
+          "shape": "rectangle",
+          "style": {
+            "fillColor": "transparent",
+            "fontFamily": "arial",
+            "fontSize": 14,
+            "textAlign": "center",
+            "textAlignVertical": "middle",
+            "borderStyle": "normal",
+            "borderOpacity": 1,
+            "borderColor": "#1a1a1a",
+            "borderWidth": 2,
+            "fillOpacity": 1,
+            "color": "#1a1a1a"
+          },
+          "id": "native-1",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "linkedTo": "",
+          "connectorIds": [],
+          "x": 0,
+          "y": -180,
+          "width": 500,
+          "height": 100,
+          "rotation": 0
+        },
+        "metadata": {
+          "profile": "umf.visual.miro.network/1",
+          "boardId": "live-board",
+          "exportId": "live-export",
+          "visualId": "miro-roundtrip",
+          "logicalId": "miro-roundtrip",
+          "kind": "question"
+        }
+      },
+      {
+        "id": "native-2",
+        "type": "shape",
+        "data": {
+          "type": "shape",
+          "content": "<p>Edited in Miro</p>",
+          "shape": "rectangle",
+          "style": {
+            "fillColor": "transparent",
+            "fontFamily": "arial",
+            "fontSize": 14,
+            "textAlign": "center",
+            "textAlignVertical": "middle",
+            "borderStyle": "normal",
+            "borderOpacity": 1,
+            "borderColor": "#1a1a1a",
+            "borderWidth": 2,
+            "fillOpacity": 1,
+            "color": "#1a1a1a"
+          },
+          "id": "native-2",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "linkedTo": "",
+          "connectorIds": [
+            "native-5",
+            "native-6"
+          ],
+          "x": 0,
+          "y": 0,
+          "width": 220,
+          "height": 100,
+          "rotation": 0
+        },
+        "metadata": {
+          "profile": "umf.visual.miro.network/1",
+          "boardId": "live-board",
+          "exportId": "live-export",
+          "visualId": "miro-roundtrip",
+          "logicalId": "client",
+          "kind": "node"
+        }
+      },
+      {
+        "id": "native-3",
+        "type": "shape",
+        "data": {
+          "type": "shape",
+          "content": "UMF test API",
+          "shape": "rectangle",
+          "style": {
+            "fillColor": "transparent",
+            "fontFamily": "arial",
+            "fontSize": 14,
+            "textAlign": "center",
+            "textAlignVertical": "middle",
+            "borderStyle": "normal",
+            "borderOpacity": 1,
+            "borderColor": "#1a1a1a",
+            "borderWidth": 2,
+            "fillOpacity": 1,
+            "color": "#1a1a1a"
+          },
+          "id": "native-3",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "linkedTo": "",
+          "connectorIds": [
+            "native-5"
+          ],
+          "x": 300,
+          "y": 0,
+          "width": 220,
+          "height": 100,
+          "rotation": 0
+        },
+        "metadata": {
+          "profile": "umf.visual.miro.network/1",
+          "boardId": "live-board",
+          "exportId": "live-export",
+          "visualId": "miro-roundtrip",
+          "logicalId": "api",
+          "kind": "node"
+        }
+      },
+      {
+        "id": "native-4",
+        "type": "shape",
+        "data": {
+          "type": "shape",
+          "content": "UMF test worker",
+          "shape": "rectangle",
+          "style": {
+            "fillColor": "transparent",
+            "fontFamily": "arial",
+            "fontSize": 14,
+            "textAlign": "center",
+            "textAlignVertical": "middle",
+            "borderStyle": "normal",
+            "borderOpacity": 1,
+            "borderColor": "#1a1a1a",
+            "borderWidth": 2,
+            "fillOpacity": 1,
+            "color": "#1a1a1a"
+          },
+          "id": "native-4",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "linkedTo": "",
+          "connectorIds": [
+            "native-6"
+          ],
+          "x": 600,
+          "y": 0,
+          "width": 220,
+          "height": 100,
+          "rotation": 0
+        },
+        "metadata": {
+          "profile": "umf.visual.miro.network/1",
+          "boardId": "live-board",
+          "exportId": "live-export",
+          "visualId": "miro-roundtrip",
+          "logicalId": "worker",
+          "kind": "node"
+        }
+      },
+      {
+        "id": "native-5",
+        "type": "connector",
+        "data": {
+          "type": "connector",
+          "shape": "straight",
+          "start": {
+            "item": "native-2",
+            "snapTo": "auto"
+          },
+          "end": {
+            "item": "native-3",
+            "snapTo": "auto"
+          },
+          "style": {
+            "startStrokeCap": "none",
+            "endStrokeCap": "stealth",
+            "strokeStyle": "normal",
+            "strokeWidth": 1,
+            "strokeColor": "#000000",
+            "fontSize": 14,
+            "color": "#1a1a1a",
+            "textOrientation": "aligned"
+          },
+          "captions": [
+            {
+              "content": "Request",
+              "position": 0.5,
+              "textAlignVertical": "middle"
+            }
+          ],
+          "id": "native-5",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "width": 80,
+          "height": 0
+        },
+        "metadata": {
+          "profile": "umf.visual.miro.network/1",
+          "boardId": "live-board",
+          "exportId": "live-export",
+          "visualId": "miro-roundtrip",
+          "logicalId": "request",
+          "kind": "edge"
+        },
+        "omittedApiMembers": [
+          "/start/position",
+          "/end/position"
+        ]
+      },
+      {
+        "id": "native-6",
+        "type": "connector",
+        "data": {
+          "type": "connector",
+          "shape": "elbowed",
+          "start": {
+            "item": "native-2",
+            "position": {
+              "x": 1,
+              "y": 0.5
+            },
+            "snapTo": "right"
+          },
+          "end": {
+            "item": "native-4",
+            "position": {
+              "x": 0,
+              "y": 0.5
+            },
+            "snapTo": "left"
+          },
+          "style": {
+            "startStrokeCap": "none",
+            "endStrokeCap": "stealth",
+            "strokeStyle": "normal",
+            "strokeWidth": 1,
+            "strokeColor": "#000000",
+            "fontSize": 14,
+            "color": "#000000",
+            "textOrientation": "horizontal"
+          },
+          "captions": [
+            {
+              "content": "<p>Dispatch</p>",
+              "position": 0.10192421957127852,
+              "textAlignVertical": "middle"
+            }
+          ],
+          "id": "native-6",
+          "parentId": null,
+          "origin": "center",
+          "relativeTo": "canvas_center",
+          "width": 380,
+          "height": 0
+        },
+        "metadata": null
+      }
+    ],
+    "coverage": "api-visible-items"
+  }
+}
