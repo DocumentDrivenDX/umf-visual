@@ -1,0 +1,117 @@
+{
+  "graphviz": {
+    "version": "dot - graphviz version 16.1.0 (20260904.0139)",
+    "cases": [
+      {
+        "id": "visual-inventory-beacon-containers",
+        "groups": 2,
+        "nodes": 9,
+        "edges": 10
+      },
+      {
+        "id": "visual-inventory-beacon-deployment",
+        "groups": 5,
+        "nodes": 13,
+        "edges": 15
+      },
+      {
+        "id": "visual-inventory-beacon-field-guide",
+        "groups": 4,
+        "nodes": 7,
+        "edges": 6
+      },
+      {
+        "id": "visual-inventory-beacon-integrations",
+        "groups": 1,
+        "nodes": 6,
+        "edges": 6
+      },
+      {
+        "id": "visual-inventory-beacon-reply-presentation",
+        "groups": 5,
+        "nodes": 13,
+        "edges": 15
+      },
+      {
+        "id": "visual-inventory-helix-containers",
+        "groups": 3,
+        "nodes": 7,
+        "edges": 7
+      },
+      {
+        "id": "visual-inventory-helix-deployment",
+        "groups": 4,
+        "nodes": 7,
+        "edges": 7
+      },
+      {
+        "id": "visual-inventory-helix-field-guide",
+        "groups": 4,
+        "nodes": 7,
+        "edges": 7
+      },
+      {
+        "id": "visual-inventory-helix-solution-overview",
+        "groups": 4,
+        "nodes": 7,
+        "edges": 7
+      },
+      {
+        "id": "visual-inventory-tpl-arch-deployment",
+        "groups": 4,
+        "nodes": 9,
+        "edges": 10
+      },
+      {
+        "id": "visual-inventory-tpl-so-map",
+        "groups": 4,
+        "nodes": 6,
+        "edges": 6
+      }
+    ],
+    "clusterMembership": true,
+    "childTooltipReset": true,
+    "endpointBoundExplanations": true,
+    "parallelEdgeExplanations": true
+  },
+  "mermaid": {
+    "version": "12.2.0",
+    "browser": "153.0.8010.12",
+    "cases": [
+      {
+        "id": "visual-forms-helix-request-ladder",
+        "participants": 6,
+        "messages": 6,
+        "svgSha256": "a314c28626a128722b5986b2dbb4f9e5d6b820b67a539e49d734c38d7a6ca9a2"
+      },
+      {
+        "id": "visual-inventory-beacon-reply-draft",
+        "participants": 8,
+        "messages": 8,
+        "svgSha256": "ff6ca14d31d176dcd82542e9fcee2cd75a93c491ff5fe9c2a5a84ef83137c716"
+      },
+      {
+        "id": "visual-inventory-documentor-pipeline",
+        "participants": 6,
+        "messages": 10,
+        "svgSha256": "40da9a320203afc9ed8e224ed0c06a13b43fea3959a0934d66ceafac57975a4a"
+      },
+      {
+        "id": "visual-inventory-helix-request",
+        "participants": 6,
+        "messages": 6,
+        "svgSha256": "20c129f04665da8a167fe741f0b06024a4abdc801e458d6d0e793e794b023f92"
+      },
+      {
+        "id": "visual-inventory-tpl-arch-dataflow",
+        "participants": 6,
+        "messages": 13,
+        "svgSha256": "f4016f69ba5fc52b8b09e034595dc792f76e3163655bb91dfd174b41afc1c328"
+      }
+    ],
+    "participantOrder": true,
+    "messageEndpointsAndKinds": true,
+    "hostileText": true,
+    "asyncNoteLoopTypes": true
+  }
+}

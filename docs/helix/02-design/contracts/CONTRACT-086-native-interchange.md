@@ -22,7 +22,7 @@ ddx:
 
 # CONTRACT-086: Source-preserving native visual interchange
 
-**Type:** library. **Version:** 1.0.0. Exact TypeScript shared fields are owned by
+**Type:** library. **Version:** 1.1.0. Exact TypeScript shared fields are owned by
 `src/interchange/types.ts`. This contract owns behavior and qualified mappings.
 
 ## Purpose
@@ -40,7 +40,8 @@ versions and actual observed acceptance belong in execution evidence.
 
 Native syntax documentation is [DOT](https://graphviz.org/doc/info/lang.html),
 [Mermaid flowchart](https://mermaid.js.org/syntax/flowchart.html),
-[Mermaid ER](https://mermaid.js.org/syntax/entityRelationshipDiagram.html), and
+[Mermaid ER](https://mermaid.js.org/syntax/entityRelationshipDiagram.html),
+[Mermaid sequences](https://mermaid.js.org/syntax/sequenceDiagram.html), and
 [Lini](https://lini.rs/). Mermaid documentation inspected on 2026-10-29 identified
 12.2.0; the planned Lini oracle is the pinned 1.1.0 runtime. Declaring a profile
 must not claim all syntax of these languages or acceptance by an untested version.
@@ -110,14 +111,15 @@ become `exactly-one`, `zero-or-many` or another native default.
 
 | Profile area | Supported meaning | Meaning requiring report or refusal |
 | --- | --- | --- |
-| DOT directed graph | Explicit nodes, directed edges, supported string labels and node tooltip/detail | Undirected edges, unsupported attributes/defaults, ports, HTML labels, subgraph semantics and other syntax outside the adapter subset |
+| DOT directed graph | Explicit nodes/edges, labels, node/cluster descriptive tooltips, edge explanations and bounded named nested clusters/membership | Undirected edges, unsupported attributes/defaults, ports, HTML labels, anonymous/non-cluster subgraphs and unrepresented role/tier/layout semantics |
 | Mermaid flowchart | Explicit/implicit nodes, supported labels, directed links and bounded frontmatter title | Shapes with unrepresented meaning, undirected/multiple arrow markers, styles, clicks, directives, subgraph semantics and other syntax outside the adapter subset |
+| Mermaid sequence | Ordered participants, actor role, call/return/async message arrows, two-participant notes, contiguous nested loops and bounded titles | Activation/timing/concurrency, alternative fragments, ladder layout, unrepresented participant/message metadata and unsupported text |
 | Mermaid ER | Entities, supported fields/keys, bounded frontmatter title and relationships with four explicit cardinalities | Identifying/nonidentifying distinction, field comments, unsupported types/attributes and relationship meanings not carried by VisualReference |
 | Lini graph/entity | Explicit node identities/labels, card hint/detail, supported entity rows, directed links and qualified field endpoints | Layout/styles, drawing/schematic/chart operations, unsupported markers, nested identity scope and other syntax outside the adapter subset |
 
 ### Existing-field descriptive mappings
 
-The additive profiles Mermaid 1.1.0, DOT 0.2.0 and Lini 0.2.0 map existing visual
+The current profiles Mermaid 1.2.0, DOT 0.3.0 and Lini 0.2.0 map existing visual
 fields; the visual vocabulary remains 1.0.0. Public capability records MUST name
 the implemented adapter profile version; these numbers do not name native engines.
 
@@ -255,3 +257,36 @@ picture's nodes, fields and links with this visual vocabulary's exact semantics;
 no new core/domain model is introduced. The local structured addition is the
 operation result, identity map and retained native companion, whose TypeScript
 source is authoritative. The existing visual JSON Schema remains unchanged.
+
+
+## Second-wave additive mappings
+
+DOT clusters may carry group labels, descriptive tooltips, parent nesting and
+node membership. Import MUST distinguish native cluster grouping from inferred
+Visual group role: lane, tier, zone and other domain/profile roles are not
+established by cluster syntax alone. Export of zoned or lanes forms MUST report
+unrepresented lane/tier/layout meaning. Node parent containment is separate from
+group membership. Scoped native defaults, unknown attributes, multi-membership
+and ambiguous cluster/edge syntax MUST be interpreted precisely or refused.
+An edge tooltip may carry its existing `why` explanatory text independently of
+its label, with the same qualified escape/default rules as node detail.
+A child cluster with absent detail MUST NOT inherit an unauthored parent detail.
+The bounded exporter uses native empty cluster tooltip reset when necessary;
+the importer maps that reset to absent secondary detail, preserving native label
+fallback. Empty node/edge tooltip rules remain separately qualified.
+
+Mermaid sequence diagrams may carry ordered participant labels and messages,
+explicit call/return arrow kinds and titles. They MUST NOT infer activation,
+timing, concurrency or application status. An absent message kind MUST NOT
+silently become an explicit call without a loss diagnostic. Lifelines versus
+ladder layout and unsupported message/group meanings MUST remain explicit.
+Participant and message identity mappings have distinct `participant` and
+`message` kinds, preserving occurrence-qualified native message addresses.
+Native-engine checks MUST verify the existing examples' participant labels,
+ordered message text, group membership and cross-boundary edge cardinality.
+
+All fixture source bytes remain unchanged. Provenance, evidence, roles, status,
+walkthrough steps and other unrepresented fields still require reported loss.
+The catalog MUST distinguish native render success from full semantic support.
+Progress comparisons count losses on previously emitted pairs separately from
+newly emitted pairs; widening coverage must not masquerade as losing less meaning.
