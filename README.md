@@ -24,7 +24,7 @@ It is not published to npm.
 
 Browse the [umf.visuals catalog](https://documentdrivendx.github.io/umf-visual/).
 Default authoring remains `umf.visual` 1.0.0 and the core envelope 0.10.0. The
-working package is 0.2.0; release is pending final visual review and CI. It adds
+working package is 0.2.0; local preview review passes and release awaits CI. It adds
 opt-in vocabulary 1.1.0 and explicit readable annotation profiles.
 Core comes from the pinned released SDK `umf-v0.5.7`; only its public APIs are used.
 The authored latest schema generates the 1.1.0 manifest and TypeScript shapes;
@@ -106,8 +106,9 @@ separately from semantic support. Native input is bounded to 256 KiB UTF-8.
 
 The candidate evaluates all 53 unchanged examples across all 22 forms. Each has
 a selected strict, complete projection through one suitable target: 43 DOT and
-ten Lini profiles. Final high-fidelity preview review remains pending; native
-acceptance, exact text and semantic readback do not establish good geometry.
+ten Lini profiles. Local preview review passes for all 22 forms; Linux CI and
+publication remain pending. Native acceptance, exact text and semantic readback
+are checked separately from faithful geometry and readable previews.
 See [milestone evidence and release gates](docs/helix/04-build/example-completion-evidence.md).
 
 Select a readable annotation profile explicitly:

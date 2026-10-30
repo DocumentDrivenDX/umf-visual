@@ -24,8 +24,8 @@ ddx:
 
 ## Release Scope
 
-Prepared notes for package 0.2.0. **Not yet released:** final entity preview
-correction/review, affected native reruns and Linux CI remain pending. The repository
+Prepared notes for package 0.2.0. **Not yet released:** local checks and preview
+review pass; Linux CI and publication remain pending. The repository
 maintainer owns release; publication date, tag and archive checksums must be
 recorded after these gates pass.
 
@@ -66,9 +66,10 @@ The catalog retains all 159 original native pairs and adds 106 profile
 evaluations. Current selection is 43 DOT plus ten Lini examples, with zero
 selected diagnostics. It separates qualified profiles from vanilla-native
 support and offers focused/complete views, zoom, source, diagnostics and
-identity/coverage inspection. Current output contains 178 SVG assets. Refreshed
-tree/nested/sequence and Lini geometry checks pass locally; an entity connector
-text collision remains under correction before final preview approval.
+identity/coverage inspection. Current output contains 178 SVG assets.
+
+Refreshed tree/nested/sequence and Lini geometry checks pass locally. The final entity
+connector spacing correction and all 22 form previews have passed local review.
 
 Vocabulary 1.1.0 corrects early-year dates, changes size validity to a 500-node
 bound with split advice, and adds exact multiplicities and stable field IDs.
@@ -88,13 +89,16 @@ checksum once available; there is no npm publication.
 
 ## Validation
 
-The latest local suite passes 293 tests and 11,134 assertions, source/type checks
+The final local suite passes 295 tests and 11,177 assertions, source/type checks
 and packed Bun/Node consumers. Public Chromium covers complete readback,
 persistence and stale replay for all 53 examples. Native evidence covers 43
 Graphviz cases, ten pinned Lini cases and four Lini browser-geometry cases.
-Receipt source/fixture hashes match current exports. Native rendering and exact
-text remain separate from geometry approval. Final entity-preview evidence,
-Linux CI and checksums must be added at the release cut.
+Receipt source/fixture hashes match current exports.
+
+Native rendering and exact text remain separate from geometry approval; the
+reviewed candidate has both.
+Durable local receipts are linked from the milestone evidence. Linux CI and
+archive checksums must be added at the release cut.
 The [milestone evidence](../04-build/example-completion-evidence.md) records
 commands, measured results and remaining blockers.
 

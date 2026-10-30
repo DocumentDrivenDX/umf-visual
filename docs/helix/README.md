@@ -82,7 +82,7 @@ sequences the confirmed release gate: every current example has at least one
 suitable complete target and all 22 forms have faithful previews, followed by
 sanitized complex Miro examples and expanded edited integrations.
 
-[Example milestone evidence](04-build/example-completion-evidence.md) separates
-complete semantic/native readback from pending geometry, preview and Linux CI
-gates. [Prepared v0.2.0 notes](05-deploy/release-notes-v0.2.0.md) describe the
-candidate without claiming publication or completed visual review.
+[Example milestone evidence](04-build/example-completion-evidence.md) records
+complete semantic/native readback and local preview approval, with Linux CI
+and publication still pending. [Prepared v0.2.0 notes](05-deploy/release-notes-v0.2.0.md)
+describe that candidate and its qualified scope.
