@@ -113,7 +113,7 @@ class Parser {
   const escapedDefault=this.nodeList.find(node=>!node.labelSet&&node.nativeId.includes('\\'));
   if(escapedDefault)this.fail('DOT_LABEL_ESCAPE','An unlabelled node identifier contains a Graphviz label escape; its default `\\N` label cannot be projected exactly.',escapedDefault.first);
   if(this.graphName)this.diagnostics.push(interchangeDiagnostic('DOT_GRAPH_IDENTITY','/source/graph/name','The native graph name is retained in the original source but is not part of the visual vocabulary.',{severity:'warning',loss:true,range:{start:this.graphName.start,end:this.graphName.end}}));
-  if(this.nodeList.length>15){const token=this.nodeList[15]?.first??this.peek();this.diagnostics.push(interchangeDiagnostic('DOT_VISUAL_SIZE','/source/nodes','The flow exceeds umf.visual 1.0’s 15-node limit; split the graph before import.',{severity:'error',loss:false,range:{start:token.start,end:token.end}}));return {diagnostics:this.diagnostics,identityMap:[]};}
+  if(this.nodeList.length>15){const token=this.nodeList[15]?.first??this.peek();this.diagnostics.push(interchangeDiagnostic('DOT_VISUAL_SIZE','/source/nodes','The flow exceeds the DOT profile’s 15-node bound; split the graph before import.',{severity:'error',loss:false,range:{start:token.start,end:token.end}}));return {diagnostics:this.diagnostics,identityMap:[]};}
   const nodes=this.nodeList.map(n=>({id:n.visualId,label:n.label,...(n.detail!==undefined?{detail:n.detail}:{})}));
   const edges=this.edges.map(e=>({id:e.visualId,from:e.from.visualId,to:e.to.visualId,...(e.labelSet?{label:e.label}:{})}));
   const visual:Visual={id:this.context.id,kind:'flow',form:'network',question:this.context.question,...(this.graphTitleSet?{title:this.graphTitle??''}:{}),nodes,...(edges.length?{edges}:{})};
@@ -160,7 +160,7 @@ class Parser {
  private readNodeId():Token{if(this.word('subgraph'))this.fail('DOT_SUBGRAPH','Subgraphs and clusters are outside the supported DOT subset.');const t=this.readId();if(this.peek().kind===':')this.fail('DOT_PORT','Node ports and compass points are outside the supported subset.',this.peek());return t;}
  private node(token:Token):NativeNode{
   if(token.kind==='html')this.fail('DOT_HTML','HTML strings are not supported as node identifiers or labels.',token);
-  let n=this.nodes.get(token.text);if(!n){if(this.nodeList.length>=15)this.fail('DOT_VISUAL_SIZE','The flow exceeds umf.visual 1.0’s 15-node limit; split the graph before import.',token);n={nativeId:token.text,visualId:syntheticId('node',this.nodeList.length),label:this.nodeDefaultSet?this.nodeDefault??'':token.text,...(this.nodeTooltipDefaultSet&&this.nodeTooltipDefault!==undefined?{detail:this.nodeTooltipDefault}:{}),first:token,labelSet:this.nodeDefaultSet};this.nodes.set(token.text,n);this.nodeList.push(n);}return n;
+  let n=this.nodes.get(token.text);if(!n){if(this.nodeList.length>=15)this.fail('DOT_VISUAL_SIZE','The flow exceeds the DOT profile’s 15-node bound; split the graph before import.',token);n={nativeId:token.text,visualId:syntheticId('node',this.nodeList.length),label:this.nodeDefaultSet?this.nodeDefault??'':token.text,...(this.nodeTooltipDefaultSet&&this.nodeTooltipDefault!==undefined?{detail:this.nodeTooltipDefault}:{}),first:token,labelSet:this.nodeDefaultSet};this.nodes.set(token.text,n);this.nodeList.push(n);}return n;
  }
  private readValue():{value:string;escaped:boolean;token:Token}{
   const first=this.peek();if(first.kind!=='id'&&first.kind!=='quoted'&&first.kind!=='html')this.fail('DOT_SYNTAX','Expected an attribute value.');
@@ -235,7 +235,7 @@ function serializeDot(visual:Visual,_context:AdapterContext):AdapterSerializeRes
  if(visual.kind!=='flow'||visual.form!=='network'){
   diagnostics.push(interchangeDiagnostic('DOT_UNSUPPORTED_VISUAL',VISUAL_PATH,'DOT export supports only flow/network visuals.',{severity:'error',loss:false}));return {diagnostics,identityMap};
  }
- if((visual.nodes?.length??0)>15){diagnostics.push(interchangeDiagnostic('DOT_VISUAL_SIZE',VISUAL_PATH+'/nodes','The visual exceeds umf.visual 1.0’s 15-node limit.',{severity:'error',loss:false}));return {diagnostics,identityMap};}
+ if((visual.nodes?.length??0)>15){diagnostics.push(interchangeDiagnostic('DOT_VISUAL_SIZE',VISUAL_PATH+'/nodes','The visual exceeds the DOT profile’s 15-node bound.',{severity:'error',loss:false}));return {diagnostics,identityMap};}
  const nodes=visual.nodes??[],edges=visual.edges??[];const lines=['digraph '+quote(visual.id)+' {'];
  const checkText=(value:string,path:string)=>{const reason=unsafeTextReason(value);if(reason)diagnostics.push(interchangeDiagnostic('DOT_TEXT',path,'The value '+reason+'.',{severity:'error',loss:false}));};
  checkText(visual.id,VISUAL_PATH+'/id');if(visual.title!==undefined)checkText(visual.title,VISUAL_PATH+'/title');

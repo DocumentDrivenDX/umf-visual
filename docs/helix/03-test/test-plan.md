@@ -40,7 +40,7 @@ changed distribution and runtime boundaries. No coverage percentage is claimed.
 1. Original vocabulary tests pass using released @umf/core.
 2. Build and declarations support an installed consumer with no sibling checkout.
 3. Chromium validates/round-trips the corpus and performs an isolated edit.
-4. Schema copies agree and portable source has no private core imports.
+4. Generated outputs match the authored schema without writing; portable source has no private core imports.
 5. US-094 supported mappings retain identity and meaning; strict policy refuses losses.
 6. The whole document/source companion survives serialization; stale or forged replay refuses.
 7. Malformed and oversized inputs refuse atomically, retaining source.
@@ -71,8 +71,8 @@ available here; no regeneration claim is made.
 
 ## Known Gaps
 
-The source retains the early-year date defect, 15-node validity limit and narrow
-cardinality/identity representations. Native interchange claims are limited to CONTRACT-086 subsets and recorded
+Frozen 1.0.0 retains its early-year date defect, 15-node validity limit and narrow
+cardinality/identity representations; opt-in 1.1.0 corrects these. The authored schema awaits UMF metamodel compiler support. Native interchange claims are limited to CONTRACT-086 subsets and recorded
 native engine versions. Layout equivalence and all other Mermaid families remain
 unqualified. Native parser acceptance does not establish semantic equivalence.
 No hosted CI result is inferred from local execution. Source import checks do

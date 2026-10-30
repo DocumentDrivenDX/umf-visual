@@ -92,7 +92,8 @@ Unicode and control characters in the independent native parser.
 
 ## Performance
 
-The graph size is bounded by the existing 15-node visual cap. Source text and
+The graph size is bounded at 15 nodes, the profile's own bound (it was the vocabulary's
+cap when the profile was written; the vocabulary now advises a split there). Source text and
 statement/item limits must prevent large unsupported input from causing unbounded
 work before visual validation. No latency or throughput claim is made without
 measurement. Original strings remain available after limit refusal.

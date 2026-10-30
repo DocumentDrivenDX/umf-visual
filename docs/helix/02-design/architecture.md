@@ -108,7 +108,8 @@ compares its derived document with the current input.
 | --- | --- | --- | --- |
 | Independent repository/package | User-authorized | Separate lifecycle from core and rendering | Consumer migrations |
 | Use SDK 0.5.7 public release | Bootstrap choice | Avoid private source dependency | Expand version matrix through evidence |
-| Retain #62 semantic baseline | Extraction scope | Make movement reviewable | Date bug and interchange contract revisions |
+| Retain released 1.0.0 semantic baseline | Compatibility | Make movement reviewable | Explicit 1.1.0 fixes; no silent default change |
+| Schema as authored definition | Adopted for 1.1.0 | Generate embedded schema and TypeScript shapes; check freshness | Await published UMF metamodel compiler |
 | Bounded native adapters | CONTRACT-086 | Explicit native scope and preservation | US-094 and native/browser evidence |
 | UMF-authored model | Planned | Single authority | Separate model-generation change |
 

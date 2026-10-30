@@ -49,8 +49,7 @@ See extraction-evidence.md for completed extraction gates. FEAT-035, US-094,
 CONTRACT-086, TD-094 and TP-001 govern the authorized native interchange increment.
 Native qualification receipts must identify new executed source and runtime
 versions; extraction receipts do not establish adapter support. Generated UMF
-model authority and generic constraint coverage remain separate follow-ups. Fix the known date issue with a regression before
-a release. Adopt code-shape ratchets before growing the inherited module.
+model authority and generic constraint coverage remain separate follow-ups. The versioned 1.1.0 review fixes correct dates, size advice, exact multiplicities and field ids with frozen 1.0.0 regression checks. Adopt code-shape ratchets before growing the inherited module.
 
 ## Optional Tracking
 
