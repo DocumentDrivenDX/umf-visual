@@ -137,3 +137,29 @@ Reuse the existing visual schema and public core Document rather than duplicate
 a picture model. CONTRACT-086 records the public SDK release and the gap addressed
 by local operation-result/companion types. Native source remains native text;
 this design does not label it as an authoritative UMF schema.
+
+
+## Additive grouping and sequence mappings
+
+CONTRACT-086 1.1 governs DOT 0.3.0 and Mermaid 1.2.0. DOT carries grouping through
+named nested clusters, scoped defaults, group/node tooltips and independent edge
+explanations. A missing child description clears inherited native tooltip state.
+Cluster meaning projects to region with an explicit role loss on import; it does
+not infer architectural zone, lane or tier semantics. Named cluster count/depth,
+ambiguous membership and graph/cluster identity collisions have bounded tests.
+
+Mermaid sequence transport carries ordered participants and messages, actor
+roles, call/return/async arrow forms, two-participant notes and contiguous nested
+loops. Native message and loop identities are occurrence-qualified; group array
+order is not native loop emission order. Explicit participant declarations must
+precede content and cannot be redefined. Labels use qualified numeric escaping;
+decoded controls, carriage returns, unpaired surrogates and whitespace outside
+ASCII space/tab/line feed refuse in sequence labels. Other unknown
+syntax, alternative fragments, metadata and ladder layout remain loss/refusal.
+
+`test:native:wave2` uses independent Graphviz JSON memberships/endpoints/tooltips
+and Mermaid 12.2 parser database order/endpoints/arrow types plus SVG text. The
+browser library consumer independently checks public import/export and source
+replay for all sixteen affected original examples. `report:loss:wave2` checks
+the v0.1.0 source hashes and separates reduced losses on previously emitted pairs
+from newly emitted pairs. Existing full semantic support claims remain unchanged.

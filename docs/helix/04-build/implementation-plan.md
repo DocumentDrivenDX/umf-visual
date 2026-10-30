@@ -232,3 +232,14 @@ exact multiplicities and stable field IDs. Native companions remain unchanged;
 a changed vocabulary declaration is a source revision change and cannot replay
 stale receipts. The current standalone schema generates the 1.1 manifest and
 TypeScript shapes; generation freshness is checked without writing.
+
+## Second loss-reduction wave
+
+User-authorized continuation after v0.1.0 targets native DOT cluster membership,
+edge explanations and Mermaid sequence diagrams under CONTRACT-086's additive
+mapping bounds. Preserve the 53 example source hashes and all 59 prior emitted
+pairs. Capture a v0.1.0 comparison baseline; report newly emitted pairs separately
+from loss reductions on the old emitted set. Run portable tests, packed consumers,
+independent Graphviz/Chromium checks, complete catalog/UI checks and Sol review.
+All original fixtures retain provenance; native rendering gains do not imply
+full semantic losslessness. Miro/model evolution remains a separate change.

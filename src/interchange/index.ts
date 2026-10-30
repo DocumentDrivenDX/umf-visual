@@ -62,7 +62,7 @@ function copyReceipt(value:unknown):RetainedVisualSource|undefined{
  try{const receipt=admitted<RetainedVisualSource>(value);if(!receipt||typeof receipt!=='object'||Array.isArray(receipt))return;
   if(Object.keys(receipt).some(key=>!['format','text','importOptions','baseline','identityMap'].includes(key))||!adapterFor(receipt.format)||typeof receipt.text!=='string'||typeof receipt.baseline!=='string'||!receipt.importOptions||typeof receipt.importOptions!=='object'||Array.isArray(receipt.importOptions))return;
   if(Object.keys(receipt.importOptions).some(key=>!['id','question'].includes(key))||typeof receipt.importOptions.id!=='string'||!receipt.importOptions.id.trim()||typeof receipt.importOptions.question!=='string'||!receipt.importOptions.question.trim())return;
-  if(!Array.isArray(receipt.identityMap)||receipt.identityMap.some(item=>!item||typeof item!=='object'||Array.isArray(item)||Object.keys(item).some(key=>!['kind','nativeId','visualId','path','sourcePath'].includes(key))||!['node','edge','group','field','reference'].includes(item.kind)||typeof item.nativeId!=='string'||typeof item.visualId!=='string'||typeof item.path!=='string'||(item.sourcePath!==undefined&&typeof item.sourcePath!=='string')))return;
+  if(!Array.isArray(receipt.identityMap)||receipt.identityMap.some(item=>!item||typeof item!=='object'||Array.isArray(item)||Object.keys(item).some(key=>!['kind','nativeId','visualId','path','sourcePath'].includes(key))||!['node','edge','group','field','reference','participant','message'].includes(item.kind)||typeof item.nativeId!=='string'||typeof item.visualId!=='string'||typeof item.path!=='string'||(item.sourcePath!==undefined&&typeof item.sourcePath!=='string')))return;
   return receipt;
  }catch{return;}
 }
@@ -77,11 +77,18 @@ function addDocumentLosses(document:Document,visual:any,diagnostics:InterchangeD
 function auditVisualProjection(format:InterchangeFormat,visual:any,diagnostics:InterchangeDiagnostic[]):void{
  const root=VISUAL_EXTENSION_PATH,allowed=new Map<string,string[]>();
  const rootFields=['id','kind','form','question'];if(format==='dot'||format==='mermaid'||format==='lini')rootFields.push('title');
- if(visual.kind==='flow')rootFields.push('nodes','edges');
+ if(visual.kind==='flow')rootFields.push('nodes','edges',...(format==='dot'?['groups']:[]));
+ else if(format==='mermaid'&&visual.kind==='sequence')rootFields.push('sequence','groups');
  else if(format!=='dot'&&visual.kind==='structure'&&visual.form==='entities')rootFields.push('nodes','structure');
  allowed.set(root,rootFields);
  if(visual.kind==='flow'){
-  allowed.set(root+'/nodes',format==='dot'||format==='lini'?['id','label','detail']:['id','label']);allowed.set(root+'/edges',['id','from','to','label']);
+  allowed.set(root+'/nodes',format==='dot'?['id','label','detail','group']:format==='lini'?['id','label','detail']:['id','label']);allowed.set(root+'/edges',format==='dot'?['id','from','to','label','why']:['id','from','to','label']);
+  if(format==='dot')allowed.set(root+'/groups/*',['id','label','detail','parent']);
+ }else if(format==='mermaid'&&visual.kind==='sequence'){
+  allowed.set(root+'/sequence',['participants','messages']);
+  allowed.set(root+'/sequence/participants/*',['id','label','role']);
+  allowed.set(root+'/sequence/messages/*',['id','from','to','label','kind','group']);
+  allowed.set(root+'/groups/*',['id','label','role','parent']);
  }else if(format!=='dot'&&visual.kind==='structure'&&visual.form==='entities'){
   allowed.set(root+'/nodes',format==='lini'?['id','label','detail']:['id','label']);allowed.set(root+'/structure',['entities','references']);
   allowed.set(root+'/structure/entities/*',['node','fields']);allowed.set(root+'/structure/entities/*/fields/*',['name','type']);

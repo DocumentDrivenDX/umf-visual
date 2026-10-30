@@ -122,6 +122,10 @@ function renderCoverage() {
     const stats = el('div', 'coverage-stats');
     for (const [name, status] of [['supported', 'supported'], ['loss', 'reported-loss'], ['unsupported', 'unsupported']]) { const stat = el('span'); stat.append(el('b', '', counts[status]), ` ${name}`); stats.append(stat); }
     card.append(top, bar, stats);
+    const results = allItems().map(item => item.targets?.[target]).filter(Boolean);
+    const rendered = results.filter(result => result.render?.ok).length;
+    const losses = results.filter(result => result.ok).reduce((sum, result) => sum + (result.diagnostics || []).filter(diagnostic => diagnostic.loss).length, 0);
+    card.append(el('p', 'native-coverage', `${rendered} native renders · ${losses} remaining loss reports across emitted samples`));
     const capability = state.catalog.capabilities?.find(entry => entry.format === target);
     if (capability) { const details = document.createElement('details'); details.className = 'capability-details'; details.append(el('summary', '', `${capability.profile || LABELS[target]} · v${capability.version || '—'}`)); details.append(el('p', '', `${capability.subset || 'Subset not specified'} · ${(capability.directions || []).join(' / ') || 'directions not specified'}`)); card.append(details); }
     grid.append(card);
@@ -251,6 +255,10 @@ function showTarget(item, target) {
   const reason = status === 'supported' ? `The configured ${LABELS[target]} profile exported this sample with no reported semantic loss.` : status === 'reported-loss' ? `The configured ${LABELS[target]} profile emitted source and reported one or more semantic losses. Review diagnostics and identity mapping below.` : status === 'unsupported' ? `The configured ${LABELS[target]} profile did not emit a source for this sample.` : 'This profile has not been evaluated for this sample.';
   panel.append(el('p', 'target-explainer', reason));
   const render = result.render;
+  if (render?.ok) {
+    const lossCount = (result.diagnostics || []).filter(diagnostic => diagnostic.loss).length;
+    panel.append(el('p', 'render-outcome', `Native render succeeded; ${lossCount} reported ${lossCount === 1 ? 'loss remains' : 'losses remain'}.`));
+  }
   if (render?.ok && render.svgPath) {
     const src = safeRenderPath(render.svgPath, render.svgSha256);
     if (src) {
