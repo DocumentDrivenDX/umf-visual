@@ -16,7 +16,7 @@ export function boundaryIssues(source:string,filename='src/index.ts'):string[]{
   if(!name.startsWith('.')){issues.push('Forbidden external import: '+name);continue;}
   const destination=resolve(dirname(filename),name);
   if(resolve(filename).startsWith(resolve('src/extensions')+sep)&&destination.startsWith(resolve('src/adapters')+sep))issues.push('Vocabulary cannot depend on adapters');
-  if(!destination.startsWith(resolve('src')+sep)&&destination!==resolve('spec/extensions/visual/package.json'))issues.push('Forbidden private import: '+name);
+  if(!destination.startsWith(resolve('src')+sep)&&![resolve('spec/extensions/visual/package.json'),resolve('spec/extensions/visual/1.0.0/package.json')].includes(destination))issues.push('Forbidden private import: '+name);
  }
  return issues;
 }

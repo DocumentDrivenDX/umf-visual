@@ -8,7 +8,7 @@ identity mappings and explicit losses for DOT, Mermaid and Lini.
 The intended model is a superset of common visual types and properties exposed
 by these tools, serving both interchange and generic authoring by semantic
 producers such as UMF schemas: `semantic producer → umf.visual → native targets`.
-The current 1.0.0 vocabulary and adapter profiles are an initial subset.
+The released 1.0.0 vocabulary and native adapter profiles are an initial subset; explicit 1.1.0 vocabulary corrections are described below.
 Common shapes, layout/style, ports and richer native relationships still need
 first-class model/mapping work; retained source is a preservation mechanism,
 not a replacement for that typed model.
@@ -23,7 +23,7 @@ The package is `@documentdrivendx/umf-visual` 0.1.0, distributed as a
 It is not published to npm.
 
 Browse the [umf.visuals catalog](https://documentdrivendx.github.io/umf-visual/).
-The vocabulary remains `umf.visual` 1.0.0 and the core envelope 0.10.0.
+Default authoring remains `umf.visual` 1.0.0 and the core envelope 0.10.0. This branch adds opt-in vocabulary 1.1.0 for a future package 0.2.0.
 Core comes from the pinned released SDK `umf-v0.5.7`; only its public APIs are used.
 The implementation is handwritten; generated UMF-authored model authority remains
 future work.
@@ -105,12 +105,8 @@ record native text limits.
 The build produces browser-compatible ESM and declarations with core external.
 CI exercises source, packed consumers, native engines, Chromium and the catalog.
 [HELIX artifacts](docs/helix/README.md) govern preservation and support claims.
-The #62 review is applied: more than fifteen nodes is advice to split
-(`VISUAL_SPLIT`), with `VISUAL_SIZE` kept as a resource limit; entity references
-carry exact multiplicities and stable field ids; dates keep years below 100. The
-schema is the single authored definition: `bun run generate` writes the manifest
-schema and the TypeScript shapes, and `bun run check:source` fails when they are
-stale. Authoring it in `umf.metamodel` waits for UMF to publish its compiler.
+The inherited 15-node rule, restricted IDs, four conventional cardinalities and
+early-year date conversion issue remain visible in the extraction record and frozen 1.0.0 behavior. Explicit 1.1.0 corrects dates, adds exact multiplicities and changes the node cap; restricted IDs and native profile limits remain.
 
 TypeScript declaration evidence uses `moduleResolution: Bundler`. A packed
 NodeNext consumer cannot resolve inherited validation fields because SDK 0.5.7
@@ -148,3 +144,16 @@ JSON and optional opaque native browser-copy content, with qualified fidelity
 and shared-model gaps recorded in the guide.
 
 See the [Miro integration guide](docs/helix/04-build/miro-integration.md) for the runnable app, versioned scope and native evidence.
+
+## Versioned review fixes
+
+David's #62 review fixes are introduced as `umf.visual` 1.1.0 because package
+v0.1.0 already published the 1.0.0 contract. The released schema, manifest,
+validator and fixture bytes remain available unchanged. Both versions register
+together; default authoring/public manifest aliases retain 1.0.0. Use the third
+`createVisualDocument` argument `1.1.0` or explicit `upgradeVisualDocument` to
+opt into early-year date corrections, 500-node resource bounds with split advice,
+exact multiplicities and stable field IDs. Native companions remain unchanged;
+a changed vocabulary declaration is a source revision change and cannot replay
+stale receipts. The current standalone schema generates the 1.1 manifest and
+TypeScript shapes; generation freshness is checked without writing.

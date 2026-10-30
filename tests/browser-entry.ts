@@ -1,5 +1,5 @@
 import {exerciseMiroBrowser} from './miro-browser.js';
-import {readVisualDocument,writeVisualDocument,inspectVisual,editVisual,getVisual,exportVisual,importVisual} from '../src';
+import {readVisualDocument,writeVisualDocument,inspectVisual,editVisual,getVisual,exportVisual,importVisual,createVisualDocument,upgradeVisualDocument} from '../src';
 import {runInterchangeBrowserChecks} from './interchange/browser-checks';
 declare global {interface Window {visualResult?:unknown;}}
 try{
@@ -19,6 +19,20 @@ try{
  const before=JSON.stringify(doc);
  const edited=editVisual(doc,v=>({...v,takeaway:'Browser consumer edit'}));
  if(getVisual(edited).takeaway!=='Browser consumer edit'||JSON.stringify(doc)!==before)throw Error('Atomic edit failure');
+ const upgraded=upgradeVisualDocument(doc);
+ if(upgraded.vocabularies['umf.visual']?.version!=='1.1.0'||doc.vocabularies['umf.visual']?.version!=='1.0.0'||!inspectVisual(upgraded).complete)throw Error('Version upgrade failed');
+ const nodes=Array.from({length:16},(_,i)=>({id:'n'+i,label:'N'+i}));
+ const big={id:'browser-large',kind:'flow' as const,form:'network' as const,question:'How large?',nodes};
+ let refused=false;try{createVisualDocument(big);}catch{refused=true;}
+ if(!refused)throw Error('Legacy size semantics changed');
+ const modern=createVisualDocument(big,undefined,'1.1.0');
+ if(!inspectVisual(modern).valid||!inspectVisual(modern).advice.some(d=>d.code==='VISUAL_SPLIT'))throw Error('Opt-in size behavior failed');
+ const early=createVisualDocument({id:'early',kind:'timeline',form:'milestones',question:'When?',timeline:{scale:{kind:'date'},events:[{id:'leap',label:'Leap',at:'0000-02-29'}]}},undefined,'1.1.0');
+ if(!inspectVisual(early).valid)throw Error('Modern early-year date failed');
+ const entity=createVisualDocument({id:'browser-entity',kind:'structure',form:'entities',question:'What refers?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{id:'stable',name:'key'}]},{node:'b',fields:[{name:'fk'}]}],references:[{id:'ref',from:{node:'a',fieldId:'stable'},to:{node:'b',field:'fk'},fromMultiplicity:{min:1,max:1},toMultiplicity:{min:2,max:5,text:'2..5'}}]}},undefined,'1.1.0');
+ if(!inspectVisual(entity).complete)throw Error('Modern entity semantics incomplete');
+ entity.vocabularies['umf.visual']!.version='1.0.0';
+ if(inspectVisual(entity).complete)throw Error('Legacy validator interpreted new fields');
  const wave2=[];
  for(const input of fixtures){
   const doc=readVisualDocument(JSON.stringify(input),'json'),visual=getVisual(doc);
@@ -39,5 +53,5 @@ try{
  }
  if(wave2.length!==16)throw Error('Expected 11 grouped flows and 5 sequences in browser');
  const interchange=await runInterchangeBrowserChecks();
- window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,wave2,interchange,miro:await exerciseMiroBrowser()};
+ window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true},wave2,interchange,miro:await exerciseMiroBrowser()};
 }catch(error){window.visualResult={ok:false,error:String(error)};}

@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
+import {visualRegistry as legacyRegistry, inspectVisual as inspectLegacy} from './legacy-1-0.js';
+import legacyManifest from '../../../spec/extensions/visual/1.0.0/package.json';
 import manifest from '../../../spec/extensions/visual/package.json';
 import {Registry,validateDocument,copyJson,readDocument,writeDocument,UmfError,pointer,type Document,type Json,type Diagnostic,type ExtensionPackage,type Validation} from '@umf/core';
 import type {VisualDefs,VisualShape} from './generated';
 export const VISUAL_EXTENSION='umf.visual';
+// Preserve released authoring defaults; 1.1.0 is an explicit opt-in.
 export const VISUAL_VERSION='1.0.0';
-export const visualPackage=manifest as unknown as ExtensionPackage;
+export const LATEST_VISUAL_VERSION='1.1.0';
+export type VisualVersion=typeof VISUAL_VERSION|typeof LATEST_VISUAL_VERSION;
+export const visualPackage=legacyManifest as unknown as ExtensionPackage;
+export const latestVisualPackage=manifest as unknown as ExtensionPackage;
 export type {VisualDefs,VisualShape} from './generated';
 // The shapes below are generated from the schema (scripts/generate.ts); these names are the public API.
 export type Visual=VisualShape;
@@ -311,21 +317,21 @@ function advise(payload:unknown):Diagnostic[]{
  if(Array.isArray(participants)&&participants.length>ADVISED_PARTICIPANTS)out.push({code:'VISUAL_DENSITY',path:at+'/sequence/participants',message:participants.length+' participants; a sequence reads best with eight or fewer',severity:'warning'});
  return out;
 }
-export function visualRegistry():Registry{return new Registry().register(visualPackage,semantics);}
+export function visualRegistry():Registry{return legacyRegistry().register(latestVisualPackage,semantics);}
 // Registration compiles the payload schema; the API reuses one registry, which nothing mutates after registration.
 let shared:Registry|undefined;
 const registry=()=>shared??=visualRegistry();
-export function inspectVisual(document:Document):VisualInspection{return {...validateDocument(document,registry()),advice:advise(document.extensions?.[VISUAL_EXTENSION])};}
+export function inspectVisual(document:Document):VisualInspection{return {...validateDocument(document,registry()),advice:document.vocabularies[VISUAL_EXTENSION]?.version===VISUAL_VERSION?inspectLegacy(document).advice:advise(document.extensions?.[VISUAL_EXTENSION])};}
 function requireProfile(doc:Document):void {
  const payload=doc.extensions?.[VISUAL_EXTENSION];
- if(doc.vocabularies[VISUAL_EXTENSION]?.version!==VISUAL_VERSION||!payload||typeof payload!=='object'||Array.isArray(payload))throw new UmfError('VISUAL_PROFILE','Expected umf.visual '+VISUAL_VERSION+' and a document-level visual');
+ if(![VISUAL_VERSION,LATEST_VISUAL_VERSION].includes(doc.vocabularies[VISUAL_EXTENSION]?.version??'')||!payload||typeof payload!=='object'||Array.isArray(payload))throw new UmfError('VISUAL_PROFILE','Expected umf.visual 1.0.0 or 1.1.0 and a document-level visual');
 }
 function requireValid(doc:Document):void {const result=inspectVisual(doc);if(!result.valid)throw new UmfError('VISUAL_DOCUMENT',JSON.stringify(result.diagnostics));}
 export function readVisualDocument(text:string,format:'json'|'yaml'='yaml'):Document{const doc=readDocument(text,format);requireProfile(doc);requireValid(doc);return doc;}
 export function writeVisualDocument(doc:Document,format:'json'|'yaml'='yaml'):string{requireProfile(doc);requireValid(doc);return writeDocument(doc,format);}
-export function createVisualDocument(visual:Visual,id='visual:'+visual.id):Document{
- const doc={umf:visualPackage.coreVersion,id,vocabularies:{[VISUAL_EXTENSION]:{version:VISUAL_VERSION}},extensions:{[VISUAL_EXTENSION]:copyJson(visual as unknown as Json)},modules:[]} as unknown as Document;
- requireValid(doc);return doc;
+export function createVisualDocument(visual:Visual,id='visual:'+visual.id,version:VisualVersion=VISUAL_VERSION):Document{
+ const doc={umf:visualPackage.coreVersion,id,vocabularies:{[VISUAL_EXTENSION]:{version}},extensions:{[VISUAL_EXTENSION]:copyJson(visual as unknown as Json)},modules:[]} as unknown as Document;
+ requireProfile(doc);requireValid(doc);return doc;
 }
 export function getVisual(doc:Document):Visual{requireProfile(doc);return copyJson(doc.extensions![VISUAL_EXTENSION]!) as unknown as Visual;}
 export function editVisual(doc:Document,update:(visual:Visual)=>Visual):Document{
@@ -337,4 +343,12 @@ export function editVisual(doc:Document,update:(visual:Visual)=>Visual):Document
  const checked=validateDocument(result,registry());
  if(!checked.valid||!checked.complete)throw new UmfError('INVALID_EDIT',JSON.stringify(checked.diagnostics));
  return result;
+}
+
+/** Explicit opt-in to corrected 1.1 semantics; never rewrites source or native companions. */
+export function upgradeVisualDocument(document:Document):Document {
+ requireProfile(document);
+ const result=copyJson(document) as unknown as Document;
+ result.vocabularies[VISUAL_EXTENSION]={...result.vocabularies[VISUAL_EXTENSION],version:LATEST_VISUAL_VERSION};
+ requireValid(result);return result;
 }

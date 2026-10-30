@@ -12,7 +12,8 @@
     "Local public barrel exports only visual APIs."
   ],
   "knownIssues": [
-    "General interchange profiles and authoring the definition in umf.metamodel are planned, not implemented; the schema is the authored definition until UMF publishes its compiler."
+    "General interchange profiles and authoring the definition in umf.metamodel are planned, not implemented; the schema is the authored definition until UMF publishes its compiler.",
+    "Released vocabulary 1.0.0 retains its fifteen-node limit and early-year date behavior. Explicit 1.1.0 fixes these and interprets exact multiplicities and stable field ids; native adapter subsets remain separately bounded."
   ],
   "originalFileSha256": {
     "fixtures/visual/forms/helix-authoring-state.json": "695db96052209c59f803c88eea456f30bf750ccdc9e44f8e944a5057d0ca24c8",

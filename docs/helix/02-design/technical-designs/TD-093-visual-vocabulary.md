@@ -19,7 +19,7 @@ ddx:
 
 ## Scope
 
-Implement `umf.visual` 1.0.0 as CONTRACT-083 defines it: package, payload schema, semantic
+Implement opt-in `umf.visual` 1.1.0 as CONTRACT-083 defines it: package, payload schema, semantic
 validation, typed TypeScript API, the example set and tests. Rendering is out of scope.
 
 ## Technical Approach
@@ -135,3 +135,7 @@ New vocabulary; removing it touches no other extension.
 
 Renderers may need fields M3 reveals; those are minor versions. The id pattern admits
 underscores, which the PRD's `[a-z0-9-]+` did not; architecture-model ids require them.
+
+## Versioned extraction integration
+
+Package v0.1.0 already shipped vocabulary 1.0.0. Freeze its manifest, schema and validator in versioned assets; register both versions. Preserve default creation, native import receipts and public schema aliases at 1.0.0. Expose explicit 1.1.0 creation and copy-on-upgrade validation. See CONTRACT-083 for the version boundary.

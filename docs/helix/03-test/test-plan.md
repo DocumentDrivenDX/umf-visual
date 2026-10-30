@@ -19,7 +19,7 @@ ddx:
 **Goal**: prove that extracting #62 preserves vocabulary behavior while replacing
 private core imports with a released SDK and independently installable package.
 US-094 adds bounded native interchange, retained companions and explicit loss.
-**Out of scope**: rendering quality, authoring the definition in `umf.metamodel`, arbitrary native
+**Out of scope**: rendering quality, generated model authority, arbitrary native
 syntax and broad runtime/version equivalence beyond CONTRACT-086.
 
 ## Framework Selection & Cost
@@ -40,8 +40,7 @@ changed distribution and runtime boundaries. No coverage percentage is claimed.
 1. Original vocabulary tests pass using released @umf/core.
 2. Build and declarations support an installed consumer with no sibling checkout.
 3. Chromium validates/round-trips the corpus and performs an isolated edit.
-4. Outputs generated from the schema are current, checked without writing, and
-   portable source has no private core imports.
+4. Generated outputs match the authored schema without writing; portable source has no private core imports.
 5. US-094 supported mappings retain identity and meaning; strict policy refuses losses.
 6. The whole document/source companion survives serialization; stale or forged replay refuses.
 7. Malformed and oversized inputs refuse atomically, retaining source.
@@ -51,9 +50,7 @@ changed distribution and runtime boundaries. No coverage percentage is claimed.
 
 | AC class / source | Story Test Plan | Primary Layer | Why this layer |
 | --- | --- | --- | --- |
-| US-093-AC1 through AC5 | Original named tests, amended for the review changes | Bun integration | Validation, unknowns, edits, advice and early-year dates |
-| US-093-AC6 | Exact multiplicities and field ids | Bun integration | Reference semantics and round trips |
-| US-093-AC7 | Generated outputs and schema mutation | Bun unit | Single authored definition |
+| US-093-AC1 through AC5 | Original named tests retained | Bun integration | Existing validation, unknowns and edit contracts |
 | Public dependency/distribution | Extraction plan | Packed consumer integration | Changed package boundary |
 | Browser portability | Extraction plan | Chromium integration | Changed independent browser build |
 | Forbidden dependencies | Extraction plan | Boundary tests | Direct negative controls |
@@ -63,6 +60,7 @@ changed distribution and runtime boundaries. No coverage percentage is claimed.
 
 ## Secondary Paths (P1-P2)
 
+Recheck early-year date handling before claiming complete date semantics.
 Add versioned native parser/compiler tests when adapters exist.
 
 ## Test Data Strategy
@@ -73,8 +71,8 @@ available here; no regeneration claim is made.
 
 ## Known Gaps
 
-The definition is authored as JSON Schema, not yet in `umf.metamodel`; semantic rules
-stay handwritten and are listed in CONTRACT-083 (Authority). Native interchange claims are limited to CONTRACT-086 subsets and recorded
+Frozen 1.0.0 retains its early-year date defect, 15-node validity limit and narrow
+cardinality/identity representations; opt-in 1.1.0 corrects these. The authored schema awaits UMF metamodel compiler support. Native interchange claims are limited to CONTRACT-086 subsets and recorded
 native engine versions. Layout equivalence and all other Mermaid families remain
 unqualified. Native parser acceptance does not establish semantic equivalence.
 No hosted CI result is inferred from local execution. Source import checks do
@@ -147,3 +145,16 @@ Remaining loss diagnostics, especially Lini field hints, status/role, grouping,
 layout and unimplemented forms, stay explicit. A sidecar alone cannot justify
 removing a projection-loss report. Adapter profile versions change independently
 of the unchanged visual vocabulary version.
+
+## Versioned review fixes
+
+David's #62 review fixes are introduced as `umf.visual` 1.1.0 because package
+v0.1.0 already published the 1.0.0 contract. The released schema, manifest,
+validator and fixture bytes remain available unchanged. Both versions register
+together; default authoring/public manifest aliases retain 1.0.0. Use the third
+`createVisualDocument` argument `1.1.0` or explicit `upgradeVisualDocument` to
+opt into early-year date corrections, 500-node resource bounds with split advice,
+exact multiplicities and stable field IDs. Native companions remain unchanged;
+a changed vocabulary declaration is a source revision change and cannot replay
+stale receipts. The current standalone schema generates the 1.1 manifest and
+TypeScript shapes; generation freshness is checked without writing.

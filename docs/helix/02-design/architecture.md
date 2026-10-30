@@ -108,10 +108,10 @@ compares its derived document with the current input.
 | --- | --- | --- | --- |
 | Independent repository/package | User-authorized | Separate lifecycle from core and rendering | Consumer migrations |
 | Use SDK 0.5.7 public release | Bootstrap choice | Avoid private source dependency | Expand version matrix through evidence |
-| Retain #62 semantic baseline | Extraction scope, then amended | Make movement reviewable | #62 review applied 2026-10-30: early-year dates, size as advice, exact multiplicities and field ids |
-| Schema as the single authored definition | Adopted | One source for the manifest schema and TypeScript shapes, checked without writing | Move the definition into `umf.metamodel` once UMF publishes its compiler |
+| Retain released 1.0.0 semantic baseline | Compatibility | Make movement reviewable | Explicit 1.1.0 fixes; no silent default change |
+| Schema as authored definition | Adopted for 1.1.0 | Generate embedded schema and TypeScript shapes; check freshness | Await published UMF metamodel compiler |
 | Bounded native adapters | CONTRACT-086 | Explicit native scope and preservation | US-094 and native/browser evidence |
-| UMF-authored model | Planned | Single authority | Separate model-generation change, once UMF publishes its metamodel compiler |
+| UMF-authored model | Planned | Single authority | Separate model-generation change |
 
 
 ## Catalog Publication Boundary
@@ -153,7 +153,7 @@ model changes; no completed common-model or producer-generator claim is implied.
 The [source inventory](../00-discover/current-state-inventory-visual-language.md)
 finds that current 1.0.0 mixes reusable elements with architectural-communication
 choices: required question, built/placeholder/decided statuses, own/platform/
-external roles and, until the #62 review (2026-10-30) made it advice, a hard 15-node validity cap. Its seven mutually exclusive
+external roles and a hard 15-node validity cap. Its seven mutually exclusive
 root kinds specialize composition; groups, participants and timeline lanes do
 not form one uniform generic scene model. Fifty fixtures and three canaries are
 example instances, not 53 definitions of a visual language.
@@ -167,9 +167,21 @@ producer counterexamples, not a silent rewrite of existing fields. Shared
 concepts may be reused or composed without assuming all tool-specific meanings
 are interchangeable. Native refinements retain their own identity and provenance.
 
-Version 1.0.0 keeps its present contracts and validation, as amended by the #62
-review (2026-10-30). A future model/profile
+Version 1.0.0 keeps its present contracts and validation. A future model/profile
 contract must specify compatibility, typed extension ownership and migration of
 existing documents before changing those rules. The microsite's primary language
 reference derives schema properties/$defs and actual visualForms declarations;
 its secondary example gallery demonstrates current mappings and their limits.
+
+## Versioned review fixes
+
+David's #62 review fixes are introduced as `umf.visual` 1.1.0 because package
+v0.1.0 already published the 1.0.0 contract. The released schema, manifest,
+validator and fixture bytes remain available unchanged. Both versions register
+together; default authoring/public manifest aliases retain 1.0.0. Use the third
+`createVisualDocument` argument `1.1.0` or explicit `upgradeVisualDocument` to
+opt into early-year date corrections, 500-node resource bounds with split advice,
+exact multiplicities and stable field IDs. Native companions remain unchanged;
+a changed vocabulary declaration is a source revision change and cannot replay
+stale receipts. The current standalone schema generates the 1.1 manifest and
+TypeScript shapes; generation freshness is checked without writing.

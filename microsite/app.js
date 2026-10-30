@@ -70,7 +70,7 @@ function renderLanguageReference() {
   const kinds = language.forms.kinds;
   const formCount = kinds.reduce((sum, entry) => sum + entry.forms.length, 0);
   $('kind-count').textContent = String(kinds.length).padStart(2, '0'); $('form-count').textContent = String(formCount).padStart(2, '0');
-  $('language-provenance').textContent = `Vocabulary schema · ${language.schema.sourcePath} · SHA-256 ${language.schema.sourceSha256}\nKind and form declarations · ${language.forms.sourcePath} · SHA-256 ${language.forms.sourceSha256}`;
+  $('language-provenance').textContent = `Vocabulary schema ${schema.$id || "(version unavailable)"} · examples retain their declared 1.0.0 version; creation defaults remain 1.0.0 · ${language.schema.sourcePath} · SHA-256 ${language.schema.sourceSha256}\nKind and form declarations · ${language.forms.sourcePath} · SHA-256 ${language.forms.sourceSha256}`;
   const required = new Set(schema.required || []);
   appendSchemaRows($('document-fields'), schema, ['id','kind','form','title','question','takeaway','audience','source','omissions'], required);
   appendSchemaRows($('shared-elements'), schema, ['groups','nodes','edges','steps'], required);

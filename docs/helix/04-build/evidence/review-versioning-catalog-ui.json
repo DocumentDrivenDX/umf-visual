@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "language": {
+    "kinds": 7,
+    "forms": 22
+  },
+  "examples": {
+    "formFixtures": 12,
+    "secondaryInstances": 41,
+    "totalInstances": 53
+  },
+  "checks": [
+    "schema-backed language reference",
+    "all form examples and sample coverage profiles load",
+    "search by ID",
+    "UMF example JSON source fidelity",
+    "deep-link target selection and restoration",
+    "keyboard target navigation and roving tab stop",
+    "all 72 native SVGs load in-browser with positive dimensions",
+    "schema-backed language reference and separate kind/form counts",
+    "native render counts remain separate from semantic loss counts",
+    "desktop catalogue screenshot",
+    "legacy sample deep link resolves to current ID and native SVG",
+    "target/status and origin filters",
+    "visible accessible profile status matrix",
+    "reported-loss display",
+    "unsupported profile display",
+    "native SVG detail render loads and scales within preview",
+    "broken SVG asset shows an explicit error",
+    "empty state and clear filters",
+    "native source and UMF JSON downloads",
+    "catalog fetch failure state",
+    "375px mobile layout"
+  ],
+  "screenshots": [
+    ".cache/catalog-ui-desktop.png",
+    ".cache/catalog-ui-detail.png",
+    ".cache/catalog-ui-render.png",
+    ".cache/catalog-ui-mobile.png"
+  ],
+  "browser": "153.0.8010.12",
+  "errors": []
+}

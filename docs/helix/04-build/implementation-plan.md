@@ -49,8 +49,7 @@ See extraction-evidence.md for completed extraction gates. FEAT-035, US-094,
 CONTRACT-086, TD-094 and TP-001 govern the authorized native interchange increment.
 Native qualification receipts must identify new executed source and runtime
 versions; extraction receipts do not establish adapter support. Generated UMF
-model authority and generic constraint coverage remain separate follow-ups. The #62 review changes (early-year dates, size as
-advice, exact multiplicities, field ids, generated shapes) are applied. Adopt code-shape ratchets before growing the inherited module.
+model authority and generic constraint coverage remain separate follow-ups. The versioned 1.1.0 review fixes correct dates, size advice, exact multiplicities and field ids with frozen 1.0.0 regression checks. Adopt code-shape ratchets before growing the inherited module.
 
 ## Optional Tracking
 
@@ -221,6 +220,18 @@ not imply identical caption placement. Lini field hints remain unmapped because
 there is no current field-detail concept. Broader common-model/profile evolution
 continues as separately governed work identified by the source audit.
 
+## Versioned review fixes
+
+David's #62 review fixes are introduced as `umf.visual` 1.1.0 because package
+v0.1.0 already published the 1.0.0 contract. The released schema, manifest,
+validator and fixture bytes remain available unchanged. Both versions register
+together; default authoring/public manifest aliases retain 1.0.0. Use the third
+`createVisualDocument` argument `1.1.0` or explicit `upgradeVisualDocument` to
+opt into early-year date corrections, 500-node resource bounds with split advice,
+exact multiplicities and stable field IDs. Native companions remain unchanged;
+a changed vocabulary declaration is a source revision change and cannot replay
+stale receipts. The current standalone schema generates the 1.1 manifest and
+TypeScript shapes; generation freshness is checked without writing.
 
 ## Second loss-reduction wave
 
