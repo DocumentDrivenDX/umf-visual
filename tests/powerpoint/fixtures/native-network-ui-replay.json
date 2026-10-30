@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "sourcePath": "fixtures/integrations/complex-miro/common/network-16x24.json",
+  "actions": [
+    {"op": "setText", "shape": "umf-node-bjAx", "value": "Native edited 01"},
+    {"op": "setBold", "shape": "umf-node-bjAx"},
+    {"op": "moveRight", "shape": "umf-node-bjAx", "deltaEmu": 21516},
+    {"op": "retarget", "edge": "e01", "endpoint": "endCxn", "node": "n03"}
+  ],
+  "expectedChangePaths": [
+    "/extensions/umf.visual/edges/0/to",
+    "/extensions/umf.visual/nodes/0/label"
+  ],
+  "expected": {
+    "nodeLabel": "Native edited 01",
+    "edgeTo": "n03",
+    "nodeBold": true,
+    "nativeGeometryDeltaEmu": {"x": 21516, "y": 0}
+  }
+}

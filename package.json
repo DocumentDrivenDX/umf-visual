@@ -1,6 +1,6 @@
 {
   "name": "@documentdrivendx/umf-visual",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "UMF visual vocabulary and format interchange library",
   "license": "MIT OR Apache-2.0",
@@ -22,7 +22,23 @@
       "import": "./dist/miro.js"
     },
     "./schema/1.1.0": "./spec/extensions/visual/schema.json",
-    "./manifest/1.1.0": "./spec/extensions/visual/package.json"
+    "./manifest/1.1.0": "./spec/extensions/visual/package.json",
+    "./powerpoint": {
+      "types": "./dist/adapters/powerpoint/index.d.ts",
+      "import": "./dist/powerpoint.js"
+    },
+    "./google-slides": {
+      "types": "./dist/adapters/google-slides/index.d.ts",
+      "import": "./dist/google-slides.js"
+    },
+    "./miro/editable": {
+      "types": "./dist/adapters/miro/editable/index.d.ts",
+      "import": "./dist/miro-editable.js"
+    },
+    "./reconciliation": {
+      "types": "./dist/adapters/reconciliation/index.d.ts",
+      "import": "./dist/reconciliation.js"
+    }
   },
   "files": [
     "dist",
@@ -57,7 +73,9 @@
     "test:native:layout": "bun scripts/native-lini-visual-layout.ts"
   },
   "dependencies": {
-    "@umf/core": "https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz"
+    "@umf/core": "https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz",
+    "fflate": "0.8.2",
+    "saxes": "6.0.0"
   },
   "devDependencies": {
     "@types/bun": "1.4.2",

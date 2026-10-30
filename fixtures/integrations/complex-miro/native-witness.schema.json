@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:umf:visual:miro:synthetic-witness:1",
+  "title": "Synthetic Miro-style witness fixture schema",
+  "description": "Fixture-owned witness format for authored topology and native-only details. This is not a Miro API or board serialization schema.",
+  "type": "object",
+  "required": ["format", "authorship", "caseId", "scope", "items", "notes"],
+  "properties": {
+    "format": {"const": "umf.visual.miro.synthetic-witness/1"},
+    "authorship": {"const": "synthetic-fixture"},
+    "caseId": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "scope": {"type": "string", "minLength": 1},
+    "items": {"type": "array", "items": {"oneOf": [
+      {"$ref": "#/$defs/node"}, {"$ref": "#/$defs/connector"},
+      {"$ref": "#/$defs/group"}, {"$ref": "#/$defs/frame"},
+      {"$ref": "#/$defs/freeText"}, {"$ref": "#/$defs/opaqueStencil"}
+    ]}, "minItems": 1},
+    "notes": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "id": {"type": "string", "pattern": "^syn-[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "point": {"type": "object", "required": ["x", "y"], "properties": {"x": {"type": "number"}, "y": {"type": "number"}}, "additionalProperties": false},
+    "geometry": {"type": "object", "required": ["x", "y", "width", "height"], "properties": {"x": {"type": "number"}, "y": {"type": "number"}, "width": {"type": "number", "exclusiveMinimum": 0}, "height": {"type": "number", "exclusiveMinimum": 0}}, "additionalProperties": false},
+    "node": {"type": "object", "required": ["id", "kind", "label", "symbol", "geometry"], "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "node"}, "label": {"type": "string", "minLength": 1}, "symbol": {"type": "string", "pattern": "^synthetic\\.symbol\\."}, "geometry": {"$ref": "#/$defs/geometry"}, "parentId": {"$ref": "#/$defs/id"}}, "additionalProperties": false},
+    "connector": {"type": "object", "required": ["id", "kind", "from", "to", "route", "attachment"], "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "connector"}, "from": {"$ref": "#/$defs/id"}, "to": {"$ref": "#/$defs/id"}, "caption": {"type": "string"}, "route": {"enum": ["straight", "curved"]}, "attachment": {"type": "object", "required": ["from", "to"], "properties": {"from": {"type": "string", "minLength": 1}, "to": {"type": "string", "minLength": 1}}, "additionalProperties": false}, "controlPoints": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 2}}, "additionalProperties": false},
+    "group": {"type": "object", "required": ["id", "kind", "label", "geometry", "members"], "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "group"}, "label": {"type": "string", "minLength": 1}, "geometry": {"$ref": "#/$defs/geometry"}, "members": {"type": "array", "items": {"$ref": "#/$defs/id"}, "minItems": 1}}, "additionalProperties": false},
+    "frame": {"type": "object", "required": ["id", "kind", "title", "geometry", "memberIds"], "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "frame"}, "title": {"type": "string", "minLength": 1}, "geometry": {"$ref": "#/$defs/geometry"}, "memberIds": {"type": "array", "items": {"$ref": "#/$defs/id"}, "minItems": 1}}, "additionalProperties": false},
+    "freeText": {"type": "object", "required": ["id", "kind", "text", "geometry"], "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "free-text"}, "text": {"type": "string", "minLength": 1}, "geometry": {"$ref": "#/$defs/geometry"}}, "additionalProperties": false},
+    "opaqueStencil": {"type": "object", "required": ["id", "kind", "symbolToken", "geometry", "opaquePayload"], "properties": {"id": {"$ref": "#/$defs/id"}, "kind": {"const": "opaque-stencil"}, "symbolToken": {"type": "string", "pattern": "^synthetic\\.opaque\\."}, "geometry": {"$ref": "#/$defs/geometry"}, "opaquePayload": {"type": "object", "required": ["mediaType", "encoding", "data"], "properties": {"mediaType": {"const": "application/vnd.umf.synthetic-stencil+json"}, "encoding": {"const": "base64"}, "data": {"type": "string", "contentEncoding": "base64"}}, "additionalProperties": false}}, "additionalProperties": false}
+  }
+}

@@ -7,13 +7,14 @@
   <meta name="description" content="A reference for the typed umf.visual language, with sample documents and bounded DOT, Mermaid, and Lini interchange evidence.">
   <title>umf.visuals — language reference</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./integrations.css">
   <script type="module" src="./app.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#language">Skip to language reference</a>
   <header class="topbar">
     <a class="brand" href="./" aria-label="umf.visuals home"><span class="brand-mark" aria-hidden="true">u<span>·</span>v</span><span>umf.visuals</span></a>
-    <nav aria-label="Primary"><a href="#language" class="active">Language</a><a href="#examples">Examples</a><a href="https://github.com/DocumentDrivenDX/umf-visual" target="_blank" rel="noreferrer">Repository <span aria-hidden="true">↗</span></a></nav>
+    <nav aria-label="Primary"><a href="#language" class="active">Language</a><a href="#examples">Examples</a><a href="#integrations">Integrations</a><a href="https://github.com/DocumentDrivenDX/umf-visual" target="_blank" rel="noreferrer">Repository <span aria-hidden="true">↗</span></a></nav>
     <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Use dark color theme" title="Toggle color theme">◐</button>
   </header>
 
@@ -81,6 +82,9 @@
           <div class="load-error" id="load-error" hidden role="alert">The catalogue could not be loaded. Try refreshing this page.</div>
         </div>
       </div>
+    </section>
+    <section class="integration-section" id="integrations" aria-labelledby="integration-title">
+      <div id="integration-catalog" aria-live="polite"><p class="integration-loading">Loading synthetic integration evidence…</p></div>
     </section>
     <footer><span class="brand-mark small" aria-hidden="true">u<span>·</span>v</span><span>UMF visual language reference</span><a href="https://github.com/DocumentDrivenDX/umf-visual" target="_blank" rel="noreferrer">Source and evidence <span aria-hidden="true">↗</span></a><span class="footer-version" id="catalog-version">CATALOGUE V—</span></footer>
   </main>

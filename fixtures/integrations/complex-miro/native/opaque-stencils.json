@@ -1,0 +1,44 @@
+{
+  "format": "umf.visual.miro.synthetic-witness/1",
+  "authorship": "synthetic-fixture",
+  "caseId": "opaque-stencils",
+  "scope": "Topology and native-only fields authored for this corpus; not a Miro API capture or serialized board.",
+  "items": [
+    {
+      "id": "syn-opaque-a",
+      "kind": "opaque-stencil",
+      "symbolToken": "synthetic.opaque.stencil-a",
+      "geometry": {
+        "x": 100,
+        "y": 100,
+        "width": 92,
+        "height": 70
+      },
+      "opaquePayload": {
+        "mediaType": "application/vnd.umf.synthetic-stencil+json",
+        "encoding": "base64",
+        "data": "eyJub3RlIjoic3ludGhldGljLW9wYXF1ZS1wYXlsb2FkLWEifQ=="
+      }
+    },
+    {
+      "id": "syn-opaque-b",
+      "kind": "opaque-stencil",
+      "symbolToken": "synthetic.opaque.stencil-b",
+      "geometry": {
+        "x": 320,
+        "y": 100,
+        "width": 92,
+        "height": 70
+      },
+      "opaquePayload": {
+        "mediaType": "application/vnd.umf.synthetic-stencil+json",
+        "encoding": "base64",
+        "data": "eyJub3RlIjoic3ludGhldGljLW9wYXF1ZS1wYXlsb2FkLWIifQ=="
+      }
+    }
+  ],
+  "notes": [
+    "Opaque bytes and synthetic token identities are preserved without interpreting a stencil meaning.",
+    "No common visual document is authored: creating a node, role, edge, or question would assert semantics unavailable from these opaque records."
+  ]
+}

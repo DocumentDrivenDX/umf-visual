@@ -1,0 +1,66 @@
+{
+  "observedOn": "2026-10-30",
+  "kind": "sanitized-live-host-execution-evidence",
+  "profile": "umf.visual.google-slides.network/1",
+  "modelVersion": "1.0.0",
+  "source": {
+    "fixtureId": "process-documents-store",
+    "path": "fixtures/integrations/complex-miro/common/process-documents-store.json",
+    "sha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520",
+    "adapterSourceDigestSha256": "402a28ffa2ed4925240a19c854afe96f362581128086adf1722dcf90fbb66c8d"
+  },
+  "capture": {
+    "originalSlides": 1,
+    "exportedSlides": 2,
+    "originalSlideCanonicalEquality": true,
+    "ownedNativeElements": 12,
+    "exportBatchRequests": 37,
+    "exportReplies": 37,
+    "writeControlRevisionMatchedBeforeCapture": true
+  },
+  "nativeUiEdits": {
+    "visibleLabelChanges": 1,
+    "uniformBoldStyleChange": true,
+    "rightwardNodeMovement": true,
+    "connectorEndpointChanges": 1,
+    "importSemanticPaths": [
+      "/extensions/umf.visual/edges/0/to",
+      "/extensions/umf.visual/nodes/0/label"
+    ],
+    "connectorTargetMappedFromNodeIndex": 1,
+    "connectorTargetMappedToNodeIndex": 2
+  },
+  "umfUpdate": {
+    "requests": 3,
+    "expectedBindingRevision": 1,
+    "semanticPaths": [
+      "/extensions/umf.visual/nodes/0/label"
+    ],
+    "readbackVerified": true,
+    "finalBindingRevision": 2
+  },
+  "nativePreservation": {
+    "originalSlideUnchanged": true,
+    "postUiTextStylesPreservedByUmfUpdate": true,
+    "postUiTransformsPreservedByUmfUpdate": true,
+    "postUiConnectorAttachmentsPreservedByUmfUpdate": true,
+    "connectionSiteIndex": "absent from captured endpoint objects; no site-index preservation claim is made"
+  },
+  "executionBoundary": {
+    "actualGoogleSlidesWritesObserved": true,
+    "apiWrapperTraceReplayVerified": true,
+    "adapterDirectTransportEndToEnd": false,
+    "credentialsOrSdkBundled": false
+  },
+  "privacy": {
+    "privatePresentationIdentifiersAndURLsOmitted": true,
+    "revisionTokensOmitted": true,
+    "rawNativeSnapshotsOmitted": true,
+    "labelsOmittedExceptSyntheticUpdateCanary": true
+  },
+  "limits": [
+    "One Visual 1.0.0 flow/network document and one owned slide.",
+    "The retained capture set proves the listed SDK-visible fields and edits only; it is not a whole-presentation fidelity or backup guarantee.",
+    "The host wrapper performed live Google Slides writes; adapter update logic was verified with trace replay injection, not by injecting its transport directly into the live account."
+  ]
+}

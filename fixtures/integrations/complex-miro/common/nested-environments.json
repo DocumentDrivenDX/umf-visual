@@ -1,0 +1,53 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:nested-environments",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "nested-environments",
+      "kind": "flow",
+      "form": "network",
+      "title": "Nested environments",
+      "question": "Which process connects to the data store?",
+      "nodes": [
+        {
+          "id": "process-outside",
+          "label": "Process outside A"
+        },
+        {
+          "id": "store-in-b",
+          "label": "Data store",
+          "role": "store",
+          "group": "env-b"
+        }
+      ],
+      "edges": [
+        {
+          "id": "connects-to-store",
+          "from": "process-outside",
+          "to": "store-in-b",
+          "kind": "data",
+          "label": "connects to"
+        }
+      ],
+      "groups": [
+        {
+          "id": "env-a",
+          "label": "Environment A",
+          "role": "boundary"
+        },
+        {
+          "id": "env-b",
+          "label": "Environment B",
+          "role": "boundary",
+          "parent": "env-a"
+        }
+      ]
+    }
+  },
+  "modules": []
+}

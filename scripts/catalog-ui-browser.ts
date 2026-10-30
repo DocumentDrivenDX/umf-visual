@@ -6,7 +6,9 @@ const TARGETS=['dot','mermaid','lini'];
 const siteRoot=resolve('dist-site');
 const baseUrl='https://umf.local/';
 const catalog=await Bun.file(join(siteRoot,'catalog.json')).json() as {schemaVersion:number;items:Array<any>;language:{schema:{sourcePath:string;sourceSha256:string;schema:any};forms:{sourcePath:string;sourceSha256:string;kinds:Array<{kind:string;forms:string[]}>}}};
+const integrationCatalog=await Bun.file(join(siteRoot,'integrations.json')).json() as {schemaVersion:number;complete:boolean;counts:Record<string,number>;cases:Array<any>};
 if(catalog.schemaVersion!==1||!Array.isArray(catalog.items)||catalog.items.length===0||!catalog.language?.schema?.schema||!catalog.language?.forms?.kinds)throw new Error('Build the site first; dist-site/catalog.json is missing or invalid.');
+if(integrationCatalog.schemaVersion!==1||integrationCatalog.complete!==false||integrationCatalog.cases?.length!==6)throw new Error('Build the integration site first; dist-site/integrations.json is missing or invalid.');
 const formExamples=catalog.items.filter(item=>item.sourcePath.startsWith('fixtures/visual/forms/'));
 const formCount=catalog.language.forms.kinds.reduce((count,kind)=>count+kind.forms.length,0);
 const secondaryCount=catalog.items.length-formExamples.length;
@@ -29,11 +31,16 @@ try{
   });
   await page.goto(baseUrl,{waitUntil:'networkidle'});
   await page.waitForFunction(()=>((document.querySelector('#definition-list')?.children.length??0)>0));
-  const renderAssets=catalog.items.flatMap(item=>TARGETS.flatMap(target=>{
+  const baselineRenderAssets=catalog.items.flatMap(item=>TARGETS.flatMap(target=>{
     const render=item.targets[target]?.render;
     return render?.ok&&render.svgPath?[{id:item.id,target,path:render.svgPath,sha256:render.svgSha256}]:[];
   }));
-  if(renderAssets.length<72)throw new Error(`Expected at least the 72 verified native SVG assets, saw ${renderAssets.length}`);
+  const profileRenderAssets=catalog.items.flatMap(item=>(item.profileVariants||[]).flatMap((variant:any)=>[
+    ...(variant.result?.render?.ok&&variant.result.render.svgPath?[{id:item.id,target:`${variant.format} complete`,path:variant.result.render.svgPath,sha256:variant.result.render.svgSha256}]:[]),
+    ...(variant.diagramRender?.ok&&variant.diagramRender.svgPath?[{id:item.id,target:`${variant.format} focused`,path:variant.diagramRender.svgPath,sha256:variant.diagramRender.svgSha256}]:[])
+  ]));
+  const renderAssets=[...baselineRenderAssets,...profileRenderAssets];
+  if(renderAssets.length<178)throw new Error(`Expected all 178 verified baseline and qualified profile SVG assets, saw ${renderAssets.length}`);
   const assetResults=await page.evaluate(async assets=>Promise.all(assets.map(asset=>new Promise<{id:string;target:string;ok:boolean;width:number;height:number;url:string}>(resolve=>{
     const image=new Image();const url=new URL(asset.path,location.href);if(asset.sha256)url.searchParams.set('v',asset.sha256);
     const finish=(ok:boolean)=>resolve({id:asset.id,target:asset.target,ok,width:image.naturalWidth,height:image.naturalHeight,url:url.href});
@@ -49,6 +56,25 @@ try{
   if(languageText.includes('beacon'))throw new Error('Application example leaked into language headings/reference');
   if(!(await page.locator('#language-provenance').innerText()).includes(catalog.language.schema.sourcePath))throw new Error('Schema provenance was not exposed');
   exercised.push('schema-backed language reference and separate kind/form counts');
+  await page.waitForFunction(()=>document.querySelectorAll('#integration-catalog .integration-case').length===6);
+  if(await page.locator('#integration-catalog .integration-case').count()!==6)throw new Error('Integration evidence section did not render six independent witnesses');
+  if(await page.locator('#integration-catalog .integration-target').count()!==18)throw new Error('Integration evidence matrix does not show three targets per witness');
+  if(await page.locator('#integration-catalog .integration-status.format-readback').count()!==5)throw new Error('PPTX XML readback outcomes are not clearly distinguished');
+  if(await page.locator('#integration-catalog .integration-status.planned').count()!==10||await page.locator('#integration-catalog .integration-status.refused').count()!==3)throw new Error('Slides/Miro planning or opaque-case refusal totals differ');
+  const integrationNotice=(await page.locator('#integration-catalog .integration-release-state').innerText()).toLowerCase();
+  if(!integrationNotice.includes('not complete')||!integrationNotice.includes('plans only')||!integrationNotice.includes('not an application test')||!integrationNotice.includes('exact source hashes'))throw new Error('Integration section overstates native-host coverage');
+  const hostProofs=page.locator('#integration-catalog article.integration-host-proof');
+  if(await hostProofs.count()!==4)throw new Error('Expected four separately scoped native-host receipts');
+  if(await page.locator('#integration-catalog .integration-host-proof-list:not(.integration-standalone-proofs) article.integration-host-proof').count()!==2)throw new Error('Expected two source-hash-matched native-host receipts');
+  if(await page.locator('#integration-catalog .integration-standalone-proofs article.integration-host-proof').count()!==2)throw new Error('Expected two standalone native-host receipts outside the six-case corpus');
+  const miroProof=page.locator('#integration-catalog .integration-standalone-proofs article.integration-host-proof').filter({hasText:'miro.editable-network/1'});
+  if(await miroProof.count()!==1||!(await miroProof.innerText()).includes('Standalone proof'))throw new Error('Standalone Miro proof scope was not exposed separately from corpus cases');
+  const opaqueCard=page.locator('#integration-catalog .integration-case').filter({hasText:'opaque-stencils'});
+  if(await opaqueCard.count()!==1||await opaqueCard.locator('.integration-status.refused').count()!==3||await opaqueCard.locator('a[download]').count()!==1)throw new Error('Opaque native-only witness incorrectly generated target output or a common UMF download');
+  if(await page.locator('#integration-catalog a[href*=".pptx"]').count()!==5)throw new Error('Expected five downloadable PPTX format artifacts');
+  const integrationLinks=integrationCatalog.cases.flatMap(item=>[item.downloads.nativeWitness,...(item.downloads.commonDocument?[item.downloads.commonDocument]:[]),...(item.targets.powerpoint.artifact?[item.targets.powerpoint.artifact]:[])]);
+  for(const artifact of integrationLinks)if(!(await Bun.file(join(siteRoot,artifact.path)).exists()))throw new Error(`Integration download is missing: ${artifact.path}`);
+  exercised.push('six-case integration gallery, truthful target evidence, opaque refusal, and downloadable artifacts');
   const count=await page.locator('.definition-card').count();
   if(count!==formExamples.length)throw new Error(`Expected ${formExamples.length} form example cards, saw ${count}`);
   if(await page.locator('.coverage-card').count()!==3)throw new Error('Expected coverage for all three targets');
@@ -190,6 +216,8 @@ try{
   await page.goto(baseUrl);
   await page.waitForFunction(()=>((document.querySelector('#definition-list')?.children.length??0)>0));
   await page.setViewportSize({width:375,height:812});
+  const pageWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
+  if(pageWidth>375)throw new Error(`Integration page overflows a 375px mobile viewport (${pageWidth}px)`);
   await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:'.cache/catalog-ui-mobile.png'});
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth);

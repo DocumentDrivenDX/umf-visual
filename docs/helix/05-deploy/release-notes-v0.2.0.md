@@ -24,10 +24,10 @@ ddx:
 
 ## Release Scope
 
-Prepared notes for package 0.2.0. **Not yet released:** local checks and preview
-review pass; Linux CI and publication remain pending. The repository
-maintainer owns release; publication date, tag and archive checksums must be
-recorded after these gates pass.
+Published 2026-10-30 as [v0.2.0](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.2.0).
+[Main Linux conformance and Pages](https://github.com/DocumentDrivenDX/umf-visual/actions/runs/41002367698)
+pass; the repository maintainer verified release archive digests and served
+catalog/assets against the tested main artifact.
 
 The candidate adds complete example projections through explicit readable
 annotation profiles and versioned vocabulary corrections. Distribution remains
@@ -45,8 +45,8 @@ Release archives and checksums identify the cut independently of later Pages.
 
 - Explicit DOT/Lini profiles preserve intrinsic native diagrams and additional
   registered meaning as editable, visible typed notes/cells.
-- All 53 unchanged examples currently have a selected strict complete semantic
-  projection; faithful previews for all 22 forms remain a release gate.
+- All 53 unchanged examples have a selected strict complete semantic projection
+  and approved faithful previews across all 22 forms.
 - Frozen vocabulary 1.0.0 defaults coexist with explicit 1.1.0 corrections and
   generated latest manifest/types.
 
@@ -97,8 +97,9 @@ Receipt source/fixture hashes match current exports.
 
 Native rendering and exact text remain separate from geometry approval; the
 reviewed candidate has both.
-Durable local receipts are linked from the milestone evidence. Linux CI and
-archive checksums must be added at the release cut.
+Durable local receipts are linked from the milestone evidence. Linux CI passes;
+the [release closure receipt](../04-build/evidence/example-completion-release-v0.2.0.json)
+pins the published catalog and archive checksums.
 The [milestone evidence](../04-build/example-completion-evidence.md) records
 commands, measured results and remaining blockers.
 

@@ -1,0 +1,84 @@
+{
+  "format": "umf.visual.miro.synthetic-witness/1",
+  "authorship": "synthetic-fixture",
+  "caseId": "nested-environments",
+  "scope": "Topology and native-only fields authored for this corpus; not a Miro API capture or serialized board.",
+  "items": [
+    {
+      "id": "syn-env-a",
+      "kind": "node",
+      "label": "Environment A",
+      "symbol": "synthetic.symbol.environment-container",
+      "geometry": {
+        "x": 0,
+        "y": 0,
+        "width": 560,
+        "height": 360
+      }
+    },
+    {
+      "id": "syn-env-b",
+      "kind": "node",
+      "label": "Environment B",
+      "symbol": "synthetic.symbol.environment-container",
+      "parentId": "syn-env-a",
+      "geometry": {
+        "x": 120,
+        "y": 70,
+        "width": 330,
+        "height": 220
+      }
+    },
+    {
+      "id": "syn-store",
+      "kind": "node",
+      "label": "Data store",
+      "symbol": "synthetic.symbol.data-store",
+      "parentId": "syn-env-b",
+      "geometry": {
+        "x": 240,
+        "y": 140,
+        "width": 110,
+        "height": 65
+      }
+    },
+    {
+      "id": "syn-process",
+      "kind": "node",
+      "label": "Process outside A",
+      "symbol": "synthetic.symbol.process",
+      "geometry": {
+        "x": 660,
+        "y": 160,
+        "width": 140,
+        "height": 72
+      }
+    },
+    {
+      "id": "syn-cross-boundary",
+      "kind": "connector",
+      "from": "syn-process",
+      "to": "syn-store",
+      "route": "curved",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      },
+      "caption": "connects to",
+      "controlPoints": [
+        {
+          "x": 610,
+          "y": 190
+        },
+        {
+          "x": 470,
+          "y": 205
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Containment may denote semantic grouping, deployment placement or presentation; the witness records authored nesting without resolving that question.",
+    "The connector records cross-boundary routing in witness geometry; the common graph retains endpoints and relation label only."
+  ]
+}

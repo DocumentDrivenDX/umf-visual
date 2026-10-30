@@ -1,0 +1,57 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:frames-headings-annotations",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "frames-headings-annotations",
+      "kind": "flow",
+      "form": "network",
+      "title": "Two system regions",
+      "question": "How do the components connect?",
+      "nodes": [
+        {
+          "id": "api",
+          "label": "API"
+        },
+        {
+          "id": "worker",
+          "label": "Worker"
+        },
+        {
+          "id": "queue",
+          "label": "Queue"
+        },
+        {
+          "id": "database",
+          "label": "Database"
+        }
+      ],
+      "edges": [
+        {
+          "id": "api-worker",
+          "from": "api",
+          "to": "worker",
+          "kind": "data"
+        },
+        {
+          "id": "worker-queue",
+          "from": "worker",
+          "to": "queue",
+          "kind": "data"
+        },
+        {
+          "id": "queue-database",
+          "from": "queue",
+          "to": "database",
+          "kind": "data"
+        }
+      ]
+    }
+  },
+  "modules": []
+}

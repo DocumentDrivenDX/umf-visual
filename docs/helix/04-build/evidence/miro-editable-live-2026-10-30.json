@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "evidenceType": "sanitized-live-host-conformance",
+  "host": "Miro Web SDK v2 through an interactive board session",
+  "hostVersion": "runtime 1.105538.0 observed; Miro service release not pinned",
+  "profile": "umf.visual.miro.editable-network/1",
+  "modelVersion": "1.0.0",
+  "source": {
+    "fixtureId": null,
+    "path": null,
+    "synthetic": true,
+    "sha256": "d023c35e278fa79e3fe166b10733c235f5140185dce4fc0953abd4965d5871fe"
+  },
+  "resourceIdentity": "redacted; same resource verified across revisions",
+  "revisions": [
+    0,
+    1,
+    2
+  ],
+  "sourceSha256": {
+    "before": "d023c35e278fa79e3fe166b10733c235f5140185dce4fc0953abd4965d5871fe",
+    "imported": "b5b0fccf976be553e75397323b35b427f5a1b93be87310f23422f646e084e165",
+    "updated": "ab412265c647a134beb30ebbc9a20780c50d3385331dfbd79e86fc6e97af5516"
+  },
+  "baselineCaptureSha256": {
+    "before": "ef7d28a710ff8a7f45c96f85e282456d0483b51d1678c5dec29709d320e679f4",
+    "imported": "005abe15621ced64aae78174b2a08c7d3afa860cf3b14ac3b09378d20be2a550",
+    "updated": "5ea5b501c056c9ccb1daf7ee363910870af60c03d2afe7322cb4d0d6404bc0c6"
+  },
+  "sourceCounts": {
+    "nodes": 3,
+    "edges": 2,
+    "mappedSlots": 7,
+    "mappedShapes": 5,
+    "unmappedNativeItems": 82
+  },
+  "edits": [
+    {
+      "stage": "native import",
+      "paths": [
+        "/extensions/umf.visual/nodes/0/label",
+        "/extensions/umf.visual/edges/0/to"
+      ],
+      "nodeTextChanged": true,
+      "directedEndpointChanged": true
+    },
+    {
+      "stage": "native-preserving update",
+      "paths": [
+        "/extensions/umf.visual/question"
+      ],
+      "questionChanged": true
+    }
+  ],
+  "preservation": {
+    "unmappedItemsComparedPerTransition": 82,
+    "unmappedItemsChangedAfterIgnoringSdkModifiedFields": 0,
+    "nativeNodeStyleAndPositionRetainedThroughUpdate": true,
+    "nativeConnectorEndpointsAndStyleRetainedThroughUpdate": true,
+    "nativePreservingUpdateKeptBoundNodeTextFromImport": true,
+    "nativeFieldsNotPromotedToUmf": [
+      "node fill",
+      "node position",
+      "connector style"
+    ]
+  },
+  "refusalEvidence": {
+    "boldRichTextCommand": "refused as RICH_TEXT; no flattening or lossy text coercion was applied"
+  },
+  "qualification": {
+    "semanticLossInventory": "no profile semantic losses were recorded in this capture; native-only fields remain retained-only",
+    "groupsTested": false,
+    "scope": "explicit title/question, node label, directed edge endpoint and native-preserving edits only"
+  },
+  "privateEvidence": {
+    "sourceFiles": 3,
+    "rawBindingsOrScreenshotsPublished": false
+  }
+}

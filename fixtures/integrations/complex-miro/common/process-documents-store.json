@@ -1,0 +1,62 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:process-documents-store",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "process-documents-store",
+      "kind": "flow",
+      "form": "network",
+      "title": "Document flow",
+      "question": "How does the process connect the document symbols to storage?",
+      "nodes": [
+        {
+          "id": "process",
+          "label": "Process"
+        },
+        {
+          "id": "document-one",
+          "label": "Document",
+          "role": "document"
+        },
+        {
+          "id": "documents-many",
+          "label": "Multiple documents"
+        },
+        {
+          "id": "store",
+          "label": "Data store",
+          "role": "store"
+        }
+      ],
+      "edges": [
+        {
+          "id": "process-document",
+          "from": "process",
+          "to": "document-one",
+          "kind": "data",
+          "label": "produces"
+        },
+        {
+          "id": "document-multiple",
+          "from": "document-one",
+          "to": "documents-many",
+          "kind": "data",
+          "label": "expands to"
+        },
+        {
+          "id": "multiple-store",
+          "from": "documents-many",
+          "to": "store",
+          "kind": "data",
+          "label": "writes to"
+        }
+      ]
+    }
+  },
+  "modules": []
+}

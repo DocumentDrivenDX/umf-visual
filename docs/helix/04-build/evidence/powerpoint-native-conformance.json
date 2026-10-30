@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-30",
+  "profile": "umf.visual.powerpoint.network/1",
+  "host": {
+    "product": "Microsoft PowerPoint for Mac",
+    "version": "16.114.3"
+  },
+  "privacy": {
+    "rawPackagesPublished": false,
+    "screenshotsPublished": false,
+    "nativeAuthorPropertiesPublished": false,
+    "note": "Raw PPTX packages and screenshots remain in the ignored local proof area. This receipt contains hashes and sanitized semantic values only."
+  },
+  "cases": [
+    {
+      "id": "network-16x24-native-edit",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/network-16x24.json",
+        "sha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4",
+        "modelVersion": "1.1.0",
+        "nodes": 16,
+        "edges": 24
+      },
+      "nativeArtifacts": {
+        "templateSha256": "cf207eb3054eeadccdd88d730b0bbb490bce342def379b61096694386244a022",
+        "powerPointSavedSha256": "bcf4ed2b639603d781d95e77bd76b61545c3dd42df80aafe762e406f0584abd1",
+        "preservingUpdateSha256": "a1d4c7efa91a141aeed9fe95e1c16ea22d904ef00f57bd4a6a23f9e833b0e2e6"
+      },
+      "nativeActions": {
+        "firstOpenRepairPrompt": false,
+        "semanticEdits": [
+          {"path": "/extensions/umf.visual/nodes/0/label", "before": "Node 01", "after": "Native edited 01"},
+          {"path": "/extensions/umf.visual/edges/0/to", "before": "n02", "after": "n03"}
+        ],
+        "nativePresentationEdits": [
+          {"object": "node:n01", "property": "fontWeight", "after": "bold"},
+          {"object": "node:n01", "property": "offsetXEmu", "before": 1159000, "after": 1180516}
+        ],
+        "reopenAfterPreservingUpdate": true
+      },
+      "adapterReadback": {
+        "status": "passed",
+        "changePaths": ["/extensions/umf.visual/nodes/0/label", "/extensions/umf.visual/edges/0/to"],
+        "sanitizedReplayFixture": "tests/powerpoint/fixtures/native-network-ui-replay.json",
+        "nativePresentationRetention": "bold style and node geometry are retained in the native package and reported outside the UMF semantic projection",
+        "preservingUpdate": {"path": "/extensions/umf.visual/nodes/1/label", "before": "Node 02", "after": "Node 2"}
+      }
+    },
+    {
+      "id": "editable-edge-caption-native-edit",
+      "source": {
+        "synthetic": true,
+        "sha256": "09b911cf94b270d30b59f4f98f31c3b8fe2dde07ec4ba083aaf87e7a1431622c",
+        "modelVersion": "1.0.0",
+        "nodes": 2,
+        "edges": 1
+      },
+      "nativeArtifacts": {
+        "templateSha256": "64fbcf289cb691580a52b87ff2200da4bc4787297c2c659fa876d438e094406b",
+        "powerPointSavedSha256": "71dabeb9008916ba86e896f736b93bf1ae435344c3d8fc71e90c36b84804a234",
+        "preservingUpdateSha256": "fc01cd0317c5fc1e7d5198eb38c82efcb69f2b23f1787479af1a15905783687d",
+        "nativeScreenshotSha256": "797e484beb922b04762f4ab13d1609a71e6f7e6658610f487553ec827ebec995",
+        "preservingUpdateScreenshotSha256": "21e3dbcbd527580766ba3aa761cc0717eb54d00a9fe21b4f5edbb1156d866a37"
+      },
+      "nativeActions": {
+        "firstOpenRepairPrompt": false,
+        "labelCarrier": "separate editable PowerPoint text shape attached by profile identity; connector remains a label-free native connection",
+        "edit": {"path": "/extensions/umf.visual/edges/0/label", "before": "request", "after": "reply"}
+      },
+      "adapterReadback": {
+        "status": "passed",
+        "changePaths": ["/extensions/umf.visual/edges/0/label"],
+        "preservingUpdate": {"path": "/extensions/umf.visual/edges/0/label", "before": "reply", "after": "response"},
+        "preservingUpdateSha256": "fc01cd0317c5fc1e7d5198eb38c82efcb69f2b23f1787479af1a15905783687d",
+        "nativeReopenAfterPreservingUpdate": "passed",
+        "visibleCaptionAfterReopen": "response"
+      }
+    }
+  ],
+  "qualification": {
+    "verifiedSubset": "one slide, flow/network, title and question text, node labels, separate edge-label text shapes, attached directed connectors, native layout/style retention on the tested artifacts",
+    "notEstablished": ["arbitrary PowerPoint presentations", "group semantics", "native layout interpretation as UMF", "broad native host version coverage"],
+    "runtimeChecks": {
+      "powerpointAdapterTests": "25 passed",
+      "typescriptTypecheck": "passed",
+      "sourceBoundaryCheck": "passed"
+    }
+  }
+}

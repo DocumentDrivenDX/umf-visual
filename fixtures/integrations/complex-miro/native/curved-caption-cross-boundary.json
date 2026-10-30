@@ -1,0 +1,86 @@
+{
+  "format": "umf.visual.miro.synthetic-witness/1",
+  "authorship": "synthetic-fixture",
+  "caseId": "curved-caption-cross-boundary",
+  "scope": "Topology and native-only fields authored for this corpus; not a Miro API capture or serialized board.",
+  "items": [
+    {
+      "id": "syn-region-a",
+      "kind": "group",
+      "label": "Region A",
+      "geometry": {
+        "x": 0,
+        "y": 0,
+        "width": 260,
+        "height": 220
+      },
+      "members": [
+        "syn-source"
+      ]
+    },
+    {
+      "id": "syn-region-b",
+      "kind": "group",
+      "label": "Region B",
+      "geometry": {
+        "x": 440,
+        "y": 0,
+        "width": 260,
+        "height": 220
+      },
+      "members": [
+        "syn-target"
+      ]
+    },
+    {
+      "id": "syn-source",
+      "kind": "node",
+      "label": "Source",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 70,
+        "y": 90,
+        "width": 120,
+        "height": 64
+      }
+    },
+    {
+      "id": "syn-target",
+      "kind": "node",
+      "label": "Target",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 510,
+        "y": 90,
+        "width": 120,
+        "height": 64
+      }
+    },
+    {
+      "id": "syn-curved-link",
+      "kind": "connector",
+      "from": "syn-source",
+      "to": "syn-target",
+      "route": "curved",
+      "attachment": {
+        "from": "east-port",
+        "to": "west-port"
+      },
+      "caption": "caption",
+      "controlPoints": [
+        {
+          "x": 235,
+          "y": 20
+        },
+        {
+          "x": 465,
+          "y": 190
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "The connector caption, curvature, control points and named endpoint attachments are explicit synthetic witness fields.",
+    "The common edge keeps endpoint connectivity and caption only."
+  ]
+}

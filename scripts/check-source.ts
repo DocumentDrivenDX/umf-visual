@@ -13,6 +13,8 @@ export function boundaryIssues(source:string,filename='src/index.ts'):string[]{
    if(ts.isExportDeclaration(statement))issues.push('Do not re-export the core SDK');
    continue;
   }
+  // Pinned portable ZIP/XML codecs stay inside the PowerPoint adapter bundle.
+  if(['fflate','saxes'].includes(name)&&resolve(filename).startsWith(resolve('src/adapters/powerpoint')+sep))continue;
   if(!name.startsWith('.')){issues.push('Forbidden external import: '+name);continue;}
   const destination=resolve(dirname(filename),name);
   if(resolve(filename).startsWith(resolve('src/extensions')+sep)&&destination.startsWith(resolve('src/adapters')+sep))issues.push('Vocabulary cannot depend on adapters');

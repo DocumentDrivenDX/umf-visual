@@ -22,6 +22,8 @@ ddx:
       kind: informed_by
     - id: CONTRACT-087
       kind: informed_by
+    - id: CONTRACT-088
+      kind: informed_by
     - id: STP-095
       kind: informed_by
 ---
@@ -31,7 +33,8 @@ ddx:
 ## Scope
 
 Execution design authorized by the owner, reconciled against merged main
-3139590 on 2026-10-29 (America/New_York). CONTRACT-087 owns the opt-in readable
+3139590 on 2026-10-29 (America/New_York), continued after release 31cbca1 on
+2026-10-30. CONTRACT-087 owns the opt-in readable
 annotation profile; this plan owns package ordering and acceptance gates.
 The existing implementation plan links this goal-specific continuation.
 
@@ -95,7 +98,7 @@ Slides, SPIKE-011 Miro and its reduced counterexamples. The installed HELIX
 | P3-M | Luna metric cohort: stat, bar, line, meter | P2 stable; native family probe | One new format-local metric module and tests | Four originals strict; exact series, values, axes, units/format/target/baseline and direction meaning |
 | P4 | Root/catalog Luna: all-example release gate and high-fidelity site | P1-P3; selected target for every example | Catalog scripts/tests, microsite assets, native/browser proofs; no model edits | 53/53 chosen strict native-backed projections, 22/22 forms, complete fidelity matrix and green release checks |
 | P5 | Root release and Pages verification | P4 evidence; Sol review | Release notes/workflow/artifacts only | Tested archive, checksums, release tag and deployed catalog verified |
-| P6 | Luna corpus + Sol/root binding contract | P5 released | New fixtures/integrations/miro-complex/; proposed src/adapters/roundtrip/ contract/tests | Sanitized semantic/native witnesses and shared reconciliation acceptance approved |
+| P6 | Luna corpus + Sol/root binding contract | P5 released | New fixtures/integrations/complex-miro/; root-owned src/adapters/reconciliation/ under CONTRACT-088 | Sanitized semantic/native witnesses and shared reconciliation acceptance approved |
 | P7-P | Luna PowerPoint production cohort | P6 | New src/adapters/powerpoint/ and tests/powerpoint/; host runner separate | Edited native file, semantic import, retained native bytes and native-preserving re-export |
 | P7-G | Luna Google Slides production cohort | P6 | New src/adapters/google-slides/ and tests/google-slides/; host I/O separate | Real editor changes, revision-aware reconciliation and appearance-preserving update/readback |
 | P7-M | Luna Miro expansion cohort | P6 | Existing src/adapters/miro/ and tests/miro/; bounded profile revisions | Complex grouping/attachments/shape intent subset with real edits, identity and native preservation |
@@ -214,6 +217,25 @@ numerical tolerances; rendering success alone is not pixel equivalence.
 
 ## Integration Contract and Packages After Release
 
+Package v0.2.0 is released at `31cbca1`. [CONTRACT-088](../02-design/contracts/CONTRACT-088-editable-host-bindings.md)
+now owns the new reconciliation boundary. P6 and bounded P7 implementation are
+authorized; the existing host spikes are inputs, not completed public profiles.
+
+| Slice / owner | Isolated deliverable | Gate before integration |
+| --- | --- | --- |
+| P6-C Luna corpus | Six reduced cases under fixtures/integrations/miro-complex/: nesting/store boundary, explicit shape intent, 16 nodes/24 edges, independent frame/heading/annotation, curved attached caption, opaque symbol | Sanitization review; explicit source-model version; expected semantic/retained-only paths and negative cases; no actual company content |
+| P6-B Root + Sol | Shared HostBinding/Observation/Mapping/Loss types and admitHostBinding/checkHostFence/finishHostReconciliation under src/adapters/reconciliation/; shared tests | Baseline/source rederivation, exact revision/resource fence, bijective scoped IDs, atomic failure, interrupted state and safe admission |
+| P7-P Luna PowerPoint | New src/adapters/powerpoint/ plus tests/powerpoint/; bounded ZIP/namespace-aware XML codec and owned-slot native patch | No-op/text/reconnect/movement second cycle; unknown part preservation; ZIP/XML safety; strict/report paths; real PowerPoint save/reopen evidence |
+| P7-G Luna Slides | New src/adapters/google-slides/ plus tests/google-slides/; pure plan/bind/reconcile/update requests, injected host I/O | Exact resource/revision fence; preserved style/native extras; connector reconnect in real UI; repeated cycle and conflicts |
+| P7-M Luna Miro | Separate editable-network profile in existing src/adapters/miro/ plus tests/miro/ | Existing network/1 remains compatible; explicit 1.1 sixteen-node case; grouping/frames/opaque symbols remain retained-only unless mapped; real board repeated cycle |
+| P7-I Root catalog/package | Add host capability/loss rows and public subpath build/packed/browser consumers | Actual evidence separated from test doubles; native-only and semantic losses both visible; no source-blob equivalence |
+
+Owners consume root's shared seam and do not edit each other's entry points.
+PowerPoint alone may use the pinned reviewed `fflate`/`saxes` dependencies;
+portable vocabulary code cannot depend on them. Authentication and host write
+runners remain outside portable source. Root integrates package exports,
+check:source allowlists, browser/packed tests and catalog wiring.
+
 P6 first records source model/profile version, source digest/revision, native
 document identity, native baseline/revision, bijective logical/native maps,
 supported semantic changes by path, native-only changes, retained opaque data
@@ -260,8 +282,9 @@ may demonstrate an existing limit; it must not fabricate a valid 1.0 graph.
 
 The owner authorized Sol planning/review and parallel Luna implementation.
 Root controls shared interfaces, integration order, merge/release and host I/O.
-P0 and P1 are now ready to start against main 3139590 without model mutations.
-No new host integration implementation precedes the requested example release.
+P0-P5 are complete through released v0.2.0. P6/P7 now execute against 31cbca1
+without mutating frozen models. New model concepts require their own reviewed
+version; the existing 1.1.0 registration handles the sixteen-node case.
 Each package ends in a small reviewable change and its own meaningful checks.
 Sol reviews native meaning, unknown-content handling and independent evidence.
 
@@ -272,19 +295,39 @@ records actual package completion; this plan makes no timing/budget promise.
 
 ## Continuation Evidence
 
-Planning state: this plan establishes no new passing implementation result. Read
-wave-two evidence: 72 native renders, 34/50 originals with at least one render,
-53 samples/159 target pairs, and three strict pairs belonging to canaries.
-The merged foundation is recorded in visual-1-1-integration.md: package metadata
-0.2.0 is not a release claim; original fixtures/native imports remain 1.0.0.
-Use createVisualDocument(visual, id, '1.1.0') or upgradeVisualDocument explicitly.
-Native profiles retain their own limits and do not imply new 1.1 mappings.
-Preserve ongoing peer work and recheck branch state before integration.
+P0-P5 closed at v0.2.0/31cbca1: 53 unchanged examples, 22 forms, 43 selected DOT
+and ten selected Lini projections; 178 served assets hash-verified. Linux
+[main conformance and Pages](https://github.com/DocumentDrivenDX/umf-visual/actions/runs/41002367698)
+passed. The [milestone evidence](example-completion-evidence.md) records the
+qualified outcome; older wave reports remain historical baselines.
 
-Next action: root delegates P0 and the shared P1 helper, then assigns isolated
-DOT and Lini profile packages after reviewing their native syntax/ownership seam. Package closeout records commit,
-test/native/browser receipts, losses removed versus new coverage, remaining
-unknowns and the next dependency. Do not replace this with evidence-free status.
+P6 adds six synthetic/sanitized witnesses under
+`fixtures/integrations/complex-miro/`: five shared-model documents and one
+native-only witness. Four shared documents use 1.0.0; the sixteen-node case
+explicitly uses 1.1.0. The additive integration catalog preserves each source,
+projection gap and target loss. Its format-readback/planning results do not
+replace the original 53-example gate or qualify live use of every corpus case.
+
+P7 implements the three explicit CONTRACT-088 profiles with shared admission,
+source/revision fences, bijective native slots and retained-only loss reporting.
+The [current evidence](example-completion-evidence.md#p6p7-closeout-observation--2026-10-30)
+separates local tests, host execution and publication gates:
+
+| Package | Observed qualification | Remaining gate |
+| --- | --- | --- |
+| P7-P | [PowerPoint native evidence](powerpoint-native-conformance.md): Mac 16.114.3, one-slide 16-node/24-edge 1.1.0 network and a separate 1.0.0 caption case; semantic edit/import and preserving update/reopen | Exact-candidate CI/package/browser gates; other presentations and host versions remain unqualified |
+| P7-G | [Slides live evidence](../02-design/spikes/google-slides/live-execution.md): one owned 1.0.0 slide, UI text/style/movement/reconnection and conditional preserving update; original slide unchanged | Adapter logic uses captured trace replay; direct injected adapter transport is not a live end-to-end claim |
+| P7-M | [Miro live evidence](miro-editable-live-2026-10-30.md): synthetic 1.0.0 network, observed Web SDK runtime 1.105538.0, UI label/movement/fill/reconnection, semantic import and preserving question update; 82 unrelated items unchanged | Service release is not independently pinned; groups and rich-text editing remain unqualified |
+
+Sol's bounded closeout checks cover the shared/Miro/Slides preservation fixes,
+loss-forgery controls, PPTX expansion/XML bounds and separate caption slots.
+Both final findings are closed: Slides caption changes use the existing label
+pointer through repeated updates, and qualified PPT connectors reject text
+bodies rather than erasing unowned text from residual fingerprints. The focused
+closeout rerun passes 38 tests and 191 assertions. Root owns final integrated checks and CI.
+P6/P7 are not merged, deployed or released by this record. Use
+createVisualDocument(visual, id, '1.1.0') or upgradeVisualDocument explicitly for
+larger source witnesses; no model or historical profile is silently upgraded.
 
 ## Validation Plan
 
@@ -309,9 +352,9 @@ bun run build:site
 bun run test:site
 ```
 
-P0 proposes a new check:loss-ledger command; root wires its actual name into
-package/CI only after the report contract exists. New native family/annotation
-checks live in scripts and require real native parser/readback witnesses.
+The existing ledger command is report:loss:ledger. New host-family checks must
+be wired by root before public qualification and require real host/readback
+witnesses; script names are not invented as completed evidence here.
 check:source remains the local/pre-commit/CI portability boundary. Add packed
 consumer tests for every new public adapter export and generated SDK version.
 Validate persisted HELIX changes with the installed catalog; do not copy it.

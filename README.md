@@ -18,13 +18,13 @@ read/write/inspect/create/edit APIs were extracted from
 [UMF #62](https://github.com/DocumentDrivenDX/umf/pull/62), commit
 `351c4802caf34eb7f4174e7b730f86f4befcf909`; see [provenance](UPSTREAM.json).
 
-The last published package is `@documentdrivendx/umf-visual` 0.1.0, distributed as a
-[GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.1.0).
+The released package is `@documentdrivendx/umf-visual` 0.2.0, distributed as a
+[GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.2.0).
 It is not published to npm.
 
 Browse the [umf.visuals catalog](https://documentdrivendx.github.io/umf-visual/).
 Default authoring remains `umf.visual` 1.0.0 and the core envelope 0.10.0. The
-working package is 0.2.0; local preview review passes and release awaits CI. It adds
+released package is 0.2.0; Linux CI and deployed preview verification pass. It adds
 opt-in vocabulary 1.1.0 and explicit readable annotation profiles.
 Core comes from the pinned released SDK `umf-v0.5.7`; only its public APIs are used.
 The authored latest schema generates the 1.1.0 manifest and TypeScript shapes;
@@ -106,8 +106,8 @@ separately from semantic support. Native input is bounded to 256 KiB UTF-8.
 
 The candidate evaluates all 53 unchanged examples across all 22 forms. Each has
 a selected strict, complete projection through one suitable target: 43 DOT and
-ten Lini profiles. Local preview review passes for all 22 forms; Linux CI and
-publication remain pending. Native acceptance, exact text and semantic readback
+ten Lini profiles. Preview review and Linux CI pass for all 22 forms, and v0.2.0
+is published. Native acceptance, exact text and semantic readback
 are checked separately from faithful geometry and readable previews.
 See [milestone evidence and release gates](docs/helix/04-build/example-completion-evidence.md).
 
@@ -130,6 +130,12 @@ sequence views. `umf.visual.lini.annotated/1` covers bounded metric, timeline an
 comparison views. Initial mapping version is 0.1.0; both currently require the
 canonical frozen 1.0.0 vocabulary declaration. Generated 1.1.0 types do not
 establish native support for stable field IDs or exact multiplicities.
+
+The source tree also contains bounded editable-network host APIs for PowerPoint,
+Google Slides and Miro. See the [editable host integration guide](docs/editable-integrations.md)
+for package imports, strict/report behavior, revision-fenced readback and update
+examples. The Miro editable binding profile has no native-host evidence claimed
+yet; the older Miro capture/clipboard evidence is a separate profile.
 
 Intrinsic meaning uses native connections, markers, ports, chart data or
 table/grid geometry. Registered additional metadata uses visible, typed native

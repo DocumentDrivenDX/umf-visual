@@ -1,0 +1,96 @@
+{
+  "format": "umf.visual.miro.synthetic-witness/1",
+  "authorship": "synthetic-fixture",
+  "caseId": "process-documents-store",
+  "scope": "Topology and native-only fields authored for this corpus; not a Miro API capture or serialized board.",
+  "items": [
+    {
+      "id": "syn-process",
+      "kind": "node",
+      "label": "Process",
+      "symbol": "synthetic.symbol.process",
+      "geometry": {
+        "x": 0,
+        "y": 80,
+        "width": 130,
+        "height": 68
+      }
+    },
+    {
+      "id": "syn-document",
+      "kind": "node",
+      "label": "Document",
+      "symbol": "synthetic.symbol.document",
+      "geometry": {
+        "x": 210,
+        "y": 80,
+        "width": 125,
+        "height": 78
+      }
+    },
+    {
+      "id": "syn-documents",
+      "kind": "node",
+      "label": "Multiple documents",
+      "symbol": "synthetic.symbol.multidocument",
+      "geometry": {
+        "x": 415,
+        "y": 80,
+        "width": 145,
+        "height": 78
+      }
+    },
+    {
+      "id": "syn-store",
+      "kind": "node",
+      "label": "Data store",
+      "symbol": "synthetic.symbol.data-store",
+      "geometry": {
+        "x": 640,
+        "y": 80,
+        "width": 125,
+        "height": 78
+      }
+    },
+    {
+      "id": "syn-produces",
+      "kind": "connector",
+      "from": "syn-process",
+      "to": "syn-document",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      },
+      "caption": "produces"
+    },
+    {
+      "id": "syn-expands",
+      "kind": "connector",
+      "from": "syn-document",
+      "to": "syn-documents",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      },
+      "caption": "expands to"
+    },
+    {
+      "id": "syn-writes",
+      "kind": "connector",
+      "from": "syn-documents",
+      "to": "syn-store",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      },
+      "caption": "writes to"
+    }
+  ],
+  "notes": [
+    "The labels and connector captions are authored for this synthetic witness.",
+    "Document and store roles are assigned only to explicitly named document and store concepts. Process and multiple-document stencil intent is preserved as synthetic symbol identity; no common role or cardinality is inferred from the icon."
+  ]
+}
