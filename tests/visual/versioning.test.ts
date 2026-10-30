@@ -24,6 +24,10 @@ test('1.1 size admission is explicit and does not broaden native profiles',()=>{
  const document=createVisualDocument(flow(16),undefined,'1.1.0');
  expect(inspectVisual(document)).toMatchObject({valid:true,complete:true});expect(inspectVisual(document).advice.some(d=>d.code==='VISUAL_SPLIT')).toBe(true);
  expect(()=>createVisualDocument(flow(501),undefined,'1.1.0')).toThrow();
+ const small=createVisualDocument(flow(1),undefined,'1.1.0');
+ const strict=exportVisual(small,{format:'dot'});expect(strict.ok).toBe(false);
+ expect(strict.diagnostics.some(d=>d.loss&&d.path==='/vocabularies/umf.visual')).toBe(true);
+ expect(exportVisual(small,{format:'dot',mode:'allow-reported-loss'}).ok).toBe(true);
  expect(()=>planMiroExport(document)).toThrow();
  const native=exportVisual(document,{format:'dot',mode:'allow-reported-loss'});
  expect(native.ok).toBe(false);expect(native.diagnostics.some(d=>d.code==='DOT_SIZE'||d.code.includes('SUBSET')||d.code.includes('SIZE'))).toBe(true);

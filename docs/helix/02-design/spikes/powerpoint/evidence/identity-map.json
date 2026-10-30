@@ -1,0 +1,14 @@
+{
+  "client": [
+    "umf-node-client",
+    "umf-node-client-label"
+  ],
+  "api": [
+    "umf-node-api",
+    "umf-node-api-label"
+  ],
+  "request": [
+    "umf-edge-request",
+    "umf-edge-request-label"
+  ]
+}

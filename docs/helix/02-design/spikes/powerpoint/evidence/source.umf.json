@@ -1,0 +1,40 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:powerpoint-probe",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "powerpoint-probe",
+      "kind": "flow",
+      "form": "network",
+      "question": "What calls the API?",
+      "title": "Client calls API",
+      "nodes": [
+        {
+          "id": "client",
+          "label": "Client",
+          "role": "actor"
+        },
+        {
+          "id": "api",
+          "label": "API",
+          "role": "own"
+        }
+      ],
+      "edges": [
+        {
+          "id": "request",
+          "from": "client",
+          "to": "api",
+          "label": "Request",
+          "kind": "action"
+        }
+      ]
+    }
+  },
+  "modules": []
+}

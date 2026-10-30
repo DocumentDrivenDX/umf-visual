@@ -62,6 +62,13 @@ bounded network adapter and native preservation extension. The
 edit/adoption, a 72-item native reproduction and scoped fidelity limits.
 
 [Versioned review integration](04-build/visual-1-1-integration.md) qualifies the explicit 1.1.0 corrections and frozen released 1.0.0 defaults.
+
+[PowerPoint integration spike](02-design/spikes/SPIKE-094-powerpoint-integration.md)
+records an actual PowerPoint 16.114.3 export/edit/save/import round trip.
+Bun and Chromium recover edited labels and a reconnected edge from embedded source;
+native layout is retained separately. Structural edits and broader forms remain
+unqualified.
+
 [Google Slides integration spike](02-design/spikes/SPIKE-001-google-slides.md)
 demonstrates export, actual Google Slides UI label/movement edits, validated
 import and a second native export for an adapter-owned flow/network diagram.

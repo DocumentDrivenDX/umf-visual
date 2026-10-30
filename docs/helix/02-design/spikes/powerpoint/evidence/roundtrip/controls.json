@@ -1,0 +1,17 @@
+{
+  "bun": "1.4.3",
+  "passed": [
+    "no-op recovers full embedded semantic source without sidecar",
+    "Unicode XML text edits load into semantic labels",
+    "multiple text runs and paragraphs retain line breaks",
+    "renamed node is not guessed by position",
+    "duplicate shape identity is ambiguous",
+    "deleted node refuses partial import",
+    "unattached edge refuses inferred relation",
+    "tampered source digest refuses import",
+    "duplicate metadata refuses source selection",
+    "DTD is not accepted",
+    "original semantic source remains immutable"
+  ],
+  "count": 11
+}

@@ -1,0 +1,62 @@
+{
+  "bun": "1.4.3",
+  "chromium": "153.0.8010.12",
+  "writerSha256": "05844c5625e2cda3b449eb967c2246dd57ca57341886a7c28eeebca263b29bd4",
+  "bunResult": {
+    "ok": true,
+    "scope": "synthetic two-node flow/network export; package XML inspection only",
+    "visualVersion": "1.0.0",
+    "coreVersion": "0.10.0",
+    "writer": "pptxgenjs 4.0.1",
+    "zipReader": "jszip 3.10.1",
+    "slides": 1,
+    "mappedSemanticItems": 3,
+    "namedNativeObjects": 6,
+    "editableTextObserved": true,
+    "imageOnly": false,
+    "attachedConnectors": false,
+    "sourceSidecarRecovery": true,
+    "unknownContentRetained": true,
+    "unsafeEditRefused": true,
+    "losses": [
+      "Edge endpoints are drawn as an unattached line; graph connectivity requires the source/map.",
+      "Role and edge-kind semantics are retained in the sidecar, not encoded by native shapes."
+    ],
+    "notVerified": [
+      "PowerPoint opening/rendering/edit/save",
+      "Native deck import",
+      "Arbitrary deck round trips",
+      "Layout quality",
+      "All other forms"
+    ]
+  },
+  "browserResult": {
+    "ok": true,
+    "scope": "synthetic two-node flow/network export; package XML inspection only",
+    "visualVersion": "1.0.0",
+    "coreVersion": "0.10.0",
+    "writer": "pptxgenjs 4.0.1",
+    "zipReader": "jszip 3.10.1",
+    "slides": 1,
+    "mappedSemanticItems": 3,
+    "namedNativeObjects": 6,
+    "editableTextObserved": true,
+    "imageOnly": false,
+    "attachedConnectors": false,
+    "sourceSidecarRecovery": true,
+    "unknownContentRetained": true,
+    "unsafeEditRefused": true,
+    "losses": [
+      "Edge endpoints are drawn as an unattached line; graph connectivity requires the source/map.",
+      "Role and edge-kind semantics are retained in the sidecar, not encoded by native shapes."
+    ],
+    "notVerified": [
+      "PowerPoint opening/rendering/edit/save",
+      "Native deck import",
+      "Arbitrary deck round trips",
+      "Layout quality",
+      "All other forms"
+    ]
+  },
+  "errors": []
+}

@@ -24,7 +24,9 @@ a 1.1.0 superset; they do not imply runtime interpretation under an older versio
 The review corrects years 0000–0099, admits up to 500 nodes with split advice
 above fifteen, adds exact multiplicities and entity-scoped stable field ids, and
 generates the latest manifest schema and TypeScript shapes from the authored
-schema. Native adapters retain their own subset and size limits. Unknown native
+schema. Native adapters retain their own subset and size limits. Their import defaults
+remain 1.0.0, so exporting a 1.1.0 declaration reports vocabulary metadata loss
+and requires explicit loss admission; it never implies native version preservation. Unknown native
 mappings remain losses or refusals, including exact multiplicities and field ids.
 
 `tests/visual/versioning.test.ts` verifies frozen bytes, independent version
