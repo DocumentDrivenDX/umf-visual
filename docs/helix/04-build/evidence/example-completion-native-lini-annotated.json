@@ -1,0 +1,125 @@
+{
+  "profile": "umf.visual.lini.annotated/1",
+  "model": "1.0.0",
+  "nativeRuntime": {
+    "profile": "umf.diagram.lini.runtime/1",
+    "version": "1.1.0",
+    "pinSha256": "ffcf1cb93a2a5e2e3325a5590a234550b476f5ea115bf185a9d96de88071f056",
+    "assets": [
+      {
+        "name": "lini_wasm.js",
+        "sha256": "0dd52206dd4bbb398560b522b4e0650ee1f3c5a94682a846102f33ded3938d46"
+      },
+      {
+        "name": "lini_wasm_bg.wasm",
+        "sha256": "e42530f8cffe6b37171f80fe809829528696ab05bb076601b2efed2418941180"
+      },
+      {
+        "name": "LICENSE",
+        "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "fixture": "fixtures/visual/forms/umf-ac-satisfied.json",
+      "inputSha256": "deb56df1ab320b4609086b78eb4ba4afa9f1e89ad457a2a877f529aa433a726e",
+      "sourceSha256": "74d2cba210d6494252ab0c6afa95e01c4da5257a168bd6dc8e4137f9ceac966c",
+      "svgSha256": "d17de2b2cc483089ab4ccc4ab39012ce91cf9242c6b5a2e93220a02c43f0e39a",
+      "annotations": 5,
+      "identityMappings": 10,
+      "coverageEntries": 39,
+      "nativeDiagnostics": []
+    },
+    {
+      "fixture": "fixtures/visual/forms/umf-ac-status.json",
+      "inputSha256": "7babed0d04fdf16f520a6e8b3e00118c81b229f8275e3dcde925e835cffc21ff",
+      "sourceSha256": "6b17036a62b3e3bf8840e2528aae2b7ed623feaf2467cbc0a772614f8651deb9",
+      "svgSha256": "a009f784c68ca46ab65c0e284772e2546444550279a7e6a017e3317258db1f79",
+      "annotations": 5,
+      "identityMappings": 11,
+      "coverageEntries": 40,
+      "nativeDiagnostics": []
+    },
+    {
+      "fixture": "fixtures/visual/forms/umf-ac-trend.json",
+      "inputSha256": "8f8ed01cab2c6fd07470dfe7004631429849b06123ef139b866e17e207ccc5c9",
+      "sourceSha256": "317cd84d129e3638fc6605d69804fea52387f7114070478b130eaceb73988f5d",
+      "svgSha256": "a76554e63ed5c8d6c94edd27c259d3959385112bb8cf641c8254a75bc2b8da3e",
+      "annotations": 5,
+      "identityMappings": 20,
+      "coverageEntries": 61,
+      "nativeDiagnostics": []
+    },
+    {
+      "fixture": "fixtures/visual/forms/umf-ac-coverage.json",
+      "inputSha256": "68dfc3164c722dc21eb9430e77c179d8f90fb27af8fb167d644e6a803edc71c7",
+      "sourceSha256": "1c9a205b2588d42201b4c952a8439906ebac65401f8694fb5fa0cc0acdd4fd6c",
+      "svgSha256": "b1a0336449238bb61e074c1584dbf2e05a988b99acbe6d6190b4f3e200d584c4",
+      "annotations": 5,
+      "identityMappings": 2,
+      "coverageEntries": 23,
+      "nativeDiagnostics": []
+    },
+    {
+      "fixture": "fixtures/visual/forms/helix-releases.json",
+      "inputSha256": "c3f173bd6ca3bf49b158fdfc692d51a883534356e41cf8fbd2bbe54530c7bfbb",
+      "sourceSha256": "7a7affa7085bb180ad7edff8fd597fb2c15221d6b371792785c67a9a8fd5a959",
+      "svgSha256": "4654ef44341117c6f357e7fcc7bd4f7b18073a03187a26597d4ecb611c55c141",
+      "annotations": 4,
+      "identityMappings": 41,
+      "coverageEntries": 135,
+      "nativeDiagnostics": []
+    },
+    {
+      "fixture": "fixtures/visual/forms/umf-releases.json",
+      "inputSha256": "2a0be94de504e1d400c4897f786b0976c93173558942d334eadab94c7f60f08f",
+      "sourceSha256": "2befa2b54ba3d122b925215d06a1d0b53f3ddaad6a5c45489ebdbe209ec1a09a",
+      "svgSha256": "d726e4a60c74d46c4e813f29dbbff977567467494fc057aeb51678af256007a6",
+      "annotations": 4,
+      "identityMappings": 11,
+      "coverageEntries": 45,
+      "nativeDiagnostics": []
+    },
+    {
+      "fixture": "fixtures/visual/forms/visuals-roadmap.json",
+      "inputSha256": "7d6a37e0bbd89a5795aa095ae9b855ea771c28daf78f675e508fdc390310dc12",
+      "sourceSha256": "7af9c85d5300ab8ffcefb38ff923c93ff1057d566ce4194e283ddf3fb45eec18",
+      "svgSha256": "7dd0a0b4d850d9ea8dc1622721029dba79c5991eb2d32ee0d88fdd08c1dfe29f",
+      "annotations": 13,
+      "identityMappings": 20,
+      "coverageEntries": 98,
+      "nativeDiagnostics": []
+    },
+    {
+      "fixture": "fixtures/visual/inventory/helix-adr-options.json",
+      "inputSha256": "b5fabfd6b990fbd2ee3b388cc98ac662e322b76d8bd1cfca89cb68d52885f391",
+      "sourceSha256": "ab7b9e2d8f00615a5d9439e8f053ede3f3e6c871d143aef3cee7821c6ab2f89f",
+      "svgSha256": "cc08fb9c3958c076df34fd02b1c6598f0d85a11befacf3f496ebfae95bebd5c5",
+      "annotations": 5,
+      "identityMappings": 11,
+      "coverageEntries": 63,
+      "nativeDiagnostics": []
+    },
+    {
+      "fixture": "fixtures/visual/forms/visuals-before-after.json",
+      "inputSha256": "e4f562d672bd9560fa02affe04f7e0eb1027baba8aa0c0bfcdf977ae8d28c147",
+      "sourceSha256": "a99b50ce14c49360184d32eb815e4e508193cd0025134e8006c38d174463eee3",
+      "svgSha256": "f7a9487d7a625460abf352ca2f8f5596eef1ffb046e13d13c56d51ad8e3c9c26",
+      "annotations": 5,
+      "identityMappings": 14,
+      "coverageEntries": 73,
+      "nativeDiagnostics": []
+    },
+    {
+      "fixture": "fixtures/visual/forms/layout-engines.json",
+      "inputSha256": "534e2ee82b0ca6afa66403d15073bb33c2528f87b57ffb5ff0495766ed6af862",
+      "sourceSha256": "9509ff404ddee19cf5aa355ee00a1c87037b385cbd39d113e7e7a1693663ee6a",
+      "svgSha256": "d26ff2a9f61f1138a1bb2c40da950b0d14c4ca4b4a9dca7597cb9d84e06fb5b7",
+      "annotations": 7,
+      "identityMappings": 17,
+      "coverageEntries": 96,
+      "nativeDiagnostics": []
+    }
+  ]
+}

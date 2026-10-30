@@ -1,0 +1,21 @@
+{
+  "report": ".cache/loss-ledger.json",
+  "sha256": "fd8a6119129a47b42d3d77633c2112d5424d1287af13b0364ce4b81928e8ef25",
+  "bytes": 12874007,
+  "summary": {
+    "examples": 53,
+    "originalExamples": 50,
+    "canaries": 3,
+    "baselineNativePairs": 159,
+    "profilePairs": 106,
+    "selectedCompleteExamples": 53,
+    "selectedLossDiagnostics": 0,
+    "items": 53,
+    "renders": 178,
+    "completeExamples": 53,
+    "completeForms": 22
+  },
+  "scope": {
+    "schemaVersion": 2
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "profile": "umf.visual.lini.annotated/1",
+  "model": "1.0.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "runtime": {
+    "profile": "umf.diagram.lini.runtime/1",
+    "version": "1.1.0",
+    "assets": [
+      {
+        "name": "lini_wasm.js",
+        "url": "https://lini.rs/assets/lini_wasm.js",
+        "sha256": "0dd52206dd4bbb398560b522b4e0650ee1f3c5a94682a846102f33ded3938d46"
+      },
+      {
+        "name": "lini_wasm_bg.wasm",
+        "url": "https://lini.rs/assets/lini_wasm_bg.wasm",
+        "sha256": "e42530f8cffe6b37171f80fe809829528696ab05bb076601b2efed2418941180"
+      },
+      {
+        "name": "LICENSE",
+        "url": "https://raw.githubusercontent.com/monfa-red/lini/main/LICENSE",
+        "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5"
+      }
+    ]
+  },
+  "browser": "Playwright Chromium 153.0.8010.12",
+  "cases": [
+    {
+      "form": "matrix",
+      "fixture": "fixtures/visual/inventory/helix-adr-options.json",
+      "inputSha256": "b5fabfd6b990fbd2ee3b388cc98ac662e322b76d8bd1cfca89cb68d52885f391",
+      "sourceSha256": "ab7b9e2d8f00615a5d9439e8f053ede3f3e6c871d143aef3cee7821c6ab2f89f",
+      "svgSha256": "cc08fb9c3958c076df34fd02b1c6598f0d85a11befacf3f496ebfae95bebd5c5",
+      "nativeDiagnostics": [],
+      "browserGeometry": {
+        "blocks": 0,
+        "tables": 5,
+        "labels": 86,
+        "errors": []
+      },
+      "screenshot": ".cache/lini-visual-layout/matrix.png"
+    },
+    {
+      "form": "before-after",
+      "fixture": "fixtures/visual/forms/visuals-before-after.json",
+      "inputSha256": "e4f562d672bd9560fa02affe04f7e0eb1027baba8aa0c0bfcdf977ae8d28c147",
+      "sourceSha256": "a99b50ce14c49360184d32eb815e4e508193cd0025134e8006c38d174463eee3",
+      "svgSha256": "f7a9487d7a625460abf352ca2f8f5596eef1ffb046e13d13c56d51ad8e3c9c26",
+      "nativeDiagnostics": [],
+      "browserGeometry": {
+        "blocks": 0,
+        "tables": 4,
+        "labels": 98,
+        "errors": []
+      },
+      "screenshot": ".cache/lini-visual-layout/before-after.png"
+    },
+    {
+      "form": "quadrant",
+      "fixture": "fixtures/visual/forms/layout-engines.json",
+      "inputSha256": "534e2ee82b0ca6afa66403d15073bb33c2528f87b57ffb5ff0495766ed6af862",
+      "sourceSha256": "9509ff404ddee19cf5aa355ee00a1c87037b385cbd39d113e7e7a1693663ee6a",
+      "svgSha256": "d26ff2a9f61f1138a1bb2c40da950b0d14c4ca4b4a9dca7597cb9d84e06fb5b7",
+      "nativeDiagnostics": [],
+      "browserGeometry": {
+        "blocks": 0,
+        "tables": 4,
+        "labels": 114,
+        "errors": []
+      },
+      "screenshot": ".cache/lini-visual-layout/quadrant.png"
+    },
+    {
+      "form": "roadmap",
+      "fixture": "fixtures/visual/forms/visuals-roadmap.json",
+      "inputSha256": "7d6a37e0bbd89a5795aa095ae9b855ea771c28daf78f675e508fdc390310dc12",
+      "sourceSha256": "7af9c85d5300ab8ffcefb38ff923c93ff1057d566ce4194e283ddf3fb45eec18",
+      "svgSha256": "7dd0a0b4d850d9ea8dc1622721029dba79c5991eb2d32ee0d88fdd08c1dfe29f",
+      "nativeDiagnostics": [],
+      "browserGeometry": {
+        "blocks": 20,
+        "tables": 0,
+        "labels": 20,
+        "errors": []
+      },
+      "fontStress": {
+        "font": "monospace",
+        "labels": 8,
+        "errors": []
+      },
+      "screenshot": ".cache/lini-visual-layout/roadmap.png"
+    }
+  ]
+}

@@ -54,6 +54,7 @@
 
     <section class="coverage-section" id="coverage" aria-labelledby="coverage-title">
       <div class="section-head compact-head"><div><p class="eyebrow">INTERCHANGE EVIDENCE · SAMPLE INSTANCES</p><h2 id="coverage-title">What current profiles emit</h2></div><p class="section-description">Counts summarize these application and form examples; they describe measured adapter outcomes, not support for every language concept.</p></div>
+      <article id="release-coverage" class="release-coverage" aria-live="polite"><div class="release-coverage-head"><div><p class="eyebrow">PREFERRED RELEASE · COMPLETE EXAMPLE COVERAGE</p><h3>Qualified target by example and form</h3></div><p>Counts track examples and canonical forms with a catalog-declared qualified choice. Native SVG totals below are separate render evidence.</p></div><div id="release-coverage-stats" class="release-coverage-stats"></div><div id="release-form-coverage" class="release-form-coverage" role="list" aria-label="Preferred release coverage by form"></div></article>
       <div class="coverage-grid" id="coverage-grid" aria-live="polite"></div>
       <p class="coverage-footnote"><span class="legend-dot supported"></span> Supported <span class="legend-dot loss"></span> Reported loss <span class="legend-dot unsupported"></span> Unsupported <span class="legend-dot unevaluated"></span> Not evaluated</p>
     </section>
@@ -90,9 +91,19 @@
       <div class="detail-meta" id="detail-meta"></div>
       <p class="detail-question" id="detail-question"></p>
       <div class="detail-grid">
-        <section class="source-pane"><div class="pane-heading"><div><p class="eyebrow">UMF EXAMPLE</p><h3>Sample document</h3></div><div class="source-actions"><button class="icon-button" id="copy-umf" type="button">Copy JSON</button><button class="icon-button" id="download-umf" type="button">Download</button></div></div><div class="provenance" id="provenance"></div><pre class="code-block"><code id="umf-source"></code></pre></section>
+        <section class="source-pane"><details id="sample-document-details"><summary><span><span class="eyebrow">UMF EXAMPLE</span><strong>Sample document JSON and provenance</strong></span><span class="sample-source-actions"><button class="icon-button" id="copy-umf" type="button">Copy JSON</button><button class="icon-button" id="download-umf" type="button">Download</button></span></summary><div class="provenance" id="provenance"></div><pre class="code-block"><code id="umf-source"></code></pre></details></section>
         <section class="target-pane"><div class="pane-heading"><div><p class="eyebrow">TARGET PROFILE</p><h3>Native evidence</h3></div></div>
-          <div class="target-tabs" role="tablist" aria-label="Target profile"><button role="tab" id="tab-dot" aria-controls="target-panel" data-target="dot" type="button">DOT</button><button role="tab" id="tab-mermaid" aria-controls="target-panel" data-target="mermaid" type="button">Mermaid</button><button role="tab" id="tab-lini" aria-controls="target-panel" data-target="lini" type="button">Lini</button></div>
+          <div id="qualified-profile-controls" class="qualified-profile-controls" hidden>
+            <label for="profile-select">Annotation profile variant</label>
+            <select id="profile-select" aria-describedby="profile-description"></select>
+            <p id="profile-description" class="profile-description"></p>
+            <div id="profile-view-switch" class="profile-view-switch" role="tablist" aria-label="Annotated profile view" hidden>
+              <button id="view-diagram" type="button" role="tab" aria-selected="true" aria-controls="target-panel" tabindex="0">Diagram</button>
+              <button id="view-complete" type="button" role="tab" aria-selected="false" aria-controls="target-panel" tabindex="-1">Complete annotated view</button>
+            </div>
+          </div>
+          <p id="baseline-label" class="baseline-label">Native baseline profile</p>
+          <div class="target-tabs" role="tablist" aria-label="Native baseline target"><button role="tab" id="tab-dot" aria-controls="target-panel" data-target="dot" type="button">DOT</button><button role="tab" id="tab-mermaid" aria-controls="target-panel" data-target="mermaid" type="button">Mermaid</button><button role="tab" id="tab-lini" aria-controls="target-panel" data-target="lini" type="button">Lini</button></div>
           <div id="target-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-dot"></div>
         </section>
       </div>

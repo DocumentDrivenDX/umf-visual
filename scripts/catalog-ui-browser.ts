@@ -71,12 +71,35 @@ try{
   if(await page.locator('.definition-card').count()!==1)throw new Error('Search did not isolate a definition by ID');
   await page.locator('.definition-card').click();
   await page.locator('#detail-dialog').waitFor({state:'visible'});
-  if(new URL(page.url()).searchParams.get('target')!=='dot')throw new Error('Opening a definition did not write its canonical DOT deep link');
+  const firstRelease=first.preferredRelease;
+  if(new URL(page.url()).searchParams.get('target')!==(firstRelease?.format||'dot'))throw new Error('Opening a sample did not select its preferred native target');
+  const firstPreferredVariant=firstRelease&&first.profileVariants?.find((variant:any)=>variant.format===firstRelease.format&&variant.profileId===firstRelease.profileId);
+  if(firstPreferredVariant){
+    if(new URL(page.url()).searchParams.get('profile')!==firstPreferredVariant.profileId)throw new Error('Opening a preferred annotation profile did not add its profile deep link');
+    if(await page.locator('#profile-select').inputValue()!==firstPreferredVariant.profileId)throw new Error('Preferred profile was not selected in the annotation control');
+    const diagram=page.locator('#target-panel .render-preview img');await diagram.waitFor({state:'visible'});
+    await page.waitForFunction(()=>{const img=document.querySelector('#target-panel .render-preview img') as HTMLImageElement|null;return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0});
+    if(!(await page.locator('#target-panel').getByText('QUALIFIED ANNOTATION PROFILE · PREFERRED RELEASE').count()))throw new Error('Preferred profile was not explicitly distinguished from the baseline');
+    await page.getByRole('tab',{name:'Complete annotated view'}).click();
+    if(!(await page.locator('#target-panel').getByText(/Complete view: all readable native annotations are included/).count()))throw new Error('Complete annotation view was not described');
+    const complete=page.locator('#target-panel .render-preview img');await page.waitForFunction(()=>{const img=document.querySelector('#target-panel .render-preview img') as HTMLImageElement|null;return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0});
+    if(!(await page.locator('#target-panel .profile-native-source').count()))throw new Error('Complete annotated source was not available');
+    await page.locator('#target-panel .profile-coverage summary').click();
+    if(!(await page.locator('#target-panel .profile-coverage tbody tr').count()))throw new Error('Annotated field coverage was not displayed');
+    const completeBounds=await complete.evaluate(element=>{const rect=element.getBoundingClientRect();const parent=element.parentElement!.getBoundingClientRect();return {width:rect.width,height:rect.height,parentWidth:parent.width,parentHeight:parent.height}});
+    if(completeBounds.width<=0||completeBounds.height<=0||completeBounds.width>completeBounds.parentWidth||completeBounds.height>completeBounds.parentHeight)throw new Error(`Complete native render is not scaled into its view: ${JSON.stringify(completeBounds)}`);
+    await page.getByRole('tab',{name:firstRelease.format==='dot'?'DOT':firstRelease.format==='lini'?'Lini':'Mermaid'}).click();
+    if(new URL(page.url()).searchParams.has('profile'))throw new Error('Native baseline selection retained the annotation profile URL parameter');
+    if(!(await page.locator('#baseline-label').innerText()).includes('NATIVE BASELINE'))throw new Error('Native baseline tab is not distinguished from the annotation profile');
+    exercised.push('preferred focused diagram, complete annotation view, coverage, native source and baseline access');
+  }
+  if(new URL(page.url()).searchParams.has('profile')&& !firstPreferredVariant)throw new Error('An unqualified target was mislabeled as an annotation profile');
   const sourceText=await page.locator('#umf-source').textContent();
   if(sourceText!==JSON.stringify(first.document,null,2))throw new Error('UMF definition source was not shown faithfully');
   await page.screenshot({path:'.cache/catalog-ui-detail.png'});
   await page.getByRole('tab',{name:'Mermaid'}).click();
   if(!new URL(page.url()).searchParams.has('id')||new URL(page.url()).searchParams.get('target')!=='mermaid')throw new Error('Target selection did not update the deep link');
+  if(new URL(page.url()).searchParams.has('profile'))throw new Error('Native baseline target selection retained the optional profile parameter');
   if(await page.locator('#tab-mermaid').getAttribute('tabindex')!=='0'||await page.locator('#tab-dot').getAttribute('tabindex')!=='-1')throw new Error('Selected target tab did not receive the roving tab stop');
   await page.getByRole('tab',{name:'Lini'}).focus();
   await page.keyboard.press('ArrowRight');

@@ -5,6 +5,7 @@ import {dotAdapter} from './dot';
 import {liniAdapter} from './lini';
 import {mermaidAdapter} from './mermaid';
 import {interchangeDiagnostic} from './shared';
+import {exportAnnotatedVisual,hasExplicitProfile,importAnnotatedVisual} from './annotated';
 import type {ExportVisualOptions,ExportVisualResult,IdentityMapping,ImportVisualOptions,ImportVisualResult,InterchangeDiagnostic,InterchangeFormat,InterchangeMode,RetainedVisualSource,VisualInterchangeAdapter} from './types';
 export * from './types';
 export {dotAdapter} from './dot';
@@ -14,7 +15,11 @@ export {liniAdapter} from './lini';
 const MAX_SOURCE_BYTES=262_144;
 const VISUAL_EXTENSION_PATH='/extensions/'+VISUAL_EXTENSION;
 const adapters:Record<InterchangeFormat,VisualInterchangeAdapter>={dot:dotAdapter,mermaid:mermaidAdapter,lini:liniAdapter};
-export const interchangeCapabilities=Object.values(adapters).map(({format,version,subset})=>({format,profile:format==='lini'?'umf.visual.lini/1':'umf.visual.'+format+'/1',version,subset,directions:['import','export'] as ('import'|'export')[]}));
+export const interchangeCapabilities=[
+ ...Object.values(adapters).map(({format,version,subset})=>({format,profile:format==='lini'?'umf.visual.lini/1':'umf.visual.'+format+'/1',version,subset,directions:['import','export'] as ('import'|'export')[]})),
+ {format:'dot' as const,profile:'umf.visual.dot.annotated/1',version:'0.1.0',subset:'Explicit opt-in visual 1.0.0 profile: directed flows, entity/containment structures, sequence rails/rungs and state views, with visible typed application/provenance annotations; full-document and canonical native AST readback. Other families refuse until independently qualified.',directions:['import','export'] as ('import'|'export')[]},
+ {format:'lini' as const,profile:'umf.visual.lini.annotated/1',version:'0.1.0',subset:'Explicit opt-in visual 1.0.0 profile for pinned Lini 1.1.0 chart/table/grid metric, timeline and comparison forms, with visible typed application/provenance annotations; full-document and canonical native AST readback.',directions:['import','export'] as ('import'|'export')[]},
+];
 const error=(code:string,path:string,message:string)=>interchangeDiagnostic(code,path,message,{severity:'error',loss:false});
 const loss=(code:string,path:string,message:string)=>interchangeDiagnostic(code,path,message,{severity:'warning',loss:true});
 function canonical(value:unknown):string{
@@ -28,6 +33,7 @@ function canonicalDoc(doc:Document):string{return canonical(doc);}
 
 /** Safe facade over bounded native adapters. All caller JSON is admitted before traversal. */
 export function importVisual(source:unknown,options:unknown):ImportVisualResult{
+ if(hasExplicitProfile(options))return importAnnotatedVisual(source,options);
  let safeOptions:ImportVisualOptions|undefined,text='';const diagnostics:InterchangeDiagnostic[]=[],empty:RetainedVisualSource={format:'dot',text:'',importOptions:{id:'',question:''},baseline:'',identityMap:[]};
  try{safeOptions=admitted<ImportVisualOptions>(options);}catch{return{ok:false,source:{...empty,text:typeof source==='string'?source:''},diagnostics:[error('INTERCHANGE_OPTIONS','/options','Options are not safe JSON data.')],identityMap:[]};}
  if(!safeOptions||typeof safeOptions!=='object'||Array.isArray(safeOptions)||Object.keys(safeOptions).some(key=>!['format','id','question','mode'].includes(key)))return{ok:false,source:{...empty,text:typeof source==='string'?source:''},diagnostics:[error('INTERCHANGE_OPTIONS','/options','Options must be a plain object containing only format, id, question and optional mode.')],identityMap:[]};
@@ -126,6 +132,7 @@ function replay(document:Document,receipt:RetainedVisualSource,requested:Interch
 }
 /** Export an admitted public core document to a bounded native profile. */
 export function exportVisual(input:unknown,optionsInput:unknown):ExportVisualResult{
+ if(hasExplicitProfile(optionsInput))return exportAnnotatedVisual(input,optionsInput);
  let document:Document,options:ExportVisualOptions;
  try{document=admitted<Document>(input);options=admitted<ExportVisualOptions>(optionsInput);}catch{return{ok:false,diagnostics:[error('INTERCHANGE_INPUT','/','Document and export options must be safe JSON data.')],identityMap:[]};}
  if(!options||typeof options!=='object'||Array.isArray(options)||Object.keys(options).some(key=>!['format','mode','source','original'].includes(key)))return{ok:false,diagnostics:[error('INTERCHANGE_OPTIONS','/options','Export options must be a plain object containing only format, mode, source and original.')],identityMap:[]};

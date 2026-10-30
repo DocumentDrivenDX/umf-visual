@@ -74,3 +74,15 @@ demonstrates export, actual Google Slides UI label/movement edits, validated
 import and a second native export for an adapter-owned flow/network diagram.
 Bun/Chromium replays cover preservation and refusal; arbitrary native import and
 structural edit reconciliation remain unqualified. The prototype is outside the public API.
+
+[Readable annotation profiles](02-design/contracts/CONTRACT-087-readable-annotations.md)
+govern optional typed native legends, coverage/readback and unchanged native
+defaults. The [example completion plan](04-build/example-completion-plan.md)
+sequences the confirmed release gate: every current example has at least one
+suitable complete target and all 22 forms have faithful previews, followed by
+sanitized complex Miro examples and expanded edited integrations.
+
+[Example milestone evidence](04-build/example-completion-evidence.md) records
+complete semantic/native readback and local preview approval, with Linux CI
+and publication still pending. [Prepared v0.2.0 notes](05-deploy/release-notes-v0.2.0.md)
+describe that candidate and its qualified scope.

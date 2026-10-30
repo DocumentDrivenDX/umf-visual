@@ -1,6 +1,7 @@
 import {exerciseMiroBrowser} from './miro-browser.js';
 import {readVisualDocument,writeVisualDocument,inspectVisual,editVisual,getVisual,exportVisual,importVisual,createVisualDocument,upgradeVisualDocument} from '../src';
 import {runInterchangeBrowserChecks} from './interchange/browser-checks';
+import {runAnnotatedBrowserChecks} from './interchange/annotated-browser-checks';
 declare global {interface Window {visualResult?:unknown;}}
 try{
  const fixtures=await fetch('/fixtures').then(r=>r.json()) as unknown[];
@@ -53,5 +54,5 @@ try{
  }
  if(wave2.length!==16)throw Error('Expected 11 grouped flows and 5 sequences in browser');
  const interchange=await runInterchangeBrowserChecks();
- window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true},wave2,interchange,miro:await exerciseMiroBrowser()};
+ window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true},wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),miro:await exerciseMiroBrowser()};
 }catch(error){window.visualResult={ok:false,error:String(error)};}

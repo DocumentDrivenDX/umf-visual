@@ -19,6 +19,8 @@ jobs:
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run check:source
       - run: bun run typecheck
+      - run: sudo apt-get update && sudo apt-get install -y graphviz
+      - run: bun run fetch:lini
       - run: bun test
       - run: bun run build
       - run: bun run test:package
@@ -28,18 +30,37 @@ jobs:
           path: .cache/documentdrivendx-umf-visual-*.tgz
           include-hidden-files: true
           if-no-files-found: error
-      - run: sudo apt-get update && sudo apt-get install -y graphviz
-      - run: bun run fetch:lini
       - run: bun run test:native
       - run: bunx playwright install --with-deps chromium
       - run: bun run test:browser
       - run: bun run test:native:wave2
+      - run: bun run test:native:annotated
+      - run: bun run test:native:layout
       - run: bun run build:catalog
       - run: bun run test:catalog
+      - run: bun run test:release:catalog
       - run: bun run report:loss
       - run: bun run report:loss:wave2
+      - run: bun run report:loss:ledger --release
       - run: bun run build:site
       - run: bun run test:site
+      - run: bun run test:site:profiles
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && !cancelled() }}
+        with:
+          name: umf-visual-profile-evidence
+          path: |
+            .cache/native-annotated.json
+            .cache/native-lini-annotated.json
+            .cache/native-lini-visual-layout.json
+            .cache/lini-visual-layout/*.png
+            .cache/lini-visual-layout/*.json
+            .cache/browser.json
+            .cache/loss-ledger.json
+            .cache/catalog-profile-ui-browser.json
+            .cache/catalog-profile-*.png
+          include-hidden-files: true
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           name: umf-visual-catalog

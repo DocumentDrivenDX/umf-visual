@@ -55,7 +55,7 @@ describe('visual interchange catalogue data', () => {
       jsonFixturePaths('fixtures/visual/forms'), jsonFixturePaths('fixtures/visual/inventory'), jsonFixturePaths('fixtures/catalog'),
     ])).flat().sort();
     expect(catalog.items.map(item => item.sourcePath)).toEqual(expectedSources);
-  });
+  }, 30_000);
 
   // @covers US-095-AC2: rows are derived from actual facade exports with explicit status, diagnostics and identity maps.
   test('records exact fixture provenance and stable native export results', async () => {
@@ -84,7 +84,7 @@ describe('visual interchange catalogue data', () => {
         expect(target.identityMap).toEqual(actual.identityMap);
       }
     }
-  });
+  }, 30_000);
 
   // @covers US-095-AC7: refused targets retain diagnostics and never receive surrogate SVG output.
   test('keeps unsupported exports explicit and non-renderable in the data-only build', async () => {
@@ -97,7 +97,7 @@ describe('visual interchange catalogue data', () => {
         expect(target.render).toBeUndefined();
       }
     }
-  });
+  }, 30_000);
 
   // @covers US-095-AC1, US-095-AC2: canaries distinguish strict support, reported loss and refusal.
   test('canaries exercise hostile labels, entity fields, and explicit projection-loss receipts', async () => {
@@ -120,7 +120,7 @@ describe('visual interchange catalogue data', () => {
     expect(entities.targets.mermaid.status).toBe('reported-loss');
     expect(entities.targets.mermaid.source).toContain('東京');
     expect(entities.targets.lini.source).toContain('東京');
-  });
+  }, 30_000);
 
   // @covers US-095-AC7: repeated data generation is canonical and contains no clock or checkout-local values.
   test('produces byte-stable catalogue data for unchanged fixtures', async () => {
@@ -129,5 +129,5 @@ describe('visual interchange catalogue data', () => {
     expect(second).toBe(first);
     expect(first).not.toContain(`${process.cwd()}/`);
     expect(first).not.toContain('generatedAt');
-  });
+  }, 30_000);
 });

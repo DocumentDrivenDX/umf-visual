@@ -243,3 +243,14 @@ from loss reductions on the old emitted set. Run portable tests, packed consumer
 independent Graphviz/Chromium checks, complete catalog/UI checks and Sol review.
 All original fixtures retain provenance; native rendering gains do not imply
 full semantic losslessness. Miro/model evolution remains a separate change.
+
+## Complete Examples and Subsequent Integrations
+
+The owner selected at least one suitable complete target per current example,
+then a release with faithful previews, followed by complex Miro examples and
+parallel PowerPoint/Google Slides/Miro integration work. The linked
+[example completion plan](example-completion-plan.md) owns package ordering,
+53-example/22-form acceptance, evidence and continuation; CONTRACT-087 owns
+opt-in readable annotations. Native defaults and released visual 1.0.0 stay frozen
+alongside explicit generated 1.1.0 support. No passing completion claim follows
+from the plan or from retaining opaque native/source data.

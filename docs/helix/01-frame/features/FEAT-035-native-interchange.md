@@ -58,6 +58,14 @@ presentation. A valid neutral payload alone does not establish native equivalenc
   enforced. Adapters must refuse or report differences without weakening them.
 - INT-07: Support claims must state format version, subset, direction and observed
   evidence. Native acceptance and semantic preservation are separate claims.
+- INT-08: Explicitly selected readable annotation profiles must preserve supported
+  application/provenance fields through visible typed values and independently
+  addressable native carriers. They must not replace intrinsic diagram meaning
+  with an opaque source blob or change existing native-profile defaults.
+- INT-09: The next example-completion release must cover each of the 53 unchanged
+  current examples through at least one suitable strict, complete target profile,
+  with native readback and a faithful preview across all 22 represented forms.
+  Other target limitations remain visible; annotations follow CONTRACT-087.
 
 ### Non-Functional Requirements
 
@@ -98,6 +106,11 @@ the document envelope, safe copying and validation. Native engines are test orac
 
 ## Out of Scope
 
-Arbitrary DOT/Mermaid/Lini syntax, all Mermaid families, pixel/layout equivalence,
-a renderer, cross-format semantic equivalence beyond the declared subset,
+Arbitrary DOT/Mermaid/Lini syntax, all Mermaid families, general pixel equivalence,
+cross-format semantic equivalence beyond the declared subset,
 authoritative model generation and vocabulary redesign.
+
+The owner-authorized example-completion increment adds qualified render profiles
+for existing forms and readable metadata. It does not expand model semantics or
+turn native acceptance into a general fidelity claim. CONTRACT-087 and the
+[example completion plan](../../04-build/example-completion-plan.md) govern it.

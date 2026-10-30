@@ -11,7 +11,7 @@ describe('microsite catalogue UI contract',()=>{
     expect(html).toContain('A question is required');
     expect(html).toContain('caps nodes at 15');
     expect(html).toContain('id="detail-dialog"');
-    expect(html).toContain('aria-label="Target profile"');
+    expect(html).toContain('aria-label="Native baseline target"');
     expect(app).toContain("code.textContent = result.source");
     expect(app).toContain("$('umf-source').textContent = safeJson(item.document ?? {})");
     expect(app).toContain('renderLanguageReference');
