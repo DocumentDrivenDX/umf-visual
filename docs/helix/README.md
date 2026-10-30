@@ -51,3 +51,9 @@ records native, packed-package, browser, catalog and reproducibility checks.
 
 [First loss-reduction wave](04-build/loss-reduction-wave-1.md) records measured
 title/description mappings, native character limits and the next worklist.
+
+[Miro integration spike](02-design/spikes/SPIKE-011-miro-integration.md) and
+[CONTRACT-084](02-design/contracts/CONTRACT-084-miro-network.md) govern the
+bounded network adapter and native preservation extension. The
+[implementation evidence](04-build/miro-integration.md) records actual Miro UI
+edit/adoption, a 72-item native reproduction and scoped fidelity limits.

@@ -1,0 +1,28 @@
+{
+  "graphviz": {
+    "version": "dot - graphviz version 16.1.0 (20260904.0139)",
+    "nodes": 2,
+    "edges": 1,
+    "labelFidelity": true,
+    "detailFidelity": true,
+    "tooltipWhitespace": {
+      "nativeAttributeExact": true,
+      "svgDisplaySpacing": true
+    }
+  },
+  "lini": {
+    "version": "1.1.0",
+    "cases": [
+      {
+        "name": "graph",
+        "diagnostics": [],
+        "svgSha256": "668b1fc3376e39d386e385340730bc7c89b5fbd04de65bb62032fb0266c9f325"
+      },
+      {
+        "name": "entities",
+        "diagnostics": [],
+        "svgSha256": "f7b8898cfd5e081069148b344a653251e242dd0893e06f614134517f0d51508f"
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UMF visual · Miro round trip</title>
+<style>
+body{font:14px system-ui;margin:20px;color:#18222d;background:#f8fafb}h1{font-size:22px}p{line-height:1.5}
+label{display:block;margin-top:16px;font-weight:600}textarea{box-sizing:border-box;width:100%;height:200px;font:12px monospace;padding:10px;border:1px solid #aab8c4;border-radius:6px}
+button,select{padding:9px 12px;margin:6px 4px 6px 0}button{border:1px solid #6f8597;background:white;border-radius:5px;cursor:pointer}button:disabled{opacity:.5}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e9eff3;padding:12px;min-height:50px}small{line-height:1.5}
+</style>
+<h1>UMF visual round trip</h1>
+<p>Export a network, edit its question, labels or connector endpoints in Miro, then load the changes.</p>
+<p><small>Moving or styling items stays in native capture. Adding or deleting mapped items requires explicit reconciliation. Keep the companion with your UMF document.</small></p>
+<label for="source">UMF document</label><select id="format" aria-label="Source format"><option value="json">JSON</option><option value="yaml">YAML</option></select>
+<textarea id="source" spellcheck="false"></textarea>
+<label><input type="checkbox" id="report"> Allow report mode (retain additional meaning in companion)</label>
+<button id="preview">Preview export</button><button id="export">Export to Miro</button><button id="import">Load edited board</button>
+<pre id="status" role="status">Ready. Preview export to inspect support and losses.</pre>
+<label for="companion">Miro companion (paste a saved file to resume)</label><textarea id="companion" spellcheck="false"></textarea>
+<button id="recover">Recover export receipt</button><button id="capture">Capture board</button><button id="capture-experimental">Capture experimental shapes</button><button id="download-source">Download UMF</button><button id="download-native-source">Download UMF with native capture</button><button id="download-companion">Download companion</button><button id="download-capture">Download native capture</button>
+<label for="native-paste">Native Miro copy (copy board objects, then paste here)</label><textarea id="native-paste" placeholder="Paste copied Miro objects here; native HTML is stored as opaque data and never rendered."></textarea><button id="download-native-board">Download native board UMF</button><button id="copy-native">Copy native content from UMF</button>
+<script src="https://miro.com/app/static/sdk/v2/miro.js"></script><script type="module" src="/app.js"></script>
+</html>

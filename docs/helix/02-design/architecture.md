@@ -47,6 +47,7 @@ There is no hosted service or database. The library runs inside its consumer.
 | Module | Responsibility / Owned Types | Public API | Allowed Dependencies | Forbidden Dependencies |
 | --- | --- | --- | --- | --- |
 | src/extensions/visual | Visual types, validation and edits | CONTRACT-083 API | Released @umf/core and local manifest | UMF internals, sibling checkout, renderer/Node APIs |
+| src/adapters/miro | Network projection, native preservation, atomic reconciliation and injected Web SDK I/O | CONTRACT-084; ./miro | Public core/visual APIs and local helpers | Host APIs, global SDK, vocabulary dependencies on adapters |
 | src/interchange | Portable native parsing, mapping, source companions and export | CONTRACT-086 | Local visual API, public @umf/core, local shared helpers | Native engines, renderer APIs, host APIs, sibling source |
 | src/index.ts | Package export boundary | Visual and interchange APIs | Local visual and interchange modules | Broad core re-exports |
 | scripts | Build, catalog generation and verification | Package scripts; CONTRACT-085 data | Bun, Node tooling, TypeScript API, Playwright, native engines | Import into portable source |
@@ -56,6 +57,10 @@ There is no hosted service or database. The library runs inside its consumer.
 src/interchange facade owns native adapter selection, policy, safe admission and
 source replay. Each format directory owns its parser, mappings and serializer.
 Native engines run only in scripts/tests; renderers remain consumers.
+
+The Miro adapter owns network correspondence, receipts and native extension
+`umf.visual.miro` 1.0.0. Its example app injects Web SDK I/O and owns board-scoped
+checkpoints/clipboard interaction. It does not alter common visual 1.0.0.
 
 **Construction Policy**: visualRegistry performs explicit registration; existing
 read/write/edit APIs reuse the vocabulary's private registry as in #62. The

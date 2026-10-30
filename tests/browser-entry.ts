@@ -1,3 +1,4 @@
+import {exerciseMiroBrowser} from './miro-browser.js';
 import {readVisualDocument,writeVisualDocument,inspectVisual,editVisual,getVisual} from '../src';
 import {runInterchangeBrowserChecks} from './interchange/browser-checks';
 declare global {interface Window {visualResult?:unknown;}}
@@ -19,5 +20,5 @@ try{
  const edited=editVisual(doc,v=>({...v,takeaway:'Browser consumer edit'}));
  if(getVisual(edited).takeaway!=='Browser consumer edit'||JSON.stringify(doc)!==before)throw Error('Atomic edit failure');
  const interchange=await runInterchangeBrowserChecks();
- window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,interchange};
+ window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,interchange,miro:await exerciseMiroBrowser()};
 }catch(error){window.visualResult={ok:false,error:String(error)};}
