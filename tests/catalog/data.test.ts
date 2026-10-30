@@ -32,7 +32,7 @@ describe('visual interchange catalogue data', () => {
     });
     const schemaDefinition = JSON.parse(await readFile('spec/extensions/visual/schema.json', 'utf8')) as any;
     expect(catalog.language.schema.schema).toEqual(schemaDefinition);
-    expect(Object.keys(schemaDefinition.$defs)).toHaveLength(19);
+    expect(Object.keys(schemaDefinition.$defs)).toHaveLength(20);
     for (const source of [catalog.language.schema, catalog.language.forms]) {
       const bytes = await readFile(source.sourcePath);
       expect(source.sourceSha256).toBe(createHash('sha256').update(bytes).digest('hex'));

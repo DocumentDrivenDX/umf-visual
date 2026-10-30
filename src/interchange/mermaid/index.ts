@@ -100,7 +100,7 @@ function parseFlow(source:string,context:{id:string;question:string},lines:strin
   diagnostics.push(diagnostic('MERMAID_UNSUPPORTED',ptr(row.index),'Statement is not a supported simple flowchart node or directed link.',row.range,'error'));fatal=true;
  }
  if(!nodes.length){diagnostics.push(diagnostic('MERMAID_EMPTY',ptr(meaningful[0].index),'Flowchart contains no nodes.',meaningful[0].range,'error'));fatal=true;}
- if(nodes.length>15){diagnostics.push(diagnostic('MERMAID_SIZE','/source','Flowchart has more than the Visual 1.0 limit of 15 nodes.',undefined,'error'));fatal=true;}
+ if(nodes.length>15){diagnostics.push(diagnostic('MERMAID_SIZE','/source','Flowchart has more than the Mermaid profile’s bound of 15 nodes.',undefined,'error'));fatal=true;}
  if(fatal)return{diagnostics,identityMap};
  for(const row of lines.map((text,index)=>({text:text.trim(),index})).filter(x=>/^%%/.test(x.text)))diagnostics.push(commentDiagnostic(row.text,row.index,offsets[row.index],offsets[row.index]+lines[row.index].length));
  const visual:Visual={id:context.id,kind:'flow',form:'network',question:context.question,...(title===undefined?{}:{title}),nodes:nodes.map(({id,label})=>({id,label})),...(edges.length?{edges:edges.map(({id,from,to,label})=>({id,from,to,...(label===undefined?{}:{label})}))}:{})};
@@ -148,7 +148,7 @@ function parseEr(source:string,context:{id:string;question:string},lines:string[
   diagnostics.push(diagnostic('MERMAID_UNSUPPORTED',ptr(row.index),'Statement is not a supported ER entity, attribute, or relationship.',row.range,'error'));fatal=true;
  }
  if(current){diagnostics.push(diagnostic('MERMAID_FIELD',ptr(meaningful.at(-1)!.index),'Unclosed ER entity attribute block.',meaningful.at(-1)!.range,'error'));fatal=true;}
- if(nodes.length>15){diagnostics.push(diagnostic('MERMAID_SIZE','/source','ER diagram has more than the Visual 1.0 limit of 15 nodes.',undefined,'error'));fatal=true;}
+ if(nodes.length>15){diagnostics.push(diagnostic('MERMAID_SIZE','/source','ER diagram has more than the Mermaid profile’s bound of 15 nodes.',undefined,'error'));fatal=true;}
  if(fatal)return{diagnostics,identityMap};
  for(const row of lines.map((text,index)=>({text:text.trim(),index})).filter(x=>/^%%/.test(x.text)))diagnostics.push(commentDiagnostic(row.text,row.index,offsets[row.index],offsets[row.index]+lines[row.index].length));
  for(const node of nodes)if(!entityDecls.some(entity=>entity.node===node.id))entityDecls.push({node:node.id,fields:[]});

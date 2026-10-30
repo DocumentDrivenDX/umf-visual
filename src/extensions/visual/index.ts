@@ -1,9 +1,16 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import manifest from '../../../spec/extensions/visual/package.json';
 import {Registry,validateDocument,copyJson,readDocument,writeDocument,UmfError,pointer,type Document,type Json,type Diagnostic,type ExtensionPackage,type Validation} from '@umf/core';
+import type {VisualDefs,VisualShape} from './generated';
 export const VISUAL_EXTENSION='umf.visual';
 export const VISUAL_VERSION='1.0.0';
 export const visualPackage=manifest as unknown as ExtensionPackage;
+export type {VisualDefs,VisualShape} from './generated';
+// The shapes below are generated from the schema (scripts/generate.ts); these names are the public API.
+export type Visual=VisualShape;
+export type VisualKind=VisualShape['kind'];
+export type VisualForm=VisualShape['form'];
+// Which forms belong to each kind: a semantic rule (VISUAL_FORM), checked here against the schema's kinds and forms.
 export const visualForms={
  flow:['network','pipeline','zoned','lanes'],
  sequence:['lifelines','ladder'],
@@ -12,44 +19,33 @@ export const visualForms={
  timeline:['milestones','roadmap','history'],
  comparison:['matrix','quadrant','before-after'],
  metric:['stat','bar','line','meter']
-} as const;
-export type VisualKind=keyof typeof visualForms;
-export type VisualForm=(typeof visualForms)[VisualKind][number];
-export type VisualStatus='built'|'placeholder'|'decided'|'unknown';
-export type VisualEmphasis='focus'|'muted';
-export type VisualRole='actor'|'own'|'platform'|'external'|'store'|'document';
-export interface VisualEvidence {path:string;contains?:string;}
-export interface VisualLabelled {id:string;label:string;}
-export interface VisualGroup {id:string;label:string;detail?:string;role:'zone'|'boundary'|'lane'|'tier'|'region'|'phase'|'loop'|'alternative';tier?:number;parent?:string;status?:VisualStatus;emphasis?:VisualEmphasis;}
-export interface VisualParticipant {id:string;label:string;detail?:string;role?:VisualRole;status?:VisualStatus;emphasis?:VisualEmphasis;evidence?:VisualEvidence[];}
-export interface VisualNode extends VisualParticipant {group?:string;parent?:string;layer?:string;}
-export interface VisualEdge {id:string;from:string;to:string;label?:string;why?:string;kind?:'action'|'data'|'control'|'return';status?:VisualStatus;emphasis?:VisualEmphasis;evidence?:VisualEvidence[];}
+} as const satisfies Record<VisualKind,readonly VisualForm[]>;
+export type VisualStatus=VisualDefs['status'];
+export type VisualEmphasis=VisualDefs['emphasis'];
+export type VisualRole=NonNullable<VisualDefs['node']['role']>;
+export type VisualEvidence=VisualDefs['evidence'][number];
+export type VisualLabelled=VisualDefs['labelled'];
+export type VisualGroup=VisualDefs['group'];
+export type VisualParticipant=VisualDefs['participant'];
+export type VisualNode=VisualDefs['node'];
+export type VisualEdge=VisualDefs['edge'];
 /** When an unnumbered step happens; a step with none is numbered in order. */
-export type VisualStepWhen='throughout'|'before'|'after'|'background'|'scheduled'|'on-failure'|'optional'|'other';
-export interface VisualStep {id:string;title:string;caption?:string;focus:string[];when?:VisualStepWhen;tag?:string;}
-export interface VisualMessage {id:string;from:string;to:string;label:string;kind?:'call'|'return'|'async'|'note';group?:string;status?:VisualStatus;emphasis?:VisualEmphasis;evidence?:VisualEvidence[];}
-export type VisualCardinality='zero-or-one'|'exactly-one'|'zero-or-many'|'one-or-many';
-export interface VisualEntity {node:string;fields:{name:string;type?:string;keys?:('pk'|'fk'|'uk')[];nullable?:boolean}[];}
-export interface VisualReference {id:string;from:{node:string;field?:string};to:{node:string;field?:string};label?:string;fromCardinality?:VisualCardinality;toCardinality?:VisualCardinality;}
-export interface VisualTransition {id:string;from:string;to:string;event:string;guard?:string;action?:string;path?:'main'|'alternate'|'failure';status?:VisualStatus;emphasis?:VisualEmphasis;}
-export interface VisualEvent {id:string;label:string;at:string;lane?:string;detail?:string;status?:VisualStatus;emphasis?:VisualEmphasis;}
-export interface VisualSpan {id:string;label:string;start:string;end:string;lane?:string;detail?:string;status?:VisualStatus;emphasis?:VisualEmphasis;}
-export interface VisualMarker {id:string;label:string;at:string;kind:'today'|'deadline'|'marker';}
-export interface VisualCriterion {id:string;label:string;detail?:string;measure:'text'|'rating'|'support';max?:number;low?:string;high?:string;}
-export interface VisualValue {item:string;criterion:string;text?:string;rating?:number;support?:'yes'|'no'|'partial';note?:string;}
-export interface VisualSeries {id:string;label:string;points:{at?:string;value:number}[];emphasis?:VisualEmphasis;}
-export interface Visual {
- id:string;kind:VisualKind;form:VisualForm;question:string;title?:string;takeaway?:string;
- audience?:'developer'|'operator'|'user'|'data'|'executive';
- source?:{path:string;view?:string;digest?:string};omissions?:string[];
- groups?:VisualGroup[];nodes?:VisualNode[];edges?:VisualEdge[];steps?:VisualStep[];
- sequence?:{participants:VisualParticipant[];messages:VisualMessage[]};
- structure?:{layers?:VisualLabelled[];entities?:VisualEntity[];references?:VisualReference[]};
- state?:{initial:string;final?:string[];transitions:VisualTransition[]};
- timeline?:{scale:{kind:'date'}|{kind:'period';periods:VisualLabelled[]};lanes?:VisualLabelled[];events?:VisualEvent[];spans?:VisualSpan[];markers?:VisualMarker[]};
- comparison?:{items:(VisualLabelled&{detail?:string})[];criteria:VisualCriterion[];values:VisualValue[];chosen?:{item:string;reason:string};axes?:{x:string;y:string}};
- metric?:{unit:string;good?:'up'|'down';format?:{kind:'number'|'percent'|'currency'|'duration';decimals?:number;currency?:string;compact?:boolean};axis?:{kind:'time'}|{kind:'category';categories:VisualLabelled[]};series:VisualSeries[];target?:number;baseline?:number;comparison?:{label:string;value:number}};
-}
+export type VisualStepWhen=NonNullable<VisualDefs['step']['when']>;
+export type VisualStep=VisualDefs['step'];
+export type VisualMessage=VisualDefs['sequence']['messages'][number];
+export type VisualCardinality=VisualDefs['cardinality'];
+/** Exact bounds at one end of a reference: max absent is unbounded; text is the source's own notation. */
+export type VisualMultiplicity=VisualDefs['multiplicity'];
+export type VisualEntity=NonNullable<VisualDefs['structure']['entities']>[number];
+export type VisualField=VisualEntity['fields'][number];
+export type VisualReference=NonNullable<VisualDefs['structure']['references']>[number];
+export type VisualTransition=VisualDefs['state']['transitions'][number];
+export type VisualEvent=NonNullable<VisualDefs['timeline']['events']>[number];
+export type VisualSpan=NonNullable<VisualDefs['timeline']['spans']>[number];
+export type VisualMarker=NonNullable<VisualDefs['timeline']['markers']>[number];
+export type VisualCriterion=VisualDefs['comparison']['criteria'][number];
+export type VisualValue=VisualDefs['comparison']['values'][number];
+export type VisualSeries=VisualDefs['metric']['series'][number];
 export interface VisualInspection extends Validation {advice:Diagnostic[];}
 type Content='groups'|'nodes'|'edges'|'sequence'|'structure'|'state'|'timeline'|'comparison'|'metric';
 // Which top-level content each kind may carry, and which it must.
@@ -66,20 +62,23 @@ const contentKeys:Content[]=['groups','nodes','edges','sequence','structure','st
 const walkthroughKinds:VisualKind[]=['flow','sequence','state','timeline'];
 const graphKinds:VisualKind[]=['flow','structure','state'];
 const sequenceRoles=['phase','loop','alternative'];
-const MAX_NODES=15,ADVISED_NODES=7,ADVISED_PARTICIPANTS=8;
+// Resource limits make a visual invalid; legibility is advice (advise), which a profile such as HELIX's may enforce.
+const MAX_NODES=500,MAX_CONNECTIONS=10_000,SPLIT_NODES=15,ADVISED_NODES=7,ADVISED_PARTICIPANTS=8;
 const each=<T>(list:T[]|undefined,path:string,visit:(item:T,path:string,index:number)=>void)=>(list??[]).forEach((item,index)=>visit(item,path+'/'+index,index));
+/** Epoch milliseconds of a proleptic-Gregorian UTC time; unlike Date.UTC, years 0–99 stay years 0–99. */
+const utc=(year:number,monthIndex:number,day:number,hour=0,minute=0,second=0)=>{const at=new Date(0);at.setUTCFullYear(year,monthIndex,day);at.setUTCHours(hour,minute,second,0);return at.getTime();};
 const datePattern=/^(\d{4})-(\d{2})(?:-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(Z|[+-](\d{2}):(\d{2})))?)?$/;
 /** ISO-8601 month, date or offset date-time as epoch milliseconds; undefined when not a real calendar value. */
 export function visualDateValue(text:string):number|undefined {
  const m=datePattern.exec(text);if(!m)return;
  const year=Number(m[1]),month=Number(m[2]),day=m[3]===undefined?1:Number(m[3]);
- if(month<1||month>12||day<1||day>new Date(Date.UTC(year,month,0)).getUTCDate())return;
+ if(month<1||month>12||day<1||day>new Date(utc(year,month,0)).getUTCDate())return;
  if(m[3]!==undefined&&m[4]!==undefined&&m[7]===undefined)return;
  const hour=Number(m[4]??0),minute=Number(m[5]??0),second=Number(m[6]??0);
  if(hour>23||minute>59||second>59)return;
  let offset=0;
  if(m[7]&&m[7]!=='Z'){const h=Number(m[8]),mm=Number(m[9]);if(h>23||mm>59)return;offset=(m[7][0]==='-'?-1:1)*(h*60+mm);}
- return Date.UTC(year,month-1,day,hour,minute,second)-offset*60000;
+ return utc(year,month-1,day,hour,minute,second)-offset*60000;
 }
 function semantics(value:Json,context:{document:Document;path:string;scope:string}):Diagnostic[]{
  const v=value as unknown as Visual;const out:Diagnostic[]=[];
@@ -108,7 +107,9 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
   if(node.layer!==undefined&&v.kind!=='structure')add('VISUAL_BLOCK',path+'/layer','Only structure visuals place nodes in layers');
  });
  if(v.steps&&!walkthroughKinds.includes(v.kind))add('VISUAL_STEPS','/steps','A '+v.kind+' visual has no walkthrough');
- if(graphKinds.includes(v.kind)&&(v.nodes?.length??0)>MAX_NODES)add('VISUAL_SIZE','/nodes','More than '+MAX_NODES+' nodes; split the visual');
+ if((v.nodes?.length??0)>MAX_NODES)add('VISUAL_SIZE','/nodes','More than '+MAX_NODES+' nodes, the resource limit');
+ for(const[list,path]of [[v.edges,'/edges'],[v.structure?.references,'/structure/references'],[v.state?.transitions,'/state/transitions'],[v.sequence?.messages,'/sequence/messages']] as const)
+  if((list?.length??0)>MAX_CONNECTIONS)add('VISUAL_SIZE',path,'More than '+MAX_CONNECTIONS+' connections, the resource limit');
  // One id namespace per visual: declare everything, then resolve references.
  const ids=new Map<string,string>();
  const declare=(id:string,sort:string,path:string)=>{const prior=ids.get(id);if(prior)add('VISUAL_ID',path+'/id','Id '+JSON.stringify(id)+' is already used by a '+prior);else ids.set(id,sort);};
@@ -143,18 +144,31 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
   if(step.tag!==undefined&&step.when===undefined)add('VISUAL_STEPS',path+'/when','A tag marks an unnumbered step; give the step a when');
  });
  each(s?.messages,'/sequence/messages',(message,path)=>{resolve(message.from,['participant'],path+'/from');resolve(message.to,['participant'],path+'/to');resolve(message.group,['group'],path+'/group');});
- const entities=new Map<string,Set<string>>();
+ // Each entity's fields by displayed name and by stable id; field ids are scoped to their entity.
+ const entities=new Map<string,{names:Map<string,VisualField>;ids:Map<string,VisualField>}>();
  each(st?.entities,'/structure/entities',(entity,path)=>{
   resolve(entity.node,['node'],path+'/node');
   if(entities.has(entity.node))add('VISUAL_ID',path+'/node','Entity '+JSON.stringify(entity.node)+' is declared more than once');
-  const names=new Set<string>();
-  each(entity.fields,path+'/fields',(field,at)=>{if(names.has(field.name))add('VISUAL_ID',at+'/name','Field '+JSON.stringify(field.name)+' is declared more than once');names.add(field.name);});
-  entities.set(entity.node,names);
+  const names=new Map<string,VisualField>(),fieldIds=new Map<string,VisualField>();
+  each(entity.fields,path+'/fields',(field,at)=>{
+   if(names.has(field.name))add('VISUAL_ID',at+'/name','Field '+JSON.stringify(field.name)+' is declared more than once');names.set(field.name,field);
+   if(field.id!==undefined){if(fieldIds.has(field.id))add('VISUAL_ID',at+'/id','Field id '+JSON.stringify(field.id)+' is declared more than once');fieldIds.set(field.id,field);}
+  });
+  entities.set(entity.node,{names,ids:fieldIds});
  });
+ // A cardinality is one of four conventional markers; a multiplicity is the exact bounds. Both may be given, never in conflict.
+ const bounds:Record<VisualCardinality,[number,number|undefined]>={'zero-or-one':[0,1],'exactly-one':[1,1],'zero-or-many':[0,undefined],'one-or-many':[1,undefined]};
  each(st?.references,'/structure/references',(reference,path)=>{
   for(const end of ['from','to'] as const){
-   const endpoint=reference[end];resolve(endpoint.node,['node'],path+'/'+end+'/node');
-   if(endpoint.field!==undefined&&!entities.get(endpoint.node)?.has(endpoint.field))add('VISUAL_REFERENCE',path+'/'+end+'/field','Entity '+JSON.stringify(endpoint.node)+' declares no field '+JSON.stringify(endpoint.field));
+   const endpoint=reference[end],fields=entities.get(endpoint.node);resolve(endpoint.node,['node'],path+'/'+end+'/node');
+   const byName=endpoint.field===undefined?undefined:fields?.names.get(endpoint.field),byId=endpoint.fieldId===undefined?undefined:fields?.ids.get(endpoint.fieldId);
+   if(endpoint.field!==undefined&&!byName)add('VISUAL_REFERENCE',path+'/'+end+'/field','Entity '+JSON.stringify(endpoint.node)+' declares no field '+JSON.stringify(endpoint.field));
+   if(endpoint.fieldId!==undefined&&!byId)add('VISUAL_REFERENCE',path+'/'+end+'/fieldId','Entity '+JSON.stringify(endpoint.node)+' declares no field id '+JSON.stringify(endpoint.fieldId));
+   if(byName&&byId&&byName!==byId)add('VISUAL_REFERENCE',path+'/'+end,'field and fieldId name different fields');
+   const multiplicity=reference[(end+'Multiplicity') as 'fromMultiplicity'|'toMultiplicity'],cardinality=reference[(end+'Cardinality') as 'fromCardinality'|'toCardinality'];
+   if(!multiplicity)continue;
+   if(multiplicity.max!==undefined&&multiplicity.max<multiplicity.min)add('VISUAL_VALUE',path+'/'+end+'Multiplicity/max','The upper bound is below the lower bound');
+   else if(cardinality&&(bounds[cardinality][0]!==multiplicity.min||bounds[cardinality][1]!==multiplicity.max))add('VISUAL_VALUE',path+'/'+end+'Cardinality','Cardinality '+cardinality+' contradicts the multiplicity');
   }
  });
  if(sm){
@@ -289,7 +303,10 @@ const formRules:Partial<Record<VisualForm,(v:Visual,problem:Problem)=>void>>={
 function advise(payload:unknown):Diagnostic[]{
  const v=payload as Partial<Visual>|undefined,out:Diagnostic[]=[];const at='/extensions/'+VISUAL_EXTENSION;
  if(!v||typeof v!=='object')return out;
- if(graphKinds.includes(v.kind as VisualKind)&&Array.isArray(v.nodes)&&v.nodes.length>ADVISED_NODES)out.push({code:'VISUAL_DENSITY',path:at+'/nodes',message:v.nodes.length+' nodes; five to seven read best',severity:'warning'});
+ if(graphKinds.includes(v.kind as VisualKind)&&Array.isArray(v.nodes)){
+  if(v.nodes.length>SPLIT_NODES)out.push({code:'VISUAL_SPLIT',path:at+'/nodes',message:v.nodes.length+' nodes; above fifteen, split the visual',severity:'warning'});
+  else if(v.nodes.length>ADVISED_NODES)out.push({code:'VISUAL_DENSITY',path:at+'/nodes',message:v.nodes.length+' nodes; five to seven read best',severity:'warning'});
+ }
  const participants=v.sequence?.participants;
  if(Array.isArray(participants)&&participants.length>ADVISED_PARTICIPANTS)out.push({code:'VISUAL_DENSITY',path:at+'/sequence/participants',message:participants.length+' participants; a sequence reads best with eight or fewer',severity:'warning'});
  return out;

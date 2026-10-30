@@ -104,8 +104,9 @@ A group role outside its kind's set is `VISUAL_FORM_RULE`.
 - `edges[]`: `{id, from, to, label?, why?, kind?, status?, emphasis?, evidence?}`; ends are nodes.
 - `evidence[]`: `{path, contains?}`. Retained, never checked by UMF.
 
-A cycle through `node.parent` or `group.parent` is `VISUAL_CYCLE`. More than 15 nodes in
-`flow`, `structure` or `state` is `VISUAL_SIZE`.
+A cycle through `node.parent` or `group.parent` is `VISUAL_CYCLE`. `VISUAL_SIZE` is a resource
+limit, not a legibility rule: more than 500 nodes, or more than 10,000 `edges`, `references`,
+`transitions` or `messages`. Legibility is advice (Error Semantics).
 
 ### Kind blocks
 
@@ -114,11 +115,19 @@ A cycle through `node.parent` or `group.parent` is `VISUAL_CYCLE`. More than 15 
   emphasis?, evidence?}` where `from`/`to` are participants, `kind` is `call`, `return`,
   `async` or `note`, and `group` names a phase, loop or alternative group.
 - **`structure`**: `layers[]` `{id, label}`, top to bottom; `entities[]` `{node, fields[]}` with
-  fields `{name, type?, keys?, nullable?}` (an entity may list none) and `keys` drawn from `pk`, `fk`, `uk`;
-  `references[]` `{id, from: {node, field?}, to: {node, field?}, label?, fromCardinality?,
-  toCardinality?}` with cardinalities `zero-or-one`, `exactly-one`, `zero-or-many`,
-  `one-or-many`. A named field must exist in that node's entity. Field names are unique per
-  entity and an entity is declared once per node (`VISUAL_ID`).
+  fields `{id?, name, type?, keys?, nullable?}` (an entity may list none) and `keys` drawn from `pk`, `fk`, `uk`;
+  `references[]` `{id, from: {node, field?, fieldId?}, to: {node, field?, fieldId?}, label?,
+  fromCardinality?, toCardinality?, fromMultiplicity?, toMultiplicity?}` with cardinalities
+  `zero-or-one`, `exactly-one`, `zero-or-many`, `one-or-many`. A field's `id` is a stable `Id`
+  scoped to its entity, separate from the displayed `name`. An end names its field by `field`
+  (the name), `fieldId`, or both; each must exist in that node's entity and both must name the
+  same field (`VISUAL_REFERENCE`). Field names and field ids are unique per entity and an entity
+  is declared once per node (`VISUAL_ID`). A multiplicity `{min, max?, text?}` gives exact
+  bounds: `min` and `max` are integers ≥ 0, an absent `max` is unbounded, and `text` keeps the
+  source's notation (`2..5`). `max` below `min`, or a cardinality whose bounds differ from the
+  multiplicity's (`zero-or-one` 0..1, `exactly-one` 1..1, `zero-or-many` 0.., `one-or-many`
+  1..), is `VISUAL_VALUE`. A producer whose source states bounds no cardinality names gives the
+  multiplicity alone; it never widens them to the nearest marker.
 - **`state`**: `initial` (a state), `final[]` (states), `transitions[]` (at least 1) `{id, from,
   to, event, guard?, action?, path?, status?, emphasis?}`, `path` being `main`, `alternate` or
   `failure`.
@@ -127,7 +136,8 @@ A cycle through `node.parent` or `group.parent` is `VISUAL_CYCLE`. More than 15 
   emphasis?}`; `spans[]` `{id, label, start, end, lane?, detail?, status?, emphasis?}`;
   `markers[]` `{id, label, at, kind}` with `kind` `today`, `deadline` or `marker`. On a date
   scale, `at`, `start` and `end` are ISO-8601 (`YYYY-MM`, `YYYY-MM-DD` or a date-time with
-  offset) and must be real calendar values; on a period scale they are period ids. An invalid
+  offset) and must be real proleptic-Gregorian UTC calendar values, years 0000–9999 (a year
+  below 100 is that year, not one in the 1900s); on a period scale they are period ids. An invalid
   date, or a span ending before it starts, is `VISUAL_DATE`.
 - **`comparison`**: `items[]` (at least 2) and `criteria[]` (at least 1), each `{id, label,
   detail?}`; a criterion also has `measure` (`text`, `rating` or `support`), `max` (an integer
@@ -203,8 +213,22 @@ read.
 
 All codes above are errors except `VISUAL_UNKNOWN`. Paths are JSON Pointers from the document
 root. Composition advice is not a diagnostic: `inspectVisual` returns it as `advice` with code
-`VISUAL_DENSITY` for more than seven nodes in a graph kind or more than eight participants, and
-it changes neither `valid` nor `complete`.
+`VISUAL_DENSITY` for eight to fifteen nodes in a graph kind or more than eight participants, or
+`VISUAL_SPLIT` for more than fifteen nodes, and it changes neither `valid` nor `complete`. A
+profile may enforce advice as its own rule: HELIX's explanatory visuals hold at most fifteen
+parts, so a HELIX producer splits a visual that draws `VISUAL_SPLIT`.
+
+## Authority
+
+`spec/extensions/visual/schema.json` is the authored definition of every shape.
+`bun run generate` writes the manifest's embedded schema and `src/extensions/visual/generated.ts`
+(the shape of each definition, from which the public types are named); `bun run check:source`
+fails, without writing, when either differs from what the schema generates. Semantic rules stay
+handwritten in `src/extensions/visual/index.ts`: form membership (`visualForms`, checked against
+the schema's kinds and forms), kind blocks, the id namespace and references, field and
+multiplicity agreement, cycles, form rules, dates, resource limits and advice. Authoring the
+schema in `umf.metamodel` waits for UMF to publish its compiler; the released SDK carries the
+metamodel's data, not the compiler.
 
 ## API
 

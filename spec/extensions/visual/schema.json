@@ -499,6 +499,26 @@
         "one-or-many"
       ]
     },
+    "multiplicity": {
+      "type": "object",
+      "required": [
+        "min"
+      ],
+      "properties": {
+        "min": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "endpoint": {
       "type": "object",
       "required": [
@@ -511,6 +531,9 @@
         "field": {
           "type": "string",
           "minLength": 1
+        },
+        "fieldId": {
+          "$ref": "#/$defs/id"
         }
       }
     },
@@ -545,6 +568,9 @@
                     "name"
                   ],
                   "properties": {
+                    "id": {
+                      "$ref": "#/$defs/id"
+                    },
                     "name": {
                       "type": "string",
                       "minLength": 1
@@ -602,6 +628,12 @@
               },
               "toCardinality": {
                 "$ref": "#/$defs/cardinality"
+              },
+              "fromMultiplicity": {
+                "$ref": "#/$defs/multiplicity"
+              },
+              "toMultiplicity": {
+                "$ref": "#/$defs/multiplicity"
               }
             }
           },

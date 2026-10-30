@@ -1,5 +1,6 @@
 import {resolve,dirname,sep} from 'node:path';
 import ts from 'typescript-api';
+import {generate} from './generate';
 export function boundaryIssues(source:string,filename='src/index.ts'):string[]{
  const parsed=ts.createSourceFile(filename,source,ts.ScriptTarget.Latest,true);
  const issues:string[]=[];
@@ -20,10 +21,10 @@ export function boundaryIssues(source:string,filename='src/index.ts'):string[]{
  return issues;
 }
 if(import.meta.main){
- const manifest=await Bun.file('spec/extensions/visual/package.json').json();
- const schema=await Bun.file('spec/extensions/visual/schema.json').json();
- if(JSON.stringify(manifest.schema)!==JSON.stringify(schema))throw Error('Standalone/manifest schema drift');
+ // Everything generated from the schema is current; nothing is written.
+ const outputs=generate(await Bun.file('spec/extensions/visual/schema.json').json(),await Bun.file('spec/extensions/visual/package.json').json());
  const issues:string[]=[];
+ for(const[path,text]of outputs)if(await Bun.file(path).text()!==text)issues.push('Out of date with the schema (run `bun run generate`): '+path);
  for await(const file of new Bun.Glob('src/**/*.ts').scan('.')){
   const source=await Bun.file(file).text();issues.push(...boundaryIssues(source,file));
   if(file.startsWith('src/adapters/miro/')){
@@ -39,5 +40,5 @@ if(import.meta.main){
   }
  }
  if(issues.length)throw Error(issues.join('\n'));
- console.log('Schemas agree; source uses the public core boundary.');
+ console.log('Generated outputs match the schema; source uses the public core boundary.');
 }

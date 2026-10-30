@@ -116,7 +116,7 @@ class Parser {
   if(escapedDefault)this.fail('DOT_LABEL_ESCAPE','An unlabelled node identifier contains a Graphviz label escape; its default `\\N` label cannot be projected exactly.',escapedDefault.first);
   if(this.graphName)this.diagnostics.push(interchangeDiagnostic('DOT_GRAPH_IDENTITY','/source/graph/name','The native graph name is retained in the original source but is not part of the visual vocabulary.',{severity:'warning',loss:true,range:{start:this.graphName.start,end:this.graphName.end}}));
   if(this.groups.length)this.diagnostics.push(interchangeDiagnostic('DOT_GROUP_LAYOUT','/source/subgraphs','Named Graphviz clusters preserve group containment, but DOT does not identify whether they represent zones, lanes, tiers, or another visual role.',{severity:'warning',loss:true}));
-  if(this.nodeList.length>15){const token=this.nodeList[15]?.first??this.peek();this.diagnostics.push(interchangeDiagnostic('DOT_VISUAL_SIZE','/source/nodes','The flow exceeds umf.visual 1.0’s 15-node limit; split the graph before import.',{severity:'error',loss:false,range:{start:token.start,end:token.end}}));return {diagnostics:this.diagnostics,identityMap:[]};}
+  if(this.nodeList.length>15){const token=this.nodeList[15]?.first??this.peek();this.diagnostics.push(interchangeDiagnostic('DOT_VISUAL_SIZE','/source/nodes','The flow exceeds the DOT profile’s 15-node bound; split the graph before import.',{severity:'error',loss:false,range:{start:token.start,end:token.end}}));return {diagnostics:this.diagnostics,identityMap:[]};}
   const nodes=this.nodeList.map(n=>({id:n.visualId,label:n.label,...(n.detail!==undefined?{detail:n.detail}:{}),...(n.group?{group:n.group.visualId}:{})}));
   const edges=this.edges.map(e=>({id:e.visualId,from:e.from.visualId,to:e.to.visualId,...(e.labelSet?{label:e.label}:{}),...(e.why!==undefined?{why:e.why}:{})}));
   const groups:VisualGroup[]=this.groups.map(group=>({id:group.visualId,label:group.label!,...(group.detail!==undefined?{detail:group.detail}:{}),role:'region',...(group.parent?{parent:group.parent.visualId}:{})}));
@@ -187,7 +187,7 @@ class Parser {
  private readNodeId():Token{if(this.word('subgraph'))this.fail('DOT_SUBGRAPH','Subgraphs and clusters are outside the supported DOT subset.');const t=this.readId();if(this.peek().kind===':')this.fail('DOT_PORT','Node ports and compass points are outside the supported subset.',this.peek());return t;}
  private node(token:Token):NativeNode{
   if(token.kind==='html')this.fail('DOT_HTML','HTML strings are not supported as node identifiers or labels.',token);
-  let n=this.nodes.get(token.text);if(!n){if(this.nodeList.length>=15)this.fail('DOT_VISUAL_SIZE','The flow exceeds umf.visual 1.0’s 15-node limit; split the graph before import.',token);n={nativeId:token.text,visualId:syntheticId('node',this.nodeList.length),label:this.nodeDefaultSet?this.nodeDefault??'':token.text,...(this.nodeTooltipDefaultSet&&this.nodeTooltipDefault!==undefined?{detail:this.nodeTooltipDefault}:{}),first:token,labelSet:this.nodeDefaultSet};this.nodes.set(token.text,n);this.nodeList.push(n);}this.assignNodeGroup(n,token);return n;
+  let n=this.nodes.get(token.text);if(!n){if(this.nodeList.length>=15)this.fail('DOT_VISUAL_SIZE','The flow exceeds the DOT profile’s 15-node bound; split the graph before import.',token);n={nativeId:token.text,visualId:syntheticId('node',this.nodeList.length),label:this.nodeDefaultSet?this.nodeDefault??'':token.text,...(this.nodeTooltipDefaultSet&&this.nodeTooltipDefault!==undefined?{detail:this.nodeTooltipDefault}:{}),first:token,labelSet:this.nodeDefaultSet};this.nodes.set(token.text,n);this.nodeList.push(n);}this.assignNodeGroup(n,token);return n;
  }
  private assignNodeGroup(node:NativeNode,token:Token):void{
   const target=this.currentGroup,existing=node.group;if(!target)return;if(!existing){node.group=target;return;}if(existing===target)return;
@@ -276,7 +276,7 @@ function serializeDot(visual:Visual,_context:AdapterContext):AdapterSerializeRes
  if(visual.kind!=='flow'||!['network','zoned','lanes'].includes(visual.form)){
   diagnostics.push(interchangeDiagnostic('DOT_UNSUPPORTED_VISUAL',VISUAL_PATH,'DOT export supports flow/network, flow/zoned, and flow/lanes cluster projections.',{severity:'error',loss:false}));return {diagnostics,identityMap};
  }
- if((visual.nodes?.length??0)>15){diagnostics.push(interchangeDiagnostic('DOT_VISUAL_SIZE',VISUAL_PATH+'/nodes','The visual exceeds umf.visual 1.0’s 15-node limit.',{severity:'error',loss:false}));return {diagnostics,identityMap};}
+ if((visual.nodes?.length??0)>15){diagnostics.push(interchangeDiagnostic('DOT_VISUAL_SIZE',VISUAL_PATH+'/nodes','The visual exceeds the DOT profile’s 15-node bound.',{severity:'error',loss:false}));return {diagnostics,identityMap};}
  const nodes=visual.nodes??[],edges=visual.edges??[],groups=visual.groups??[];const lines=['digraph '+quote(visual.id)+' {'];
  const checkText=(value:string,path:string)=>{const reason=unsafeTextReason(value);if(reason)diagnostics.push(interchangeDiagnostic('DOT_TEXT',path,'The value '+reason+'.',{severity:'error',loss:false}));};
  checkText(visual.id,VISUAL_PATH+'/id');if(visual.title!==undefined)checkText(visual.title,VISUAL_PATH+'/title');

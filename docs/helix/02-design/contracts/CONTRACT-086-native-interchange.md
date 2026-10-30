@@ -228,7 +228,7 @@ does not establish neutral semantic equivalence or layout quality.
 | --- | --- | --- |
 | Malformed or safely unparseable source | Error; failed result with source | Correct source or select supported subset |
 | Unsupported meaning in strict mode | Policy refusal and located loss reports | Explicitly allow reported loss or preserve source |
-| More than 15 nodes or a resource bound | Error without truncation | Split the authored diagram |
+| More than 15 nodes (this profile's bound) or a resource bound | Error without truncation | Split the authored diagram |
 | Invalid visual/reference | Error in either policy | Repair the source/document |
 | Missing/wrong/stale source for exact replay | Error without source output | Supply unchanged imported pair or use canonical export |
 | Unknown/omitted native or visual content | Report loss or refuse | Retain companion and review projection |

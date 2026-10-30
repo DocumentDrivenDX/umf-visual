@@ -12,8 +12,7 @@
     "Local public barrel exports only visual APIs."
   ],
   "knownIssues": [
-    "Early-year Date.UTC conversion from PR62 is retained and requires a regression fix.",
-    "General interchange profiles, model-generated authority and broader cardinalities are planned, not implemented."
+    "General interchange profiles and authoring the definition in umf.metamodel are planned, not implemented; the schema is the authored definition until UMF publishes its compiler."
   ],
   "originalFileSha256": {
     "fixtures/visual/forms/helix-authoring-state.json": "695db96052209c59f803c88eea456f30bf750ccdc9e44f8e944a5057d0ca24c8",

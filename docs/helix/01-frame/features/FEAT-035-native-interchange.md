@@ -85,8 +85,10 @@ first bounded mapping subset, not completion of that model. Loss reports identif
 unrepresented meaning; follow-up analysis distinguishes a model gap, an
 unimplemented mapping and a genuinely native-specific retained refinement.
 
-The first profile targets `umf.visual` 1.0.0. It does not revise its 15-node cap,
-restricted IDs, single group membership or four cardinality values. DOT `.gv` and
+The first profile targets `umf.visual` 1.0.0. It keeps a 15-node bound of its own
+(the vocabulary's cap when the profile was written; since the #62 review the vocabulary
+advises a split above fifteen and limits only resources), and does not map restricted
+IDs, single group membership, exact multiplicities or field ids beyond what it supports. DOT `.gv` and
 `.dot` are filename conventions for the same format. CONTRACT-086 owns exact scope.
 
 ## Dependencies

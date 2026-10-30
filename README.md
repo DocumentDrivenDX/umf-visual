@@ -105,8 +105,12 @@ record native text limits.
 The build produces browser-compatible ESM and declarations with core external.
 CI exercises source, packed consumers, native engines, Chromium and the catalog.
 [HELIX artifacts](docs/helix/README.md) govern preservation and support claims.
-The inherited 15-node rule, restricted IDs, four conventional cardinalities and
-early-year date conversion issue remain visible in the extraction record.
+The #62 review is applied: more than fifteen nodes is advice to split
+(`VISUAL_SPLIT`), with `VISUAL_SIZE` kept as a resource limit; entity references
+carry exact multiplicities and stable field ids; dates keep years below 100. The
+schema is the single authored definition: `bun run generate` writes the manifest
+schema and the TypeScript shapes, and `bun run check:source` fails when they are
+stale. Authoring it in `umf.metamodel` waits for UMF to publish its compiler.
 
 TypeScript declaration evidence uses `moduleResolution: Bundler`. A packed
 NodeNext consumer cannot resolve inherited validation fields because SDK 0.5.7
