@@ -2,7 +2,7 @@
 
 Working-tree observation on 2026-10-29, based on merged main
 `31395903ee1bba6ab5720bc3077068bdb3179ca7`; reviewed source candidate
-`87eadb4`. This supplementary execution record
+`669ede2` (following the initial `87eadb4` review). This supplementary execution record
 implements the [example completion plan](example-completion-plan.md) under
 [CONTRACT-087](../02-design/contracts/CONTRACT-087-readable-annotations.md),
 [CONTRACT-085](../02-design/contracts/CONTRACT-085-visual-catalog.md) and
@@ -86,7 +86,7 @@ do not promise arbitrary host editing or vanilla DOT/Lini types for every field.
   and the corrected entity canary: connector/cardinality labels no longer
   collide. The contact sheet is navigation evidence, not a
   substitute for inspecting dense native views at useful zoom.
-- The final local integration run passes 295 Bun tests and 11,177 assertions,
+- The final local integration run passes 295 Bun tests and 11,178 assertions,
   source/type checks, the packed Bun/Node consumers, legacy native/wave-two
   checks and the new annotated/native/browser checks. The final entity regression
   and affected proofs pass. Linux CI remains pending.
@@ -101,6 +101,12 @@ do not promise arbitrary host editing or vanilla DOT/Lini types for every field.
   they do not repair native geometry.
 - Final catalog rebuild verification passes with byte-identical current JSON
   and SVGs, while retaining previously referenced immutable assets.
+
+Linux CI found and corrected a false-positive sequence box-width assertion and
+a five-second full-corpus test timeout. It also identified real roadmap text
+overflow with Linux font metrics. Native span blocks now reserve 28 pixels per
+visible text line; local native, browser and full-suite proofs were refreshed.
+Linux validation of that correction remains pending.
 
 ## Candidate gate status
 

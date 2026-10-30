@@ -225,3 +225,8 @@ implementation. CONTRACT-085 variants keep old native outcomes visible and show
 which readable profile satisfies the 53-example/22-form release gate. No native
 engine enters portable source; independent native and Chromium witnesses qualify
 carrier fidelity and edited recovery separately from local self-roundtrip.
+
+Roadmap span blocks reserve 28 native pixels for each explicitly wrapped label
+line. The parser requires the matching native height; undersized or mismatched
+blocks refuse. This addresses the Linux browser font-metric overflow observed
+after local geometry passed, without relaxing the collision/overflow checks.

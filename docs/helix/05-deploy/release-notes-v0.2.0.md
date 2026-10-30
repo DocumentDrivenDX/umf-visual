@@ -89,7 +89,7 @@ checksum once available; there is no npm publication.
 
 ## Validation
 
-The final local suite passes 295 tests and 11,177 assertions, source/type checks
+The final local suite passes 295 tests and 11,178 assertions, source/type checks
 and packed Bun/Node consumers. Public Chromium covers complete readback,
 persistence and stale replay for all 53 examples. Native evidence covers 43
 Graphviz cases, ten pinned Lini cases and four Lini browser-geometry cases.

@@ -142,8 +142,8 @@
     {
       "form": "timeline/roadmap",
       "width": 1806,
-      "height": 286,
-      "ratio": 6.31
+      "height": 369,
+      "ratio": 4.89
     }
   ],
   "checks": [
@@ -168,7 +168,8 @@
     ".cache/catalog-profile-form-review/flow-lanes.png",
     ".cache/catalog-profile-form-review/comparison-matrix.png",
     ".cache/catalog-profile-form-review/metric-line.png",
-    ".cache/catalog-profile-form-review/timeline-roadmap.png"
+    ".cache/catalog-profile-form-review/timeline-roadmap.png",
+    ".cache/catalog-profile-form-review/timeline-roadmap-complete.png"
   ],
   "browser": "153.0.8010.12",
   "errors": []

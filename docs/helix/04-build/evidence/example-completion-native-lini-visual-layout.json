@@ -73,8 +73,8 @@
       "form": "roadmap",
       "fixture": "fixtures/visual/forms/visuals-roadmap.json",
       "inputSha256": "7d6a37e0bbd89a5795aa095ae9b855ea771c28daf78f675e508fdc390310dc12",
-      "sourceSha256": "6674eb3afa08c5d204d5574a35555eb61e13a293c1397a8ff1c88acb5c03eb2d",
-      "svgSha256": "82c894016e04310e92bc5ec1815d40831618a3c9fe42130e4a8d9f7456dcb34c",
+      "sourceSha256": "9c72877dca992ed5da046a9f2dbf702bafed9cde68592262f2d46dff66131dfe",
+      "svgSha256": "b6af6fa2cdf531b07a236d67ef923e05fc5fccdf86fb08c49b3601668a02c625",
       "nativeDiagnostics": [],
       "browserGeometry": {
         "blocks": 20,
