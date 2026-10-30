@@ -1,0 +1,27 @@
+[
+  {
+    "path": "/title",
+    "before": "Client calls API",
+    "after": "Native round trip verified"
+  },
+  {
+    "path": "/question",
+    "before": "What calls the API?",
+    "after": "What changed in PowerPoint?"
+  },
+  {
+    "path": "/nodes/0/label",
+    "before": "Client",
+    "after": "Browser café 東京"
+  },
+  {
+    "path": "/edges/0/to",
+    "before": "api",
+    "after": "store"
+  },
+  {
+    "path": "/edges/0/label",
+    "before": "Request",
+    "after": "Fetch via PowerPoint"
+  }
+]

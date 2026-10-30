@@ -1,0 +1,57 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:powerpoint-roundtrip",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "powerpoint-roundtrip",
+      "kind": "flow",
+      "form": "network",
+      "title": "Native round trip verified",
+      "question": "What changed in PowerPoint?",
+      "takeaway": "Semantic annotations survive native edits.",
+      "source": {
+        "path": "synthetic/powerpoint-roundtrip",
+        "digest": "authored-spike-fixture"
+      },
+      "nodes": [
+        {
+          "id": "client",
+          "label": "Browser café 東京",
+          "role": "actor",
+          "status": "built",
+          "evidence": [
+            {
+              "path": "synthetic/client"
+            }
+          ]
+        },
+        {
+          "id": "api",
+          "label": "API",
+          "role": "own"
+        },
+        {
+          "id": "store",
+          "label": "Store",
+          "role": "store"
+        }
+      ],
+      "edges": [
+        {
+          "id": "request",
+          "from": "client",
+          "to": "store",
+          "label": "Fetch via PowerPoint",
+          "kind": "action",
+          "why": "Exercise native reconnection"
+        }
+      ]
+    }
+  },
+  "modules": []
+}

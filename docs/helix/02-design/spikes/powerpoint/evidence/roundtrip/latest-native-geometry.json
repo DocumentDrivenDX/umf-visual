@@ -1,0 +1,77 @@
+[
+  {
+    "id": "client",
+    "transform": {
+      "type": "element",
+      "name": "a:xfrm",
+      "elements": [
+        {
+          "type": "element",
+          "name": "a:off",
+          "attributes": {
+            "x": "640080",
+            "y": "3302000"
+          }
+        },
+        {
+          "type": "element",
+          "name": "a:ext",
+          "attributes": {
+            "cx": "2743200",
+            "cy": "914400"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "api",
+    "transform": {
+      "type": "element",
+      "name": "a:xfrm",
+      "elements": [
+        {
+          "type": "element",
+          "name": "a:off",
+          "attributes": {
+            "x": "4389120",
+            "y": "2103120"
+          }
+        },
+        {
+          "type": "element",
+          "name": "a:ext",
+          "attributes": {
+            "cx": "2743200",
+            "cy": "914400"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "store",
+    "transform": {
+      "type": "element",
+      "name": "a:xfrm",
+      "elements": [
+        {
+          "type": "element",
+          "name": "a:off",
+          "attributes": {
+            "x": "8138160",
+            "y": "2103120"
+          }
+        },
+        {
+          "type": "element",
+          "name": "a:ext",
+          "attributes": {
+            "cx": "2743200",
+            "cy": "914400"
+          }
+        }
+      ]
+    }
+  }
+]
