@@ -1,0 +1,35 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:catalog-canary-entities",
+  "vocabularies": {
+    "umf.visual": { "version": "1.0.0" }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "catalog-canary-entities",
+      "kind": "structure",
+      "form": "entities",
+      "title": "Entity relationship canary",
+      "question": "Which records retain identity and field labels?",
+      "nodes": [
+        { "id": "record", "label": "A \"quoted\" record · 東京" },
+        { "id": "event", "label": "Event & audit" }
+      ],
+      "structure": {
+        "entities": [
+          { "node": "record", "fields": [
+            { "name": "id", "type": "uuid", "keys": ["pk"], "nullable": false },
+            { "name": "display_name", "type": "text" }
+          ] },
+          { "node": "event", "fields": [
+            { "name": "record_id", "type": "uuid" }
+          ] }
+        ],
+        "references": [
+          { "id": "record-events", "from": { "node": "record" }, "to": { "node": "event" }, "label": "emits \"events\"", "fromCardinality": "exactly-one", "toCardinality": "zero-or-many" }
+        ]
+      }
+    }
+  },
+  "modules": []
+}
