@@ -1,0 +1,13 @@
+{
+  "profile": "google-slides-v1-flow-network-spike/0.1",
+  "bun": "1.4.3",
+  "chromium": "153.0.8010.12",
+  "bunAssertions": 21,
+  "browserAssertions": 21,
+  "requestCount": 11,
+  "browserErrors": [],
+  "nativeApiExecuted": false,
+  "limits": [
+    "Synthetic fixture; no Google server acceptance or visual fidelity evidence"
+  ]
+}

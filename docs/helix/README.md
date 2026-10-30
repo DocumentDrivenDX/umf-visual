@@ -64,3 +64,8 @@ records an actual PowerPoint 16.114.3 export/edit/save/import round trip.
 Bun and Chromium recover edited labels and a reconnected edge from embedded source;
 native layout is retained separately. Structural edits and broader forms remain
 unqualified.
+[Google Slides integration spike](02-design/spikes/SPIKE-001-google-slides.md)
+demonstrates export, actual Google Slides UI label/movement edits, validated
+import and a second native export for an adapter-owned flow/network diagram.
+Bun/Chromium replays cover preservation and refusal; arbitrary native import and
+structural edit reconciliation remain unqualified. The prototype is outside the public API.
