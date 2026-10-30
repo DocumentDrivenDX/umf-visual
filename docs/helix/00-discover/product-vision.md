@@ -7,36 +7,41 @@ ddx:
     home: repo
 ---
 
-# Visual interchange library vision
+# Visual authoring and interchange library vision
 
 ## Mission Statement
 
-Give visual producers and renderer implementers a typed UMF vocabulary and
-explicit format mappings so visual meaning can move between tools without
-unreported loss.
+Give semantic-tool producers and renderer implementers a shared typed visual
+authoring model and explicit native mappings, so common visual concepts can be
+authored once and exchanged without unreported loss.
 
 ## Positioning
 
 For HELIX/documentor producers, schema-browser maintainers and independent
-renderer authors, umf-visual is a system library for validated visual meaning.
+renderer authors, umf-visual is a system library for typed visual authoring and
+validated interchange, analogous to UMF core for shared semantic definitions.
 Compared with independently maintained Mermaid strings, DOT exporters and
 renderer-specific objects, it makes identity and preservation obligations explicit.
 
 ## Vision
 
-A producer describes the question and visual structure once. Consumers validate
-the same versioned definition and disclose the meaning their format cannot carry.
-The library evolves independently of UMF's generic core and any single renderer.
+A semantic producer turns selected metadata, such as a UMF schema, into one
+typed visual definition. That model grows to encompass the common concepts and
+properties used by native visual tools, preserving distinctions where their
+meanings differ. Format adapters and renderers consume the same authored intent
+under separate versioned support profiles. The library evolves independently
+of UMF's generic core and any single renderer.
 
 **North Star**: A format change preserves meaning or names its loss.
 
 ## User Experience
 
-A schema-browser maintainer produces an entities view, validates its references,
-and asks an adapter for Lini source. The adapter returns output, stable identity
-maps and a report of unsupported meaning. A renderer draws the supported view;
-the original source and omissions remain inspectable. This interchange scenario
-is the desired direction; the extracted bootstrap supplies vocabulary APIs only.
+A schema-browser maintainer selects entities and fields from a UMF definition,
+authors the reader's question and visual intent, and validates the resulting
+visual model. They compare native targets through their support profiles, then
+inspect generated source, identity mappings and actual native renderings. Loss
+reports distinguish meaning that needs model evolution or mapping work; retained
+native content remains available for meanings outside current interpretation.
 
 ## Target Market
 
@@ -51,7 +56,7 @@ is the desired direction; the extracted bootstrap supplies vocabulary APIs only.
 
 | Value Proposition | Customer Benefit |
 | --- | --- |
-| Portable typed vocabulary | Producers and renderers agree on declared meaning |
+| Shared typed authoring vocabulary | Semantic producers express common visual intent independently of a target tool |
 | Source-preserving adapters | Native details survive an incomplete projection |
 | Independent library releases | Consumers can select compatibility deliberately |
 
@@ -61,7 +66,7 @@ is the desired direction; the extracted bootstrap supplies vocabulary APIs only.
 | --- | --- |
 | Consumer agreement | Compare acceptance and diagnostics across declared consumers; targets belong to adapter contracts |
 | Preservation | Compare retained source and identity maps in the conformance corpus |
-| Visible loss | Review negative fixtures for every unrepresented construct in a supported subset |
+| Visible loss | Review negative fixtures and classify model gaps, mapping gaps and native retention needs |
 
 ## Why Now
 

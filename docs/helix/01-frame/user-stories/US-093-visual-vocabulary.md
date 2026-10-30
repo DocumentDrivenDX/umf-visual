@@ -26,6 +26,12 @@ system's demo site with a target kind and form. Those rows (the pilot system's d
 fictional stand-in, Beacon), plus one example per form for the kinds the inventory does not
 exercise (`timeline`, `metric`, and the other forms), are the acceptance set.
 
+## Version boundary
+
+The review additions below apply to explicit vocabulary 1.1.0. Released 1.0.0
+validation and defaults remain frozen, including its fifteen-node cap and unknown
+handling of new fields. Verify both independently; all original fixtures stay 1.0.0.
+
 ## Acceptance Criteria
 
 - **US-093-AC1:** Given each inventory visual and one example per form (22 forms over 7 kinds),

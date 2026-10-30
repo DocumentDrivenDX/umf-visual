@@ -17,7 +17,7 @@ ddx:
 
 # CONTRACT-083: Visual vocabulary
 
-**Profile:** `umf.visual` 1.0.0 (the visuals PRD's `umf.visual/1`). **Native representation:** UMF
+**Profile:** `umf.visual` 1.1.0 (the visuals PRD's `umf.visual/1`). **Native representation:** UMF
 JSON/YAML with the visual package registered. No renderer, layout or Mermaid output is claimed.
 
 ## Purpose
@@ -37,7 +37,7 @@ is `spec/extensions/visual/schema.json`, embedded in `package.json`.
 ```yaml
 umf: "0.10.0"
 id: visual:beacon-deployment
-vocabularies: {umf.visual: {version: "1.0.0"}}
+vocabularies: {umf.visual: {version: "1.1.0"}}
 extensions:
   umf.visual: {id: beacon-deployment, kind: flow, form: zoned, question: "...", ...}
 modules: []
@@ -230,15 +230,32 @@ multiplicity agreement, cycles, form rules, dates, resource limits and advice. A
 schema in `umf.metamodel` waits for UMF to publish its compiler; the released SDK carries the
 metamodel's data, not the compiler.
 
+## Released compatibility
+
+The rules above describe 1.1.0. Version 1.0.0 shipped with package v0.1.0 and remains
+registered with its exact released schema and semantic validator. Its fifteen-node
+limit and early-year date behavior remain unchanged, and fields added in 1.1.0 are
+retained as unknown content, never interpreted under 1.0.0. Existing fixture bytes,
+native import defaults and retained-source receipts remain 1.0.0.
+
+`visualPackage`, `VISUAL_VERSION`, `./schema`, `./manifest` and default creation
+continue to designate 1.0.0. `latestVisualPackage`, `LATEST_VISUAL_VERSION`,
+`./schema/1.1.0` and `./manifest/1.1.0` designate 1.1.0. Generated TypeScript shapes
+include 1.1.0 additions; runtime validation follows the document's declared version.
+`upgradeVisualDocument(document)` copies, changes the declaration to 1.1.0 and
+validates the target; it may refuse and never mutates the input. `visualDateValue`
+uses the corrected date calculation; declared 1.0.0 validation uses the frozen helper.
+Native adapter subset limits and loss policies are independent of vocabulary size.
+
 ## API
 
 | Function | Behavior |
 |---|---|
 | `visualRegistry()` | Registry with structural and semantic validation |
 | `inspectVisual(document)` | `{valid, complete, diagnostics, advice}` |
-| `readVisualDocument(text, format)` | Requires vocabulary 1.0.0 and a payload (`VISUAL_PROFILE`); rejects invalid visuals (`VISUAL_DOCUMENT`) |
+| `readVisualDocument(text, format)` | Requires declared vocabulary 1.0.0 or 1.1.0 and a payload (`VISUAL_PROFILE`); rejects invalid visuals (`VISUAL_DOCUMENT`) |
 | `writeVisualDocument(document, format)` | Same checks, then serializes |
-| `createVisualDocument(visual, id?)` | Wraps a payload in a document (`id` defaults to `visual:<visual id>`); rejects an invalid result |
+| `createVisualDocument(visual, id?, version?)` | Wraps a payload in a document (`id` defaults to `visual:<visual id>`); version defaults to frozen 1.0.0, with explicit 1.1.0 opt-in; rejects an invalid result |
 | `getVisual(document)` | A copy of the payload |
 | `editVisual(document, update)` | Requires complete interpretation before and after (`UNSAFE_EDIT`, `INVALID_EDIT`); input unchanged |
 | `visualForms` | The kind-to-forms table |

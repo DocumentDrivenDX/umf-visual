@@ -1,0 +1,69 @@
+{
+  "document": {
+    "umf": "0.10.0",
+    "id": "visual:legacy",
+    "vocabularies": {
+      "umf.visual": {
+        "version": "1.0.0"
+      }
+    },
+    "extensions": {
+      "umf.visual": {
+        "id": "legacy",
+        "kind": "flow",
+        "form": "network",
+        "question": "What connects?",
+        "nodes": [
+          {
+            "id": "n1",
+            "label": "A"
+          },
+          {
+            "id": "n2",
+            "label": "B"
+          }
+        ],
+        "edges": [
+          {
+            "id": "e1",
+            "from": "n1",
+            "to": "n2"
+          }
+        ]
+      }
+    },
+    "modules": []
+  },
+  "source": {
+    "format": "dot",
+    "text": "digraph G { a [label=\"A\"]; b [label=\"B\"]; a -> b; }",
+    "importOptions": {
+      "id": "legacy",
+      "question": "What connects?"
+    },
+    "baseline": "{\"extensions\":{\"umf.visual\":{\"edges\":[{\"from\":\"n1\",\"id\":\"e1\",\"to\":\"n2\"}],\"form\":\"network\",\"id\":\"legacy\",\"kind\":\"flow\",\"nodes\":[{\"id\":\"n1\",\"label\":\"A\"},{\"id\":\"n2\",\"label\":\"B\"}],\"question\":\"What connects?\"}},\"id\":\"visual:legacy\",\"modules\":[],\"umf\":\"0.10.0\",\"vocabularies\":{\"umf.visual\":{\"version\":\"1.0.0\"}}}",
+    "identityMap": [
+      {
+        "kind": "node",
+        "nativeId": "a",
+        "visualId": "n1",
+        "path": "/extensions/umf.visual/nodes/0",
+        "sourcePath": "/source/nodes/a"
+      },
+      {
+        "kind": "node",
+        "nativeId": "b",
+        "visualId": "n2",
+        "path": "/extensions/umf.visual/nodes/1",
+        "sourcePath": "/source/nodes/b"
+      },
+      {
+        "kind": "edge",
+        "nativeId": "[\"a\",\"b\"]#1",
+        "visualId": "e1",
+        "path": "/extensions/umf.visual/edges/0",
+        "sourcePath": "/source/edges/[\"a\",\"b\"]#1"
+      }
+    ]
+  }
+}

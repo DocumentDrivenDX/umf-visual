@@ -129,8 +129,11 @@ is rejected independently; documents round-trip JSON/YAML unchanged.
 
 ## Constraints and Assumptions
 
-Version `1.0.0` stands for the PRD's `umf.visual/1`. It is unreleased, so the review changes
-above (2026-10-30) amend it in place; after a release they would be `1.1.0`. Adding an optional field or a form is a
+Version `1.0.0` stands for the PRD's `umf.visual/1` and shipped in package v0.1.0.
+The review changes above (2026-10-30) therefore define explicit version `1.1.0`.
+Version 1.0.0 validation, defaults and source fixtures remain frozen; opting into 1.1.0
+or explicitly upgrading a document enables the corrected dates, size advice, exact
+multiplicities and stable field ids. Adding an optional field or a form is a
 minor version; changing or removing a field's meaning is `2.0.0`. No Python binding in M1 (owner
 decision, 2026-10-22): the renderer validates through TypeScript, and ADR-006 places future
 shared semantics in Rust. Python producers may check structure with the standalone schema.

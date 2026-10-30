@@ -7,7 +7,7 @@ const folders=['inventory','forms'];
 const files=folders.flatMap(folder=>readdirSync('fixtures/visual/'+folder).filter(f=>f.endsWith('.json')&&f!=='index.json').map(f=>`fixtures/visual/${folder}/${f}`));
 const texts=new Map(await Promise.all(files.map(async f=>[f.split('/').at(-1)!.replace('.json',''),await Bun.file(f).text()] as const)));
 const index=await Bun.file('fixtures/visual/inventory/index.json').json() as {rows:{row:string;disposition:string;documents?:string[];targets?:string[];embeds?:string}[]};
-const fresh=(id:string)=>JSON.parse(texts.get(id)!) as Document;
+const fresh=(id:string)=>{const doc=JSON.parse(texts.get(id)!) as Document;doc.vocabularies['umf.visual']!.version='1.1.0';return doc;};
 const visual=(doc:Document)=>doc.extensions!['umf.visual'] as any;
 test('@covers US-093-AC1: every inventory visual and one example per form round-trip valid and complete, with copied access',()=>{
  expect(texts.size).toBeGreaterThanOrEqual(50);
@@ -128,7 +128,7 @@ test('@covers US-093-AC3: unknown fields survive as incomplete interpretation an
  expect(checked.diagnostics.map(d=>[d.code,d.severity,d.path])).toEqual([
   ['VISUAL_UNKNOWN','warning','/extensions/umf.visual/nodes/0/icon'],['VISUAL_UNKNOWN','warning','/extensions/umf.visual/layoutHints']]);
  expect(()=>editVisual(doc,value=>value)).toThrow('validated');
- const newer={...fresh('helix-context'),vocabularies:{'umf.visual':{version:'1.1.0'}}};
+ const newer={...fresh('helix-context'),vocabularies:{'umf.visual':{version:'2.0.0'}}};
  const later=validateDocument(newer,visualRegistry());expect(later.valid).toBe(true);expect(later.diagnostics.map(d=>d.code)).toEqual(['UNKNOWN_EXTENSION']);
 });
 test('@covers US-093-AC4: complete visual edits are atomic and reject invalid results',()=>{
