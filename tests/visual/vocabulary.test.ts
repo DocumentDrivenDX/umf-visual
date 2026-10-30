@@ -63,7 +63,12 @@ test('@covers US-093-AC2: each contradiction fails with its declared code and bl
   ['EXTENSION_STRUCTURE','beacon-field-guide',d=>Object.assign(v(d).steps[0],{when:'scheduled',tag:'X'.repeat(25)})],
   ['VISUAL_CYCLE','beacon-estate-landscape',d=>v(d).nodes[0].parent='system-beacon'],
   ['VISUAL_CYCLE','helix-containers',d=>v(d).groups[0].parent=v(d).groups[0].id],
-  ['VISUAL_SIZE','beacon-stack',d=>v(d).nodes.push({...v(d).nodes[0],id:'extra'})],
+  ['VISUAL_SIZE','beacon-stack',d=>{for(let i=v(d).nodes.length;i<=500;i++)v(d).nodes.push({...v(d).nodes[0],id:'extra-'+i});}],
+  ['VISUAL_ID','beacon-schema-tickets',d=>{const f=v(d).structure.entities[0].fields;f[0].id='same';f[1].id='same';}],
+  ['VISUAL_REFERENCE','beacon-schema-tickets',d=>v(d).structure.references[0].to.fieldId='missing'],
+  ['VISUAL_REFERENCE','beacon-schema-tickets',d=>{const r=v(d).structure.references[0],e=v(d).structure.entities.find((x:any)=>x.node===r.to.node);const other=e.fields.find((f:any)=>f.name!==r.to.field);other.id='other';r.to.fieldId='other';}],
+  ['VISUAL_VALUE','beacon-schema-tickets',d=>v(d).structure.references[0].toMultiplicity={min:5,max:2}],
+  ['VISUAL_VALUE','beacon-schema-tickets',d=>Object.assign(v(d).structure.references[0],{toCardinality:'one-or-many',toMultiplicity:{min:2,max:5}})],
   ['VISUAL_FORM_RULE','helix-deployment',d=>delete v(d).nodes[0].group],
   ['VISUAL_FORM_RULE','helix-deployment',d=>delete v(d).groups[0].tier],
   ['VISUAL_FORM_RULE','beacon-field-guide',d=>delete v(d).nodes[0].group],
@@ -108,8 +113,13 @@ test('@covers US-093-AC2: each contradiction fails with its declared code and bl
   expect(()=>writeVisualDocument(doc),code).toThrow();
  }
  expect(()=>readVisualDocument(JSON.stringify({...fresh('helix-context'),vocabularies:{}}),'json')).toThrow();
- for(const[text,valid]of [['2026-10',true],['2026-10-22',true],['2026-10-22T09:30:00Z',true],['2026-10-22T09:30+02:00',true],['2024-02-29',true],['2025-02-29',false],['2026-13',false],['2026-10-22T24:00Z',false],['26-10-22',false]] as const)
+ for(const[text,valid]of [['2026-10',true],['2026-10-22',true],['2026-10-22T09:30:00Z',true],['2026-10-22T09:30+02:00',true],['2024-02-29',true],['2025-02-29',false],['0099-01-01',true],['0000-02-29',true],['0100-02-29',false],['0400-02-29',true],['2026-13',false],['2026-10-22T24:00Z',false],['26-10-22',false]] as const)
   expect(visualDateValue(text)!==undefined,text).toBe(valid);
+ // Years 0000–0099 are those years, not 1900–1999, so they order before year 100.
+ expect(new Date(visualDateValue('0099-01-01')!).getUTCFullYear()).toBe(99);
+ expect(visualDateValue('0099-12-31')!).toBeLessThan(visualDateValue('0100-01-01')!);
+ const early=fresh('visuals-roadmap');Object.assign(visual(early).timeline,{scale:{kind:'date'},spans:[{id:'early',label:'Early',start:'0099-06',end:'0100-02',lane:visual(early).timeline.lanes[0].id}]});
+ expect(inspectVisual(early).valid).toBe(true);
 });
 test('@covers US-093-AC3: unknown fields survive as incomplete interpretation and block conservative edits',()=>{
  const doc=fresh('beacon-deployment');visual(doc).nodes[0].icon='person';visual(doc).layoutHints={rankdir:'LR'};
@@ -138,4 +148,24 @@ test('@covers US-093-AC5: density is advice, not a diagnostic',()=>{
  for(let i=0;i<3;i++)p.push({...p[0],id:'extra-'+i});
  const checked=inspectVisual(crowded);expect(checked.valid&&checked.complete).toBe(true);
  expect(checked.advice.map(a=>a.path)).toEqual(['/extensions/umf.visual/sequence/participants']);
+ // Above fifteen nodes a visual stays valid; the advice changes to split, which a profile may enforce.
+ const large=fresh('beacon-stack');const nodes=visual(large).nodes;nodes.push({...nodes[0],id:'extra'});
+ const split=inspectVisual(large);expect(split.valid&&split.complete).toBe(true);
+ expect(split.advice.map(a=>[a.code,a.path])).toEqual([['VISUAL_SPLIT','/extensions/umf.visual/nodes']]);
+ expect(readVisualDocument(writeVisualDocument(large,'json'),'json')).toEqual(large);
+});
+test('@covers US-093-AC6: entity references keep exact multiplicities and stable field ids',()=>{
+ const doc=fresh('beacon-schema-tickets');const s=visual(doc).structure;const r=s.references[0];
+ const entity=s.entities.find((e:any)=>e.node===r.to.node),field=entity.fields.find((f:any)=>f.name===r.to.field);
+ // A source's 2..5 is kept as bounds and text, not widened to one-or-many; the field is reached by id.
+ field.id='message-ticket';delete r.toCardinality;r.toMultiplicity={min:2,max:5,text:'2..5'};r.to.fieldId='message-ticket';
+ // A conventional marker and its matching bounds may both be given; an absent max is unbounded.
+ r.fromMultiplicity={min:1,max:1};
+ const checked=inspectVisual(doc);expect(checked.diagnostics).toEqual([]);expect(checked.valid&&checked.complete).toBe(true);
+ const returned=readVisualDocument(writeVisualDocument(doc,'yaml'),'yaml');expect(visual(returned).structure.references[0].toMultiplicity).toEqual({min:2,max:5,text:'2..5'});
+ // Renaming the displayed field keeps the reference traceable by id.
+ const renamed=editVisual(doc,value=>{const next=copyJson(value as any) as any;const e=next.structure.entities.find((x:any)=>x.node===r.to.node);e.fields.find((f:any)=>f.id==='message-ticket').name='ticket';delete next.structure.references[0].to.field;return next;});
+ expect(visual(renamed).structure.references[0].to).toEqual({node:r.to.node,fieldId:'message-ticket'});
+ const unbounded=fresh('beacon-schema-tickets');Object.assign(visual(unbounded).structure.references[0],{toCardinality:'zero-or-many',toMultiplicity:{min:0}});
+ expect(inspectVisual(unbounded).valid).toBe(true);
 });

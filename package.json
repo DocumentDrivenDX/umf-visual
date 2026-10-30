@@ -30,6 +30,7 @@
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "build": "bun scripts/build.ts",
+    "generate": "bun scripts/generate.ts",
     "check:source": "bun scripts/check-source.ts",
     "test:browser": "bun scripts/browser.ts",
     "test:package": "bun scripts/package-smoke.ts"
