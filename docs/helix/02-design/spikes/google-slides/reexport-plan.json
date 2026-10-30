@@ -1,0 +1,255 @@
+{
+  "profile": "google-slides-v1-flow-network-spike/0.1",
+  "slideId": "spike01_s_ac60058ef90ca6b89ea255a6",
+  "questionId": "spike01_q_c7c27e97ac365472829fe7ef",
+  "batch": {
+    "requests": [
+      {
+        "createSlide": {
+          "objectId": "spike01_s_ac60058ef90ca6b89ea255a6",
+          "slideLayoutReference": {
+            "predefinedLayout": "BLANK"
+          }
+        }
+      },
+      {
+        "createShape": {
+          "objectId": "spike01_q_c7c27e97ac365472829fe7ef",
+          "shapeType": "TEXT_BOX",
+          "elementProperties": {
+            "pageObjectId": "spike01_s_ac60058ef90ca6b89ea255a6",
+            "size": {
+              "width": {
+                "magnitude": 650.007874015748,
+                "unit": "PT"
+              },
+              "height": {
+                "magnitude": 39.99212598425197,
+                "unit": "PT"
+              }
+            },
+            "transform": {
+              "scaleX": 1,
+              "scaleY": 1,
+              "shearX": 0,
+              "shearY": 0,
+              "translateX": 24,
+              "translateY": 16,
+              "unit": "PT"
+            }
+          }
+        }
+      },
+      {
+        "insertText": {
+          "objectId": "spike01_q_c7c27e97ac365472829fe7ef",
+          "text": "What calls the API?",
+          "insertionIndex": 0
+        }
+      },
+      {
+        "createShape": {
+          "objectId": "spike01_n_ab7893d537a87047584499e7",
+          "shapeType": "RECTANGLE",
+          "elementProperties": {
+            "pageObjectId": "spike01_s_ac60058ef90ca6b89ea255a6",
+            "size": {
+              "width": {
+                "magnitude": 159.99212598425197,
+                "unit": "PT"
+              },
+              "height": {
+                "magnitude": 60,
+                "unit": "PT"
+              }
+            },
+            "transform": {
+              "scaleX": 1,
+              "scaleY": 1,
+              "shearX": 0,
+              "shearY": 0,
+              "translateX": 40,
+              "translateY": 152,
+              "unit": "PT"
+            }
+          }
+        }
+      },
+      {
+        "insertText": {
+          "objectId": "spike01_n_ab7893d537a87047584499e7",
+          "text": "Browser client",
+          "insertionIndex": 0
+        }
+      },
+      {
+        "createShape": {
+          "objectId": "spike01_n_23390bf86be05cec073c56a9",
+          "shapeType": "RECTANGLE",
+          "elementProperties": {
+            "pageObjectId": "spike01_s_ac60058ef90ca6b89ea255a6",
+            "size": {
+              "width": {
+                "magnitude": 159.99212598425197,
+                "unit": "PT"
+              },
+              "height": {
+                "magnitude": 60,
+                "unit": "PT"
+              }
+            },
+            "transform": {
+              "scaleX": 1,
+              "scaleY": 1,
+              "shearX": 0,
+              "shearY": 0,
+              "translateX": 480,
+              "translateY": 140,
+              "unit": "PT"
+            }
+          }
+        }
+      },
+      {
+        "insertText": {
+          "objectId": "spike01_n_23390bf86be05cec073c56a9",
+          "text": "API",
+          "insertionIndex": 0
+        }
+      },
+      {
+        "createLine": {
+          "objectId": "spike01_e_1065fe212dfeb04920a8f609",
+          "category": "STRAIGHT",
+          "elementProperties": {
+            "pageObjectId": "spike01_s_ac60058ef90ca6b89ea255a6",
+            "size": {
+              "width": {
+                "magnitude": 1,
+                "unit": "PT"
+              },
+              "height": {
+                "magnitude": 1,
+                "unit": "PT"
+              }
+            },
+            "transform": {
+              "scaleX": 440,
+              "scaleY": -12,
+              "shearX": 0,
+              "shearY": 0,
+              "translateX": 119.99606299212599,
+              "translateY": 182,
+              "unit": "PT"
+            }
+          }
+        }
+      },
+      {
+        "updateLineProperties": {
+          "objectId": "spike01_e_1065fe212dfeb04920a8f609",
+          "lineProperties": {
+            "startConnection": {
+              "connectedObjectId": "spike01_n_ab7893d537a87047584499e7",
+              "connectionSiteIndex": 0
+            },
+            "endConnection": {
+              "connectedObjectId": "spike01_n_23390bf86be05cec073c56a9",
+              "connectionSiteIndex": 0
+            },
+            "endArrow": "FILL_ARROW"
+          },
+          "fields": "startConnection,endConnection,endArrow"
+        }
+      },
+      {
+        "createShape": {
+          "objectId": "spike01_l_873a46658ff48b9885df887f",
+          "shapeType": "TEXT_BOX",
+          "elementProperties": {
+            "pageObjectId": "spike01_s_ac60058ef90ca6b89ea255a6",
+            "size": {
+              "width": {
+                "magnitude": 159.99212598425197,
+                "unit": "PT"
+              },
+              "height": {
+                "magnitude": 30,
+                "unit": "PT"
+              }
+            },
+            "transform": {
+              "scaleX": 1,
+              "scaleY": 1,
+              "shearX": 0,
+              "shearY": 0,
+              "translateX": 270,
+              "translateY": 100,
+              "unit": "PT"
+            }
+          }
+        }
+      },
+      {
+        "insertText": {
+          "objectId": "spike01_l_873a46658ff48b9885df887f",
+          "text": "HTTPS request",
+          "insertionIndex": 0
+        }
+      }
+    ],
+    "writeControl": {
+      "requiredRevisionId": "ovgPRI9pgytczg"
+    }
+  },
+  "sidecar": {
+    "source": "{\n  \"umf\": \"0.10.0\",\n  \"id\": \"visual:service-map\",\n  \"vocabularies\": {\n    \"umf.visual\": {\n      \"version\": \"1.0.0\"\n    }\n  },\n  \"extensions\": {\n    \"umf.visual\": {\n      \"id\": \"service-map\",\n      \"kind\": \"flow\",\n      \"form\": \"network\",\n      \"question\": \"What calls the API?\",\n      \"nodes\": [\n        {\n          \"id\": \"client\",\n          \"label\": \"Browser client\"\n        },\n        {\n          \"id\": \"api\",\n          \"label\": \"API\"\n        }\n      ],\n      \"edges\": [\n        {\n          \"id\": \"request\",\n          \"from\": \"client\",\n          \"to\": \"api\",\n          \"label\": \"HTTPS request\"\n        }\n      ]\n    }\n  },\n  \"modules\": []\n}\n",
+    "identity": {
+      "client": [
+        "spike01_n_ab7893d537a87047584499e7"
+      ],
+      "api": [
+        "spike01_n_23390bf86be05cec073c56a9"
+      ],
+      "request": [
+        "spike01_e_1065fe212dfeb04920a8f609",
+        "spike01_l_873a46658ff48b9885df887f"
+      ]
+    },
+    "losses": [],
+    "placement": {
+      "page": {
+        "width": 720,
+        "height": 405
+      },
+      "question": {
+        "x": 24,
+        "y": 16,
+        "width": 650.007874015748,
+        "height": 39.99212598425197
+      },
+      "nodes": {
+        "client": {
+          "x": 40,
+          "y": 152,
+          "width": 159.99212598425197,
+          "height": 60
+        },
+        "api": {
+          "x": 480,
+          "y": 140,
+          "width": 159.99212598425197,
+          "height": 60
+        }
+      },
+      "labels": {
+        "request": {
+          "x": 270,
+          "y": 100,
+          "width": 159.99212598425197,
+          "height": 30
+        }
+      }
+    }
+  }
+}

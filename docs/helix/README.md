@@ -62,3 +62,8 @@ bounded network adapter and native preservation extension. The
 edit/adoption, a 72-item native reproduction and scoped fidelity limits.
 
 [Versioned review integration](04-build/visual-1-1-integration.md) qualifies the explicit 1.1.0 corrections and frozen released 1.0.0 defaults.
+[Google Slides integration spike](02-design/spikes/SPIKE-001-google-slides.md)
+demonstrates export, actual Google Slides UI label/movement edits, validated
+import and a second native export for an adapter-owned flow/network diagram.
+Bun/Chromium replays cover preservation and refusal; arbitrary native import and
+structural edit reconciliation remain unqualified. The prototype is outside the public API.
