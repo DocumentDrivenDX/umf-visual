@@ -1,0 +1,468 @@
+{
+  "format": "umf.visual.miro.synthetic-witness/1",
+  "authorship": "synthetic-fixture",
+  "caseId": "network-16x24",
+  "scope": "Topology and native-only fields authored for this corpus; not a Miro API capture or serialized board.",
+  "items": [
+    {
+      "id": "syn-node-01",
+      "kind": "node",
+      "label": "Node 01",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 0,
+        "y": 0,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-02",
+      "kind": "node",
+      "label": "Node 02",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 180,
+        "y": 0,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-03",
+      "kind": "node",
+      "label": "Node 03",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 360,
+        "y": 0,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-04",
+      "kind": "node",
+      "label": "Node 04",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 540,
+        "y": 0,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-05",
+      "kind": "node",
+      "label": "Node 05",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 0,
+        "y": 120,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-06",
+      "kind": "node",
+      "label": "Node 06",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 180,
+        "y": 120,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-07",
+      "kind": "node",
+      "label": "Node 07",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 360,
+        "y": 120,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-08",
+      "kind": "node",
+      "label": "Node 08",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 540,
+        "y": 120,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-09",
+      "kind": "node",
+      "label": "Node 09",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 0,
+        "y": 240,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-10",
+      "kind": "node",
+      "label": "Node 10",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 180,
+        "y": 240,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-11",
+      "kind": "node",
+      "label": "Node 11",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 360,
+        "y": 240,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-12",
+      "kind": "node",
+      "label": "Node 12",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 540,
+        "y": 240,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-13",
+      "kind": "node",
+      "label": "Node 13",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 0,
+        "y": 360,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-14",
+      "kind": "node",
+      "label": "Node 14",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 180,
+        "y": 360,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-15",
+      "kind": "node",
+      "label": "Node 15",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 360,
+        "y": 360,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-node-16",
+      "kind": "node",
+      "label": "Node 16",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 540,
+        "y": 360,
+        "width": 130,
+        "height": 62
+      }
+    },
+    {
+      "id": "syn-edge-01",
+      "kind": "connector",
+      "from": "syn-node-01",
+      "to": "syn-node-02",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-02",
+      "kind": "connector",
+      "from": "syn-node-02",
+      "to": "syn-node-03",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-03",
+      "kind": "connector",
+      "from": "syn-node-03",
+      "to": "syn-node-04",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-04",
+      "kind": "connector",
+      "from": "syn-node-04",
+      "to": "syn-node-05",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-05",
+      "kind": "connector",
+      "from": "syn-node-05",
+      "to": "syn-node-06",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-06",
+      "kind": "connector",
+      "from": "syn-node-06",
+      "to": "syn-node-07",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-07",
+      "kind": "connector",
+      "from": "syn-node-07",
+      "to": "syn-node-08",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-08",
+      "kind": "connector",
+      "from": "syn-node-08",
+      "to": "syn-node-09",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-09",
+      "kind": "connector",
+      "from": "syn-node-09",
+      "to": "syn-node-10",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-10",
+      "kind": "connector",
+      "from": "syn-node-10",
+      "to": "syn-node-11",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-11",
+      "kind": "connector",
+      "from": "syn-node-11",
+      "to": "syn-node-12",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-12",
+      "kind": "connector",
+      "from": "syn-node-12",
+      "to": "syn-node-13",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-13",
+      "kind": "connector",
+      "from": "syn-node-13",
+      "to": "syn-node-14",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-14",
+      "kind": "connector",
+      "from": "syn-node-14",
+      "to": "syn-node-15",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-15",
+      "kind": "connector",
+      "from": "syn-node-15",
+      "to": "syn-node-16",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-16",
+      "kind": "connector",
+      "from": "syn-node-16",
+      "to": "syn-node-01",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-17",
+      "kind": "connector",
+      "from": "syn-node-01",
+      "to": "syn-node-05",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-18",
+      "kind": "connector",
+      "from": "syn-node-02",
+      "to": "syn-node-06",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-19",
+      "kind": "connector",
+      "from": "syn-node-03",
+      "to": "syn-node-07",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-20",
+      "kind": "connector",
+      "from": "syn-node-04",
+      "to": "syn-node-08",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-21",
+      "kind": "connector",
+      "from": "syn-node-05",
+      "to": "syn-node-09",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-22",
+      "kind": "connector",
+      "from": "syn-node-06",
+      "to": "syn-node-10",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-23",
+      "kind": "connector",
+      "from": "syn-node-07",
+      "to": "syn-node-11",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-edge-24",
+      "kind": "connector",
+      "from": "syn-node-08",
+      "to": "syn-node-12",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    }
+  ],
+  "notes": [
+    "Sixteen nodes and twenty-four connectors are authored as synthetic topology, not copied from a private board.",
+    "The common document is explicitly Visual 1.1.0; the 1.0.0 profile limit remains 15 nodes."
+  ]
+}

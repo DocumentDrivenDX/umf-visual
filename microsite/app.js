@@ -1,3 +1,5 @@
+import {renderIntegrationCatalog} from './integrations.js';
+
 const TARGETS = ['dot', 'mermaid', 'lini'];
 const LABELS = {dot: 'DOT', mermaid: 'Mermaid', lini: 'Lini'};
 const STATUS = ['supported', 'reported-loss', 'unsupported'];
@@ -438,6 +440,18 @@ function resetFilters() {
   state.query = ''; state.kind.clear(); state.form.clear(); state.profiles.clear(); state.status.clear(); $('search').value = '';
   document.querySelectorAll('.filter-option input').forEach(input => { input.checked = false; }); updateList(); refreshFilterCounts();
 }
+async function loadIntegrationCatalog() {
+  const mount = $('integration-catalog');
+  try {
+    const response = await fetch('./integrations.json', {cache: 'no-store'});
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    renderIntegrationCatalog(data, mount);
+  } catch (error) {
+    console.error('Integration evidence load failed', error);
+    mount.replaceChildren(el('p', 'integration-load-error', 'Synthetic integration evidence is unavailable. The language reference and sample catalogue remain available.'));
+  }
+}
 async function init() {
   themeInit();
   try {
@@ -447,6 +461,7 @@ async function init() {
     if (!state.catalog.language?.schema?.schema || !state.catalog.language?.forms?.kinds) throw new Error('Language reference is missing');
     $('catalog-version').textContent = `CATALOGUE V${state.catalog.schemaVersion}`;
     renderLanguageReference(); updateGalleryLabels(); renderReleaseCoverage(); renderCoverage(); setupFilters();
+    void loadIntegrationCatalog();
     $('secondary-gallery').addEventListener('toggle', event => { state.showSecondary = event.target.open; updateGalleryLabels(); updateList(); });
     $('search').addEventListener('input', event => { state.query = event.target.value; updateList(); });
     $('sort-select').addEventListener('change', event => { state.sort = event.target.value; updateList(); });

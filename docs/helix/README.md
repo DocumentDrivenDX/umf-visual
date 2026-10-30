@@ -69,6 +69,16 @@ Bun and Chromium recover edited labels and a reconnected edge from embedded sour
 native layout is retained separately. Structural edits and broader forms remain
 unqualified.
 
+[PowerPoint native conformance](04-build/powerpoint-native-conformance.md) records
+the 16-node/24-edge network edit and the independently edited/reopened edge
+caption, with sanitized package digests in its [evidence receipt](04-build/evidence/powerpoint-native-conformance.json).
+
+[Miro editable live conformance](04-build/miro-editable-live-2026-10-30.md)
+records the bounded editable-network import, native-preserving update and
+sanitized revision/capture evidence. Its [receipt](04-build/evidence/miro-editable-live-2026-10-30.json)
+contains only counts, hashes and logical source paths; the live board bindings
+and screenshot remain private.
+
 [Google Slides integration spike](02-design/spikes/SPIKE-001-google-slides.md)
 demonstrates export, actual Google Slides UI label/movement edits, validated
 import and a second native export for an adapter-owned flow/network diagram.
@@ -86,3 +96,12 @@ sanitized complex Miro examples and expanded edited integrations.
 complete semantic/native readback and local preview approval, with Linux CI
 and publication still pending. [Prepared v0.2.0 notes](05-deploy/release-notes-v0.2.0.md)
 describe that candidate and its qualified scope.
+
+The example milestone is now released as
+[v0.2.0](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.2.0),
+with main CI/Pages and served asset hashes verified. P6/P7 use
+[CONTRACT-088](02-design/contracts/CONTRACT-088-editable-host-bindings.md) for
+source/native revision fences, editable host identities and atomic reconciliation.
+The reader-facing [editable host integration guide](../editable-integrations.md)
+documents the current package APIs and example flows; it does not replace this
+contract or its host-specific evidence.

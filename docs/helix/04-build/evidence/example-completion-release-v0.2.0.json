@@ -1,0 +1,17 @@
+{
+  "release": "v0.2.0",
+  "commit": "31cbca1e6f576fef8497edd54c9adc8119beb780",
+  "releaseUrl": "https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.2.0",
+  "linuxConformanceAndPages": "https://github.com/DocumentDrivenDX/umf-visual/actions/runs/41002367698",
+  "site": "https://documentdrivendx.github.io/umf-visual/",
+  "catalogSha256": "1ee1202c98601db83875bf8b7ca482ceba7b5cdbb057b68873394df598f19011",
+  "examples": 53,
+  "completeForms": 22,
+  "verifiedNativeAssets": 178,
+  "allAssetHashesMatch": true,
+  "archivesSha256": {
+    "documentdrivendx-umf-visual-0.2.0.tgz": "9dcbe430af55b14ced4c2cbe663988a6c4a0c9fa82b21da825f5b45df46aa78a",
+    "umf-visual-catalog-0.2.0.tar.gz": "030a6d6758f18ca0d8a59c3ab0db33f20d6a060c638260d44c8a3d85b7b07e1b",
+    "umf-visual-evidence-0.2.0.tar.gz": "b28d34abd5a169240b726b2f53be9f4df319e419fcb10cd9bf885e689a32c4e5"
+  }
+}

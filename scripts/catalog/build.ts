@@ -9,6 +9,7 @@ import mermaidPackage from 'mermaid/package.json';
 import {exportVisual, inspectVisual, interchangeCapabilities, visualForms, type AnnotatedInterchangeProfile,type ExportVisualResult, type IdentityMapping, type InterchangeDiagnostic, type InterchangeFormat} from '../../src';
 import type {ProjectionCoverage} from '../../src/interchange/annotations';
 import {focusedProfileSource} from './profile-views';
+import {buildIntegrationCatalog} from './integrations';
 import {liniDirectory, verifyLiniRuntime} from '../interchange-runtime';
 
 export type TargetName = InterchangeFormat;
@@ -354,6 +355,7 @@ export async function buildCatalog(outputDirectory = 'dist-site'): Promise<Visua
   const catalog = await createCatalogData();
   await mkdir(outputDir, {recursive: true});
   await renderCatalog(catalog, outputDir);
+  await buildIntegrationCatalog(outputDir);
   const catalogFile = join(outputDir, 'catalog.json');
   const temporaryFile = join(outputDir, `.catalog.json.${randomUUID()}.tmp`);
   try {

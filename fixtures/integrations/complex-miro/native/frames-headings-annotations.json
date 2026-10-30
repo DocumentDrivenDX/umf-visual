@@ -1,0 +1,145 @@
+{
+  "format": "umf.visual.miro.synthetic-witness/1",
+  "authorship": "synthetic-fixture",
+  "caseId": "frames-headings-annotations",
+  "scope": "Topology and native-only fields authored for this corpus; not a Miro API capture or serialized board.",
+  "items": [
+    {
+      "id": "syn-api",
+      "kind": "node",
+      "label": "API",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 50,
+        "y": 90,
+        "width": 120,
+        "height": 65
+      }
+    },
+    {
+      "id": "syn-worker",
+      "kind": "node",
+      "label": "Worker",
+      "symbol": "synthetic.symbol.rectangle",
+      "geometry": {
+        "x": 240,
+        "y": 90,
+        "width": 120,
+        "height": 65
+      }
+    },
+    {
+      "id": "syn-queue",
+      "kind": "node",
+      "label": "Queue",
+      "symbol": "synthetic.symbol.cylinder",
+      "geometry": {
+        "x": 500,
+        "y": 90,
+        "width": 120,
+        "height": 65
+      }
+    },
+    {
+      "id": "syn-database",
+      "kind": "node",
+      "label": "Database",
+      "symbol": "synthetic.symbol.cylinder",
+      "geometry": {
+        "x": 690,
+        "y": 90,
+        "width": 120,
+        "height": 65
+      }
+    },
+    {
+      "id": "syn-frame-a",
+      "kind": "frame",
+      "title": "Request handling",
+      "geometry": {
+        "x": 20,
+        "y": 20,
+        "width": 390,
+        "height": 220
+      },
+      "memberIds": [
+        "syn-api",
+        "syn-worker"
+      ]
+    },
+    {
+      "id": "syn-frame-b",
+      "kind": "frame",
+      "title": "Persistence",
+      "geometry": {
+        "x": 460,
+        "y": 20,
+        "width": 390,
+        "height": 220
+      },
+      "memberIds": [
+        "syn-queue",
+        "syn-database"
+      ]
+    },
+    {
+      "id": "syn-heading-a",
+      "kind": "free-text",
+      "text": "Inbound path",
+      "geometry": {
+        "x": 40,
+        "y": 270,
+        "width": 150,
+        "height": 30
+      }
+    },
+    {
+      "id": "syn-note",
+      "kind": "free-text",
+      "text": "Retry behavior is outside this sketch.",
+      "geometry": {
+        "x": 500,
+        "y": 270,
+        "width": 300,
+        "height": 30
+      }
+    },
+    {
+      "id": "syn-api-worker",
+      "kind": "connector",
+      "from": "syn-api",
+      "to": "syn-worker",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-worker-queue",
+      "kind": "connector",
+      "from": "syn-worker",
+      "to": "syn-queue",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    },
+    {
+      "id": "syn-queue-db",
+      "kind": "connector",
+      "from": "syn-queue",
+      "to": "syn-database",
+      "route": "straight",
+      "attachment": {
+        "from": "shape-boundary",
+        "to": "shape-boundary"
+      }
+    }
+  ],
+  "notes": [
+    "Frame titles and free text remain distinct native item kinds and are not promoted to semantic graph nodes.",
+    "The common title/question are explicitly authored for this reduced example; they are not inferred from frame titles."
+  ]
+}

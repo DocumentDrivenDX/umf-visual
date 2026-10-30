@@ -1,5 +1,8 @@
 import {describe,expect,it} from 'bun:test';
 import {existsSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+
+const digest=(bytes:Uint8Array)=>createHash('sha256').update(bytes).digest('hex').slice(0,16);
 
 describe('microsite catalogue UI contract',()=>{
   it('uses a static browser entry point with accessible controls and safe source rendering',async()=>{
@@ -23,6 +26,19 @@ describe('microsite catalogue UI contract',()=>{
     expect(app).toContain('url.searchParams.set(\'v\', sha256)');
     expect(app).toContain('function findItemForUrl(id)');
     expect(app).toContain('return legacy.length === 1 ? legacy[0] : undefined');
+    const miroApp=await Bun.file('examples/miro/editable-app.ts').text();
+    const miroHtml=await Bun.file('examples/miro/editable.html').text();
+    expect(miroApp).toContain("const panelMode = panelUrl.searchParams.get('panel') === '1'");
+    expect(miroApp).toContain("getElementById(panelMode ? 'status' : 'bootstrap-status')");
+    expect(miroApp).toContain('if (bootstrap) bootstrap.hidden = false');
+    expect(miroApp).toContain('toolbar click handler registered');
+    expect(miroApp).toContain('captureEditableMiroBoard(board)');
+    expect(miroApp).toContain('const observation = await captureEditableMiroBoard(board)');
+    expect(miroApp).toContain('function statusData(data: unknown)');
+    expect(miroHtml).toContain('id="bootstrap-status"');
+    expect(miroHtml).toContain('id="debug-capture"');
+    expect(miroHtml).toContain('id="debug-snapshot"');
+    expect(miroHtml).toContain('readonly');
     expect(app).not.toContain('innerHTML');
     expect(app).toContain("/^renders\\/[A-Za-z0-9._/-]+\\.svg$/");
   });
@@ -31,10 +47,23 @@ describe('microsite catalogue UI contract',()=>{
     const build=await Bun.file('microsite/build.ts').text();
     const browser=await Bun.file('scripts/catalog-ui-browser.ts').text();
     expect(build).toContain(".replace('./styles.css','./styles.css?v='+digest(css))");
-    expect(build).toContain(".replace('./app.js','./app.js?v='+digest(app))");
+    expect(build).toContain(".replace('./app.js','./app.js?v='+digest(versionedApp))");
+    expect(build).toContain("digest(integrationJs)");
     expect(browser).toContain('result.width<=0||result.height<=0');
     expect(browser).toContain('all ${renderAssets.length} native SVGs load in-browser');
+    expect(browser).toContain('Expected all 178 verified baseline and qualified profile SVG assets');
     expect(browser).toContain('previewBounds.image.width>previewBounds.container.width');
+
+    if(!existsSync('dist-site/index.html'))return;
+    const [html,servedApp,servedStyles,servedIntegrationCss,servedIntegrationJs]=await Promise.all([
+      Bun.file('dist-site/index.html').text(),Bun.file('dist-site/app.js').bytes(),Bun.file('dist-site/styles.css').bytes(),
+      Bun.file('dist-site/integrations.css').bytes(),Bun.file('dist-site/integrations.js').bytes(),
+    ]);
+    const integrationHash=digest(servedIntegrationJs),appHash=digest(servedApp);
+    expect(html).toContain(`href="./styles.css?v=${digest(servedStyles)}"`);
+    expect(html).toContain(`href="./integrations.css?v=${digest(servedIntegrationCss)}"`);
+    expect(html).toContain(`src="./app.js?v=${appHash}"`);
+    expect(Buffer.from(servedApp).toString()).toContain(`'./integrations.js?v=${integrationHash}'`);
   });
 
   it('provides the built catalogue when the site build has run',()=>{

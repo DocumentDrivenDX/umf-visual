@@ -1,5 +1,58 @@
 # Example completion milestone: execution evidence
 
+## Published closure — 2026-10-30
+
+[v0.2.0](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.2.0)
+is published at `31cbca1e6f576fef8497edd54c9adc8119beb780`.
+[Main Linux conformance and Pages](https://github.com/DocumentDrivenDX/umf-visual/actions/runs/41002367698)
+passed. The served catalog and all 178 native asset hashes match the tested
+main artifact: 53 complete examples and 22 forms. Archive digests match the
+published SHA256SUMS. The [closure receipt](evidence/example-completion-release-v0.2.0.json)
+pins these facts. P5 is complete; P6/P7 are authorized under CONTRACT-088.
+
+The candidate sections below retain the pre-publication observation and its
+then-pending Linux gate as execution history.
+
+## P6/P7 closeout observation — 2026-10-30
+
+CONTRACT-088 governs the additive editable-host work after v0.2.0. Six
+synthetic/sanitized complex Miro witnesses now accompany the original suite:
+five shared-model documents and one native-only witness. The sixteen-node
+network declares model 1.1.0; the other four shared documents use frozen 1.0.0.
+The integration catalog records fifteen shared-document/target outcomes and
+three opaque-witness refusals, with projection gaps and target losses intact.
+PPTX XML readback and Slides/Miro plans are labelled separately from live host
+execution; these outcomes do not alter the original 53-example/22-form gate.
+
+| Host proof | Actual evidence and boundary |
+| --- | --- |
+| PowerPoint | [Native conformance](powerpoint-native-conformance.md) and [sanitized receipt](evidence/powerpoint-native-conformance.json): Microsoft PowerPoint for Mac 16.114.3, one-slide 1.1.0 16-node/24-edge network; UI label, bold style, movement and reconnection; semantic import and preserving update/reopen without repair. A separate 1.0.0 case proves editable caption text shapes, native caption edit and preserving update/reopen. |
+| Google Slides | [Live execution](../02-design/spikes/google-slides/live-execution.md) and [sanitized receipt](evidence/google-slides-live-2026-10-30.json): one adapter-owned 1.0.0 slide, UI label/style/movement/reconnection and a three-request conditional update. Captures prove unchanged original slide and retained post-UI style, transforms and attachments. Host-wrapper writes were live; adapter logic was checked through captured trace replay. |
+| Miro | [Live conformance](miro-editable-live-2026-10-30.md) and [sanitized receipt](evidence/miro-editable-live-2026-10-30.json): synthetic standalone 1.0.0 network, three nodes/two edges/seven mappings; UI label/movement/fill/reconnection, two imported semantic changes and preserving question update through the actual Web SDK. Independent admission verifies revisions 0/1/2 and 82 unrelated items unchanged apart from excluded SDK modification metadata. |
+
+These proofs qualify the named adapter-owned subsets. They do not establish
+whole-presentation/board fidelity, all complex corpus cases, arbitrary native
+edits, or other host versions. Native-only content remains retained with losses;
+an embedded source or binding cannot promote it to native semantic coverage.
+Miro's observed SDK runtime was 1.105538.0; its service release was not
+independently pinned. Groups were not exercised, and an initial bold rich-text
+command correctly refused with `RICH_TEXT`.
+The Miro host witness is separate from the six corpus fixtures. Its repeatable
+verifier is `bun scripts/evidence/verify-miro-editable-live.ts`; raw native
+captures and private identifiers stay outside published receipts.
+
+Sol's previous bounded review passed 56 focused tests and 457 assertions across
+shared reconciliation, Miro, Slides, PPTX/XML/ZIP and the additive catalog.
+The final closeout rerun passes 38 tests and 191 assertions. It includes repeated
+Slides caption updates at the exact existing label pointer, native caption
+import, and refusal of text bodies on qualified PPT connectors, whose labels
+belong to separate editable caption shapes. Both final P2 findings are closed;
+Sol found no remaining release-critical defect in this bounded review. Final
+integrated CI and publication gates remain pending: no P6/P7 merge, deployment
+or new release is claimed here.
+
+## Candidate observation
+
 Working-tree observation on 2026-10-29, based on merged main
 `31395903ee1bba6ab5720bc3077068bdb3179ca7`, following the initial
 `87eadb4` review. Final source hashes are recorded in the receipts below. This supplementary execution record

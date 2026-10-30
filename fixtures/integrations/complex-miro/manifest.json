@@ -1,0 +1,138 @@
+{
+  "format": "umf.visual.miro.synthetic-corpus/1",
+  "authorship": "synthetic",
+  "purpose": "Reusable, sanitized witnesses for common visual projection boundaries and retained Miro-style native content. These are not captures of Miro boards and do not define Miro API schemas.",
+  "commonVisualSchema": "spec/extensions/visual/schema.json",
+  "nativeWitnessSchema": "native-witness.schema.json",
+  "cases": [
+    {
+      "id": "nested-environments",
+      "title": "Nested environment containment",
+      "commonVisualPath": "common/nested-environments.json",
+      "nativeWitnessPath": "native/nested-environments.json",
+      "commonProjection": "partial-explicit-projection",
+      "losses": [
+        {
+          "path": "native.items[*].parentId",
+          "meaning": "Exact nested native containment",
+          "gap": "Common groups retain a parent relation, but do not distinguish whether this source containment is semantic, deployment, or presentation."
+        },
+        {
+          "path": "native.items[syn-cross-boundary].controlPoints",
+          "meaning": "Curved route crossing nested boundaries",
+          "gap": "Common edge retains connectivity and label; route geometry is not represented."
+        }
+      ]
+    },
+    {
+      "id": "process-documents-store",
+      "title": "Process, document, multiple documents, data store",
+      "commonVisualPath": "common/process-documents-store.json",
+      "nativeWitnessPath": "native/process-documents-store.json",
+      "commonProjection": "partial-explicit-projection",
+      "losses": [
+        {
+          "path": "native.items[syn-process].symbol",
+          "meaning": "Process stencil identity",
+          "gap": "No exact common node role is asserted."
+        },
+        {
+          "path": "native.items[syn-documents].symbol",
+          "meaning": "Multiple-document stencil identity",
+          "gap": "No common multiplicity/cardinality is asserted."
+        },
+        {
+          "path": "native.items[*].geometry",
+          "meaning": "Native placement and dimensions",
+          "gap": "Common visual document has no coordinates or dimensions."
+        }
+      ]
+    },
+    {
+      "id": "network-16x24",
+      "title": "Connected network with 16 nodes and 24 links",
+      "commonVisualPath": "common/network-16x24.json",
+      "nativeWitnessPath": "native/network-16x24.json",
+      "commonProjection": "complete-topology-projection",
+      "losses": [
+        {
+          "path": "native.items[*].geometry",
+          "meaning": "Native arrangement",
+          "gap": "Common visual retains topology and labels, not diagram coordinates or dimensions."
+        }
+      ]
+    },
+    {
+      "id": "frames-headings-annotations",
+      "title": "Two regions with separate headings and annotations",
+      "commonVisualPath": "common/frames-headings-annotations.json",
+      "nativeWitnessPath": "native/frames-headings-annotations.json",
+      "commonProjection": "partial-explicit-projection",
+      "losses": [
+        {
+          "path": "native.items[*].kind=frame",
+          "meaning": "Two native frame regions and their titles",
+          "gap": "Common groups can model named regions but do not preserve frame identity or layout; omitted here to avoid equating them."
+        },
+        {
+          "path": "native.items[*].kind=free-text",
+          "meaning": "Free annotation and independent heading",
+          "gap": "No common visual node is created for annotations."
+        },
+        {
+          "path": "native.items[*].geometry",
+          "meaning": "Region and item positions",
+          "gap": "Not represented by common visual topology."
+        }
+      ]
+    },
+    {
+      "id": "curved-caption-cross-boundary",
+      "title": "Curved captioned connector with endpoint attachments",
+      "commonVisualPath": "common/curved-caption-cross-boundary.json",
+      "nativeWitnessPath": "native/curved-caption-cross-boundary.json",
+      "commonProjection": "partial-explicit-projection",
+      "losses": [
+        {
+          "path": "native.items[syn-curved-link].controlPoints",
+          "meaning": "Curved connector route",
+          "gap": "Common edge does not represent connector routing geometry."
+        },
+        {
+          "path": "native.items[syn-curved-link].attachment",
+          "meaning": "East/west endpoint ports",
+          "gap": "Common edge endpoints identify nodes but not attachment ports."
+        },
+        {
+          "path": "native.items[syn-region-*]",
+          "meaning": "Native group containers and bounds",
+          "gap": "Common groups preserve labels/roles/membership but not exact bounds or native group item identity."
+        }
+      ]
+    },
+    {
+      "id": "opaque-stencils",
+      "title": "Two unsupported opaque stencil records",
+      "commonVisualPath": null,
+      "nativeWitnessPath": "native/opaque-stencils.json",
+      "commonProjection": "no-common-projection",
+      "losses": [
+        {
+          "path": "native.items[*].symbolToken",
+          "meaning": "Opaque stencil identity token",
+          "gap": "No common concept can be asserted from the token."
+        },
+        {
+          "path": "native.items[*].opaquePayload",
+          "meaning": "Opaque payload bytes",
+          "gap": "Retained in the witness only; not decoded or interpreted."
+        },
+        {
+          "path": "commonVisualPath",
+          "meaning": "No semantic projection",
+          "gap": "Intentionally absent; no speculative node or edge is created."
+        }
+      ]
+    }
+  ]
+}

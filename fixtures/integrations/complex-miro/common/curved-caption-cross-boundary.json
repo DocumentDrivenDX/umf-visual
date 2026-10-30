@@ -1,0 +1,52 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:curved-caption-cross-boundary",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "curved-caption-cross-boundary",
+      "kind": "flow",
+      "form": "network",
+      "title": "Cross-region link",
+      "question": "Which items are connected?",
+      "nodes": [
+        {
+          "id": "source-node",
+          "label": "Source",
+          "group": "region-a"
+        },
+        {
+          "id": "target-node",
+          "label": "Target",
+          "group": "region-b"
+        }
+      ],
+      "edges": [
+        {
+          "id": "cross-edge",
+          "from": "source-node",
+          "to": "target-node",
+          "kind": "data",
+          "label": "caption"
+        }
+      ],
+      "groups": [
+        {
+          "id": "region-a",
+          "label": "Region A",
+          "role": "region"
+        },
+        {
+          "id": "region-b",
+          "label": "Region B",
+          "role": "region"
+        }
+      ]
+    }
+  },
+  "modules": []
+}

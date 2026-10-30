@@ -1,0 +1,231 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:network-16x24",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.1.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "network-16x24",
+      "kind": "flow",
+      "form": "network",
+      "title": "Sixteen-node network",
+      "question": "What connections form this network?",
+      "nodes": [
+        {
+          "id": "n01",
+          "label": "Node 01"
+        },
+        {
+          "id": "n02",
+          "label": "Node 02"
+        },
+        {
+          "id": "n03",
+          "label": "Node 03"
+        },
+        {
+          "id": "n04",
+          "label": "Node 04"
+        },
+        {
+          "id": "n05",
+          "label": "Node 05"
+        },
+        {
+          "id": "n06",
+          "label": "Node 06"
+        },
+        {
+          "id": "n07",
+          "label": "Node 07"
+        },
+        {
+          "id": "n08",
+          "label": "Node 08"
+        },
+        {
+          "id": "n09",
+          "label": "Node 09"
+        },
+        {
+          "id": "n10",
+          "label": "Node 10"
+        },
+        {
+          "id": "n11",
+          "label": "Node 11"
+        },
+        {
+          "id": "n12",
+          "label": "Node 12"
+        },
+        {
+          "id": "n13",
+          "label": "Node 13"
+        },
+        {
+          "id": "n14",
+          "label": "Node 14"
+        },
+        {
+          "id": "n15",
+          "label": "Node 15"
+        },
+        {
+          "id": "n16",
+          "label": "Node 16"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e01",
+          "from": "n01",
+          "to": "n02",
+          "kind": "data"
+        },
+        {
+          "id": "e02",
+          "from": "n02",
+          "to": "n03",
+          "kind": "data"
+        },
+        {
+          "id": "e03",
+          "from": "n03",
+          "to": "n04",
+          "kind": "data"
+        },
+        {
+          "id": "e04",
+          "from": "n04",
+          "to": "n05",
+          "kind": "data"
+        },
+        {
+          "id": "e05",
+          "from": "n05",
+          "to": "n06",
+          "kind": "data"
+        },
+        {
+          "id": "e06",
+          "from": "n06",
+          "to": "n07",
+          "kind": "data"
+        },
+        {
+          "id": "e07",
+          "from": "n07",
+          "to": "n08",
+          "kind": "data"
+        },
+        {
+          "id": "e08",
+          "from": "n08",
+          "to": "n09",
+          "kind": "data"
+        },
+        {
+          "id": "e09",
+          "from": "n09",
+          "to": "n10",
+          "kind": "data"
+        },
+        {
+          "id": "e10",
+          "from": "n10",
+          "to": "n11",
+          "kind": "data"
+        },
+        {
+          "id": "e11",
+          "from": "n11",
+          "to": "n12",
+          "kind": "data"
+        },
+        {
+          "id": "e12",
+          "from": "n12",
+          "to": "n13",
+          "kind": "data"
+        },
+        {
+          "id": "e13",
+          "from": "n13",
+          "to": "n14",
+          "kind": "data"
+        },
+        {
+          "id": "e14",
+          "from": "n14",
+          "to": "n15",
+          "kind": "data"
+        },
+        {
+          "id": "e15",
+          "from": "n15",
+          "to": "n16",
+          "kind": "data"
+        },
+        {
+          "id": "e16",
+          "from": "n16",
+          "to": "n01",
+          "kind": "data"
+        },
+        {
+          "id": "e17",
+          "from": "n01",
+          "to": "n05",
+          "kind": "data"
+        },
+        {
+          "id": "e18",
+          "from": "n02",
+          "to": "n06",
+          "kind": "data"
+        },
+        {
+          "id": "e19",
+          "from": "n03",
+          "to": "n07",
+          "kind": "data"
+        },
+        {
+          "id": "e20",
+          "from": "n04",
+          "to": "n08",
+          "kind": "data"
+        },
+        {
+          "id": "e21",
+          "from": "n05",
+          "to": "n09",
+          "kind": "data"
+        },
+        {
+          "id": "e22",
+          "from": "n06",
+          "to": "n10",
+          "kind": "data"
+        },
+        {
+          "id": "e23",
+          "from": "n07",
+          "to": "n11",
+          "kind": "data"
+        },
+        {
+          "id": "e24",
+          "from": "n08",
+          "to": "n12",
+          "kind": "data"
+        }
+      ]
+    }
+  },
+  "modules": []
+}
