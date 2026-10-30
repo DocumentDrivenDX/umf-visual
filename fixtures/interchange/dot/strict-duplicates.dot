@@ -1,0 +1,1 @@
+strict digraph { a -> b [label="first"]; a -> b [label="last"] }

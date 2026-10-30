@@ -1,0 +1,23 @@
+{
+  "graphviz": {
+    "version": "dot - graphviz version 16.1.0 (20260904.0139)",
+    "nodes": 2,
+    "edges": 1,
+    "labelFidelity": true
+  },
+  "lini": {
+    "version": "1.1.0",
+    "cases": [
+      {
+        "name": "graph",
+        "diagnostics": [],
+        "svgSha256": "654596d8a7894099c68caddc680ea35ec226d6e5ce1abc12099522ed3c69c0c2"
+      },
+      {
+        "name": "entities",
+        "diagnostics": [],
+        "svgSha256": "0d3e7758f9e4b034b2bdbc7585326c6d14e7e4e859f229ee2daf4addaa1c2048"
+      }
+    ]
+  }
+}

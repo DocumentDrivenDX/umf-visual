@@ -5,4 +5,5 @@ test('boundary rejects private SDK and sibling source imports',()=>{
  expect(boundaryIssues("import x from '@umf/core/src/registry';")).toHaveLength(1);
  expect(boundaryIssues("import x from '../../umf/src/index';")).toHaveLength(1);
  expect(boundaryIssues("export * from '@umf/core';")).toHaveLength(1);
+ expect(boundaryIssues("import x from '../../adapters/miro/index.js';",'src/extensions/visual/index.ts')).toContain('Vocabulary cannot depend on adapters');
 });

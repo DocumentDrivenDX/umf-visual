@@ -1,0 +1,7 @@
+digraph "beacon graph" {
+  // Slash comments can separate DOT tokens.
+  # Comments and quoted identifiers are part of the supported syntax.
+  "entry service" /* block comments can too */ -> api -> store [label="writes"]
+  api [label="A" + "PI"]
+  store [label="Ticket store"]
+}

@@ -1,0 +1,8 @@
+{ layout: grid; columns: repeat(2); gap: 100 140; clearance: 16; padding: 32; }
+|entity#n_0| "Account" { hint: "Customer account record"; } [
+  |cell#f_0| "account id"; "uuid"
+]
+|entity#n_1| "Event" { hint: "Stored event payload"; } [
+  |cell#f_0| "payload"; "json"
+]
+n_0.f_0 -> n_1.f_0 "emits"

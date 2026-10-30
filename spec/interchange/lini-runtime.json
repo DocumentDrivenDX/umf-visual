@@ -1,0 +1,9 @@
+{
+  "profile": "umf.diagram.lini.runtime/1",
+  "version": "1.1.0",
+  "assets": [
+    {"name":"lini_wasm.js","url":"https://lini.rs/assets/lini_wasm.js","sha256":"0dd52206dd4bbb398560b522b4e0650ee1f3c5a94682a846102f33ded3938d46"},
+    {"name":"lini_wasm_bg.wasm","url":"https://lini.rs/assets/lini_wasm_bg.wasm","sha256":"e42530f8cffe6b37171f80fe809829528696ab05bb076601b2efed2418941180"},
+    {"name":"LICENSE","url":"https://raw.githubusercontent.com/monfa-red/lini/main/LICENSE","sha256":"271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5"}
+  ]
+}

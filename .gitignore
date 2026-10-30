@@ -1,5 +1,6 @@
-node_modules/
+node_modules
 dist/
 .cache/
 *.tgz
 .DS_Store
+dist-site/
