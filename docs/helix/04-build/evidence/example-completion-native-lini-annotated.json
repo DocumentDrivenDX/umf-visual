@@ -84,8 +84,8 @@
     {
       "fixture": "fixtures/visual/forms/visuals-roadmap.json",
       "inputSha256": "7d6a37e0bbd89a5795aa095ae9b855ea771c28daf78f675e508fdc390310dc12",
-      "sourceSha256": "8f4b4ef802b09a44d69aa64dab2d241a821fd6459f4f6cddb6fe1712981e5da3",
-      "svgSha256": "be75b05dfecfd6a29381061c548c869359a199f9e064c62bca6b760e0ff3a388",
+      "sourceSha256": "7af9c85d5300ab8ffcefb38ff923c93ff1057d566ce4194e283ddf3fb45eec18",
+      "svgSha256": "7dd0a0b4d850d9ea8dc1622721029dba79c5991eb2d32ee0d88fdd08c1dfe29f",
       "annotations": 13,
       "identityMappings": 20,
       "coverageEntries": 98,

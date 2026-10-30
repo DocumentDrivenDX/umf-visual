@@ -48,10 +48,17 @@ try{
   const screenshot='.cache/lini-visual-layout/'+entry.form+'.png';await page.screenshot({path:screenshot,fullPage:true});
   await Bun.write('.cache/lini-visual-layout/'+entry.form+'.json',JSON.stringify(geometry,null,2)+'\n');
   if(geometry.errors.length)throw new Error(entry.form+': browser geometry failed '+JSON.stringify(geometry.errors));
-  proof.push({form:entry.form,fixture:entry.file,inputSha256:hash(input),sourceSha256:hash(result.text),svgSha256:hash(svg),nativeDiagnostics:nativeDiagnostics.diagnostics??[],browserGeometry:geometry,screenshot});
+  const fontStress=entry.form==='roadmap'?await page.locator('svg').evaluate(root=>{
+   const svg=root as SVGSVGElement,previous=svg.style.getPropertyValue('--lini-font-family');svg.style.setProperty('--lini-font-family','monospace');
+   const errors:string[]=[];let labels=0;
+   for(const group of svg.querySelectorAll('g.lini-block[data-id^="span_"]')){const text=group.querySelector(':scope > text'),block=group.querySelector(':scope > rect');if(!text||!block)continue;labels++;const t=text.getBoundingClientRect(),b=block.getBoundingClientRect(),outside=Math.max(b.left-t.left,t.right-b.right,b.top-t.top,t.bottom-b.bottom,0);if(outside>5)errors.push(group.getAttribute('data-id')+': '+outside.toFixed(1)+'px');}
+   if(previous)svg.style.setProperty('--lini-font-family',previous);else svg.style.removeProperty('--lini-font-family');return{font:'monospace',labels,errors};
+  }):undefined;
+  if(fontStress?.errors.length)throw new Error('Roadmap font fallback stress failed '+JSON.stringify(fontStress));
+  proof.push({form:entry.form,fixture:entry.file,inputSha256:hash(input),sourceSha256:hash(result.text),svgSha256:hash(svg),nativeDiagnostics:nativeDiagnostics.diagnostics??[],browserGeometry:geometry,...(fontStress?{fontStress}:{}),screenshot});
   await page.close();
  }
 }finally{await browser.close();}
-const receipt={profile:'umf.visual.lini.annotated/1',model:'1.0.0',runtime:{profile:pin.profile,version:pin.version,assets:pin.assets},browser:'Playwright Chromium '+browserVersion,cases:proof};
+const receipt={profile:'umf.visual.lini.annotated/1',model:'1.0.0',platform:process.platform,architecture:process.arch,runtime:{profile:pin.profile,version:pin.version,assets:pin.assets},browser:'Playwright Chromium '+browserVersion,cases:proof};
 await Bun.write('.cache/native-lini-visual-layout.json',JSON.stringify(receipt,null,2)+'\n');
 console.log(JSON.stringify(receipt));

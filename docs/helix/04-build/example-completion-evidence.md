@@ -1,8 +1,8 @@
 # Example completion milestone: execution evidence
 
 Working-tree observation on 2026-10-29, based on merged main
-`31395903ee1bba6ab5720bc3077068bdb3179ca7`; reviewed source candidate
-`669ede2` (following the initial `87eadb4` review). This supplementary execution record
+`31395903ee1bba6ab5720bc3077068bdb3179ca7`, following the initial
+`87eadb4` review. Final source hashes are recorded in the receipts below. This supplementary execution record
 implements the [example completion plan](example-completion-plan.md) under
 [CONTRACT-087](../02-design/contracts/CONTRACT-087-readable-annotations.md),
 [CONTRACT-085](../02-design/contracts/CONTRACT-085-visual-catalog.md) and
@@ -86,7 +86,7 @@ do not promise arbitrary host editing or vanilla DOT/Lini types for every field.
   and the corrected entity canary: connector/cardinality labels no longer
   collide. The contact sheet is navigation evidence, not a
   substitute for inspecting dense native views at useful zoom.
-- The final local integration run passes 295 Bun tests and 11,178 assertions,
+- The final local integration run passes 295 Bun tests and 11,188 assertions,
   source/type checks, the packed Bun/Node consumers, legacy native/wave-two
   checks and the new annotated/native/browser checks. The final entity regression
   and affected proofs pass. Linux CI remains pending.
@@ -107,7 +107,11 @@ a five-second full-corpus test timeout. It also identified real roadmap text
 overflow with Linux font metrics. Native span blocks now reserve 28 pixels per
 visible text line and period columns provide 240 pixels for the unchanged
 22-character wrap limit. The height change alone did not resolve the CI
-overflow. Local native, browser and full-suite proofs were refreshed.
+overflow. Saved Linux bounds then showed that grid width does not stretch
+intrinsically sized span blocks. Spans now explicitly reserve their covered
+period width minus a 20-pixel gutter, enforced on import. The secondary
+monospace font check passes; removing explicit widths reproduces 12–24 pixel
+overflow in seven spans. Local native, browser and full-suite proofs were refreshed.
 Linux validation of that correction remains pending.
 
 ## Candidate gate status

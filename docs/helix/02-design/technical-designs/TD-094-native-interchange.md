@@ -231,3 +231,9 @@ limit, providing room for differing browser font metrics. Span blocks reserve 28
 line. The parser requires the matching native height; undersized or mismatched
 blocks refuse. This addresses the Linux browser font-metric overflow observed
 after local geometry passed, without relaxing the collision/overflow checks.
+
+Grid columns do not stretch intrinsic Lini block rectangles. Each roadmap span
+therefore declares native width equal to its inclusive period count × 240 minus
+a 20-pixel gutter. Import validates that exact width. Browser geometry also
+checks a monospace font fallback, which exposes the intrinsic-width regression
+on platforms whose default font would hide it.

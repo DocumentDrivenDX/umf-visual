@@ -67,7 +67,7 @@ for(const form of forms)test('serializes and reads back the native '+form+' fixt
   }else{
    const blocks=roadmapBlockBounds(svg);expect(blocks.length).toBeGreaterThan(10);
    for(let i=0;i<blocks.length;i++)for(let j=i+1;j<blocks.length;j++){const a=blocks[i]!,b=blocks[j]!;expect(a.x+a.width<=b.x||b.x+b.width<=a.x||a.y+a.height<=b.y||b.y+b.height<=a.y).toBe(true);}
-   for(const block of blocks.filter(item=>item.id.startsWith('span_'))){const lines=(block.text.match(/<tspan\b/g)??[]).length||1;expect(block.height).toBeGreaterThanOrEqual(lines*28);}
+   for(const block of blocks.filter(item=>item.id.startsWith('span_'))){const lines=(block.text.match(/<tspan\b/g)??[]).length||1;expect(block.height).toBeGreaterThanOrEqual(lines*28);const span=visual.timeline!.spans!.find(item=>'span_'+[...item.id].map(char=>char.codePointAt(0)!.toString(16).padStart(2,'0')).join('')===block.id)!;const periods=visual.timeline!.scale.kind==='period'?visual.timeline!.scale.periods:[],start=periods.findIndex(item=>item.id===span.start),end=periods.findIndex(item=>item.id===span.end);expect(block.width).toBe((end-start+1)*240-20);}
    const renderedText=[...svg.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/g)].map(match=>match[1]!.replace(/<\/tspan>\s*<tspan[^>]*>/g,' ').replace(/<[^>]*>/g,''));
    for(const period of visual.timeline!.scale.kind==='period'?visual.timeline!.scale.periods:[])expect(renderedText).toContain(period.label);
    for(const lane of visual.timeline!.lanes??[])expect(renderedText).toContain(lane.label);
@@ -89,7 +89,7 @@ test('native event label and date edits are read back; deleting a valid event is
 
 test('roadmap range edits round trip, while invalid periods, lanes, overlap and unknown IDs refuse',async()=>{
  const visual=await sample('roadmap'),source=serializeLiniTimeline(visual).statements.join('\n')+'\n';
- const moved=source.replace('|block#span_7370616e2d6d31| "umf: `umf.visual/1`" { cell: 3 2; span: 1 1; height: 28; }','|block#span_7370616e2d6d31| "umf: `umf.visual/1`" { cell: 4 2; span: 2 1; height: 28; }');
+ const moved=source.replace('|block#span_7370616e2d6d31| "umf: `umf.visual/1`" { cell: 3 2; span: 1 1; width: 220; height: 28; }','|block#span_7370616e2d6d31| "umf: `umf.visual/1`" { cell: 4 2; span: 2 1; width: 460; height: 28; }');
  const parsed=parseLiniTimeline(readLiniProfile(moved),'roadmap');
  expect(parsed.diagnostics.some(item=>item.severity==='error')).toBe(false);
  expect(parsed.timeline?.spans?.[1]).toMatchObject({start:'m2',end:'m3',lane:'umf'});
@@ -101,6 +101,10 @@ test('roadmap range edits round trip, while invalid periods, lanes, overlap and 
  expect(parseLiniTimeline(readLiniProfile(badBounds),'roadmap').timeline).toBeUndefined();
  const undersized=source.replace('height: 28;','height: 15;');
  expect(parseLiniTimeline(readLiniProfile(undersized),'roadmap').timeline).toBeUndefined();
+ const narrow=source.replace('width: 220;','width: 200;');
+ expect(parseLiniTimeline(readLiniProfile(narrow),'roadmap').timeline).toBeUndefined();
+ const missingWidth=source.replace(' width: 220;','');
+ expect(parseLiniTimeline(readLiniProfile(missingWidth),'roadmap').timeline).toBeUndefined();
 });
 
 test('overlapping roadmap spans occupy deterministic distinct subrows of the same lane',async()=>{

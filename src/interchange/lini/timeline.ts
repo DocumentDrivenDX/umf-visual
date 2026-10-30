@@ -36,6 +36,8 @@ const trimNative=(value:string)=>value.replace(/^\p{White_Space}+|\p{White_Space
 // Lini's grid sizing uses fixed line-height estimates that vary from the
 // browser's font metrics. Reserve a generous height per explicit label line.
 const ROADMAP_SPAN_LINE_HEIGHT=28;
+const ROADMAP_PERIOD_WIDTH=240;
+const ROADMAP_SPAN_GUTTER=20;
 function nativeLabel(value:string,at:string,diagnostics:InterchangeDiagnostic[]):string{const normalized=trimNative(value);if(normalized!==value)diagnostics.push(diagnostic('LINI_TIMELINE_TRIM',at,'Native Lini trims boundary whitespace from visible labels.'));return normalized;}
 function wrapRoadmapLabel(value:string,max:number):string{
  if(value.includes('\n'))return value;
@@ -118,7 +120,7 @@ function buildRoadmap(visual:Visual,timeline:Timeline,diagnostics:InterchangeDia
  if(diagnostics.some(d=>d.severity==='error'))return[];
  const groupId='timeline-roadmap',title=visual.title??visual.question,{placements,rows}=assignSubrows(timeline);let row=2;
  const laneRows=lanes.map((_,index)=>{const value=row;row+=rows[index]!;return value;});
- const lines=['|group#'+groupId+'| '+quote(title)+' { layout: grid; columns: 220, repeat('+periods.length+', 240); gap: 4; gap-fill: --gray-soft; padding: 12; } [','  |block#roadmap-header-lane| "Lane" { cell: 1 1; }'];
+ const lines=['|group#'+groupId+'| '+quote(title)+' { layout: grid; columns: 220, repeat('+periods.length+', '+ROADMAP_PERIOD_WIDTH+'); gap: 4; gap-fill: --gray-soft; padding: 12; } [','  |block#roadmap-header-lane| "Lane" { cell: 1 1; }'];
  periods.forEach((period,index)=>lines.push('  |block#'+encodeId('period_',period.id)+'| '+quote(wrapRoadmapLabel(period.label,22))+' { cell: '+(index+2)+' 1; }'));
  lanes.forEach((lane,index)=>{
   const native=encodeId('lane_',lane.id),at=p('/lanes/'+index),first=laneRows[index]!,height=rows[index]!;
@@ -128,7 +130,7 @@ function buildRoadmap(visual:Visual,timeline:Timeline,diagnostics:InterchangeDia
  for(const placement of placements){
   const {span,index,laneIndex,start,end,subrow}=placement,native=encodeId('span_',span.id),at=p('/spans/'+index),cellColumn=start+2,cellRow=laneRows[laneIndex]!+subrow,width=end-start+1;
   const wrappedLabel=wrapRoadmapLabel(span.label,Math.max(12,width*22));
-  lines.push('  |block#'+native+'| '+quote(wrappedLabel)+' { cell: '+cellColumn+' '+cellRow+'; span: '+width+' 1; height: '+roadmapSpanHeight(span.label,Math.max(12,width*22))+'; }');
+  lines.push('  |block#'+native+'| '+quote(wrappedLabel)+' { cell: '+cellColumn+' '+cellRow+'; span: '+width+' 1; width: '+(width*ROADMAP_PERIOD_WIDTH-ROADMAP_SPAN_GUTTER)+'; height: '+roadmapSpanHeight(span.label,Math.max(12,width*22))+'; }');
   const loc={id:native,slot:'block#'+native};identityMap.push({kind:'span',nativeId:native,visualId:span.id,path:at+'/id',sourcePath:loc.slot});coverage.push(...covers(at+'/id',['identity'],loc),...covers(at+'/label',['value'],loc),...covers(at+'/start',['value'],loc),...covers(at+'/end',['value'],loc),...covers(at+'/lane',['value'],loc));
  }
  lines.push(']');coverage.push(...covers(p('/scale/periods'),['presence','order'],{id:groupId,slot:'group#'+groupId+'/period-headers'}),...covers(p('/lanes'),['presence','order'],{id:groupId,slot:'group#'+groupId+'/lane-headers'}),...covers(p('/spans'),['presence','order'],{id:groupId,slot:'group#'+groupId+'/span-blocks'}));
@@ -190,7 +192,7 @@ function parseRoadmap(nodes:LiniProfileNode[],diagnostics:InterchangeDiagnostic[
  const headers=blockNodes.filter(node=>node.id==='roadmap-header-lane');if(headers.length!==1||headers[0]?.label!=='Lane'||cell(headers[0]!)?.join(' ')!=='1 1')fail(diagnostics,'LINI_TIMELINE_HEADER','Roadmap needs the Lane header at grid cell 1,1.');if(headers[0])onlyProperties(headers[0],['cell'],diagnostics);
  const periodNodes=blockNodes.filter(node=>node.id.startsWith('period_')),periods:NonNullable<Extract<Timeline['scale'],{kind:'period'}>>['periods']=[],periodIds=new Set<string>();
  const columnTokens=property(group,'columns'),columnText=columnTokens?.map(token=>token.value).join(' ');
- if(columnText!=='220 , repeat ( '+periodNodes.length+' , 240 )'||numeric(property(group,'gap'))!==4||word(property(group,'gap-fill'))!=='--gray-soft'||numeric(property(group,'padding'))!==12)fail(diagnostics,'LINI_TIMELINE_LAYOUT','Roadmap grid column, spacing and fill properties must match the declared profile.');
+ if(columnText!=='220 , repeat ( '+periodNodes.length+' , '+ROADMAP_PERIOD_WIDTH+' )'||numeric(property(group,'gap'))!==4||word(property(group,'gap-fill'))!=='--gray-soft'||numeric(property(group,'padding'))!==12)fail(diagnostics,'LINI_TIMELINE_LAYOUT','Roadmap grid column, spacing and fill properties must match the declared profile.');
  periodNodes.sort((a,b)=>(cell(a)?.[0]??0)-(cell(b)?.[0]??0));
  for(const[nodeIndex,node]of periodNodes.entries()){
   onlyProperties(node,['cell'],diagnostics);
@@ -206,11 +208,12 @@ function parseRoadmap(nodes:LiniProfileNode[],diagnostics:InterchangeDiagnostic[
  }
  const spanNodes=blockNodes.filter(node=>node.id.startsWith('span_')),spans:NonNullable<Timeline['spans']>=[],spanIds=new Set<string>(),periodCount=periods.length,occupied=new Map<string,Array<{start:number;end:number;row:number}>>();
  for(const[index,node]of spanNodes.entries()){
-  onlyProperties(node,['cell','span','height'],diagnostics);
+  onlyProperties(node,['cell','span','width','height'],diagnostics);
   const id=exactId(node.id,'span_'),position=cell(node),size=span(node),label=node.label;
   const laneEntry=[...laneRows.entries()].find(([,lane])=>position&&position[1]>=lane.start&&position[1]<=lane.end);
   const lane=laneEntry?.[1],start=position?position[0]-2:-1,end=size?start+size[0]-1:-1;
   if(!id||spanIds.has(id)||!position||!size||size[1]!==1||start<0||end<start||end>=periodCount||label===undefined||!lane){fail(diagnostics,'LINI_TIMELINE_SPAN','Span block needs a unique reversible ID, one-row grid placement within a declared lane and period range.');continue;}
+  if(numeric(property(node,'width'))!==size[0]*ROADMAP_PERIOD_WIDTH-ROADMAP_SPAN_GUTTER)fail(diagnostics,'LINI_TIMELINE_WIDTH','Roadmap span width must match its inclusive period extent in the declared grid profile.');
   if(numeric(property(node,'height'))!==label.split('\n').length*ROADMAP_SPAN_LINE_HEIGHT)fail(diagnostics,'LINI_TIMELINE_HEIGHT','Roadmap span height must reserve the declared cross-platform line-height for its visible label.');
   spanIds.add(id);const occurrences=occupied.get(lane.id)??[];if(occurrences.some(item=>start<=item.end&&end>=item.start&&position[1]===item.row))fail(diagnostics,'LINI_TIMELINE_OVERLAP','Overlapping spans must use distinct deterministic subrows.');occurrences.push({start,end,row:position[1]});occupied.set(lane.id,occurrences);
   const startPeriod=periods[start]?.id,endPeriod=periods[end]?.id;if(!startPeriod||!endPeriod)continue;

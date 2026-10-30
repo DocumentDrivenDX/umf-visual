@@ -1,6 +1,6 @@
 {
   "report": ".cache/loss-ledger.json",
-  "sha256": "59667f0a4799bde80ea15068b955fad3ad96782146c29ab59da7e48251396b27",
+  "sha256": "fd8a6119129a47b42d3d77633c2112d5424d1287af13b0364ce4b81928e8ef25",
   "bytes": 12874007,
   "summary": {
     "examples": 53,
