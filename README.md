@@ -18,7 +18,11 @@ read/write/inspect/create/edit APIs were extracted from
 [UMF #62](https://github.com/DocumentDrivenDX/umf/pull/62), commit
 `351c4802caf34eb7f4174e7b730f86f4befcf909`; see [provenance](UPSTREAM.json).
 
-The package is `@documentdrivendx/umf-visual` (unpublished 0.1.0).
+The package is `@documentdrivendx/umf-visual` 0.1.0, distributed as a
+[GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.1.0).
+It is not published to npm.
+
+Browse the [umf.visuals catalog](https://documentdrivendx.github.io/umf-visual/).
 The vocabulary remains `umf.visual` 1.0.0 and the core envelope 0.10.0.
 Core comes from the pinned released SDK `umf-v0.5.7`; only its public APIs are used.
 The implementation is handwritten; generated UMF-authored model authority remains
@@ -110,3 +114,13 @@ re-exports extensionless relative paths. Bun/Node runtime checks pass; no privat
 SDK alias or mutation is used here.
 
 License: MIT OR Apache-2.0. Original attribution is retained in the license files.
+
+## GitHub Pages publication
+
+The Library conformance workflow builds and verifies the library and complete
+native-render catalog. Successful pushes to `main` publish that same `dist-site/`
+artifact through GitHub Actions Pages. Pull requests run verification without
+deploying. A manual workflow dispatch on `main` can redeploy a verified build.
+The site uses relative assets so catalog selections work below `/umf-visual/`.
+To restore a previous site, revert the affected source change on `main` and let
+the same verification and deployment workflow complete.
