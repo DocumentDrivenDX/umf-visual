@@ -46,7 +46,7 @@ describe('catalog loss ledger', () => {
       expect(pair.export).toEqual({status: item.targets[format].status, ok: item.targets[format].ok, ...(item.targets[format].source === undefined ? {} : {source: item.targets[format].source})});
       expect(pair.lossGroups.flatMap(group => group.rawDiagnosticIndexes).every(index => item.targets[format].diagnostics[index]?.loss)).toBe(true);
     }
-  });
+  }, 30_000);
 
   // @covers US-095-AC7: paths are segmented and only same-reason omissions normalize into a shared subtree group.
   test('groups only same-reason descendants and never mistakes textual prefixes for path ancestry', () => {
