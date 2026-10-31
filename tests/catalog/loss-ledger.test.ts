@@ -125,4 +125,20 @@ describe('catalog loss ledger', () => {
     expect(ledger.pairs.filter(pair => pair.itemId === 'item').every(pair => pair.modelVersion === '1.0.0')).toBe(true);
     expect(ledger.pairs.filter(pair => pair.itemId === 'item-1.1').every(pair => pair.modelVersion === '1.1.0')).toBe(true);
   });
+
+  test('selects the ordinary Mermaid capability by exact profile even when annotated capability sorts first',()=>{
+    const catalog=syntheticCatalog([]);
+    const ordinary=catalog.capabilities.find(row=>row.format==='mermaid')!;
+    ordinary.profile='umf.visual.mermaid/1';ordinary.version='1.2.0';
+    catalog.capabilities.unshift({format:'mermaid',profile:'umf.visual.mermaid.annotated/1',version:'0.1.0',subset:'annotated',directions:['export']} as any);
+    const pair=createLossLedger(catalog).pairs.find(row=>row.target==='mermaid')!;
+    expect(pair.adapterProfile).toMatchObject({name:'umf.visual.mermaid/1',version:'1.2.0'});
+  });
+
+  test('fails closed when the ordinary capability is missing despite an annotated capability existing',()=>{
+    const catalog=syntheticCatalog([]);
+    catalog.capabilities=catalog.capabilities.filter(row=>row.format!=='mermaid');
+    catalog.capabilities.unshift({format:'mermaid',profile:'umf.visual.mermaid.annotated/1',version:'0.1.0',subset:'annotated',directions:['export']} as any);
+    expect(()=>createLossLedger(catalog)).toThrow('Expected exactly one ordinary mermaid capability (umf.visual.mermaid/1); found 0.');
+  });
 });

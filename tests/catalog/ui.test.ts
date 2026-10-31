@@ -12,7 +12,13 @@ describe('microsite catalogue UI contract',()=>{
     expect(html).toContain('id="examples"');
     expect(html).toContain('These are example instances, not language definitions.');
     expect(html).toContain('A question is required');
-    expect(html).toContain('caps nodes at 15');
+    expect(html).toContain('Visual 1.0.0 graph kinds are limited to 15 nodes');
+    expect(html).toContain('Visual 1.1.0 validation permits up to 500 nodes and 10,000 items in each connection list');
+    const legacyVisual=await Bun.file('src/extensions/visual/legacy-1-0.ts').text();
+    const currentVisual=await Bun.file('src/extensions/visual/index.ts').text();
+    expect(legacyVisual).toContain('const MAX_NODES=15');
+    expect(currentVisual).toContain('const MAX_NODES=500,MAX_CONNECTIONS=10_000');
+    expect(currentVisual).toContain('More than \'+MAX_CONNECTIONS+\' connections, the resource limit');
     expect(html).toContain('id="detail-dialog"');
     expect(html).toContain('id="six-target-section"');
     expect(html).toContain('id="six-target-case-select"');
@@ -21,6 +27,7 @@ describe('microsite catalogue UI contract',()=>{
     expect(app).toContain("code.textContent = result.source");
     expect(app).toContain("$('umf-source').textContent = safeJson(item.document ?? {})");
     expect(app).toContain('renderLanguageReference');
+    expect(app).toContain('entry.format === target && entry.profile === ordinaryProfile');
     expect(app).toContain('language.schema.schema');
     expect(app).toContain('language.forms.kinds');
     expect(app).toContain("startsWith('fixtures/visual/forms/')");
@@ -73,6 +80,8 @@ describe('microsite catalogue UI contract',()=>{
     expect(browser).toContain('Expected all 178 verified baseline and qualified profile SVG assets');
     expect(browser).toContain('previewBounds.image.width>previewBounds.container.width');
     expect(browser).toContain('Miro preview did not decode as a JPEG with positive image dimensions');
+    expect(browser).toContain('const ordinaryProfile=`umf.visual.${target}/1`');
+    expect(browser).toContain('summaryText.includes(`v${capability.version}`)');
 
     if(!existsSync('dist-site/index.html'))return;
     const [html,servedApp,servedStyles,servedIntegrationCss,servedIntegrationJs]=await Promise.all([

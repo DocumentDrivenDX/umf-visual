@@ -5,7 +5,7 @@ import {join,resolve,sep,extname} from 'node:path';
 const TARGETS=['dot','mermaid','lini'];
 const siteRoot=resolve('dist-site');
 const baseUrl='https://umf.local/';
-const catalog=await Bun.file(join(siteRoot,'catalog.json')).json() as {schemaVersion:number;items:Array<any>;language:{schema:{sourcePath:string;sourceSha256:string;schema:any};forms:{sourcePath:string;sourceSha256:string;kinds:Array<{kind:string;forms:string[]}>}}};
+const catalog=await Bun.file(join(siteRoot,'catalog.json')).json() as {schemaVersion:number;items:Array<any>;capabilities:Array<{format:string;profile:string;version:string}>;language:{schema:{sourcePath:string;sourceSha256:string;schema:any};forms:{sourcePath:string;sourceSha256:string;kinds:Array<{kind:string;forms:string[]}>}}};
 const integrationCatalog=await Bun.file(join(siteRoot,'integrations.json')).json() as {schemaVersion:number;complete:boolean;counts:Record<string,number>;cases:Array<any>;hostConformance:Array<any>};
 if(catalog.schemaVersion!==1||!Array.isArray(catalog.items)||catalog.items.length===0||!catalog.language?.schema?.schema||!catalog.language?.forms?.kinds)throw new Error('Build the site first; dist-site/catalog.json is missing or invalid.');
 if(integrationCatalog.schemaVersion!==1||integrationCatalog.complete!==false||integrationCatalog.cases?.length!==6)throw new Error('Build the integration site first; dist-site/integrations.json is missing or invalid.');
@@ -52,7 +52,7 @@ try{
   if(await page.locator('#kind-count').textContent()!=='07'||await page.locator('#form-count').textContent()!=='22')throw new Error('Language counts do not reflect canonical kinds/forms');
   if(await page.locator('.form-chip').count()!==22)throw new Error('Primary reference does not list all 22 canonical forms');
   const languageText=(await page.locator('#language').innerText()).toLowerCase();
-  for(const token of ['nodes','edges','groups','sequence','structure','state','timeline','comparison','metric','question','15'])if(!languageText.includes(token))throw new Error(`Language reference omitted schema concept or limit: ${token}`);
+  for(const token of ['nodes','edges','groups','sequence','structure','state','timeline','comparison','metric','question','visual 1.0.0','15','visual 1.1.0','500','10,000','narrower bounds'])if(!languageText.includes(token))throw new Error(`Language reference omitted schema concept or versioned limit: ${token}`);
   if(languageText.includes('beacon'))throw new Error('Application example leaked into language headings/reference');
   if(!(await page.locator('#language-provenance').innerText()).includes(catalog.language.schema.sourcePath))throw new Error('Schema provenance was not exposed');
   exercised.push('schema-backed language reference and separate kind/form counts');
@@ -146,8 +146,14 @@ try{
     const losses=results.filter(result=>result.ok).reduce((sum,result)=>sum+result.diagnostics.filter((diagnostic:any)=>diagnostic.loss).length,0);
     const expected=`${rendered} native renders · ${losses} remaining loss reports across emitted samples`;
     if(await page.locator('.native-coverage').nth(index).innerText()!==expected)throw Error('Native progress counters differ from catalog for '+target);
+    const ordinaryProfile=`umf.visual.${target}/1`;
+    const capability=catalog.capabilities.find(entry=>entry.format===target&&entry.profile===ordinaryProfile);
+    if(!capability)throw Error(`Ordinary renderer capability ${ordinaryProfile} is missing from the catalog`);
+    const capabilitySummary=page.locator('.coverage-card').nth(index).locator('.capability-details summary');
+    const summaryText=(await capabilitySummary.innerText()).trim();
+    if(!summaryText.includes(ordinaryProfile)||!summaryText.includes(`v${capability.version}`))throw Error(`Coverage summary for ${target} selected the wrong profile or mapping version: ${summaryText}`);
   }
-  exercised.push('native render counts remain separate from semantic loss counts');
+  exercised.push('native counts remain separate from losses and coverage summaries name exact ordinary profiles and mapping versions');
   const firstCardLabel=await page.locator('.definition-card').first().getAttribute('aria-label');
   if(!firstCardLabel?.includes('DOT')||!firstCardLabel.includes('Mermaid')||!firstCardLabel.includes('Lini'))throw new Error('Definition card accessible name omits one or more profile outcomes');
   await mkdir('.cache',{recursive:true});
