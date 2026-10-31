@@ -151,7 +151,8 @@ function renderCoverage() {
     const rendered = results.filter(result => result.render?.ok).length;
     const losses = results.filter(result => result.ok).reduce((sum, result) => sum + (result.diagnostics || []).filter(diagnostic => diagnostic.loss).length, 0);
     card.append(el('p', 'native-coverage', `${rendered} native renders · ${losses} remaining loss reports across emitted samples`));
-    const capability = state.catalog.capabilities?.find(entry => entry.format === target);
+    const ordinaryProfile = `umf.visual.${target}/1`;
+    const capability = state.catalog.capabilities?.find(entry => entry.format === target && entry.profile === ordinaryProfile);
     if (capability) { const details = document.createElement('details'); details.className = 'capability-details'; details.append(el('summary', '', `${capability.profile || LABELS[target]} · v${capability.version || '—'}`)); details.append(el('p', '', `${capability.subset || 'Subset not specified'} · ${(capability.directions || []).join(' / ') || 'directions not specified'}`)); card.append(details); }
     grid.append(card);
   }

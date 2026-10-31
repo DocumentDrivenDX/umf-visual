@@ -130,9 +130,10 @@ The ordinary emitted-loss census is DOT 629, Mermaid 792 and Lini 530, versus
 the immutable planning baseline 629/792/553. The remaining 1,951 raw incidences
 and 1,793 maximal groups are not repaired by selecting an annotation profile.
 
-No ordinary DOT reduction is claimed. Its role/status probe qualified no
-mapping; typed entity/port mapping remains an open adapter opportunity outside
-this cut.
+No ordinary DOT reduction is claimed: 629 → 629. Its role/status/style probe
+completes the [amended bounded eligibility gate](../04-build/example-completion-plan.md#reviewed-p10-d-eligibility-amendment--2026-10-31)
+with a negative mapping result; the original reduction forecast remains
+unachieved. Typed entity/field-port mapping remains a separate open adapter opportunity.
 The [bounded probe/loss report](../04-build/evidence/renderer-coverage-loss-progress.json)
 pins all 53 unchanged source identities and separates these populations.
 

@@ -73,6 +73,13 @@ export interface HistoricalPair {
   sourceSha256: string;
 }
 
+function ordinaryCapabilityFor(catalog: VisualCatalog, targetName: TargetName): VisualCatalog['capabilities'][number] {
+  const profile = `umf.visual.${targetName}/1`;
+  const matches = catalog.capabilities.filter(candidate => candidate.format === targetName && candidate.profile === profile);
+  if (matches.length !== 1) throw new Error(`Expected exactly one ordinary ${targetName} capability (${profile}); found ${matches.length}.`);
+  return matches[0]!;
+}
+
 const targetNames: TargetName[] = ['dot', 'mermaid', 'lini'];
 const decodePointer = (value: string): string[] => value.split('/').slice(1).map(part => part.replace(/~1/g, '/').replace(/~0/g, '~'));
 const encodePointer = (parts: string[]): string => parts.length ? '/' + parts.map(part => part.replace(/~/g, '~0').replace(/\//g, '~1')).join('/') : '';
@@ -184,8 +191,7 @@ export function createLossLedger(
     if (old && old.sourceSha256 !== item.sourceSha256) throw new Error(`Loss ledger source hash differs from historical pair ${item.id}/${targetName}`);
     const inventory = buildRepresentationInventory(item, targetName);
     const render = target.render;
-    const capability = catalog.capabilities.find(candidate => candidate.format === targetName);
-    if (!capability) throw new Error(`Missing interchange capability for ${targetName}`);
+    const capability = ordinaryCapabilityFor(catalog, targetName);
     pairs.push({
       itemId: item.id,
       origin: item.origin,

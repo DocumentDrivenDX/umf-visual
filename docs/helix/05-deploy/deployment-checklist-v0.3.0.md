@@ -29,7 +29,7 @@ retains partial observations and the earlier published closure.
 
 ## Before Deploy
 
-- Review the final diff and the explicit [P10-D fulfillment disposition](../04-build/example-completion-plan.md#p10-d-fulfillment-audit-before-merge--2026-10-31): its DOT reduction outcome remains unmet. Do not label this cut all-plan completion.
+- Review the final diff and the [P10-D acceptance amendment](../04-build/example-completion-plan.md#reviewed-p10-d-eligibility-amendment--2026-10-31). Its bounded negative eligibility package is complete; the original reduction forecast remains unachieved at 629 → 629. Keep the entity/field-port candidate open; do not label the probe a loss reduction.
 - Review CONTRACT-085/087/088; retain frozen 1.0.0,
   the 53-source manifest, six integration witnesses and opaque-case refusal.
 - Complete host evidence before the catalog build; do not perform live host
@@ -41,6 +41,9 @@ retains partial observations and the earlier published closure.
 - Confirm final package/profile versions, all required relative asset paths,
   repository-owned baseline fixture and static site entry/data files are present.
   No runtime secrets/configuration are required by the static site.
+- Verify exact ordinary-profile/version lookup, ledger missing/duplicate refusal,
+  and version-qualified model 1.0/1.1 limits. These provenance corrections must
+  pass final follow-up CI and served-site checks before cutting the release.
 - Check the actual passing workflow's Pages deployment principal/environment
   before claiming delivery. Main-only workflow configuration alone is not an
   observed successful publication.
