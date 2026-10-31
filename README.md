@@ -113,8 +113,9 @@ binds the passing main workflow and verified artifacts. Native acceptance, exact
 are checked separately from faithful geometry and readable previews.
 See [milestone evidence and release gates](docs/helix/04-build/example-completion-evidence.md).
 
-A preview presentation and image-viewer polish pass is in progress. It does not
-change model semantics, exported native source, reported losses or captured host images.
+The catalog provides larger previews and an image viewer with fit, actual-size,
+zoom and full-screen controls. Versioned display styling preserves model semantics,
+exported native source, reported losses and captured host images.
 
 Select a readable annotation profile explicitly:
 
