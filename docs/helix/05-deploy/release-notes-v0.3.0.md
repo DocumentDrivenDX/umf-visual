@@ -129,6 +129,10 @@ and the pinned Lini 1.1.0 runtime outside portable source. Final commit/CI and p
 The ordinary emitted-loss census is DOT 629, Mermaid 792 and Lini 530, versus
 the immutable planning baseline 629/792/553. The remaining 1,951 raw incidences
 and 1,793 maximal groups are not repaired by selecting an annotation profile.
+
+No ordinary DOT reduction is claimed. Its role/status probe qualified no
+mapping; typed entity/port mapping remains an open adapter opportunity outside
+this cut.
 The [bounded probe/loss report](../04-build/evidence/renderer-coverage-loss-progress.json)
 pins all 53 unchanged source identities and separates these populations.
 

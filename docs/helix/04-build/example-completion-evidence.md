@@ -334,3 +334,22 @@ six-target desktop/mobile inspection, including Miro JPEG decoding. Repeated
 catalog-byte verification passes: 53 items, 214 renders, 53 complete examples,
 22 complete forms, and byte-identical repeated builds. Clean Linux CI, archive digests and served
 hashes remain pending; this is a candidate review approval, not publication.
+
+[PR #10 Linux conformance](https://github.com/DocumentDrivenDX/umf-visual/actions/runs/41233253214)
+passes for implementation commit `6881f2e7b5f8a81aeb6e96b1d691fd34277026bf`:
+426 tests, native/browser/package checks, 53 complete examples and 22 forms,
+all fifteen host cycles, loss accounting, and both site browser gates. The
+local repeated catalog build also passes byte reproducibility. Main/Pages,
+release archives and served-hash verification still require delivery evidence.
+
+### DOT scope and unfinished reduction outcome
+
+The [pre-merge fulfillment audit](example-completion-plan.md#p10-d-fulfillment-audit-before-merge--2026-10-31)
+records an unmet P10-D expectation: ordinary DOT losses remain 629. The ranked
+role/status/style probe is complete, but it qualified no native typed mapping
+and did not reduce omissions. Native record ports are a separate open adapter
+mapping candidate; typed entity/port support is not implemented by this cut.
+Newly emitted entity pairs would be a separate gain, not a reduction of the
+existing comparable loss population. This candidate review approval concerns
+the implemented source/evidence; it does not declare all P8-P14 acceptance or
+all language/renderer losses resolved.

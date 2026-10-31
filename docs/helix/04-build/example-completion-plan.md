@@ -606,3 +606,35 @@ native-open attestation findings. The final full suite passes 424 tests/13,141
 assertions, plus 2 later attestation tests; all local native/public browser/packed
 and host-matrix gates pass. Root is verifying repeated catalog bytes. Clean
 Linux CI, archive digests and served-site identity remain open.
+
+### P10-D fulfillment audit before merge — 2026-10-31
+
+The original P10-D acceptance says, “Show reduced comparable ordinary-profile
+omissions.” **That outcome is not achieved by this cut:** ordinary DOT remains
+629 raw emitted-loss diagnostics on the same source/profile population. The
+probe must not be described as an implemented loss reduction or as satisfying
+that sentence.
+
+The reviewed DOT assignment was the ranked role/status/style eligibility
+cohort. Native Graphviz JSON/SVG and edited readback establish presentation
+changes without an equivalent typed role/status interpretation. CONTRACT-086
+requires actual meaning before mapping; choosing colors/shapes to manufacture
+such an equivalence would violate that authority. The probe phase is complete;
+its planned reduction outcome remains unmet. B2's implemented-mapping comparison
+does not create a reduction where no mapping was implemented.
+
+The native record-port witness identifies a separate adapter mapping candidate.
+It does not qualify an ordinary entity/table parser, field identity transport or
+reference semantics. Ordinary DOT currently exports the bounded flow family;
+implementing entity/port support would add newly supported pairs, which B2
+requires counting separately rather than subtracting from the comparable 629.
+That candidate remains open in the bounded probe/loss report and is not silently
+promoted into implemented support or dismissed as a native impossibility.
+
+This disposition preserves the original acceptance and records the unfinished
+outcome explicitly. The release candidate may describe its qualified implemented
+cohorts and completed probes, but **must not claim every P8-P14 acceptance is
+closed or that DOT ordinary losses were burned down**. Future native DOT mapping
+needs an approved field-specific cohort, independent native meaning and edited
+readback, without weakening the frozen models or replacing native semantics
+with opaque data. No deadline or completion version is established here.

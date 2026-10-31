@@ -29,7 +29,8 @@ retains partial observations and the earlier published closure.
 
 ## Before Deploy
 
-- Review the final diff against CONTRACT-085/087/088; retain frozen 1.0.0,
+- Review the final diff and the explicit [P10-D fulfillment disposition](../04-build/example-completion-plan.md#p10-d-fulfillment-audit-before-merge--2026-10-31): its DOT reduction outcome remains unmet. Do not label this cut all-plan completion.
+- Review CONTRACT-085/087/088; retain frozen 1.0.0,
   the 53-source manifest, six integration witnesses and opaque-case refusal.
 - Complete host evidence before the catalog build; do not perform live host
   writes in CI. Keep credentials, raw snapshots, private object IDs and temporary
