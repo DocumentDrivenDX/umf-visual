@@ -208,10 +208,10 @@ function updateList() {
   setUrl();
 }
 function makeCard(item) {
-  const card = el('article', 'definition-card'); card.tabIndex = 0; card.setAttribute('role', 'button');
+  const card = el('article', 'definition-card');
   const statusSummary = TARGETS.map(target => `${LABELS[target]} ${statusName(statusFor(item, target))}`).join('; ');
-  card.setAttribute('aria-label', `Open ${item.title}, ${item.kind} ${item.form}; ${statusSummary}`); card.dataset.id = item.id;
-  const main = el('div', 'definition-main');
+  card.setAttribute('aria-label', `${item.title}, ${item.kind} ${item.form}; ${statusSummary}`); card.dataset.id = item.id;
+  const main = el('button', 'definition-main'); main.type = 'button'; main.setAttribute('aria-label', `Open ${item.title} details`);
   const topline = el('div', 'definition-topline'); topline.append(el('span', 'definition-title', item.title), el('span', 'definition-id', item.id));
   const badges = el('div', 'badges'); badges.append(el('span', 'badge', item.kind), el('span', 'badge', item.form), el('span', 'badge origin-badge', sampleSetLabel(item).toUpperCase()));
   main.append(topline, el('p', 'definition-question', item.question || 'No guiding question supplied.'), badges);
@@ -225,6 +225,7 @@ function makeCard(item) {
     const label = isPreferred ? preferred.label : `${LABELS[previewTarget]} · BASELINE`;
     const img = document.createElement('img'); img.src = safeRenderPath(render.svgPath, render.svgSha256); img.alt = `${label} native render preview of ${item.title}`; img.loading = 'lazy';
     img.addEventListener('error', () => { preview.replaceChildren(el('span', 'no-preview', 'PREVIEW UNAVAILABLE')); }); preview.setAttribute('aria-label', `${label} native render preview`); preview.append(img, el('span', 'preview-label', label));
+    addImageViewerButton(preview, img, `${label} · ${item.title}`, safeRenderPath(render.rawSvgPath, render.rawSvgSha256));
   } else { preview.setAttribute('aria-label', 'No native render was recorded'); preview.append(el('span', 'no-preview', 'NO NATIVE RENDER')); }
   const strip = el('div', 'status-strip'); strip.setAttribute('aria-label', 'Target profile status');
   for (const target of TARGETS.filter(key => state.profiles.size === 0 || state.profiles.has(key))) {
@@ -235,8 +236,8 @@ function makeCard(item) {
     cell.append(el('i'), el('span', 'status-label', `${shortTarget} ${abbreviation}`)); strip.append(cell);
   }
   card.append(main, preview, strip);
-  card.addEventListener('click', () => openDetail(item.id));
-  card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openDetail(item.id); } });
+  main.addEventListener('click', () => openDetail(item.id));
+  card.addEventListener('click', event => { if (!(event.target instanceof Element) || !event.target.closest('.image-enlarge-button,button,a')) openDetail(item.id); });
   return card;
 }
 function makeBadge(text, className = 'badge') { return el('span', className, text); }
@@ -322,6 +323,111 @@ function safeRenderPath(path, sha256) {
   if (typeof sha256 === 'string' && /^[a-f0-9]{64}$/i.test(sha256)) url.searchParams.set('v', sha256);
   return url.href;
 }
+let imageViewer;
+function ensureImageViewer() {
+  if (imageViewer) return imageViewer;
+  const dialog = document.createElement('dialog'); dialog.id = 'image-viewer'; dialog.className = 'image-viewer-dialog'; dialog.setAttribute('aria-labelledby', 'image-viewer-title'); dialog.dataset.testid = 'image-viewer';
+  const shell = el('div', 'image-viewer-shell');
+  const header = el('header', 'image-viewer-header');
+  const heading = el('div', 'image-viewer-heading'); heading.append(el('p', 'eyebrow', 'RENDER PREVIEW'));
+  const title = el('h2', '', 'Image preview'); title.id = 'image-viewer-title'; heading.append(title);
+  const close = el('button', 'close-button', '×'); close.type = 'button'; close.setAttribute('aria-label', 'Close image preview');
+  header.append(heading, close);
+  const toolbar = el('div', 'image-viewer-toolbar');
+  const zoomOut = el('button', 'icon-button', '−'); zoomOut.type = 'button'; zoomOut.setAttribute('aria-label', 'Zoom out');
+  const fit = el('button', 'icon-button', 'Fit'); fit.type = 'button'; fit.setAttribute('aria-label', 'Fit image to view');
+  const actual = el('button', 'icon-button', '100%'); actual.type = 'button'; actual.setAttribute('aria-label', 'Show image at 100 percent');
+  const zoomIn = el('button', 'icon-button', '+'); zoomIn.type = 'button'; zoomIn.setAttribute('aria-label', 'Zoom in');
+  const fullscreen = el('button', 'icon-button image-viewer-fullscreen', 'Full screen'); fullscreen.type = 'button'; fullscreen.setAttribute('aria-label', 'Open image viewer full screen');
+  const readout = el('output', 'image-viewer-scale', 'Fit'); readout.setAttribute('aria-live', 'polite');
+  const downloads = el('div', 'image-viewer-downloads');
+  toolbar.append(zoomOut, fit, actual, zoomIn, fullscreen, readout, downloads);
+  const canvas = el('div', 'image-viewer-canvas'); canvas.setAttribute('role', 'region'); canvas.setAttribute('aria-label', 'Scrollable image canvas'); canvas.tabIndex = 0;
+  const image = document.createElement('img'); image.className = 'image-viewer-image'; image.alt = '';
+  const caption = el('p', 'image-viewer-caption'); canvas.append(image);
+  shell.append(header, toolbar, canvas, caption); dialog.append(shell); document.body.append(dialog);
+  let scale = 1; let fitScale = 1; let dimensions = {width: 0, height: 0}; let returnFocus = null; let requestToken = 0;
+  const zoomControls = [zoomOut, fit, actual, zoomIn];
+  const setZoomEnabled = enabled => { for (const button of zoomControls) button.disabled = !enabled; };
+  setZoomEnabled(false);
+  const applyScale = (next, mode = 'zoom') => {
+    if (!dimensions.width || !dimensions.height) return;
+    scale = Math.max(0.05, Math.min(5, next));
+    image.style.width = `${Math.round(dimensions.width * scale)}px`;
+    image.style.height = `${Math.round(dimensions.height * scale)}px`;
+    readout.value = readout.textContent = mode === 'fit' ? 'Fit' : `${Math.round(scale * 100)}%`;
+  };
+  const fitImage = () => {
+    if (!dimensions.width || !dimensions.height) return;
+    const availableWidth = Math.max(80, canvas.clientWidth - 40); const availableHeight = Math.max(120, canvas.clientHeight - 40);
+    fitScale = Math.min(1, availableWidth / dimensions.width, availableHeight / dimensions.height);
+    applyScale(fitScale, 'fit');
+  };
+  const readIntrinsicDimensions = async src => {
+    const url = new URL(src, location.href);
+    if (url.pathname.toLowerCase().endsWith('.svg')) {
+      const response = await fetch(url.href, {cache: 'force-cache'});
+      if (!response.ok) throw new Error(`SVG request failed (${response.status})`);
+      const text = await response.text();
+      const parsed = new DOMParser().parseFromString(text, 'image/svg+xml');
+      const svg = parsed.documentElement;
+      if (svg.localName !== 'svg' || parsed.querySelector('parsererror')) throw new Error('SVG viewBox could not be read');
+      const values = (svg.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number);
+      if (values.length === 4 && values.every(Number.isFinite) && values[2] > 0 && values[3] > 0) return {width: values[2], height: values[3]};
+    }
+    if (image.naturalWidth > 0 && image.naturalHeight > 0) return {width: image.naturalWidth, height: image.naturalHeight};
+    throw new Error('Image dimensions are unavailable');
+  };
+  const open = async (source, title, rawSource, opener) => {
+    const token = ++requestToken; dimensions = {width: 0, height: 0}; scale = 1; fitScale = 1; readout.value = readout.textContent = 'Loading'; setZoomEnabled(false);
+    returnFocus = opener instanceof HTMLElement ? opener : null;
+    heading.querySelector('h2').textContent = title;
+    image.alt = title; image.removeAttribute('style'); image.src = source;
+    caption.textContent = 'Fit shows the whole diagram. Use 100% for actual size, or zoom in and scroll for fine detail.';
+    downloads.replaceChildren();
+    const addDownload = (href, label, fileName) => {
+      const link = el('a', 'text-link', label); link.href = href; link.download = fileName; downloads.append(link);
+    };
+    const basename = path => path.split('/').pop() || 'render.svg';
+    addDownload(source, 'Download displayed image', basename(new URL(source, location.href).pathname));
+    if (rawSource && rawSource !== source) addDownload(rawSource, 'Download exact engine SVG', basename(new URL(rawSource, location.href).pathname));
+    if (!dialog.open) dialog.showModal();
+    close.focus();
+    try { await image.decode(); const loadedDimensions = await readIntrinsicDimensions(source); if (token !== requestToken || !dialog.open) return; dimensions = loadedDimensions; setZoomEnabled(true); fitImage(); }
+    catch { if (token === requestToken && dialog.open) { readout.value = readout.textContent = '—'; caption.textContent = 'Image dimensions could not be read. The recorded image may still be opened or downloaded from its source link.'; } }
+  };
+  close.addEventListener('click', async () => { if (document.fullscreenElement && dialog.contains(document.fullscreenElement)) await document.exitFullscreen().catch(() => {}); dialog.close(); });
+  dialog.addEventListener('cancel', event => { event.preventDefault(); dialog.close(); });
+  dialog.addEventListener('close', () => { requestToken++; dimensions = {width: 0, height: 0}; setZoomEnabled(false); if (returnFocus?.isConnected) returnFocus.focus(); returnFocus = null; });
+  zoomOut.addEventListener('click', () => applyScale(scale / 1.25)); fit.addEventListener('click', fitImage);
+  actual.addEventListener('click', () => applyScale(1)); zoomIn.addEventListener('click', () => applyScale(scale * 1.25));
+  fullscreen.addEventListener('click', async () => {
+    try { if (document.fullscreenElement === shell) await document.exitFullscreen(); else await shell.requestFullscreen(); }
+    catch { caption.textContent = 'Full screen is unavailable here. The image remains available in the large scrollable viewer.'; }
+  });
+  document.addEventListener('fullscreenchange', () => { const active = document.fullscreenElement === shell; fullscreen.textContent = active ? 'Exit full screen' : 'Full screen'; fullscreen.setAttribute('aria-label', active ? 'Exit image viewer full screen' : 'Open image viewer full screen'); if (dialog.open) requestAnimationFrame(fitImage); });
+  window.addEventListener('resize', () => { if (dialog.open) fitImage(); });
+  imageViewer = {open}; return imageViewer;
+}
+function addImageViewerButton(container, image, title, rawSource = null) {
+  const source = image.currentSrc || image.src;
+  if (!source) return;
+  container.classList.add('has-image-viewer');
+  const button = el('button', 'image-enlarge-button', 'Enlarge'); button.type = 'button';
+  button.setAttribute('aria-label', `Enlarge ${title}`); button.title = `Enlarge ${title}`;
+  button.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); void ensureImageViewer().open(source, title, rawSource, button); });
+  container.append(button);
+}
+function appendPresentationNote(container, presentation) {
+  if (!presentation || presentation.id !== 'umf.visual.preview' || presentation.version !== '1') return;
+  container.append(el('p', 'render-caption', `Display presentation · ${presentation.id} / ${presentation.version} · display treatment; source unchanged`));
+}
+function appendPresentationDetails(container, presentation) {
+  if (!presentation || presentation.id !== 'umf.visual.preview' || presentation.version !== '1') return;
+  const details = document.createElement('details'); details.className = 'display-presentation-details';
+  details.append(el('summary', '', 'Display presentation metadata'));
+  const pre = el('pre', 'code-block'); const code = document.createElement('code'); code.textContent = safeJson(presentation); pre.append(code); details.append(pre); container.append(details);
+}
 function addDiagnostics(panel, diagnostics) {
   if (!Array.isArray(diagnostics) || !diagnostics.length) return;
   const list = el('ul', 'diagnostic-list');
@@ -405,9 +511,16 @@ function appendProfileRender(panel, render, title, mode) {
   img.addEventListener('load', fitImage); window.addEventListener('resize', fitImage); zoomOut.addEventListener('click', () => applyScale(scale / 1.25)); fit.addEventListener('click', fitImage); zoomIn.addEventListener('click', () => applyScale(scale * 1.25));
   nativeSize.addEventListener('click', () => applyScale(1));
   preview.append(img); panel.append(preview); if (img.complete && img.naturalWidth) fitImage();
-  panel.append(zoom); const actions = el('div', 'profile-asset-actions'); const open = el('a', 'text-link', mode === 'complete' ? 'Open complete annotated SVG in new tab ↗' : 'Open focused diagram SVG in new tab ↗');
-  open.href = src; open.target = '_blank'; open.rel = 'noopener noreferrer'; open.setAttribute('aria-label', `${mode === 'complete' ? 'Open complete annotated SVG' : 'Open focused diagram SVG'} in a new tab · ${title}`); actions.append(open); panel.append(actions);
+  addImageViewerButton(preview, img, title, safeRenderPath(render.rawSvgPath, render.rawSvgSha256));
+  panel.append(zoom); const actions = el('div', 'profile-asset-actions'); const open = el('a', 'text-link', mode === 'complete' ? 'Open complete annotated display SVG in new tab ↗' : 'Open focused diagram display SVG in new tab ↗');
+  open.href = src; open.target = '_blank'; open.rel = 'noopener noreferrer'; open.setAttribute('aria-label', `${mode === 'complete' ? 'Open complete annotated display SVG' : 'Open focused diagram display SVG'} in a new tab · ${title}`); actions.append(open); panel.append(actions);
   panel.append(el('p', 'profile-full-caption', `${title} · ${render.engine || 'native engine'} ${render.nativeVersion || '(version unavailable)'}`));
+  appendPresentationNote(panel, render.presentation);
+  appendPresentationDetails(panel, render.presentation);
+  if (render.rawSvgPath && render.rawSvgSha256) {
+    const raw = safeRenderPath(render.rawSvgPath, render.rawSvgSha256);
+    if (raw) { const link = el('a', 'text-link raw-engine-download', 'Download exact engine SVG'); link.href = raw; link.download = ''; panel.append(link); }
+  }
 }
 function showVariant(item, variant) {
   const view = state.view === 'complete' ? 'complete' : 'diagram';
@@ -465,7 +578,7 @@ function showTarget(item, target) {
     if (src) {
       const preview = el('div', 'render-preview'); const img = document.createElement('img'); img.src = src; img.alt = `${LABELS[target]} native render of ${item.title}`; img.loading = 'lazy';
       img.addEventListener('error', () => { preview.replaceChildren(el('p', 'render-error', 'Native render preview could not be loaded from the recorded SVG asset.')); });
-      preview.append(img); panel.append(preview); const openSvg=el('a','text-link','Open native SVG ↗'); openSvg.href=src; openSvg.target='_blank'; openSvg.rel='noopener noreferrer'; openSvg.setAttribute('aria-label',`Open ${LABELS[target]} SVG for ${item.title}`); panel.append(openSvg); panel.append(el('p', 'render-caption', `Rendered by ${render.engine || LABELS[target]} ${render.nativeVersion || ''} · this SVG was generated from the emitted source`.trim()));
+      preview.append(img); panel.append(preview); addImageViewerButton(preview, img, `${LABELS[target]} · ${item.title}`, safeRenderPath(render.rawSvgPath, render.rawSvgSha256)); const openSvg=el('a','text-link','Open display SVG ↗'); openSvg.href=src; openSvg.target='_blank'; openSvg.rel='noopener noreferrer'; openSvg.setAttribute('aria-label',`Open normalized display SVG for ${item.title}`); panel.append(openSvg); if (render.rawSvgPath && render.rawSvgSha256) { const raw = safeRenderPath(render.rawSvgPath, render.rawSvgSha256); if (raw) { const rawLink=el('a','text-link','Download exact engine SVG'); rawLink.href=raw; rawLink.download=''; rawLink.setAttribute('aria-label',`Download exact engine SVG for ${item.title}`); panel.append(rawLink); } } panel.append(el('p', 'render-caption', `Rendered by ${render.engine || LABELS[target]} ${render.nativeVersion || ''} · this SVG was generated from the emitted source`.trim())); appendPresentationNote(panel, render.presentation); appendPresentationDetails(panel, render.presentation);
     } else panel.append(el('p', 'render-error', 'Native render asset path is invalid; preview withheld.'));
   } else if (render) {
     panel.append(el('p', 'render-error', `Native render unavailable: ${render.error || 'no render output was recorded.'}`));
@@ -521,6 +634,12 @@ function renderDestinationCard(integrationCase, rendererId, label) {
       const image = document.createElement('img'); image.src = src; image.alt = `${label} preview for ${integrationCase.title}, rendered by ${preview.engine} ${preview.nativeVersion}`; image.loading = 'lazy';
       image.addEventListener('error', () => previewBox.replaceChildren(el('p', 'six-target-unavailable', 'The receipt-matched preview asset failed to load.')));
       previewBox.append(image, el('p', 'six-target-render-meta', `${preview.engine} ${preview.nativeVersion} · ${preview.stage} · ${preview.asset.width}×${preview.asset.height}`));
+      const presentation = preview.presentation || target.presentation;
+      const themeLine = presentation?.id && presentation?.version ? `Display presentation · ${presentation.id} / ${presentation.version} · display treatment; source unchanged` : '';
+      if (themeLine) previewBox.append(el('p', 'six-target-render-meta six-target-presentation', themeLine));
+      const rawAsset = preview.rawAsset;
+      const rawSource = rawAsset?.mediaType === 'image/svg+xml' ? safeEvidenceAsset(rawAsset) : null;
+      addImageViewerButton(previewBox, image, `${label} · ${integrationCase.title}`, rawSource);
     } else previewBox.append(el('p', 'six-target-unavailable', 'Render withheld: receipt does not match the exact source, profile/version, input digest, or a safe hashed image asset.'));
   } else {
     const reason = preview?.error || (preview?.state === 'failed' ? 'The recorded renderer failed.' : 'No native render receipt was supplied. A plan or source export is not a preview.');
@@ -530,18 +649,25 @@ function renderDestinationCard(integrationCase, rendererId, label) {
   const cycle = target?.roundTrip;
   const cycleState = ['verified', 'planned', 'refused', 'partial', 'not-attempted'].includes(cycle?.state) ? cycle.state : 'not-attempted';
   card.append(el('p', `six-target-cycle ${cycleState}`, `Edited cycle: ${cycle?.state || 'not attempted'}${cycle?.stage ? ` · ${cycle.stage}` : ''}${cycle?.reason ? ` · ${cycle.reason}` : ''}`));
-  const versions = {sourceSha256: target?.sourceSha256, artifactSha256: preview?.inputArtifactSha256, captureDigestSha256: preview?.captureDigestSha256, revision: preview?.revision, renderSha256: preview?.asset?.sha256};
+  const versions = {sourceSha256: target?.sourceSha256, artifactSha256: preview?.inputArtifactSha256, captureDigestSha256: preview?.captureDigestSha256, revision: preview?.revision, renderSha256: preview?.asset?.sha256, rawEngineSvgSha256: preview?.rawAsset?.sha256};
   if (Object.values(versions).some(value => value !== undefined)) appendReceiptDetails(card, 'Source and artifact hashes', versions);
+  if (preview?.presentation || target?.presentation) appendReceiptDetails(card, 'Display presentation metadata', preview.presentation || target.presentation);
   appendReceiptDetails(card, 'Projection diagnostics', projection?.diagnostics);
   appendReceiptDetails(card, 'Projection losses', projection?.losses);
   appendReceiptDetails(card, 'Edited-cycle receipt', cycle);
   const artifacts = Array.isArray(target?.artifacts) ? target.artifacts : target?.artifacts && typeof target.artifacts === 'object' ? Object.values(target.artifacts) : [];
+  const rawAssetPath = preview?.rawAsset?.path;
   for (const artifact of artifacts) {
     if (typeof artifact?.path !== 'string' || !/^integrations\/[A-Za-z0-9._/-]+$/.test(artifact.path) || artifact.path.split('/').some(part => part === '..') || !/^[a-f0-9]{64}$/i.test(artifact.sha256 || '')) continue;
     const extension = artifact.path.split('.').pop()?.toLowerCase();
     const isPreview = artifact.path === preview?.asset?.path;
-    const artifactLabel = artifact.label || (isPreview ? `rendered preview (${extension?.toUpperCase() || 'image'})` : extension === 'dot' ? 'DOT source' : extension === 'mmd' ? 'Mermaid source' : extension === 'lini' ? 'Lini source' : extension === 'pptx' ? 'PowerPoint file' : extension === 'json' ? 'UMF JSON document' : `${label} artifact`);
+    const isRawPreview = artifact.path === preview?.rawAsset?.path;
+    const artifactLabel = artifact.label || (isRawPreview ? 'exact engine SVG' : isPreview ? `rendered preview (${extension?.toUpperCase() || 'image'})` : extension === 'dot' ? 'DOT source' : extension === 'mmd' ? 'Mermaid source' : extension === 'lini' ? 'Lini source' : extension === 'pptx' ? 'PowerPoint file' : extension === 'json' ? 'UMF JSON document' : `${label} artifact`);
     const link = el('a', 'six-target-download', `Download ${artifactLabel}`); link.href = new URL(artifact.path, new URL('./', location.href)).href; link.download = ''; card.append(link);
+  }
+  const rawAssetUrl = preview?.rawAsset?.mediaType === 'image/svg+xml' ? safeEvidenceAsset(preview.rawAsset) : null;
+  if (rawAssetUrl && !artifacts.some(artifact => artifact?.path === rawAssetPath)) {
+    const link = el('a', 'six-target-download', 'Download exact engine SVG'); link.href = rawAssetUrl; link.download = ''; card.append(link);
   }
   return card;
 }

@@ -3,6 +3,7 @@
 import {createHash} from 'node:crypto';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
+import {normalizeSvgIntrinsicDimensions, previewPresentationReceipt} from './native-preview-presentation';
 
 const root = resolve(import.meta.dir, '../..');
 const requiredHosts = ['powerpoint', 'google-slides', 'miro'] as const;
@@ -48,6 +49,38 @@ async function verifyFileArtifact(siteRoot: string, path: unknown, expectedHash:
   }
 }
 
+async function verifyNativeRendererPreview(siteRoot: string, item: any, renderer: string, preview: any, report: HostCompletionReport): Promise<void> {
+  if (!(['dot', 'mermaid', 'lini'] as string[]).includes(renderer)) return;
+  let engine: 'graphviz' | 'mermaid' | 'lini';
+  engine = renderer === 'dot' ? 'graphviz' : renderer as 'mermaid' | 'lini';
+  const expectedPresentation = previewPresentationReceipt(engine);
+  if (JSON.stringify(preview.presentation) !== JSON.stringify(expectedPresentation)) {
+    issue(report, item.id, 'Native preview has missing or unqualified presentation options/normalization.', renderer);
+  }
+  const raw = preview.rawAsset, display = preview.asset;
+  if (!raw || raw.mediaType !== 'image/svg+xml' || !Number.isFinite(raw.width) || !Number.isFinite(raw.height) || raw.width <= 0 || raw.height <= 0) {
+    issue(report, item.id, 'Native preview lacks valid raw SVG artifact metadata.', renderer); return;
+  }
+  if (!display || display.mediaType !== 'image/svg+xml' || !Number.isFinite(display.width) || !Number.isFinite(display.height) || display.width <= 0 || display.height <= 0) {
+    issue(report, item.id, 'Native preview lacks valid normalized SVG display metadata.', renderer); return;
+  }
+  if (!(await verifyFileArtifact(siteRoot, raw.path, raw.sha256, 'Raw native SVG', report, item.id, renderer))) return;
+  if (!(await verifyFileArtifact(siteRoot, display.path, display.sha256, 'Display SVG', report, item.id, renderer))) return;
+  try {
+    const rawBytes = await readFile(join(siteRoot, raw.path));
+    const displayBytes = await readFile(join(siteRoot, display.path));
+    const normalized = normalizeSvgIntrinsicDimensions(rawBytes.toString('utf8'));
+    if (normalized.svg !== displayBytes.toString('utf8') || normalized.width !== display.width || normalized.height !== display.height) {
+      issue(report, item.id, 'Display SVG is not the exact root-dimension normalization of the raw native SVG.', renderer);
+    }
+    if (normalized.width !== raw.width || normalized.height !== raw.height) {
+      issue(report, item.id, 'Raw native SVG dimensions do not match its viewBox.', renderer);
+    }
+  } catch {
+    issue(report, item.id, 'Raw native SVG cannot be safely normalized from its viewBox.', renderer);
+  }
+}
+
 async function verifyRenderedRow(siteRoot: string, item: any, row: any, expectedSourceSha: string, report: HostCompletionReport, requireCycle: boolean): Promise<void> {
   const renderer = row?.rendererId;
   if (typeof renderer !== 'string') {issue(report, item.id, 'Renderer row has no rendererId.'); return;}
@@ -78,10 +111,13 @@ async function verifyRenderedRow(siteRoot: string, item: any, row: any, expected
     }
   }
   const asset = preview.asset;
-  if (!asset || !Number.isInteger(asset.width) || !Number.isInteger(asset.height) || asset.width <= 0 || asset.height <= 0 ||
-      !['image/png', 'image/jpeg', 'image/svg+xml'].includes(asset.mediaType)) {
+  const validAssetDimensions = asset?.mediaType === 'image/svg+xml'
+    ? Number.isFinite(asset.width) && Number.isFinite(asset.height) && asset.width > 0 && asset.height > 0
+    : ['image/png', 'image/jpeg'].includes(asset?.mediaType) && Number.isInteger(asset.width) && Number.isInteger(asset.height) && asset.width > 0 && asset.height > 0;
+  if (!asset || !validAssetDimensions) {
     issue(report, item.id, 'Rendered preview lacks valid image metadata and dimensions.', renderer);
   } else await verifyFileArtifact(siteRoot, asset.path, asset.sha256, 'Preview asset', report, item.id, renderer);
+  await verifyNativeRendererPreview(siteRoot, item, renderer, preview, report);
   if (!Array.isArray(row.projection?.losses) || !Array.isArray(row.projection?.diagnostics)) {
     issue(report, item.id, 'Target projection is missing its explicit diagnostics or loss inventory.', renderer);
   } else if (row.projection.state === 'emitted' && row.projection.diagnostics.some((diagnostic: any) => diagnostic?.severity === 'error')) {

@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import {mkdtemp, mkdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {verifyHostCompletion} from '../../scripts/catalog/verify-host-completion';
+import {normalizeSvgIntrinsicDimensions, previewPresentationReceipt} from '../../scripts/catalog/native-preview-presentation';
 
 const root = resolve(import.meta.dir, '../..');
 const hash = (bytes: Uint8Array | string) => createHash('sha256').update(bytes).digest('hex');
@@ -54,10 +55,15 @@ async function readyFixture() {
     }
     if (item.id === 'process-documents-store') for (const renderer of ['dot', 'mermaid', 'lini']) {
       const modelVersion = document.vocabularies['umf.visual'].version, profileId = `umf.visual.${renderer}/1`;
-      const asset = await persist(`integrations/previews/${renderer}/${item.id}.svg`, `${renderer}-svg`);
+      const rawSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640.25 360.5"><rect x="2" y="2" width="20" height="10"/></svg>`;
+      const normalized = normalizeSvgIntrinsicDimensions(rawSvg);
+      const rawAsset = await persist(`integrations/previews/${renderer}/${item.id}-raw.svg`, rawSvg);
+      const asset = await persist(`integrations/previews/${renderer}/${item.id}.svg`, normalized.svg);
       caseValue.rendererTargets.push({rendererId: renderer, profileId, modelVersion, mappingVersion: '1', projection: {state: 'emitted', status: 'supported', diagnostics: [], losses: []},
         preview: {state: 'rendered', engine: renderer, nativeVersion: 'fixture-engine 1', sourceSha256: hash(sourceBytes), profileId, modelVersion,
-          mappingVersion: '1', stage: 'export', asset: {...asset, mediaType: 'image/svg+xml', width: 640, height: 360}}});
+          mappingVersion: '1', stage: 'export', presentation: previewPresentationReceipt(renderer === 'dot' ? 'graphviz' : renderer as 'mermaid' | 'lini'),
+          rawAsset: {...rawAsset, mediaType: 'image/svg+xml', width: normalized.width, height: normalized.height},
+          asset: {...asset, mediaType: 'image/svg+xml', width: normalized.width, height: normalized.height}}});
     }
     cases.push(caseValue);
   }
@@ -155,6 +161,46 @@ describe('host completion gate', () => {
       const report=await verifyHostCompletion(catalog,fixture.site);
       expect(report.complete).toBe(false);
       expect(report.issues.some(item=>item.caseId===catalog.cases[0].id&&item.message.includes('repair-free native reopen'))).toBe(true);
+    }finally{await rm(fixture.site,{recursive:true,force:true});}
+  });
+
+  test('requires native renderer raw SVG, exact presentation policy, and geometry-preserving display normalization',async()=>{
+    const fixture=await readyFixture();
+    try{
+      const catalog:any=structuredClone(fixture.catalog),primary=catalog.cases.find((item:any)=>item.id==='process-documents-store');
+      const row=primary.rendererTargets.find((item:any)=>item.rendererId==='mermaid');
+      expect((await verifyHostCompletion(catalog,fixture.site)).complete).toBe(true);
+
+      const changed:any=structuredClone(catalog),changedPrimary=changed.cases.find((item:any)=>item.id==='process-documents-store'),changedRow=changedPrimary.rendererTargets.find((item:any)=>item.rendererId==='mermaid');
+      const edited=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360"><rect x="9" y="2" width="20" height="10"/></svg>`;
+      await writeFile(join(fixture.site,changedRow.preview.asset.path),edited);
+      changedRow.preview.asset.sha256=hash(edited);
+      const altered=await verifyHostCompletion(changed,fixture.site);
+      expect(altered.complete).toBe(false);
+      expect(altered.issues.some((entry:any)=>entry.target==='mermaid'&&entry.message.includes('exact root-dimension normalization'))).toBe(true);
+
+      const missingRaw:any=structuredClone(catalog),missingRawPrimary=missingRaw.cases.find((item:any)=>item.id==='process-documents-store'),missingRawRow=missingRawPrimary.rendererTargets.find((item:any)=>item.rendererId==='dot');
+      delete missingRawRow.preview.rawAsset;
+      expect((await verifyHostCompletion(missingRaw,fixture.site)).issues.some((entry:any)=>entry.target==='dot'&&entry.message.includes('raw SVG'))).toBe(true);
+
+      const wrongPresentation:any=structuredClone(catalog),wrongPrimary=wrongPresentation.cases.find((item:any)=>item.id==='process-documents-store'),wrongRow=wrongPrimary.rendererTargets.find((item:any)=>item.rendererId==='lini');
+      wrongRow.preview.presentation.svgNormalization='shape-rewrite/1';
+      expect((await verifyHostCompletion(wrongPresentation,fixture.site)).issues.some((entry:any)=>entry.target==='lini'&&entry.message.includes('presentation options'))).toBe(true);
+    }finally{await rm(fixture.site,{recursive:true,force:true});}
+  });
+
+  test('allows exact fractional SVG viewBox dimensions but keeps captured raster dimensions finite integers',async()=>{
+    const fixture=await readyFixture();
+    try{
+      expect((await verifyHostCompletion(fixture.catalog,fixture.site)).complete).toBe(true);
+      for(const dimension of [480.5,Number.NaN,Number.POSITIVE_INFINITY]){
+        const catalog:any=structuredClone(fixture.catalog),row=catalog.cases.find((item:any)=>item.id==='process-documents-store').rendererTargets
+          .find((item:any)=>item.rendererId==='powerpoint');
+        row.preview.asset.width=dimension;
+        const report=await verifyHostCompletion(catalog,fixture.site);
+        expect(report.complete).toBe(false);
+        expect(report.issues.some((entry:any)=>entry.target==='powerpoint'&&entry.message.includes('valid image metadata and dimensions'))).toBe(true);
+      }
     }finally{await rm(fixture.site,{recursive:true,force:true});}
   });
 });

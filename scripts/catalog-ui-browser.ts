@@ -96,6 +96,11 @@ try{
     const card=page.locator(`#six-target-matrix .six-target-card[data-target="${target.rendererId}"]`);
     const expectedImage=target.preview?.state==='rendered'&&target.preview.sourceSha256===processCase.commonSha256&&target.preview.profileId===target.profileId&&target.preview.modelVersion===target.modelVersion&&target.preview.mappingVersion===target.mappingVersion&&Boolean(target.preview.inputArtifactSha256||target.preview.captureDigestSha256)&&Boolean(target.preview.asset?.sha256&&target.preview.asset?.mediaType&&target.preview.asset?.width>0&&target.preview.asset?.height>0);
     if(Boolean(await card.locator('.six-target-preview img').count())!==Boolean(expectedImage))throw new Error(`Six-target UI did not faithfully gate the ${target.rendererId} preview on its receipt`);
+    if(target.preview?.rawAsset?.mediaType==='image/svg+xml'){
+      if(await card.getByRole('link',{name:'Download exact engine SVG'}).count()!==1)throw new Error(`Six-target ${target.rendererId} display image does not expose the exact native SVG separately`);
+    }
+    const presentation=target.preview?.presentation||target.presentation;
+    if(presentation?.id&&presentation?.version&&!(await card.getByText(`Display presentation · ${presentation.id} / ${presentation.version} · display treatment; source unchanged`).count()))throw new Error(`Six-target ${target.rendererId} presentation identity was hidden or mislabeled`);
     if(expectedImage){
       const image=card.locator('.six-target-preview img');await image.scrollIntoViewIfNeeded();
       await image.evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Preview image decoded without dimensions');});
@@ -108,7 +113,41 @@ try{
     if(!(await card.locator('.six-target-preview').textContent())?.trim()&&!(await card.locator('.six-target-preview img').count()))throw new Error(`Six-target ${rendererId} preview state is not exposed`);
   }
   exercised.push('six-destination coverage matrix and receipt-gated preview slots');
+  await page.getByRole('button',{name:'Use dark color theme'}).click();
+  const darkCaption=await page.locator('.six-target-preview .six-target-render-meta').first().evaluate(element=>{
+    const rgb=(value:string)=>value.match(/[\d.]+/g)?.slice(0,3).map(Number)||[0,0,0];
+    const linear=(value:number)=>{const channel=value/255;return channel<=0.04045?channel/12.92:((channel+0.055)/1.055)**2.4;};
+    const [r,g,b]=rgb(getComputedStyle(element).color),background=rgb(getComputedStyle(element.parentElement!).backgroundColor);
+    const luminance=(values:number[])=>0.2126*linear(values[0]!)+0.7152*linear(values[1]!)+0.0722*linear(values[2]!);
+    const l1=luminance([r!,g!,b!]),l2=luminance(background);
+    return {ratio:(Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05),color:getComputedStyle(element).color,background:getComputedStyle(element.parentElement!).backgroundColor};
+  });
+  if(darkCaption.ratio<4.5||darkCaption.background!=='rgb(255, 255, 255)')throw new Error(`Dark-theme preview caption lacks readable contrast on the preserved white canvas: ${JSON.stringify(darkCaption)}`);
+  await page.getByRole('button',{name:'Use light color theme'}).click();
+  exercised.push('dark-theme captions meet 4.5:1 contrast on the white native image canvas');
   await page.locator('#six-target-section').scrollIntoViewIfNeeded();
+  const viewerTrigger=page.locator('#six-target-matrix .six-target-card[data-target="dot"] .image-enlarge-button');
+  if(await viewerTrigger.count()!==1)throw new Error('Rendered six-target card has no labelled enlarge control');
+  const sourceUrl=await page.locator('#six-target-matrix .six-target-card[data-target="dot"] .six-target-preview img').evaluate(element=>(element as HTMLImageElement).currentSrc);
+  await viewerTrigger.click();
+  const imageViewer=page.locator('.image-viewer-dialog');await imageViewer.waitFor({state:'visible'});
+  const viewerImage=imageViewer.locator('.image-viewer-image');await viewerImage.waitFor({state:'visible'});
+  await viewerImage.evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Large viewer image failed to decode');});
+  if(await viewerImage.evaluate(element=>(element as HTMLImageElement).currentSrc)!==sourceUrl)throw new Error('Large viewer did not use the receipt-backed preview image');
+  await imageViewer.getByRole('button',{name:'Show image at 100 percent'}).click();
+  const intrinsic=await viewerImage.evaluate(async element=>{const image=element as HTMLImageElement;const response=await fetch(image.currentSrc);const source=await response.text();const doc=new DOMParser().parseFromString(source,'image/svg+xml');const viewBox=(doc.documentElement.getAttribute('viewBox')||'').trim().split(/[\\s,]+/).map(Number);return {width:parseFloat(image.style.width),height:parseFloat(image.style.height),viewBox};});
+  if(intrinsic.viewBox.length===4&&(Math.round(intrinsic.width)!==Math.round(intrinsic.viewBox[2])||Math.round(intrinsic.height)!==Math.round(intrinsic.viewBox[3])))throw new Error(`Viewer 100% scale ignored SVG viewBox dimensions: ${JSON.stringify(intrinsic)}`);
+  await imageViewer.getByRole('button',{name:'Zoom in'}).click();
+  if(!(await imageViewer.locator('.image-viewer-scale').textContent())?.includes('%'))throw new Error('Image viewer zoom controls did not update the scale readout');
+  await imageViewer.getByRole('button',{name:'Open image viewer full screen'}).click();
+  await page.waitForFunction(()=>document.fullscreenElement?.classList.contains('image-viewer-shell'));
+  if(!(await imageViewer.getByRole('button',{name:'Close image preview'}).isVisible())||!(await imageViewer.getByRole('button',{name:'Exit image viewer full screen'}).isVisible()))throw new Error('Full-screen viewer hid its close or exit controls');
+  await imageViewer.getByRole('button',{name:'Exit image viewer full screen'}).click();
+  await page.waitForFunction(()=>document.fullscreenElement===null);
+  await page.locator('#image-viewer').screenshot({path:'.cache/catalog-ui-image-viewer.png'});
+  await page.keyboard.press('Escape');await imageViewer.waitFor({state:'hidden'});
+  if(await viewerTrigger.evaluate(element=>document.activeElement===element)!==true)throw new Error('Closing the image viewer did not restore focus to its trigger');
+  exercised.push('accessible large image viewer, SVG viewBox 100% scale, zoom/full-screen controls, Escape and focus restoration');
   await page.locator('#six-target-section').screenshot({path:'.cache/catalog-ui-six-targets.png'});
   const miroPreviewCase=integrationCatalog.cases.find(item=>(item.rendererTargets||[]).some((target:any)=>target.rendererId==='miro'&&target.preview?.state==='rendered'&&target.preview.asset?.mediaType==='image/jpeg'));
   if(!miroPreviewCase)throw new Error('No receipt-backed Miro JPEG preview is available for the six-target browser check');
@@ -126,6 +165,10 @@ try{
   if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw new Error('Six-target matrix overflows the 375px mobile viewport');
   const mobileTargetCards=await page.locator('#six-target-matrix .six-target-card').evaluateAll(cards=>cards.map(card=>{const rect=card.getBoundingClientRect();return {width:rect.width,scrollWidth:(card as HTMLElement).scrollWidth,clientWidth:(card as HTMLElement).clientWidth};}));
   if(mobileTargetCards.some(card=>card.width>375||card.scrollWidth>card.clientWidth+1))throw new Error(`Six-target cards overflow their mobile column: ${JSON.stringify(mobileTargetCards)}`);
+  await page.locator('#six-target-matrix .six-target-card[data-target="dot"] .image-enlarge-button').click();
+  await page.locator('.image-viewer-dialog').waitFor({state:'visible'});
+  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw new Error('Image viewer overflows the 375px mobile viewport');
+  await page.keyboard.press('Escape');await page.locator('.image-viewer-dialog').waitFor({state:'hidden'});
   const caseSelect=page.getByLabel('Integration example');
   await caseSelect.selectOption('network-16x24');
   if(await caseSelect.inputValue()!=='network-16x24'||await page.locator('#six-target-matrix .six-target-card').count()!==6)throw new Error('Mobile example selector did not retain all six destination cards');
@@ -159,6 +202,11 @@ try{
   await mkdir('.cache',{recursive:true});
   await page.screenshot({path:'.cache/catalog-ui-desktop.png'});
   exercised.push('desktop catalogue screenshot');
+  const openFirstCard=page.locator('.definition-main').first();await openFirstCard.focus();await page.keyboard.press('Enter');
+  await page.locator('#detail-dialog').waitFor({state:'visible'});
+  if(await page.getByRole('button',{name:/Open .* details/}).count()!==formExamples.length)throw new Error('Each catalog example must expose its own keyboard-focusable details button');
+  await page.locator('#close-detail').click();
+  exercised.push('catalog cards provide a separate keyboard-accessible details button');
 
   const first=formExamples[0];
   await page.locator('#search').fill(first.id);
@@ -297,6 +345,18 @@ try{
     const previewBounds=await image.evaluate(element=>{const rect=element.getBoundingClientRect();const parent=element.parentElement!.getBoundingClientRect();return {image:{width:rect.width,height:rect.height},container:{width:parent.width,height:parent.height}}});
     if(previewBounds.image.width<=0||previewBounds.image.height<=0||previewBounds.image.width>previewBounds.container.width||previewBounds.image.height>previewBounds.container.height)throw new Error(`Inline render preview did not scale into its container: ${JSON.stringify(previewBounds)}`);
     await page.screenshot({path:'.cache/catalog-ui-render.png'});
+    const enlarge=page.locator('.render-preview .image-enlarge-button');
+    if(await enlarge.count()!==1)throw new Error('Native detail render is missing its labelled enlarge control');
+    await enlarge.click();await page.locator('#image-viewer').waitFor({state:'visible'});
+    if(await page.locator('#image-viewer').getByRole('heading',{name:/DOT|Mermaid|Lini/}).count()!==1)throw new Error('Image viewer did not label the selected native render');
+    if(rendered.targets[target].render.rawSvgPath&&rendered.targets[target].render.rawSvgSha256){
+      const rawDownload=page.locator('#image-viewer').getByRole('link',{name:'Download exact engine SVG'});
+      const rawHref=await rawDownload.getAttribute('href'),rawPath=rendered.targets[target].render.rawSvgPath as string;
+      if(await rawDownload.count()!==1||!rawHref||!new URL(rawHref,baseUrl).pathname.endsWith(rawPath))throw new Error('Exact engine SVG was not exposed separately from the normalized display image');
+      const rawFile=page.waitForEvent('download');await rawDownload.click();if(!(await rawFile).suggestedFilename().endsWith('.svg'))throw new Error('Exact engine SVG download did not retain its SVG filename');
+    }
+    await page.keyboard.press('Escape');await page.locator('#image-viewer').waitFor({state:'hidden'});
+    if(await enlarge.evaluate(element=>document.activeElement===element)!==true)throw new Error('Detail viewer did not restore focus to its trigger');
     exercised.push('native SVG detail render loads and scales within preview');
     const svgUrl=new URL(rendered.targets[target].render.svgPath,baseUrl);if(rendered.targets[target].render.svgSha256)svgUrl.searchParams.set('v',rendered.targets[target].render.svgSha256);
     await page.route(svgUrl.href,route=>route.fulfill({status:404,body:'missing render fixture'}));
@@ -356,7 +416,7 @@ try{
     await page.unroute('https://umf.local/integrations.json');
     exercised.push('exact-source preview verification, raw loss inspection, and artifact link contract');
   }
-  const receipt={ok:true,language:{kinds:catalog.language.forms.kinds.length,forms:formCount},examples:{formFixtures:formExamples.length,secondaryInstances:secondaryCount,totalInstances:catalog.items.length},checks:['schema-backed language reference','all form examples and sample coverage profiles load','search by ID','UMF example JSON source fidelity','deep-link target selection and restoration','keyboard target navigation and roving tab stop',...exercised],screenshots:['.cache/catalog-ui-desktop.png','.cache/catalog-ui-detail.png','.cache/catalog-ui-render.png','.cache/catalog-ui-mobile.png','.cache/catalog-ui-six-targets.png','.cache/catalog-ui-six-targets-mobile.png'],browser:browser.version(),errors};
+  const receipt={ok:true,language:{kinds:catalog.language.forms.kinds.length,forms:formCount},examples:{formFixtures:formExamples.length,secondaryInstances:secondaryCount,totalInstances:catalog.items.length},checks:['schema-backed language reference','all form examples and sample coverage profiles load','search by ID','UMF example JSON source fidelity','deep-link target selection and restoration','keyboard target navigation and roving tab stop',...exercised],screenshots:['.cache/catalog-ui-desktop.png','.cache/catalog-ui-detail.png','.cache/catalog-ui-render.png','.cache/catalog-ui-mobile.png','.cache/catalog-ui-six-targets.png','.cache/catalog-ui-six-targets-mobile.png','.cache/catalog-ui-image-viewer.png'],browser:browser.version(),errors};
   await Bun.write('.cache/catalog-ui-browser.json',JSON.stringify(receipt,null,2)+'\n');
   console.log(JSON.stringify(receipt));
   if(errors.length)throw new Error(`Browser reported page errors: ${errors.join('; ')}`);

@@ -11,6 +11,7 @@ import type {ProjectionCoverage} from '../../src/interchange/annotations';
 import {focusedProfileSource} from './profile-views';
 import {buildIntegrationCatalog} from './integrations';
 import {liniDirectory, verifyLiniRuntime} from '../interchange-runtime';
+import {nativePreviewPresentation, normalizeSvgIntrinsicDimensions, previewPresentationReceipt, type NativePreviewEngine} from './native-preview-presentation';
 
 export type TargetName = InterchangeFormat;
 export interface NativeRender {
@@ -19,6 +20,9 @@ export interface NativeRender {
   nativeVersion: string;
   svgPath?: string;
   svgSha256?: string;
+  rawSvgPath?: string;
+  rawSvgSha256?: string;
+  presentation?: ReturnType<typeof previewPresentationReceipt>;
   error?: string;
 }
 export interface CatalogTarget {
@@ -167,7 +171,7 @@ export async function createCatalogData(): Promise<VisualCatalog> {
 function runtimeError(error: unknown): string { return error instanceof Error ? error.message : String(error); }
 
 async function renderDot(source: string, version: string): Promise<{svg: string; version: string}> {
-  const process = Bun.spawn(['dot', '-Tsvg'], {stdin: 'pipe', stdout: 'pipe', stderr: 'pipe'});
+  const process = Bun.spawn(['dot', ...nativePreviewPresentation.graphviz.args, '-Tsvg'], {stdin: 'pipe', stdout: 'pipe', stderr: 'pipe'});
   process.stdin.write(source); process.stdin.end();
   const [svg, stderr, exit] = await Promise.all([new Response(process.stdout).text(), new Response(process.stderr).text(), process.exited]);
   if (exit !== 0 || !svg.includes('<svg')) throw new Error(stderr.trim() || `Graphviz exited ${exit} without SVG output`);
@@ -190,10 +194,10 @@ async function graphvizVersion(): Promise<string> {
 async function renderMermaid(page: Page, source: string, itemId: string): Promise<{svg: string; version: string}> {
   await page.setContent('<!doctype html><html><meta charset="utf-8"><body><main id="output"></main></body></html>', {waitUntil: 'domcontentloaded'});
   await page.addScriptTag({path: resolve(root, 'node_modules/mermaid/dist/mermaid.min.js')});
-  const result = await page.evaluate(async ({source, itemId}) => {
+  const result = await page.evaluate(async ({source, itemId, style}) => {
     const mermaidApi = (window as any).mermaid;
     if (!mermaidApi) throw new Error('Mermaid browser bundle did not expose window.mermaid');
-    mermaidApi.initialize({startOnLoad: false, securityLevel: 'strict', theme: 'neutral', look: 'classic', fontFamily: 'Arial', deterministicIds: true, deterministicIDSeed: itemId});
+    mermaidApi.initialize({startOnLoad: false, securityLevel: 'strict', ...style, deterministicIds: true, deterministicIDSeed: itemId});
     let state = 2166136261;
     for (const char of itemId) state = Math.imul(state ^ char.charCodeAt(0), 16777619) >>> 0;
     const originalRandom = Math.random;
@@ -211,7 +215,7 @@ async function renderMermaid(page: Page, source: string, itemId: string): Promis
     } finally {
       Math.random = originalRandom;
     }
-  }, {source, itemId});
+  }, {source, itemId, style: {...nativePreviewPresentation.mermaid, themeVariables: {...nativePreviewPresentation.mermaid.themeVariables}}});
   const version = result.version === 'unknown' ? mermaidPackage.version : result.version;
   if (!result.svg.includes('<svg') || typeof version !== 'string') throw new Error('Mermaid returned no SVG or version');
   return {svg: result.svg, version};
@@ -247,30 +251,32 @@ function validateLiniDiagnostics(reportText: string): void {
 // @covers US-095-AC3: only verified native SVG bytes receive a path and SHA-256 receipt.
 async function saveRender(item: CatalogItem, format: string, render: NativeRender, svg: string, outputDir: string): Promise<void> {
   if (!svg.includes('<svg')) throw new Error(`${format} renderer returned no SVG for ${item.id}`);
-  const svgSha256 = sha256(svg);
+  const normalized = normalizeSvgIntrinsicDimensions(svg);
+  const rawSvgSha256 = sha256(svg);
+  const svgSha256 = sha256(normalized.svg);
+  const rawFileName = `${item.id}-${format}-raw-${rawSvgSha256}.svg`;
   const fileName = `${item.id}-${format}-${svgSha256}.svg`;
-  const outputFile = join(outputDir, 'renders', fileName);
   const renderDirectory = join(outputDir, 'renders');
   await mkdir(renderDirectory, {recursive: true});
-  let existing: Uint8Array | undefined;
-  try { existing = await readFile(outputFile); }
-  catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
-  if (existing) {
-    if (sha256(existing) !== svgSha256) throw new Error(`Content-addressed SVG path has different bytes: ${fileName}`);
-    render.svgPath = `renders/${fileName}`;
-    render.svgSha256 = svgSha256;
-    return;
-  }
-  const temporaryFile = join(renderDirectory, `.${fileName}.${randomUUID()}.tmp`);
-  try {
-    await writeFile(temporaryFile, svg, {encoding: 'utf8', flag: 'wx'});
-    await rename(temporaryFile, outputFile);
-  } catch (error) {
-    await rm(temporaryFile, {force: true});
-    throw error;
-  }
+  const save = async (name: string, text: string, digest: string) => {
+    const outputFile = join(renderDirectory, name);
+    let existing: Uint8Array | undefined;
+    try { existing = await readFile(outputFile); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+    if (existing) {
+      if (sha256(existing) !== digest) throw new Error(`Content-addressed SVG path has different bytes: ${name}`);
+      return;
+    }
+    const temporaryFile = join(renderDirectory, `.${name}.${randomUUID()}.tmp`);
+    try { await writeFile(temporaryFile, text, {encoding: 'utf8', flag: 'wx'}); await rename(temporaryFile, outputFile); }
+    catch (error) { await rm(temporaryFile, {force: true}); throw error; }
+  };
+  await save(rawFileName, svg, rawSvgSha256);
+  await save(fileName, normalized.svg, svgSha256);
   render.svgPath = `renders/${fileName}`;
   render.svgSha256 = svgSha256;
+  render.rawSvgPath = `renders/${rawFileName}`;
+  render.rawSvgSha256 = rawSvgSha256;
 }
 
 /** @covers US-095-AC3, US-095-AC7: add actual native renders; emitted canaries must render, unsupported targets have no SVG. */
@@ -305,7 +311,8 @@ export async function renderCatalog(catalog: VisualCatalog, outputDir: string): 
         if (!target.ok || target.source === undefined) continue;
         const engine = format === 'dot' ? 'graphviz' : format;
         const render: NativeRender = {ok: false, engine, nativeVersion:
-          format === 'dot' ? graphviz : format === 'mermaid' ? `${mermaidPackage.version} / Chromium ${browserVersion}` : lini.version};
+          format === 'dot' ? graphviz : format === 'mermaid' ? `${mermaidPackage.version} / Chromium ${browserVersion}` : lini.version,
+          presentation: previewPresentationReceipt(engine as NativePreviewEngine)};
         target.render = render;
         try {
           let native: {svg: string; version: string};
@@ -336,7 +343,8 @@ export async function renderCatalog(catalog: VisualCatalog, outputDir: string): 
           if(format==='dot'){const result=await renderDot(source,graphviz);svg=result.svg;version=result.version;}
           else if(format==='mermaid'){const result=await renderMermaid(page,source,safeSegment(item.id+'-mermaid-annotated-'+label));svg=result.svg;version=`${result.version} / Chromium ${browserVersion}`;if(externalRequest)throw new Error(`External request during Mermaid profile rendering: ${externalRequest}`);}
           else {validateLiniDiagnostics(lini.compiler.diagnostics(source,{}));svg=lini.compiler.compile(source,{});version=lini.version;}
-          const render:NativeRender={ok:true,engine:format==='dot'?'graphviz':format==='mermaid'?'mermaid':'lini',nativeVersion:version};
+          const engine=format==='dot'?'graphviz':format==='mermaid'?'mermaid':'lini';
+          const render:NativeRender={ok:true,engine,nativeVersion:version,presentation:previewPresentationReceipt(engine)};
           await saveRender(item,format+'-annotated-'+label,render,svg,outputDir);return render;
         };
         target.render=await renderOne(target.source,'complete');

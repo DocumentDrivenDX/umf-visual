@@ -40,6 +40,13 @@ describe('microsite catalogue UI contract',()=>{
     expect(app).toContain('showQualifiedUnavailable(item, variants.length)');
     expect(app).toContain('No qualified annotation profile is recorded');
     expect(app).toContain("if (state.view === 'native') state.profileId = null");
+    expect(app).toContain('function ensureImageViewer()');
+    expect(app).toContain('new DOMParser().parseFromString(text, \'image/svg+xml\')');
+    expect(app).toContain('const values = (svg.getAttribute(\'viewBox\') || \'\')');
+    expect(app).toContain('Download exact engine SVG');
+    expect(app).toContain('preview.rawAsset');
+    expect(app).toContain('token !== requestToken || !dialog.open');
+    expect(app).toContain('presentation.id !== \'umf.visual.preview\'');
     expect(app).toContain('state.lastQualifiedByTarget[key]');
     expect(app).toContain("initialParams.get('view')");
     expect(app).toContain('Switch to ${LABELS[state.target]} native baseline');
@@ -80,6 +87,8 @@ describe('microsite catalogue UI contract',()=>{
     expect(browser).toContain('Expected all 178 verified baseline and qualified profile SVG assets');
     expect(browser).toContain('previewBounds.image.width>previewBounds.container.width');
     expect(browser).toContain('Miro preview did not decode as a JPEG with positive image dimensions');
+    expect(browser).toContain('accessible large image viewer, SVG viewBox 100% scale, zoom/full-screen controls, Escape and focus restoration');
+    expect(browser).toContain('Image viewer overflows the 375px mobile viewport');
     expect(browser).toContain('const ordinaryProfile=`umf.visual.${target}/1`');
     expect(browser).toContain('summaryText.includes(`v${capability.version}`)');
 

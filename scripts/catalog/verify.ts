@@ -6,6 +6,7 @@ import {join, resolve} from 'node:path';
 import {buildCatalog, type VisualCatalog, type CatalogTarget, type CatalogProfileVariant} from './build';
 import {exportVisual,importVisual,visualForms} from '../../src';
 import {focusedProfileSource} from './profile-views';
+import {normalizeSvgIntrinsicDimensions, previewPresentationReceipt, type NativePreviewEngine} from './native-preview-presentation';
 
 const root = resolve(import.meta.dir, '../..');
 const output = join(root, 'dist-site');
@@ -14,8 +15,8 @@ const assert: (condition: unknown, message: string) => asserts condition = (cond
 const canonical=(value:unknown):string=>JSON.stringify(value,(_,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
 function renderPaths(catalog:VisualCatalog):Set<string>{
  const paths=new Set<string>();for(const item of catalog.items){
-  for(const target of Object.values(item.targets))if(target.render?.ok&&target.render.svgPath)paths.add(target.render.svgPath);
-  for(const variant of item.profileVariants??[])for(const render of [variant.result.render,variant.diagramRender])if(render?.ok&&render.svgPath)paths.add(render.svgPath);
+  for(const target of Object.values(item.targets))if(target.render?.ok){if(target.render.svgPath)paths.add(target.render.svgPath);if(target.render.rawSvgPath)paths.add(target.render.rawSvgPath);}
+  for(const variant of item.profileVariants??[])for(const render of [variant.result.render,variant.diagramRender])if(render?.ok){if(render.svgPath)paths.add(render.svgPath);if(render.rawSvgPath)paths.add(render.rawSvgPath);}
  }return paths;
 }
 
@@ -51,15 +52,23 @@ async function validateTarget(itemId: string, format: string, target: CatalogTar
   assert(render.nativeVersion.length > 0 && render.nativeVersion !== 'unresolved', `Missing native version for ${itemId}/${format}.`);
   if (!render.ok) {
     assert(typeof render.error === 'string' && render.error.length > 0, `Failed render ${itemId}/${format} has no error.`);
-    assert(render.svgPath === undefined && render.svgSha256 === undefined, `Failed render ${itemId}/${format} advertises SVG output.`);
+    assert(render.svgPath === undefined && render.svgSha256 === undefined && render.rawSvgPath === undefined && render.rawSvgSha256 === undefined, `Failed render ${itemId}/${format} advertises SVG output.`);
     return;
   }
   assert(typeof render.svgPath === 'string' && typeof render.svgSha256 === 'string', `Successful render ${itemId}/${format} lacks path/hash.`);
   assert(!render.svgPath.startsWith('/') && !render.svgPath.split('/').includes('..'), `Unsafe SVG path for ${itemId}/${format}.`);
   assert(render.svgPath.endsWith(`-${render.svgSha256}.svg`), `SVG asset path is not content-addressed for ${itemId}/${format}.`);
   const svg = await readFile(join(output, render.svgPath));
-  assert(svg.toString('utf8').includes('<svg'), `Native renderer output for ${itemId}/${format} is not SVG.`);
+  assert(svg.toString('utf8').includes('<svg'), `Presented native SVG for ${itemId}/${format} is not SVG.`);
   assert(digest(svg) === render.svgSha256, `SVG SHA-256 mismatch for ${itemId}/${format}.`);
+  assert(typeof render.rawSvgPath === 'string' && typeof render.rawSvgSha256 === 'string', `Successful render ${itemId}/${format} lacks its raw engine SVG receipt.`);
+  assert(!render.rawSvgPath.startsWith('/') && !render.rawSvgPath.split('/').includes('..'), `Unsafe raw SVG path for ${itemId}/${format}.`);
+  assert(render.rawSvgPath.endsWith(`-raw-${render.rawSvgSha256}.svg`), `Raw SVG asset path is not content-addressed for ${itemId}/${format}.`);
+  const raw = await readFile(join(output, render.rawSvgPath));
+  assert(digest(raw) === render.rawSvgSha256, `Raw SVG SHA-256 mismatch for ${itemId}/${format}.`);
+  assert(JSON.stringify(render.presentation) === JSON.stringify(previewPresentationReceipt(render.engine as NativePreviewEngine)), `Presentation receipt differs from the declared profile for ${itemId}/${format}.`);
+  const normalized = normalizeSvgIntrinsicDimensions(raw.toString('utf8'));
+  assert(normalized.svg === svg.toString('utf8'), `Display SVG changed geometry or differs from declared root normalization for ${itemId}/${format}.`);
 }
 
 export async function verifyCatalog(catalog?: VisualCatalog,release=false): Promise<{items: number; renders: number;completeExamples:number;completeForms:number}> {

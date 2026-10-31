@@ -374,3 +374,56 @@ source identities are unchanged by these provenance corrections.
 Final follow-up CI, served-asset hashes and release archive digests remain
 publication gates. The release publication receipt will bind the actual final
 main commit, workflow and verified assets; this amendment does not establish publication.
+
+## Preview appeal and inspection work — 2026-10-31
+
+The owner requests improved visual appeal and fidelity after the v0.3.0
+publication. This work is limited to larger responsive preview surfaces, a
+universal isolated-image inspection viewer, and qualified preview-only
+DOT/Mermaid styling and SVG dimension normalization. CONTRACT-085 governs the
+presentation boundary; CONTRACT-086's interchange behavior remains unchanged.
+
+Source documents, native export downloads, diagnostics and identity maps remain
+unchanged. Captured PowerPoint/Slides/Miro images retain their exact bytes and
+source/artifact/revision evidence. Preview presentation policies remain separate
+from adapter and native runtime versions; modified SVG assets retain raw downloads.
+
+### Local implementation review
+
+The rebuilt catalog contains 53 examples and 214 native render receipts. Each
+portable render now retains exact engine SVG bytes and a separately hashed
+display derivative. Only root intrinsic dimensions change during normalization;
+Graphviz/Mermaid preview options are separately recorded under `umf.visual.preview/1`.
+
+Independent comparison against the published v0.3.0 catalog finds identical
+semantic catalog data after excluding render records. All fifteen host preview
+assets and their renderer receipts remain unchanged. The 53-source manifest and
+ordinary loss census remain unchanged at 629/792/530. This is presentation work,
+not a semantic loss reduction.
+
+Focused local checks pass 17 tests/172 assertions. They cover native styling
+precedence, root-only normalization, raw/display hashes, altered-geometry refusal
+and fractional SVG versus integer raster dimension admission. The independent
+host gate passes six cases, five common cases and
+fifteen cycles, with zero issues. Native interoperability checks also pass.
+
+Browser receipts verify all 214 SVGs, 53 examples/22 forms and the six-destination
+cards. The viewer uses isolated images, labelled controls, fit/100%/zoom,
+fullscreen with an explicit fallback, Escape dismissal and opener focus restoration.
+Loading guards prevent a stale image request from replacing current dimensions.
+
+Source review closes the raw/display provenance, stale-request and raster
+dimension findings. Captions on the preserved white image canvas use a fixed
+contrasting color in both site themes; the browser gate now checks a computed
+contrast ratio of at least 4.5:1. The stale display-link assertion is updated.
+
+Final local review approves the bounded polish. The full suite passes 434
+tests/13,190 assertions; the later raster guard also passes focused validation.
+Fresh site/profile browser receipts verify dark-caption contrast, fullscreen
+controls, Escape/focus restoration, exact-engine downloads and 375-pixel layout.
+Inspection of the enlarged-viewer and six-target screenshots finds no remaining
+blocking readability or clipping defect in the sampled witness.
+
+The repeated catalog build passes with 53 items, 214 render receipts and 53
+complete examples across 22 forms. Exact-head CI and served Pages asset identity
+remain delivery gates. Local approval does not establish publication of the polish.
