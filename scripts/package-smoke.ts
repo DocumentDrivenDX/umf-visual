@@ -9,6 +9,9 @@ const consumer=await mkdtemp(resolve('.cache/consumer-'));
 await Bun.write(join(consumer,'package.json'),JSON.stringify({private:true,type:'module',dependencies:{'@documentdrivendx/umf-visual':'file:'+archive}}));
 const install=Bun.spawn([process.execPath,'install','--ignore-scripts'],{cwd:consumer,stdout:'inherit',stderr:'inherit'});
 if(await install.exited)throw Error('Packed consumer installation failed');
+const mermaidSequence=JSON.parse(await Bun.file('fixtures/visual/inventory/helix-request.json').text());
+const liniFlow=JSON.parse(await Bun.file('fixtures/catalog/canary-flow.json').text());
+const liniMetric=JSON.parse(await Bun.file('fixtures/visual/forms/umf-ac-coverage.json').text());
 await Bun.write(join(consumer,'consumer.mjs'),`import {createVisualDocument,getVisual,editVisual,inspectVisual,importVisual,exportVisual,upgradeVisualDocument,latestVisualPackage} from '@documentdrivendx/umf-visual';
 import legacySchema from '@documentdrivendx/umf-visual/schema' with {type:'json'};
 import modernSchema from '@documentdrivendx/umf-visual/schema/1.1.0' with {type:'json'};
@@ -35,7 +38,9 @@ for(const format of ['dot','mermaid','lini']){
 }
 const profileCases=[
  {format:'dot',profile:'umf.visual.dot.annotated/1',document:createVisualDocument({id:'installed-state',kind:'state',form:'machine',title:'Installed state',question:'What changes?',source:{path:'package:smoke'},nodes:[{id:'ready',label:'Ready'},{id:'done',label:'Done'}],state:{initial:'ready',final:['done'],transitions:[{id:'finish',from:'ready',to:'done',event:'finish',action:'record result'}]}})},
- {format:'lini',profile:'umf.visual.lini.annotated/1',document:createVisualDocument({id:'installed-metric',kind:'metric',form:'meter',title:'Installed meter',question:'How many?',source:{path:'package:smoke'},metric:{unit:'requests',good:'up',format:{kind:'number',decimals:0},target:10,series:[{id:'requests',label:'Requests',points:[{value:4}]}]}})},
+ {format:'lini',profile:'umf.visual.lini.annotated/1',document:JSON.parse(${JSON.stringify(JSON.stringify(liniMetric))})},
+ {format:'mermaid',profile:'umf.visual.mermaid.annotated/1',document:JSON.parse(${JSON.stringify(JSON.stringify(mermaidSequence))})},
+ {format:'lini',profile:'umf.visual.lini.annotated/1',document:JSON.parse(${JSON.stringify(JSON.stringify(liniFlow))})},
 ];
 /** @param {unknown} value */
 const canonical=value=>JSON.stringify(value,(_,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
@@ -46,7 +51,13 @@ for(const entry of profileCases){
  if(exportVisual(pair.document,{format:entry.format,profile:entry.profile,source:pair.source,original:true}).text!==output.text)throw Error('Installed profile source replay differs');
  pair.document=editVisual(pair.document,v=>({...v,question:'Stale edit'}));if(exportVisual(pair.document,{format:entry.format,profile:entry.profile,source:pair.source,original:true}).ok)throw Error('Installed stale profile replay accepted');
 }
-console.log(JSON.stringify({installed:true,valid:report.valid,complete:report.complete,interchange:['dot','mermaid','lini'],portableAdapters:['powerpoint','google-slides','reconciliation','miro/editable'],annotatedProfiles:profileCases.map(p=>p.profile)}));`);
+for(const entry of profileCases.filter(p=>p.format==='mermaid'||p.document.extensions['umf.visual'].kind==='flow')){
+ const visual=entry.document.extensions['umf.visual'];
+ if(!visual.title||!visual.question||(!visual.nodes?.length&&!visual.sequence?.participants?.length))throw Error('Annotated package metadata/source fixture is incomplete '+entry.profile);
+}
+let unknownProfileRefused=false;try{unknownProfileRefused=!exportVisual(profileCases[2].document,{format:'mermaid',profile:'umf.visual.mermaid.unknown/999'}).ok;}catch{unknownProfileRefused=true;}
+if(!unknownProfileRefused)throw Error('Unknown packed-consumer profile was accepted');
+console.log(JSON.stringify({installed:true,valid:report.valid,complete:report.complete,interchange:['dot','mermaid','lini'],portableAdapters:['powerpoint','google-slides','reconciliation','miro/editable'],annotatedProfiles:profileCases.map(p=>p.profile),annotatedSources:['helix-request','catalog-canary-flow'],unknownProfileRefused:true}));`);
 const types=Bun.spawn([resolve('node_modules/.bin/tsc'),'--ignoreConfig','--allowJs','--checkJs','--noEmit','--module','ESNext','--moduleResolution','Bundler','--target','ES2022','--skipLibCheck','consumer.mjs'],{cwd:consumer,stdout:'inherit',stderr:'inherit'});
 if(await types.exited)throw Error('Installed consumer declarations failed');
 for(const runtime of [process.execPath,'node']){

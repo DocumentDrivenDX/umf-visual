@@ -12,7 +12,7 @@ ddx:
 
 # US-095: Inspect a visual across native targets
 
-**Feature:** FEAT-036. **Feature requirements:** CAT-00 through CAT-08.
+**Feature:** FEAT-036. **Feature requirements:** CAT-00 through CAT-14.
 The local vision names the maintainer persona; no local PRD FR-ID is invented.
 
 ## Story
@@ -62,6 +62,19 @@ from a small selection of successful renderings.
   reader opens the primary language reference, then shared elements/properties
   and composition declarations are sourced from those authorities, with counts
   and source identities distinct from the secondary example gallery.
+- **US-095-AC9:** Given an explicit renderer/profile/view selection, when the
+  reader switches renderer or reloads a shared link, then their selection intent
+  remains visible; an unavailable qualified profile shows its reason and an
+  explicit alternative instead of silently substituting ordinary output.
+- **US-095-AC10:** Given an example across the six target families, when the
+  reader compares results, then planning, semantic loss, actual rendering and
+  edited-cycle evidence remain separately inspectable under CONTRACT-085.
+- **US-095-AC11:** Given current and historical loss evidence, when the reader
+  inspects improvement, then unchanged-source comparisons preserve actual ordinary
+  losses and distinguish mapping gains from annotations or changed report grouping.
+- **US-095-AC12:** Given a displayed host/native preview, when its source or
+  artifact/capture differs from its receipt, then it cannot be shown as verified
+  output for that result; inaccessible or stale evidence has an explicit state.
 
 ## Edge Cases
 

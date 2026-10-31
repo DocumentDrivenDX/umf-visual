@@ -1,0 +1,213 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+/** Fail-closed completion gate for exact-source, edited cycles in live host integrations. */
+import {createHash} from 'node:crypto';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {join, resolve} from 'node:path';
+
+const root = resolve(import.meta.dir, '../..');
+const requiredHosts = ['powerpoint', 'google-slides', 'miro'] as const;
+const requiredRenders = ['dot', 'mermaid', 'lini', ...requiredHosts] as const;
+const requiredChecks = ['noop', 'label', 'reconnection', 'movement', 'style', 'jsonPersistence', 'yamlPersistence', 'preservingUpdate', 'readback'] as const;
+const sha256 = (value: Uint8Array | string) => createHash('sha256').update(value).digest('hex');
+const hashPattern = /^[a-f0-9]{64}$/;
+
+export interface HostCompletionIssue {caseId: string; target?: string; message: string}
+export interface HostCompletionReport {
+  complete: boolean;
+  cases: number;
+  commonCases: number;
+  hostCycles: number;
+  renderedTargets: number;
+  issues: HostCompletionIssue[];
+}
+
+function issue(report: HostCompletionReport, caseId: string, message: string, target?: string): void {
+  report.issues.push({caseId, ...(target ? {target} : {}), message});
+}
+function safeAssetPath(value: unknown): value is string {
+  return typeof value === 'string' && value.length > 0 && !value.startsWith('/') && !value.includes('\\') &&
+    !value.split('/').some(part => part === '..' || part === '.' || part.length === 0);
+}
+function hasTrueChecks(value: unknown): value is Record<string, unknown> {
+  if (!value || typeof value !== 'object') return false;
+  const checks = value as Record<string, unknown>;
+  return requiredChecks.every(name => checks[name] === true);
+}
+function modelVersion(document: any): string | undefined {return document?.vocabularies?.['umf.visual']?.version;}
+
+async function verifyFileArtifact(siteRoot: string, path: unknown, expectedHash: unknown, context: string, report: HostCompletionReport, caseId: string, target?: string): Promise<boolean> {
+  if (!safeAssetPath(path) || typeof expectedHash !== 'string' || !hashPattern.test(expectedHash)) {
+    issue(report, caseId, `${context} is missing a safe relative path or SHA-256.`, target); return false;
+  }
+  try {
+    const bytes = await readFile(join(siteRoot, path));
+    if (sha256(bytes) !== expectedHash) {issue(report, caseId, `${context} SHA-256 does not match the published bytes.`, target); return false;}
+    return true;
+  } catch {
+    issue(report, caseId, `${context} file is missing from the published site.`, target); return false;
+  }
+}
+
+async function verifyRenderedRow(siteRoot: string, item: any, row: any, expectedSourceSha: string, report: HostCompletionReport, requireCycle: boolean): Promise<void> {
+  const renderer = row?.rendererId;
+  if (typeof renderer !== 'string') {issue(report, item.id, 'Renderer row has no rendererId.'); return;}
+  if (!row.preview || row.preview.state !== 'rendered') {issue(report, item.id, 'Preview is not actually rendered.', renderer); return;}
+  const preview = row.preview;
+  if (preview.sourceSha256 !== expectedSourceSha || row.sourceSha256 && row.sourceSha256 !== expectedSourceSha) {
+    issue(report, item.id, 'Preview does not match the exact current common-source bytes.', renderer); return;
+  }
+  if (!row.profileId || preview.profileId !== row.profileId || !row.modelVersion || preview.modelVersion !== row.modelVersion ||
+      !row.mappingVersion || preview.mappingVersion !== row.mappingVersion || row.modelVersion !== modelVersion(item.commonDocument)) {
+    issue(report, item.id, 'Preview profile/model/mapping identity does not match the exact current target row.', renderer); return;
+  }
+  if (!preview.engine || !preview.nativeVersion || !preview.stage) issue(report, item.id, 'Preview lacks native engine, version, or stage evidence.', renderer);
+  if (!hashPattern.test(String(row.preview.sourceSha256 ?? ''))) issue(report, item.id, 'Preview source SHA-256 is malformed.', renderer);
+  if (requireCycle && renderer === 'powerpoint') {
+    if (!hashPattern.test(String(preview.inputArtifactSha256 ?? '')) || !(row.artifacts ?? []).some((artifact: any) => artifact?.sha256 === preview.inputArtifactSha256)) {
+      issue(report, item.id, 'PowerPoint preview input artifact is not bound to a verified target artifact.', renderer);
+    }
+    if (preview.stage === 'native-only-preview-layout' &&
+        (!/powerpoint/i.test(String(preview.nativeOpen?.application ?? '')) || typeof preview.nativeOpen?.version !== 'string' ||
+          preview.nativeOpen.reopenObserved !== true || preview.nativeOpen.noRepairPrompt !== true)) {
+      issue(report, item.id, 'PowerPoint preview layout lacks repair-free native reopen evidence.', renderer);
+    }
+  }
+  if (requireCycle && (renderer === 'google-slides' || renderer === 'miro')) {
+    if (typeof preview.revision !== 'string' || preview.revision.length === 0 || !hashPattern.test(String(preview.captureDigestSha256 ?? ''))) {
+      issue(report, item.id, 'Host preview lacks a stable native revision and capture digest.', renderer);
+    }
+  }
+  const asset = preview.asset;
+  if (!asset || !Number.isInteger(asset.width) || !Number.isInteger(asset.height) || asset.width <= 0 || asset.height <= 0 ||
+      !['image/png', 'image/jpeg', 'image/svg+xml'].includes(asset.mediaType)) {
+    issue(report, item.id, 'Rendered preview lacks valid image metadata and dimensions.', renderer);
+  } else await verifyFileArtifact(siteRoot, asset.path, asset.sha256, 'Preview asset', report, item.id, renderer);
+  if (!Array.isArray(row.projection?.losses) || !Array.isArray(row.projection?.diagnostics)) {
+    issue(report, item.id, 'Target projection is missing its explicit diagnostics or loss inventory.', renderer);
+  } else if (row.projection.state === 'emitted' && row.projection.diagnostics.some((diagnostic: any) => diagnostic?.severity === 'error')) {
+    issue(report, item.id, 'Target claims emitted output despite an error-severity projection diagnostic.', renderer);
+  } else if (row.projection.status === 'supported' && row.projection.losses.length > 0) {
+    issue(report, item.id, 'Target claims supported despite a non-empty semantic loss inventory.', renderer);
+  } else if (row.projection.status === 'reported-loss' && row.projection.losses.length === 0) {
+    issue(report, item.id, 'Target claims reported-loss without exposing any losses.', renderer);
+  } else if (row.projection.state !== 'emitted' || !['supported', 'reported-loss'].includes(row.projection.status)) {
+    issue(report, item.id, 'A refused or planned projection cannot count as a rendered target.', renderer);
+  }
+  if (row.artifacts !== undefined && !Array.isArray(row.artifacts)) issue(report, item.id, 'Target artifacts must be an array.', renderer);
+  for (const artifact of row.artifacts ?? []) {
+    await verifyFileArtifact(siteRoot, artifact?.path, artifact?.sha256, 'Target artifact', report, item.id, renderer);
+  }
+  report.renderedTargets++;
+  if (!requireCycle) return;
+
+  const cycle = row.roundTrip;
+  if (!cycle || cycle.state !== 'passed') {issue(report, item.id, 'Edited native round trip is missing or not passed.', renderer); return;}
+  if (cycle.sourceSha256 !== expectedSourceSha || cycle.profileId !== row.profileId || cycle.modelVersion !== row.modelVersion || cycle.mappingVersion !== row.mappingVersion) {
+    issue(report, item.id, 'Round-trip receipt is stale or bound to a different source/profile/model/mapping.', renderer); return;
+  }
+  if (!hasTrueChecks(cycle.checks)) issue(report, item.id, `Round-trip evidence must pass every check: ${requiredChecks.join(', ')}.`, renderer);
+  if (!cycle.receipt || !(await verifyFileArtifact(siteRoot, cycle.receipt.path, cycle.receipt.sha256, 'Round-trip receipt', report, item.id, renderer))) return;
+  const hostEvidence = cycle.attestation;
+  if (!hostEvidence || typeof hostEvidence !== 'object') {issue(report, item.id, 'Host-specific evidence receipt is missing.', renderer); return;}
+  if (renderer === 'powerpoint') {
+    if (hostEvidence.kind !== 'powerpoint-ui' || hostEvidence.nativeHostReadback !== true || !/powerpoint/i.test(String(hostEvidence.application ?? '')) ||
+        typeof hostEvidence.version !== 'string' || hostEvidence.version.length === 0 || hostEvidence.reopenObserved !== true || hostEvidence.noRepairPrompt !== true ||
+        hostEvidence.updatedQuestionVisible !== true || hostEvidence.nativeBoldLabelVisible !== true || hostEvidence.attachedEndpointsObserved !== true) {
+      issue(report, item.id, 'PowerPoint cycle lacks actual PowerPoint UI save/reopen/readback attestation.', renderer);
+    }
+  } else if (renderer === 'google-slides') {
+    if (hostEvidence.kind !== 'google-slides-api' || hostEvidence.nativeWritesObserved !== true ||
+        (hostEvidence.injectedTransportVerified !== true && hostEvidence.liveTransportVerified !== true) || hostEvidence.editMethod !== 'native Slides API') {
+      issue(report, item.id, 'Google Slides cycle lacks source-bound native API transport evidence.', renderer);
+    }
+    if (hostEvidence.uiClaim !== false || /ui|browser click/i.test(String(hostEvidence.authority ?? ''))) issue(report, item.id, 'Google Slides UI activity cannot substitute for API receipt evidence.', renderer);
+  } else if (renderer === 'miro') {
+    if (hostEvidence.kind !== 'miro-web-sdk' || hostEvidence.nativeWritesObserved !== true || hostEvidence.captureFenceVerified !== true ||
+        hostEvidence.revisionKind !== 'content-digest' || hostEvidence.serverCas !== false || hostEvidence.atomicRevision !== false) {
+      issue(report, item.id, 'Miro cycle lacks exact-source Web SDK write and capture-fence evidence.', renderer);
+    }
+    if (Array.isArray(hostEvidence.readonlyRecoveryStages) && hostEvidence.readonlyRecoveryStages.length > 0) {
+      const interrupted = hostEvidence.interruptedWritesRetained;
+      if (hostEvidence.unownedContentRetainedExceptRecordedMetadataDrift !== true || !Array.isArray(interrupted) ||
+          interrupted.length !== hostEvidence.readonlyRecoveryStages.length || interrupted.some((entry: any, index: number) =>
+            entry?.stage !== hostEvidence.readonlyRecoveryStages[index] || entry?.recoveryWritesPerformed !== false || entry?.atomicityClaimed !== false ||
+            !hashPattern.test(String(entry?.receiptSha256 ?? '')) || !Array.isArray(entry?.causeCodes) ||
+            !Number.isSafeInteger(entry?.qualifiedMetadataDriftCount) || !Number.isSafeInteger(entry?.newlyObservedUnownedCount))) {
+        issue(report, item.id, 'Miro readonly recovery does not preserve its interrupted operation and qualified drift receipt.', renderer);
+      }
+    }
+  }
+  report.hostCycles++;
+}
+
+/** Validate current public integration data and every content-addressed asset it claims. */
+export async function verifyHostCompletion(catalog?: any, siteRoot = join(root, 'dist-site')): Promise<HostCompletionReport> {
+  const value = catalog ?? JSON.parse(await readFile(join(siteRoot, 'integrations.json'), 'utf8'));
+  const manifestBytes = await readFile(join(root, 'fixtures/integrations/complex-miro/manifest.json'));
+  const manifest = JSON.parse(manifestBytes.toString('utf8'));
+  const report: HostCompletionReport = {complete: false, cases: Array.isArray(value?.cases) ? value.cases.length : 0,
+    commonCases: 0, hostCycles: 0, renderedTargets: 0, issues: []};
+  if (value?.schemaVersion !== 1 || value?.catalogProfile !== 'umf.visual.integration-examples/1') {
+    issue(report, 'catalog', 'Integration catalog envelope is not schemaVersion 1 / umf.visual.integration-examples/1.');
+  }
+  if (value?.corpus?.manifestSha256 !== sha256(manifestBytes)) issue(report, 'catalog', 'Integration catalog is bound to a stale corpus manifest.');
+  const cases = Array.isArray(value?.cases) ? value.cases : [];
+  if (manifest.cases?.length !== 6 || cases.length !== 6) issue(report, 'catalog', 'The exact six-case authored integration corpus is required.');
+  const byId = new Map(cases.map((item: any) => [item?.id, item]));
+  if (byId.size !== cases.length) issue(report, 'catalog', 'Integration case IDs are missing or duplicated.');
+
+  for (const manifestCase of manifest.cases ?? []) {
+    const item = byId.get(manifestCase.id) as any;
+    if (!item) {issue(report, manifestCase.id, 'Required authored corpus case is absent.'); continue;}
+    if (manifestCase.commonVisualPath === null) {
+      if (item.commonProjection !== 'no-common-projection' || item.commonPath !== null || item.commonSha256 !== null || item.commonDocument != null) {
+        issue(report, item.id, 'Opaque witness must remain explicitly no-common-projection with no inferred UMF document.');
+      }
+      for (const target of Object.values(item.targets ?? {}) as any[]) {
+        if (target?.status !== 'refused' || target?.nativeHostVerified !== false) issue(report, item.id, 'Opaque witness cannot claim a common target export.');
+      }
+      if ((item.rendererTargets ?? []).some((row: any) => row?.preview?.state === 'rendered' || row?.roundTrip?.state === 'passed')) {
+        issue(report, item.id, 'Opaque witness cannot claim a rendered common projection or edited cycle.');
+      }
+      continue;
+    }
+    report.commonCases++;
+    const expectedPath = `fixtures/integrations/complex-miro/${manifestCase.commonVisualPath}`;
+    const sourceBytes = await readFile(join(root, expectedPath));
+    const expectedSourceSha = sha256(sourceBytes);
+    if (item.commonPath !== manifestCase.commonVisualPath || item.commonSha256 !== expectedSourceSha ||
+        JSON.stringify(item.commonDocument) !== JSON.stringify(JSON.parse(sourceBytes.toString('utf8')))) {
+      issue(report, item.id, 'Common document/path/hash differs from the exact authored fixture bytes.'); continue;
+    }
+    const rows: any[] = Array.isArray(item.rendererTargets) ? item.rendererTargets : [];
+    for (const renderer of requiredHosts) {
+      const matched = rows.filter(row => row?.rendererId === renderer);
+      if (matched.length !== 1) {issue(report, item.id, `Expected exactly one ${renderer} host target row; found ${matched.length}.`, renderer); continue;}
+      const row = matched[0]!;
+      const targetKey = renderer === 'google-slides' ? 'googleSlides' : renderer;
+      const expectedTarget = item.targets?.[targetKey];
+      if (!expectedTarget || row.profileId !== expectedTarget.profile) issue(report, item.id, 'Renderer profile differs from the declared host target profile.', renderer);
+      await verifyRenderedRow(siteRoot, item, row, expectedSourceSha, report, true);
+    }
+    if (item.id === 'process-documents-store') {
+      for (const renderer of requiredRenders) {
+        const matches = rows.filter(row => row?.rendererId === renderer);
+        if (matches.length !== 1) {issue(report, item.id, `Six-renderer coverage requires one ${renderer} row; found ${matches.length}.`, renderer); continue;}
+        // The three portable diagram renders do not require an edited host cycle.
+        if (requiredHosts.includes(renderer as typeof requiredHosts[number])) continue;
+        await verifyRenderedRow(siteRoot, item, matches[0], expectedSourceSha, report, false);
+      }
+    }
+  }
+  report.complete = report.issues.length === 0 && report.commonCases === 5 && report.hostCycles === 15;
+  return report;
+}
+
+if (import.meta.main) {
+  const report = await verifyHostCompletion();
+  const output = JSON.stringify(report, null, 2) + '\n';
+  await mkdir(join(root, '.cache'), {recursive: true});
+  await writeFile(join(root, '.cache/host-completion.json'), output);
+  console.log(output.trimEnd());
+  if (!report.complete) process.exitCode = 1;
+}

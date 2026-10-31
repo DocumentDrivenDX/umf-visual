@@ -119,6 +119,18 @@ become `exactly-one`, `zero-or-many` or another native default.
 
 ### Existing-field descriptive mappings
 
+The P10 native-first cohorts may extend bounded mappings only after an
+independent native probe establishes the exact construct and interpretation.
+Priorities are Lini title/flow/pipeline and entity key/cardinality/reference
+slots, plus Mermaid sequences and ER field/reference eligibility. Candidate
+capability is not implemented support. Each qualified mapping MUST name its
+model/mapping version, native locator and positive/negative readback tests.
+Unspecified cardinalities/direction MUST remain unspecified; a typed legend
+cannot silently replace an intrinsic relation or layout. Ordinary projection
+losses remain current until that profile actually maps the omitted meaning.
+CONTRACT-087 governs separately selected metadata carriers; CONTRACT-085 governs
+their distinct catalog and ledger presentation.
+
 The current profiles Mermaid 1.2.0, DOT 0.3.0 and Lini 0.2.0 map existing visual
 fields; the visual vocabulary remains 1.0.0. Public capability records MUST name
 the implemented adapter profile version; these numbers do not name native engines.

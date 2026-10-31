@@ -9,7 +9,7 @@ import {buildIntegrationCatalog} from '../../scripts/catalog/integrations.js';
 test('integration catalogue preserves six witnesses and labels evidence by what ran', async () => {
   const output = await mkdtemp(join(tmpdir(), 'umf-integration-catalog-'));
   try {
-    const catalog = await buildIntegrationCatalog(output);
+    const catalog = await buildIntegrationCatalog(output, {rendererEvidence: false});
     expect(catalog.counts).toMatchObject({cases: 6, commonProjections: 5, opaqueWitnesses: 1});
     expect(catalog.complete).toBe(false);
     expect(catalog.cases).toHaveLength(6);

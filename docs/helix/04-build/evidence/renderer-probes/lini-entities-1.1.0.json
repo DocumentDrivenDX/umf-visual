@@ -1,0 +1,168 @@
+{
+  "profile": "umf.diagram.lini.runtime/1",
+  "version": "1.1.0",
+  "runtimeAssets": [
+    {
+      "name": "lini_wasm.js",
+      "sha256": "0dd52206dd4bbb398560b522b4e0650ee1f3c5a94682a846102f33ded3938d46"
+    },
+    {
+      "name": "lini_wasm_bg.wasm",
+      "sha256": "e42530f8cffe6b37171f80fe809829528696ab05bb076601b2efed2418941180"
+    },
+    {
+      "name": "LICENSE",
+      "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5"
+    }
+  ],
+  "fixtures": [
+    {
+      "fixture": "fixtures/catalog/canary-entities.json",
+      "inputSha256": "6b101dd70cab0fbb10a87b195515d76d06f62828afe02d1f368afe417ecfbd6e",
+      "liniSourceSha256": "fc4f5cbe08babac234cf1772077bdc8e516399329ba6d9d0c05c4f2cacd052c2",
+      "desugaredAstSha256": "82278cbcafd8f42727da4bf878b06b980d3d06bf80a0c6a3f69fa3a6737562a0",
+      "svgSha256": "3ce0bf39786ab5427891fd24cd60ad280de3c240d70dace5aaea63b15d864c61",
+      "nativeDiagnostics": [],
+      "nodes": 2,
+      "fields": 3,
+      "references": 1,
+      "adapterLossCodes": [
+        "LINI_FIELD_KEYS",
+        "LINI_FIELD_NULLABILITY",
+        "LINI_REFERENCE_DIRECTION",
+        "LINI_CARDINALITY",
+        "LINI_REFERENCE_LABEL"
+      ],
+      "identityMappings": 6,
+      "readback": {
+        "nodes": 2,
+        "entities": 2,
+        "references": 1
+      }
+    },
+    {
+      "fixture": "fixtures/visual/inventory/beacon-schema-tickets.json",
+      "inputSha256": "3ea8d7e5c8941457901cecb9a6755bc02fd5119c0a9e6fb92bf9e21d4881054e",
+      "liniSourceSha256": "408d5a443bb692908e5ea9b311b46d49032f8a350287e5bf3c238c14489d518b",
+      "desugaredAstSha256": "e1080e39b112456508bd772bcb97818d66b9f4be6ce4433afff9261a6f173e40",
+      "svgSha256": "ae979f0ecafca58064cda790f3681bc64f95a8f2b7b4dc14b84f5d0ba911da4d",
+      "nativeDiagnostics": [],
+      "nodes": 10,
+      "fields": 35,
+      "references": 9,
+      "adapterLossCodes": [
+        "LINI_FIELD_KEYS",
+        "LINI_NODE_FIELD",
+        "LINI_REFERENCE_DIRECTION",
+        "LINI_CARDINALITY",
+        "LINI_REFERENCE_LABEL",
+        "LINI_VISUAL_FIELD"
+      ],
+      "identityMappings": 54,
+      "readback": {
+        "nodes": 10,
+        "entities": 10,
+        "references": 9
+      }
+    },
+    {
+      "fixture": "fixtures/visual/inventory/beacon-schema-workspace.json",
+      "inputSha256": "74cc43f6171ed212876b6fab8fc9ee1429dbd4bca2e7c79394d46e9800bb3dad",
+      "liniSourceSha256": "11b6856e7cdd85281f724418b49bf874eb64e178398c44f28651e7cf433d095e",
+      "desugaredAstSha256": "040b58ff7071c6611f71a61f16e140f3ab92f0bbb34e50bb80ed6fe9ed0d5464",
+      "svgSha256": "c318905ee089ac5a5c27aafda37d986e7241b12bc6d9851fe25d75f9c3ae0dda",
+      "nativeDiagnostics": [],
+      "nodes": 7,
+      "fields": 24,
+      "references": 6,
+      "adapterLossCodes": [
+        "LINI_FIELD_KEYS",
+        "LINI_NODE_FIELD",
+        "LINI_REFERENCE_DIRECTION",
+        "LINI_CARDINALITY",
+        "LINI_REFERENCE_LABEL",
+        "LINI_VISUAL_FIELD"
+      ],
+      "identityMappings": 37,
+      "readback": {
+        "nodes": 7,
+        "entities": 7,
+        "references": 6
+      }
+    },
+    {
+      "fixture": "fixtures/visual/inventory/tpl-sd-domain.json",
+      "inputSha256": "b054796bb6031693eb3df54ff03cc7b27fb2ad8fa4ba90bd66f7f36573bd6471",
+      "liniSourceSha256": "adb9385de6459b4f6089f03889a8f35407dc891b6af52f5dc1b84998446e0695",
+      "desugaredAstSha256": "787d5df5c622394873389de938ebad0f97d078e5cb95ac8c6dad0a54cac6d6d0",
+      "svgSha256": "a2e1c17329feb5282c3fce4c5d8fda7b54d39f2a8c0ff9d0043caebe5952b65a",
+      "nativeDiagnostics": [],
+      "nodes": 7,
+      "fields": 0,
+      "references": 6,
+      "adapterLossCodes": [
+        "LINI_REFERENCE_DIRECTION",
+        "LINI_CARDINALITY",
+        "LINI_REFERENCE_LABEL",
+        "LINI_VISUAL_FIELD"
+      ],
+      "identityMappings": 13,
+      "readback": {
+        "nodes": 7,
+        "entities": 7,
+        "references": 6
+      }
+    }
+  ],
+  "probes": {
+    "keyClass": {
+      "sourceSha256": "0e0313c34270a1e06aa415c6688a75ec840b5a49dca617b928f5117ad308ca71",
+      "diagnostics": [
+        {
+          "code": "R002",
+          "family": "unknown-class",
+          "severity": "error",
+          "message": "unknown class '.pk'",
+          "span": {
+            "start": 25,
+            "end": 44,
+            "line": 2,
+            "col": 1,
+            "endLine": 2,
+            "endCol": 20
+          }
+        }
+      ]
+    },
+    "cardinalityClass": {
+      "sourceSha256": "4c1699bec727b38be615330922329dad178563b0ea949d44df948203072177d8",
+      "diagnostics": [
+        {
+          "code": "R002",
+          "family": "unknown-class",
+          "severity": "error",
+          "message": "unknown class '.one-to-many'",
+          "span": {
+            "start": 100,
+            "end": 123,
+            "line": 7,
+            "col": 1,
+            "endLine": 7,
+            "endCol": 24
+          }
+        }
+      ]
+    },
+    "labelOnly": {
+      "accepted": true,
+      "label": "one-to-many",
+      "cardinalityInferred": false
+    },
+    "fieldEndpointEdit": {
+      "sourceSha256": "2b891bd471b0bfb6e33b295eaa1622bad8a8fbae09bf886c89de588fe163735b",
+      "svgSha256": "5b7ceba2b4132dca11f778e2ae0a7b611ce8fb61f2665d47a8665a3ed4cdc27e",
+      "targetField": "email",
+      "nativeDiagnostics": []
+    }
+  }
+}

@@ -227,3 +227,129 @@ Release precedes P6/P7: sanitized complex Miro counterexamples, a common
 binding/reconciliation contract, then separate PowerPoint, Google Slides and
 Miro packages with real host edit/save/import evidence. Existing spikes do not
 satisfy that future scope.
+
+## P8-P14 continuation review — 2026-10-31
+
+This continuation is in progress. It does not reopen the published v0.2.0
+closure or claim a new merge, release or deployment. The governing work and
+remaining gates are in the [execution plan](example-completion-plan.md).
+
+The [bounded loss/probe report](evidence/renderer-coverage-loss-progress.json)
+keeps the same 53 source identities and separates ordinary results from opt-in
+profiles. Ordinary emitted raw loss diagnostics remain DOT 629 and Mermaid 792;
+Lini changes from 553 to 530 through its native title mapping. The 23 removed
+incidences are measured on unchanged source pairs. The remaining 1,951 raw
+incidences and 1,793 maximal groups are still current losses, not repaired by
+selecting a different profile. Native role/style, port, ER identification and
+Lini class probes have field- and version-bounded qualifications; they do not
+establish blanket native impossibility.
+
+Independent review reran the pinned Lini entity/model-boundary runners and the
+Mermaid ER browser probe. The corrected Mermaid annotation runner also passes
+all five sequence sources in Chromium 153.0.8010.12 with Mermaid 12.2.0: actual
+message/coverage locators, editable note carriers, native line wrapping and
+source-bound hashes. Maximum annotation widths are 330–551 pixels; the hostile
+literal-break/markup value remains visible and creates no SVG script element.
+Ladder geometry and Lini pipeline geometry remain reported losses. Focused
+follow-up tests pass 20 tests/208 assertions; these do not replace the final
+integrated regression for the eventual publication cut.
+
+| Host cohort | Evidence now available | Open qualification |
+| --- | --- | --- |
+| PowerPoint | [Five native cycles](../../../fixtures/renderers/powerpoint/native-cycle-receipt.json), [operator attestations](../../../fixtures/renderers/powerpoint/native-ui-attestations.json) and [five preview receipts](../../../fixtures/renderers/powerpoint/preview-receipt.json) | Finish all-case completion-join checks and final published asset/UI validation. Preview engine is LibreOffice; actual PowerPoint 16.114.3 save/reopen proof is separate. |
+| Google Slides | [Five source-bound receipts](../../../fixtures/renderers/google-slides/preview-receipt.json): actual API edit/import/different-UMF-update/readback cycles, fresh two-observation fences, JSON/YAML persistence and archived 1600×900 native thumbnails | Refresh the assembled receipt/assets after final native-only preview layout, then validate the public join and all hashes. These are native API edits; no editor-UI claim is made. |
+| Miro | Process/documents/store has a clean observed cycle. Nested restore and Frames update/restore have separate later read-only recovery; seventeen qualified metadata-drift entries retain raw captures | Curved and network plus durable sanitized assembly remain open. Interrupted immediate fences stay refusals; any authorized cross-case changes require exact independent receipt attribution, not normalization. |
+
+The source-restoration recovery is not an automatic retry or an atomicity
+claim. A successful later native readback may qualify its stated recovery
+boundary while the original failed fence remains a negative-control witness.
+Observed SDK/server metadata drift during recovery must remain a separate
+path-qualified comparison result, with both raw captures retained; it cannot
+support a claim that all native properties stayed unchanged or justify weaker
+adapter fences. Public receipts must retain that distinction. Private native snapshots, host
+identifiers and account-tagged temporary thumbnail URLs are not public assets.
+
+The separate host completion validator now requires fifteen source-bound
+preview/cycle pairs and the six-renderer process/documents/store witness. Its
+presence and unit tests do not close that gate while Miro cases or final assets
+are missing. Remaining closure requires final catalog rebuild/reproducibility,
+full native/browser/installed-package tests, desktop/mobile/keyboard selection
+review, clean Linux CI, exact served asset hashes and publication evidence.
+
+The [v0.3.0 candidate notes](../05-deploy/release-notes-v0.3.0.md) and
+[publication checklist](../05-deploy/deployment-checklist-v0.3.0.md) are prepared.
+Final completion, Linux CI, publication date and archive/served hashes remain
+unestablished by this continuation record.
+
+### Final local host-matrix review — 2026-10-31
+
+The refreshed generated catalog passes an independent call to
+`verifyHostCompletion`: six corpus cases, five shared-source cases, fifteen
+actual host preview/cycle pairs, eighteen gate-counted renders (the fifteen host
+images plus three portable renders for the same-source six-target witness),
+and zero issues. The opaque witness remains an explicit refusal. This is local
+evidence; final CI, public delivery and release archive verification remain
+separate gates.
+
+All five Miro cases independently pass `verifyMiroCase` against the private
+actual stage captures and unchanged source files. Process/documents/store has a
+clean cycle. Nested uses later read-only restore verification; Frames, Curved
+and Network record later read-only update and restore verification. Every
+interrupted immediate fence stays separately recorded with cause codes and a
+receipt digest; no automatic write retry or atomic-board claim is introduced.
+Curved and Network use fresh sequential lineages after an earlier interleaved
+attempt correctly refused. Those earlier attempts do not qualify the new cycle.
+
+The actual unowned metadata-drift counts are 17 for Nested and 26 for Frames;
+other admitted transitions have zero qualified drift. The total is 43, not an
+assertion that all native properties were unchanged. Full private before/after
+captures retain timestamp, empty-presence and connector-order differences;
+public receipts expose qualified counts and keep source losses. Unknown changes
+and missing prior objects still refuse. Native style/movement and restored
+semantic endpoints are checked separately.
+
+The [PowerPoint](../../../fixtures/renderers/powerpoint/preview-receipt.json),
+[Slides](../../../fixtures/renderers/google-slides/preview-receipt.json) and
+[Miro](../../../fixtures/renderers/miro/preview-receipt.json) receipts expose all
+five source/profile/model/mapping identities each. Actual Mac PowerPoint UI
+cycles remain distinct from LibreOffice images and native-only preview layout
+variants; Slides evidence names actual API transport without an editor-UI claim.
+The reviewed Miro images contain only isolated synthetic objects.
+
+The final bounded regression passes 28 tests/103 assertions covering host
+completion, provenance/cleared-loss failures, recovery admission, capture fences
+and PowerPoint single-endpoint reconnection. The final PowerPoint layout
+provenance correction now records LibreOfficeDev 26.8.0.0.alpha0
+`2c87e51eeaa2b413ff4ae097b2705eea1995d8e5` and admits the two exact
+artifact-bound [native-open attestations](../../../fixtures/renderers/powerpoint/preview-layout-open-attestations.json).
+Its missing/duplicate/mismatched controls pass two tests/seven assertions, and
+the independent host-matrix gate passes again after the correction. No remaining
+release-blocking defect was found in this bounded source/evidence review.
+
+The final full local suite passes 424 tests/13,141 assertions, with those two
+subsequent attestation tests also passing. Root has verified source checks,
+typecheck, all six continuation native runners, public Chromium and installed
+Bun/Node consumers. Final UI receipts pass all 214 SVGs, 53 examples/22 forms and
+six-target desktop/mobile inspection, including Miro JPEG decoding. Repeated
+catalog-byte verification passes: 53 items, 214 renders, 53 complete examples,
+22 complete forms, and byte-identical repeated builds. Clean Linux CI, archive digests and served
+hashes remain pending; this is a candidate review approval, not publication.
+
+[PR #10 Linux conformance](https://github.com/DocumentDrivenDX/umf-visual/actions/runs/41233253214)
+passes for implementation commit `6881f2e7b5f8a81aeb6e96b1d691fd34277026bf`:
+426 tests, native/browser/package checks, 53 complete examples and 22 forms,
+all fifteen host cycles, loss accounting, and both site browser gates. The
+local repeated catalog build also passes byte reproducibility. Main/Pages,
+release archives and served-hash verification still require delivery evidence.
+
+### DOT scope and unfinished reduction outcome
+
+The [pre-merge fulfillment audit](example-completion-plan.md#p10-d-fulfillment-audit-before-merge--2026-10-31)
+records an unmet P10-D expectation: ordinary DOT losses remain 629. The ranked
+role/status/style probe is complete, but it qualified no native typed mapping
+and did not reduce omissions. Native record ports are a separate open adapter
+mapping candidate; typed entity/port support is not implemented by this cut.
+Newly emitted entity pairs would be a separate gain, not a reduction of the
+existing comparable loss population. This candidate review approval concerns
+the implemented source/evidence; it does not declare all P8-P14 acceptance or
+all language/renderer losses resolved.

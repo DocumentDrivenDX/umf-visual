@@ -3,11 +3,15 @@ import {mkdir} from 'node:fs/promises';
 import {createLossLedger,type HistoricalPair} from './loss-ledger';
 import {verifyCatalog} from './verify';
 import type {VisualCatalog} from './build';
+import type {IntegrationCatalog} from './integrations';
+import {createRankedLossInventory} from './loss-ledger-cohorts';
 
 const catalog=await Bun.file('dist-site/catalog.json').json() as VisualCatalog;
 const verified=await verifyCatalog(catalog,process.argv.includes('--release'));
 const baseline=await Bun.file('fixtures/interchange/progress/v0.1.0.json').json() as {baselineCommit:string;records:HistoricalPair[]};
 const nativeLedger=createLossLedger(catalog,baseline.records);
+const integrations=await Bun.file('dist-site/integrations.json').json() as IntegrationCatalog;
+const ranked=createRankedLossInventory(catalog,nativeLedger,integrations);
 const profiles=catalog.items.flatMap(item=>(item.profileVariants??[]).map(variant=>({
  itemId:item.id,origin:item.origin,sourcePath:item.sourcePath,sourceSha256:item.sourceSha256,
  format:variant.format,profile:variant.profileId,mappingVersion:variant.mappingVersion,modelVersion:variant.modelVersion,
@@ -22,4 +26,5 @@ const report={schemaVersion:2,baselineCommit:baseline.baselineCommit,
  summary:{examples:catalog.items.length,originalExamples:catalog.items.filter(item=>item.origin==='fixture').length,canaries:catalog.items.filter(item=>item.origin==='canary').length,baselineNativePairs:nativeLedger.pairs.length,profilePairs:profiles.length,selectedCompleteExamples:selected.length,selectedLossDiagnostics:selected.reduce((n,p)=>n+p.rawDiagnostics.filter(d=>d.loss).length,0),...verified},
  nativeLedger,profiles};
 await mkdir('.cache',{recursive:true});await Bun.write('.cache/loss-ledger.json',JSON.stringify(report,null,2)+'\n');
-console.log(JSON.stringify(report.summary));
+await Bun.write('.cache/loss-ledger-ranked.json',JSON.stringify(ranked,null,2)+'\n');
+console.log(JSON.stringify({...report.summary,rankedLossInventory:{ordinaryPairs:ranked.populations.ordinary.pairCount,ordinaryEmittedPairs:ranked.populations.ordinary.emittedPairCount,ordinaryMaximalGroups:ranked.populations.ordinary.maximalLossGroupCount,ordinaryRawLossDiagnostics:ranked.populations.ordinary.rawLossDiagnosticCount,profilePairs:ranked.populations.annotated.profilePairCount,hostCaseTargets:ranked.populations.hosts.caseTargetCount,rankedCandidates:ranked.populations.ordinary.candidates.length+ranked.populations.annotated.candidates.length+ranked.populations.hosts.candidates.length}}));

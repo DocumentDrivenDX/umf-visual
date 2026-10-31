@@ -33,5 +33,28 @@ export async function runAnnotatedBrowserChecks(fixtures:unknown[]){
   receipts.push({id:visual.id,format,profile,completeDocument:true,compoundPersistence:['json','yaml'],exactReplay:true,staleReplayRefused:true,nativeAnnotationCells:cells});
  }
  assert(receipts.length===53,'The annotated release browser gate requires all 53 unchanged examples');
- return receipts;
+ // Exercise the public facade for the two readable metadata cohorts with real
+ // source fixtures. The native runners independently validate renderer meaning.
+ const publicProfiles=[
+  {format:'mermaid' as const,profile:'umf.visual.mermaid.annotated/1',document:fixtures.find(input=>getVisual(input as Document).id==='helix-request') as Document},
+  {format:'lini' as const,profile:'umf.visual.lini.annotated/1',document:fixtures.find(input=>getVisual(input as Document).id==='catalog-canary-flow') as Document},
+ ];
+ const publicProfileReceipts=[];
+ for(const entry of publicProfiles){
+  assert(entry.document,'Missing public annotated-profile source fixture: '+entry.profile);
+  const original=getVisual(entry.document),output=exportVisual(entry.document,{format:entry.format,profile:entry.profile});
+  assert(output.ok&&output.text,'Public annotated browser export failed: '+entry.profile+' '+JSON.stringify(output.diagnostics));
+  const imported=importVisual(output.text,{format:entry.format,profile:entry.profile,id:'browser-profile-context',question:'What survives?'});
+  assert(imported.ok&&canonical(imported.document)===canonical(entry.document),'Public annotated browser readback differs: '+entry.profile);
+  const pair=readJsonValue(writeJsonValue({document:imported.document,source:imported.source},'json'),'json') as any;
+  const replay=exportVisual(pair.document,{format:entry.format,profile:entry.profile,source:pair.source,original:true});
+  assert(replay.ok&&replay.text===output.text,'Public annotated browser source replay differs: '+entry.profile);
+  pair.document.extensions['umf.visual'].question='Changed after public browser import';
+  assert(!exportVisual(pair.document,{format:entry.format,profile:entry.profile,source:pair.source,original:true}).ok,'Stale public annotated source replay accepted: '+entry.profile);
+  let unknownRefused=false;
+  try{unknownRefused=!exportVisual(entry.document,{format:entry.format,profile:'umf.visual.unknown/999'}).ok;}catch{unknownRefused=true;}
+  assert(unknownRefused,'Unknown public profile was not refused: '+entry.profile);
+  publicProfileReceipts.push({id:original.id,format:entry.format,profile:entry.profile,completeDocument:true,sourceReplay:true,staleReplayRefused:true,unknownProfileRefused:true});
+ }
+ return {examples:receipts,publicProfiles:publicProfileReceipts};
 }

@@ -45,6 +45,10 @@ covering test must cite its AC using the indicated `@covers` annotation.
 | US-095-AC5 | Selection deep links | Reload restores selected item/target; invalid selection recovers | `@covers US-095-AC5` | Chromium UI | `scripts/catalog-ui-browser.ts` |
 | US-095-AC6 | Keyboard and narrow screen | Keyboard discovers/opens/switches; focus visible; 375px page has no horizontal overflow | `@covers US-095-AC6` | Chromium UI | `scripts/catalog-ui-browser.ts` |
 | US-095-AC7 | Deterministic rebuild | Input/result/render identities match across unchanged builds; unsupported targets lack source/SVG | `@covers US-095-AC7` | Build integration | Repeated catalog build and hashes |
+| US-095-AC9 | Independent renderer/profile/view selection | Explicit native links stay native; qualified renderer switches preserve intent or show unavailable; exact profile and view survive reload/keyboard selection | `@covers US-095-AC9` | Chromium UI | `scripts/catalog-profile-ui-browser.ts`, `tests/catalog/ui.test.ts` |
+| US-095-AC10 | Six-target evidence matrix and native cohorts | Same-source six-target witness has six actual previews/artifacts; five-case host cohort has fifteen actual previews and qualified repeated cycles; plans/converters/host edits remain distinct | `@covers US-095-AC10` | Build, native host and Chromium | Catalog/integration data tests, renderer evidence verifier, host cohort receipts, catalog browser harness |
+| US-095-AC11 | Current loss ledger parity | Current ordinary/variant/host results match source APIs; normalization preserves raw diagnostics and cannot count as native mapping gain | `@covers US-095-AC11` | Bun data integration | `tests/catalog/loss-ledger.test.ts`, catalog evidence tests |
+| US-095-AC12 | Preview input/revision fences | Changed source/profile/model/mapping, artifact/capture hash or host revision invalidates image qualification; missing assets and unavailable host remain explicit | `@covers US-095-AC12` | Build and Chromium negative controls | Renderer evidence verifier, `scripts/catalog-ui-browser.ts` |
 
 ## Executable Proof
 
@@ -90,6 +94,35 @@ inside their panels. No search matches provides a clear reset action.
 
 ## Build Handoff
 
+### P8-P14 executable cohorts
+
+Start with `process-documents-store` rendered through all six target families,
+including actual host images. Then exercise all five shared integration cases
+against each of PowerPoint, Slides and Miro: fifteen previews and fifteen
+qualified repeated cycles. A supported semantic cycle includes native label
+edit and an eligible attached-endpoint edit, native style/movement, fenced
+import, serialized binding, a different UMF-owned update and actual native
+readback. A structural operation outside the profile must explicitly refuse.
+No-op/synthetic transport alone cannot satisfy the native cohort gate.
+Record whether edits used UI or direct host API/SDK and whether the adapter
+transport ran live or against trace replay. Do not promote API edits into UI
+interaction evidence or offline transport into live execution.
+
+For each pair assert source/profile/model/mapping identity, image input
+artifact/capture hash, engine/runtime, positive dimensions, visible node/edge
+text, arrow/endpoints and readable geometry. Keep native-only properties and
+unrelated items unchanged; inspect captions and containment at useful zoom.
+PPTX converter renders and actual PowerPoint application proofs are separate;
+Slides/Miro captures must use isolated synthetic content. Stale or unavailable
+host evidence leaves a pair open, not passed. Opaque-only refusal persists.
+
+Portable profile tests cover complete-document native readback, annotation
+carrier edits, version-specific fields, exact replay and stale/forged replay.
+Native probes must independently justify Lini title/flow/pipeline/entity slots
+and Mermaid sequence/ER eligibility. Unknown syntax/residual attributes, missing
+or duplicate carriers, IDs/ports and unknown model/profile versions refuse.
+Tests cite the applicable AC, but a citation alone is not passing evidence.
+
 1. Finalize shared catalog data shape and enumerate fixture identities.
 2. Generate matrix/native artifacts through public APIs and independent engines.
 3. Build discovery/comparison UI against that data contract.
@@ -124,9 +157,9 @@ the packages and preserves post-release integration work as a later milestone.
 
 | Pattern | Disposition | AC IDs or Reason | Evidence |
 | --- | --- | --- | --- |
-| navigation | covered | US-095-AC4, US-095-AC5, US-095-AC8 | Planned Chromium checks |
-| keyboard-overlays | covered | US-095-AC6 | Native control/focus checks; no modal required |
-| async-actions | covered | US-095-AC3 | Catalog/image loading and failure checks |
+| navigation | covered | US-095-AC4, US-095-AC5, US-095-AC8, US-095-AC9 | Chromium target/profile/view selection and reload checks |
+| keyboard-overlays | covered | US-095-AC6, US-095-AC9 | Native control/focus checks; no modal required |
+| async-actions | covered | US-095-AC3, US-095-AC12 | Catalog/image loading, stale evidence and failure checks |
 | forms | covered | US-095-AC4 | Labelled search and filter controls |
-| data-states | covered | US-095-AC3, US-095-AC4 | Unsupported, failure, empty, selected and loaded states |
+| data-states | covered | US-095-AC3, US-095-AC4, US-095-AC10, US-095-AC11, US-095-AC12 | Projection/render/cycle, current loss, unsupported, unavailable, stale, empty and loaded states |
 | destructive-actions | not-applicable | Static read-only catalog has no mutation/destruction action | Source review |

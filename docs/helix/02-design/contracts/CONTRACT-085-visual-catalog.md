@@ -29,7 +29,7 @@ ddx:
 
 # CONTRACT-085: Static visual catalog data
 
-**Type:** build/browser data interface. **Version:** 1.1.0.
+**Type:** build/browser data interface. **Version:** 1.2.0.
 
 ## Purpose
 
@@ -139,7 +139,90 @@ URLs and match their recorded hashes. Native parsing/rendering errors remain
 visible even when export succeeded. Successful rendering is not a semantic or
 pixel-layout equivalence claim.
 
-### Reproducibility and display
+### Additive six-target evidence
+
+Existing schemaVersion 1 `targets`, `profileVariants`, integration planning
+records and historical receipts keep their meanings. Additive renderer evidence
+MAY be attached through `rendererTargets` on a catalog item or integration case.
+The build may mechanically join equivalent records; it MUST retain their actual
+source and policy outcomes. It MUST NOT cast Slides/Miro plans into successful
+native exports or replace ordinary results with a selected annotated variant.
+
+Each row is keyed by `rendererId` (`dot`, `mermaid`, `lini`, `powerpoint`,
+`google-slides`, `miro`), `profileId`, `modelVersion` and `mappingVersion`.
+These identities MUST be distinct from native engine/API versions. The row has
+`projection:{state,status,diagnostics,losses}`. State is `emitted`, `planned`,
+`refused` or `not-attempted`; status is `supported`, `reported-loss`,
+`unsupported` or `not-evaluated`. A plan cannot qualify complete native support.
+Unattempted output MUST NOT be labelled unsupported without a capability reason.
+Artifacts, preview evidence and edited-cycle receipts are separate optional data.
+The current CONTRACT-088 host implementation profiles declare mappingVersion
+`1`; this does not substitute a package version or a host runtime version.
+
+The optional fields are `artifacts` (an array of `{path,sha256,mediaType,bytes}`),
+`preview` (the record below), and `roundTrip` with `state` (`passed`, `failed`,
+`unavailable`), a hashed `receipt` artifact and optional error. A passed cycle
+receipt MUST match the row's source/profile/model/mapping and state its actual
+native execution boundary; an arbitrary caller boolean is insufficient.
+Native edits MUST state whether they used the editor UI or direct host API/SDK.
+API-edited cycles do not establish UI interaction, and captured trace replay
+does not establish direct injected transport to the live host.
+Legacy `targets.googleSlides` is not renamed: the additive `google-slides`
+renderer identity is a mechanical join only. Native InterchangeFormat stays the
+existing three-format public API; a catalog destination is not a new parser.
+
+A preview contains `state` (`rendered`, `failed`, `unavailable`), `engine`,
+`nativeVersion`, `sourceSha256`, `profileId`, `modelVersion`, `mappingVersion`
+and `stage`. It MUST identify at least `inputArtifactSha256` or
+`captureDigestSha256`; host captures also record their revision/observation fence.
+A rendered preview has an asset `{path,sha256,mediaType,width,height}` with
+positive dimensions. Failure/unavailability has a reason, no successful asset
+and no host-verification badge. Paths MUST resolve within the static output.
+Captured images MAY be PNG; existing SVG fields retain their current meaning.
+
+The exact input artifact/capture and source/profile tuple MUST match the
+verified result. Regenerated PPTX or host objects cannot inherit old screenshots
+merely because their UMF source is unchanged. Preview receipts MUST identify
+whether they show initial export, native edit or preserving update. Round-trip
+receipts separately name qualified semantic edit paths, native preservation,
+source/native revision fences, final readback and the actual execution boundary.
+An image or receipt from another case MUST NOT mark a pair host-verified.
+
+PowerPoint application output and LibreOffice PPTX conversion are separate
+engines; a conversion thumbnail is not a PowerPoint host test. Slides thumbnails
+are fetched during approved host execution, persisted as synthetic image bytes
+with hashes, and never published as expiring account-tagged image URLs. Miro
+previews use isolated synthetic viewports/frames and stable SDK observations;
+unrelated private board content MUST NOT enter public image assets. Portable
+source and the browsing site receive neither credentials nor host runtimes.
+
+The first cross-target witness is the existing `process-documents-store` source:
+six actual renderer images/artifacts with visible actual losses. The subsequent
+host cohort is five common cases times three hosts: fifteen previews and fifteen
+qualified repeated edit/import/preserving-update cycles. Missing/unsupported
+pairs remain open unless the owner explicitly defers them. The opaque-only
+witness retains its refusal and native-only content, not a fabricated graph.
+
+### Selection and current loss evidence
+
+Explicit target links without a profile preserve ordinary/native meaning.
+Exact profile links remain exact. Renderer changes MUST preserve native-versus-
+qualified intent and compatible per-target selection, with an explicit
+unavailable state when no matching profile exists. Multiple compatible profiles
+require an explicit choice. Selection URLs MUST preserve view intent as well as
+target/profile; existing URLs continue to resolve. A focused image MUST NOT be
+labelled complete. Coverage/status/filter summaries MUST state and use the same
+active target/profile scope as the visible result.
+
+The ledger MUST include current ordinary outcomes, current variants and host
+projection/evidence independently. It retains raw diagnostics and normalizes
+only equivalent omitted pointer subtrees. Gap ownership stays `unknown` until
+manual/native evidence establishes a mapping, model or capability cause.
+Comparable reductions require unchanged source hashes and explicit profile/
+mapping versions; new supported pairs and annotations are separate gains.
+Current ordinary results MUST NOT be dismissed as historical data.
+
+### Reproducibility and display requirements
 
 Stable source identity determines item order and identifiers. Unchanged inputs,
 profile versions and pinned native runtimes MUST produce matching data/artifact

@@ -73,6 +73,18 @@ reported loss, or failed in its native renderer.
 - CAT-10: The example-completion release must have one suitable strict target and
   faithful native preview for each of the 53 unchanged current examples, covering
   all 22 forms. A loaded image alone is not evidence of readable, complete output.
+- CAT-11: Readers must compare DOT, Mermaid, Lini, PowerPoint, Google Slides and
+  Miro outcomes without conflating semantic projection, planning, rendering and
+  edited round-trip evidence. Unsupported and unattempted outcomes stay distinct.
+- CAT-12: Renderer, native-versus-qualified profile intent and focused-versus-complete
+  view must remain explicit through selection, keyboard use and shared links.
+  An unavailable qualified profile must not silently select ordinary output.
+- CAT-13: Current ordinary losses, qualified variants and historical evidence
+  must remain distinguishable. The loss inventory must retain source identities,
+  raw diagnostics and evidence-backed gap attribution across all six targets.
+- CAT-14: Every preview must identify its actual renderer and exact input artifact
+  or host capture, with immutable image identity. Stale or unrelated images must
+  not qualify another export. Host images must contain approved synthetic content.
 
 ## User Stories
 

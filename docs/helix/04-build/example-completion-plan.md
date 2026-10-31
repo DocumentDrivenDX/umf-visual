@@ -384,3 +384,257 @@ Validate persisted HELIX changes with the installed catalog; do not copy it.
   blocker to that host's completion, not a passing replay claim.
 - Required contracts, generated-model migration, tests and Sol reviews are
   recorded; no required work or material blocker is hidden by a capture/blob.
+
+## P8+ continuation: current losses and six-target previews
+
+### Planning basis — 2026-10-31
+
+This addition is a plan only. It does not authorize or record implementation,
+merge, deployment or a release. It reconciles the earlier dated P6/P7 observations
+with planning checkout `40cf24a` after merged main `21c41a2`.
+Root's 2026-10-31 remote-ref and fresh public JSON checks confirm the P6/P7
+integration cut is merged and deployed through [PR 9](https://github.com/DocumentDrivenDX/umf-visual/pull/9)
+and [main CI/Pages](https://github.com/DocumentDrivenDX/umf-visual/actions/runs/41089778556).
+The public [catalog](https://documentdrivendx.github.io/umf-visual/catalog.json)
+and [integration data](https://documentdrivendx.github.io/umf-visual/integrations.json)
+are the inspected deployed outcomes. A v0.3.0 release is not published; the
+narrow host receipts do not qualify every corpus case.
+CONTRACT-085/086/087/088 and STP-095 remain governing authorities.
+Contract/test amendments precede dependent implementation; no new framework,
+language, renderer service or common-model redesign is required by this plan.
+
+The inspected current catalog snapshots are `.cache/planning-catalog.json` and
+`.cache/planning-integrations.json`. These are planning inputs, not new durable
+execution receipts. Current ordinary profiles still have substantial losses:
+
+| Ordinary target | Supported / reported-loss / unsupported, across 53 examples | Loss diagnostics on emitted outputs |
+| --- | --- | --- |
+| DOT | 1 / 18 / 34 | 629 |
+| Mermaid | 1 / 28 / 24 | 792 |
+| Lini | 1 / 23 / 29 | 553 |
+
+The diagnostic totals are raw incidences, not distinct lost concepts. The
+53 complete selected projections (43 annotated DOT, ten annotated Lini) meet
+the previous one-suitable-target gate. They do not repair the ordinary profiles
+or establish every renderer for every form. Ordinary target records describe
+current behavior; only genuinely older receipts are historical. For example,
+`visual-catalog-canary-flow` currently has four Lini loss diagnostics for
+source/omissions/title/source-path; its annotated Lini flow variant is unsupported.
+The 178 existing SVG assets comprise 72 ordinary-target renders, 53 complete
+annotated views and 53 focused views; none of that count establishes a
+PowerPoint, Slides or Miro preview. Existing ledger gap ownership is still
+`unknown`: neither reason-code counts nor family labels establish adapter fault.
+
+The integration catalog contains six witnesses: five shared-model documents
+and one opaque-only case. Its five PPTX format readbacks, ten Slides/Miro plans
+and three refusals are not fifteen native-host renders. Four host receipts
+cover only two exact corpus cases and two standalone canaries. All five shared
+cases need actual previews and repeated edited cycles in each suitable host;
+the opaque witness must retain its unsupported meaning explicitly.
+
+### Ordered packages
+
+Root owns catalog contracts, shared interfaces, integration and CI. Luna owns
+isolated implementation packages after execution authorization; Sol reviews
+native meaning, admission, preservation and claim accuracy. Preview work starts
+alongside mapping work rather than waiting for all losses to be resolved.
+
+| Package | Bounded outcome / owned paths | Depends on | Acceptance evidence |
+| --- | --- | --- | --- |
+| P8 | Catalog selection/discovery: `microsite/`, existing UI tests and STP-095 amendment | Current audit | Format, profile and diagram/complete view are explicit selections; target switches preserve a compatible profile intent or show unavailable, never silently substitute a different profile. Deep links/reload and keyboard navigation retain selection. Coverage/loss summaries identify their active profile. |
+| P8-V | First six-target vertical slice: root joins one existing shared flow source, format/host owners capture it | P8 selection/data seam; parallel with P9 | Start with `process-documents-store`: one exact source hash, actual DOT/Mermaid/Lini/PowerPoint/Slides/Miro images, downloadable emitted artifacts or host captures, and visible losses. Reported-loss previews are useful; plans or an image from another renderer do not satisfy this slice. |
+| P9 | Current loss inventory and ranked cohorts: `scripts/catalog/loss-ledger*`, data tests; root updates governing mapping contracts | Current audit; P8 data needs | Include ordinary profiles, variants and all three host families. Rank maximal omitted pointer subtrees by affected fixtures and fixability; preserve raw diagnostics and source hashes. Each candidate names native mapping, adapter gap, model gap, native limit, additional annotation or unknown cause, with a qualified probe and owner. |
+| P10-D | Native DOT mapping cohort: `src/interchange/dot/` and format tests | P9 approved DOT cohort | Add only native constructs justified by the ranked examples; verify independent Graphviz meaning and edited readback. Show reduced comparable ordinary-profile omissions without claiming zero loss while metadata remains. |
+| P10-M | Native Mermaid mapping cohort: `src/interchange/mermaid/` and format tests | P9 approved Mermaid cohort | Start with five sequence examples and a separate four-example ER eligibility probe. Verify participant/message/note/group meaning; ladder layout remains unsupported if native geometry cannot satisfy it. Probe field ports and identifying relationships without assuming equivalence. Actual database/render evidence distinguishes intrinsic semantics from text. |
+| P10-L | Native Lini mapping cohort: `src/interchange/lini/` and format tests | P9 approved Lini cohort | Probe title loss across 23 emitted cases, then flow/pipeline cohorts and four entity examples. Qualify native key/cardinality/reference slots individually; preserve unspecified values and refuse unsupported direction rather than choosing defaults. Native proofs precede any promised reduction. |
+| P11-M / P11-L | Separate opt-in Mermaid and Lini-flow visible annotation packages, with format-local modules/tests; root integrates facade | Relevant P10 native cohort; reviewed CONTRACT-087 extension | Registered additional metadata has readable owner-associated editable native carriers and independent typed readback. No annotation replaces intrinsic connectivity/layout/chart meaning. Lini flow canary is a required positive case; all unrepresented paths remain loss/refusal. |
+| P11-V | Explicit model-version qualification of affected profiles: capability/facade tests owned by root | Each P10/P11 mapping contract | Frozen 1.0 defaults/receipts unchanged. Qualify 1.1 field identity, multiplicity and resource limits separately; unknown versions refuse. New metadata profiles get explicit identity/version, not silent reinterpretation of existing receipts. |
+| P12-P | Five-case PowerPoint preview/edit cohort: host runners/evidence and `src/adapters/powerpoint/` fixes only as needed | P8-V; P9 case inventory; parallel with P10/P11 | All five common documents have hashed static previews and editable PPTX downloads, exact source/profile provenance, named losses, actual PowerPoint save/edit/import/update/reopen witnesses for qualified operations. Conversion-engine renders remain separately labelled. |
+| P12-G | Five-case Google Slides preview/edit cohort: host runners/evidence and isolated Slides fixes | P8-V; P9 case inventory; parallel with P12-P/M | Actual page thumbnails for all five common documents, source/revision/capture hashes and actual conditional writes; native text/reconnect plus presentation retention through a second cycle. Direct adapter transport versus host-wrapper trace evidence stays explicit. |
+| P12-M | Five-case Miro preview/edit cohort: host runners/evidence and isolated editable-Miro fixes | P8-V; P9 case inventory; parallel with P12-P/G | Actual synthetic viewport/frame captures for all five common documents, stable before/after SDK observations, native edits/import/preserving updates and item preservation. Group/frame/annotation/shape-intent gaps remain separately named until mapped and proven. |
+| P13 | Renderer-neutral catalog join: CONTRACT-085 amendment, `scripts/catalog/`, `microsite/` and tests | Data contract after P8/P9; incremental evidence from P10-P12 | One discoverable six-target capability/coverage matrix joins original examples and the separate integration cohort. Each target/profile cell distinguishes semantic export, rendering, edit/readback and retained-only coverage. Unsupported or unattempted cells show their actual reason; no synthetic host previews or plan-as-render badges. |
+| P14 | Integrated regression and publication readiness: root CI/package/site gates and Sol review | Committed P8-P13 cohorts | Verify fixed hashes, current loss ledger, native/browser/packed public APIs, served preview hashes and fidelity. Close only cohorts with complete evidence; remaining target limits stay visible. Implementation completion or publication needs a later execution record. |
+
+The P12 preview target is fifteen actual images: five shared corpus cases
+times three host families, following the first same-source six-target slice.
+Reported-loss images qualify as previews when visibly labelled with their
+actual omissions; they do not qualify as complete semantic projections.
+
+Each P10 package starts from P9's ranked mapping list, not a promise that every
+format can represent all 22 forms. Group membership versus frame enclosure,
+entity field IDs versus display names, directional arrows versus references,
+and exact versus four-valued multiplicities require explicit probes. A genuine
+model gap is deferred to a reviewed new model version. The current schemas are
+not widened to make a renderer pass. Kroki, if later selected, is a renderer
+backend for existing formats rather than another semantic target.
+
+### Preview and evidence contract
+
+Preview delivery is an early, independently useful outcome. P12 packages may
+publish an honestly labelled lossy projection while its corresponding mapping
+cohort is still open. A screenshot proves appearance, not semantic round-trip
+or complete native interpretation. For every case retain exact input hash,
+model/profile/mapping version, native engine/API/runtime, artifact/capture hash,
+dimensions, observation stage, losses and bounded native-edit results. Tie a
+preview to the current artifact/revision; refuse a stale or mismatched receipt.
+Public host images must use isolated synthetic slides, viewports or frames.
+The earlier Miro proof's 82 unrelated board items are not approved public image
+content. A fresh regenerated artifact cannot inherit an older host capture
+merely because its common source is unchanged.
+
+- PPTX: use a named versioned conversion engine for automated PNG/SVG assets
+  where suitable; qualify those as LibreOffice-rendered, not Microsoft
+  PowerPoint-rendered. PowerPoint application evidence remains independent.
+  The official [conversion-filter documentation](https://help.libreoffice.org/latest/en-US/text/shared/guide/convertfilters.html)
+  supports command-line conversion, not visual equivalence across applications.
+- Slides: obtain the actual latest-page PNG through
+  [pages.getThumbnail](https://developers.google.com/workspace/slides/api/reference/rest/v1/presentations.pages/getThumbnail).
+  Request LARGE, then store approved synthetic image bytes and their hash with
+  page/revision provenance. Returned URLs are account-tagged and short-lived;
+  do not publish those URLs as permanent catalog assets.
+- Miro: capture actual synthetic board viewport/frame views and compare SDK
+  observations around capture. No automated Miro image API is promised without
+  a separate verified capability. Preserve the current rich-text refusal;
+  flattening rich text or interpreting opaque stencils is not an acceptable fix.
+
+Owner-scoped annotation legends must stay legible without drowning the main
+diagram. Provide focused and complete views where qualified, with an explicit
+statement of omitted-from-focus metadata. Preserve unknown opaque native
+material and all source projection gaps. Source blobs, bindings and screenshots
+cannot remove a semantic loss.
+
+### Continuation acceptance and validation
+
+| Gate | Observable completion criterion |
+| --- | --- |
+| B1 Current truth | Current ordinary outcomes, selected profiles and older receipts are distinguishable; target/profile/view selection is stable and no fallback hides a refusal. |
+| B2 Comparable improvement | Each implemented mapping cohort records before/after raw and normalized losses on identical source/profile pairs; newly supported pairs are separate. No gains from deduplication, changing fixtures or replacing ordinary results with annotated ones. |
+| B3 Model and metadata bounds | Additional annotations have actual visible carrier identities and independent edited readback; intrinsic constructs stay native. Frozen 1.0 and explicit 1.1 cases pass their declared profile/version rules. |
+| B4 Host examples | All fifteen shared-case/host pairs have actual previews and a repeated supported native edit/import/preserving-update cycle. An unavailable/unsupported pair remains open until resolved or explicitly deferred by the owner; it is not a passing completion outcome. The opaque-only refusal remains visible. |
+| B5 Six-target inspection | Original 53 hashes and six integration witnesses remain intact. Catalog/export/ledger/source/readback/preview records agree by target/profile/version. Broken image, render failure, stale receipt and unavailable host are tested states. |
+| B6 Fidelity and integration | Review all newly rendered cohort examples at readable scale for text, connectors, containment and clipping; real Chromium checks desktop/375px, keyboard/deep links, downloads and asset hashes. Packed Bun/Node and browser APIs pass; CI repeats required native gates before any publication. |
+
+Reuse `bun run check:source`, `typecheck`, `test`, `build`, `test:package`,
+`test:browser`, `build:catalog`, `test:catalog`, `report:loss:ledger`,
+`build:site`, `test:site` and existing qualified native/profile checks. Root
+must add named cohort/preview gates before claiming they ran; no new passing
+command is invented here. Native engines, conversion, credentials and host I/O
+stay outside portable source. Live captures are versioned evidence inputs;
+offline CI verifies hashes, parsers and preservation without pretending to
+rerun a live host. Missing host access blocks that host cohort only.
+
+The next execution decision is to start P8/P9 and the P8-V six-target preview
+slice in parallel within isolated files, then expand the five-case P12 cohorts
+alongside P10/P11 mapping work. This plan sets no deadline, token budget or arbitrary count
+of unsupported targets to eliminate. The previous selected-53 milestone remains
+closed; it cannot substitute for these new current-loss and host-preview gates.
+
+### Execution authorization and first allocation — 2026-10-31
+
+After the planning-only snapshot above, the owner authorized P8-P14 execution
+through completion. The dated planning observation remains historical; the
+active runtime instruction now authorizes implementation and required
+verification. No numerical usage budget was supplied and reliable usage
+metering is unavailable here. Root retains shared integration, host I/O, CI,
+source control and publication ownership; Sol maintains governance and reviews.
+
+- Luna site owns P8/P13 UI selection and presentation in `microsite/` plus its
+  UI/browser tests. Root owns the additive CONTRACT-085 data seam.
+- Luna catalog owns P9 ranked current inventory and the P12-P preview runner
+  with isolated data/native tests. The root alone joins catalog build outputs.
+- Root starts P8-V/P12-G/P12-M actual host runners using the already approved
+  isolated synthetic resources. No credentials or host I/O enter portable code.
+- Next available Luna packages own format-local Lini and Mermaid cohorts under
+  CONTRACT-087. Lini starts with the four-path flow canary, native title probes,
+  flow/pipeline and entity eligibility; Mermaid starts sequence/ER probes.
+  Root alone changes shared facade/types/capability dispatch.
+
+Every completed package records exact source/evidence identities and test
+outcomes here or in a linked execution receipt. Sol reviews semantic attribution,
+native carrier fidelity, refusal/preservation and UI truthfulness before its
+gate closes. Partial or blocked host pairs remain open under B4; none inherit
+the earlier one-target-per-example success.
+
+### Bounded review checkpoint — 2026-10-31
+
+This checkpoint records partial execution, not P8-P14 completion. Sol found and
+fixed Lini signed-number lexing, titled entity/scope/endpoint identity handling,
+PPT cycle-verifier no-op acceptance and renderer receipt loss/provenance gaps.
+Fresh focused integration checks pass 30 tests/517 assertions; source typecheck
+passes. A later bounded follow-up passes 10 tests/419 assertions and typecheck,
+including reported-loss pipeline/ladder receipt persistence and strict/report
+replay policy with forged-baseline and identity-map refusals. Those checks do
+not substitute for the remaining native/UI/CI gates.
+
+| Gate / package | Observed result | Remaining evidence |
+| --- | --- | --- |
+| P9 current inventory | Separate ordinary/variant/host populations and raw evidence retained; repository-owned immutable planning baseline and exact ordinary-profile selection fix the clean-checkout/version attribution findings. Current ordinary raw counts are 629/792/530; 23 Lini title losses removed | Final generated ledger/probe report after integration; preserve bounded attribution and unknowns outside the actual field probes |
+| P10-D | Graphviz JSON/SVG presentation/port probe in `scripts/native-dot-cohort.ts`; no new intrinsic ordinary-role/status mapping qualified | Preserve presentation losses and ordinary port refusal; no invented semantic reduction |
+| P10-L/P11-L / P11-V | Native title/flow and signed-number/scope regressions pass. Independently rerun pinned entity and model-boundary probes pass: exact fields/declared endpoint edit, no inferred keys/cardinality, native runtime 1.1.0 can render 16 blocks while the frozen UMF mapping refuses its unsupported model | Keep key/cardinality/direction losses and pipeline geometry loss. These negative feature attempts establish the bounded mapping, not universal native impossibility; final ledger must retain that qualification |
+| P10-M/P11-M | Independent Chromium rerun passes all five sources after wrapping and full-source coverage-locator corrections. Annotation widths are 330–551 pixels; hostile literal markup remains text. Source/model/mapping/native-source hashes are recorded. Four-fixture ER DB/SVG probe preserves field/cardinality meaning and explicit port/identification losses | Preserve final native receipts/assets through integration; ladder geometry remains reported loss and identifying metadata is not inferred into the frozen model |
+| P12-P | Five required native no-op saves, exact independently declared UI label/endpoint edits, JSON/YAML source and binding persistence, changed UMF question, preserving update and actual PowerPoint Save As readback pass | Final preview/cycle join, visual inspection and integrated CI |
+| P12-G | Five actual API cycles, different UMF preserving updates/readback, fresh double captures and JSON/YAML persistence are recorded; source-restored thumbnails are archived at 1600×900 | Final sanitized assembly after native-only preview layout, public receipt joins and asset/hash/UI validation; native API evidence does not claim editor UI actions |
+| P12-M | All five exact-source cases pass independent private verification and sanitized assembly. Process has a clean cycle; other final update/restore recoveries retain interrupted fences. Nested/Frames have 17/26 qualified drift entries; fresh Curved/Network lineages have no unqualified drift | Preserve raw private captures and explicit recovery boundaries. Earlier interleaved attempts remain refusals and do not qualify fresh sequential cycles; no write retry or weaker fence is introduced |
+| P8/P8-V/P13 | Independent generated-data gate passes all fifteen host pairs and the same-source six-target witness with zero issues. Final provenance and desktop/mobile six-target UI pass with 214 SVGs,53 examples and22 forms | Preserve the exact tested assets through final byte-reproducibility, Linux CI and served-site verification |
+| P14 | Focused native/public tests and typecheck pass; CI adds native runners, installed-package/browser cases and the separate fifteen-preview/fifteen-cycle plus same-source six-target validator | Final integrated rerun after remaining join/assembler fixes and complete receipts; clean Linux CI, source/asset hashes, served-artifact verification and publication evidence remain required |
+
+PowerPoint native proof is pinned in
+[cycle receipt](../../../fixtures/renderers/powerpoint/native-cycle-receipt.json)
+and [operator UI attestations](../../../fixtures/renderers/powerpoint/native-ui-attestations.json).
+The verifier requires exact input/output hashes for the observed Mac 16.114.3
+reopen/no-repair evidence. LibreOffice previews remain conversion evidence,
+separate from those native UI cycles. Source semantic losses are retained.
+
+No new merge, deployment or release is established by this checkpoint. Unproven
+host pairs and unsupported native constructs remain open and visible.
+
+The [continuation evidence](example-completion-evidence.md#p8-p14-continuation-review--2026-10-31)
+records the refreshed review, current ordinary losses, host boundaries and
+remaining publication checks. It does not close the open Miro or P14 gates.
+
+Publication uses the [v0.3.0 candidate notes](../05-deploy/release-notes-v0.3.0.md)
+and [release checklist](../05-deploy/deployment-checklist-v0.3.0.md). Both retain
+the open fifteen-pair, final-source Linux and served-artifact gates; drafting
+them does not establish a release or replace earlier closure history.
+
+The [final local matrix review](example-completion-evidence.md#final-local-host-matrix-review--2026-10-31)
+records the independent fifteen-pair pass and remaining publication gates.
+Local host completion does not establish clean Linux or served release artifacts.
+
+Post-fix local review closes the PowerPoint conversion-version and artifact-bound
+native-open attestation findings. The final full suite passes 424 tests/13,141
+assertions, plus 2 later attestation tests; all local native/public browser/packed
+and host-matrix gates pass. Root is verifying repeated catalog bytes. Clean
+Linux CI, archive digests and served-site identity remain open.
+
+### P10-D fulfillment audit before merge — 2026-10-31
+
+The original P10-D acceptance says, “Show reduced comparable ordinary-profile
+omissions.” **That outcome is not achieved by this cut:** ordinary DOT remains
+629 raw emitted-loss diagnostics on the same source/profile population. The
+probe must not be described as an implemented loss reduction or as satisfying
+that sentence.
+
+The reviewed DOT assignment was the ranked role/status/style eligibility
+cohort. Native Graphviz JSON/SVG and edited readback establish presentation
+changes without an equivalent typed role/status interpretation. CONTRACT-086
+requires actual meaning before mapping; choosing colors/shapes to manufacture
+such an equivalence would violate that authority. The probe phase is complete;
+its planned reduction outcome remains unmet. B2's implemented-mapping comparison
+does not create a reduction where no mapping was implemented.
+
+The native record-port witness identifies a separate adapter mapping candidate.
+It does not qualify an ordinary entity/table parser, field identity transport or
+reference semantics. Ordinary DOT currently exports the bounded flow family;
+implementing entity/port support would add newly supported pairs, which B2
+requires counting separately rather than subtracting from the comparable 629.
+That candidate remains open in the bounded probe/loss report and is not silently
+promoted into implemented support or dismissed as a native impossibility.
+
+This disposition preserves the original acceptance and records the unfinished
+outcome explicitly. The release candidate may describe its qualified implemented
+cohorts and completed probes, but **must not claim every P8-P14 acceptance is
+closed or that DOT ordinary losses were burned down**. Future native DOT mapping
+needs an approved field-specific cohort, independent native meaning and edited
+readback, without weakening the frozen models or replacing native semantics
+with opaque data. No deadline or completion version is established here.

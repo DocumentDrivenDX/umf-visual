@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UMF visual · five-case Miro cohort</title>
+  <style>
+    :root{font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#172435;background:#f4f7fa}*{box-sizing:border-box}body{margin:0}.page{max-width:1040px;margin:auto;padding:20px 22px 30px}h1{font-size:23px;line-height:1.2;margin:0 0 8px}.lede{color:#526478;margin:0 0 15px}.notice{padding:10px 12px;border:1px solid #b8d2cf;border-radius:8px;background:#eaf4f2;color:#294946;margin:12px 0 16px}section{background:white;border:1px solid #d9e2ea;border-radius:10px;padding:14px;margin:12px 0}label{display:block;font-weight:700;margin:0 0 5px}select,textarea{width:100%;border:1px solid #c4d0dc;border-radius:7px;padding:9px;color:#1b2b3b;background:#fcfdfe;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}textarea{min-height:230px;resize:vertical;tab-size:2}textarea[readonly]{background:#f5f7f9}.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}button{min-height:36px;border:1px solid #aebdca;border-radius:7px;padding:7px 10px;background:#fff;color:#24384b;font:600 12px inherit;cursor:pointer}button:hover{background:#f0f6f8}button:focus-visible{outline:3px solid #52a49a;outline-offset:2px}button.primary{background:#176e68;border-color:#176e68;color:white}button:disabled{opacity:.55;cursor:wait}.status{min-height:74px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;padding:11px;border-radius:7px;background:#edf2f6;color:#25384a;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}.hint{color:#617184;font-size:12px;margin:6px 0}.eyebrow{font-size:10px;color:#176e68;font-weight:800;letter-spacing:.13em;text-transform:uppercase;margin:0 0 5px}@media(max-width:650px){.page{padding:14px}.split{grid-template-columns:1fr}textarea{min-height:180px}.actions button{flex:1 1 100%}}
+  </style>
+</head>
+<body>
+  <main id="bootstrap-screen" class="page" hidden>
+    <p class="eyebrow">MIRO DEVELOPER APP</p>
+    <h1>Five-case editable Miro cohort</h1>
+    <p class="lede">Open the cohort panel from the app icon in the Miro toolbar. The board is not read or changed from this launcher page.</p>
+    <section><pre class="status" id="bootstrap-status" role="status" aria-live="polite">Registering the Miro toolbar action…</pre></section>
+  </main>
+  <div id="panel-screen" hidden>
+  <main class="page">
+    <p class="eyebrow">LOCAL DEVELOPMENT · Miro Web SDK v2 · port 4184</p>
+    <h1>Five-case editable Miro cohort</h1>
+    <p class="lede">Select one synthetic common projection, export its report-mode binding, make explicit SDK edits, import, then update UMF-owned fields while preserving native styling and geometry.</p>
+    <aside class="notice"><strong>Writes are manual.</strong> Page load and case selection do not read or write the board. Export, native SDK edits and source updates run only when their buttons are pressed. Full raw captures and board bindings may contain unrelated private canvas observations; keep them private.</aside>
+    <section>
+      <label for="case-select">Synthetic common case</label>
+      <select id="case-select"></select>
+      <p class="hint">Every case is placed in a separated board region. A case-specific binding ID prevents cross-case identity reuse.</p>
+      <div class="actions">
+        <button id="export" class="primary" data-action>Export report to Miro</button>
+        <button id="native-edits" data-action>Verify clean export, then apply SDK edits</button>
+        <button id="import" class="primary" data-action>Import label and endpoint changes</button>
+        <button id="set-question">Change UMF question</button>
+        <button id="update" class="primary" data-action>Update UMF fields and verify readback</button>
+        <button id="restore-source" data-action>Restore original UMF source on the selected case</button>
+        <button id="zoom" data-action>Zoom to selected synthetic objects</button>
+        <button id="capture-fence-action" data-action>Capture read-only stability fence</button>
+      </div>
+    </section>
+    <section>
+      <div class="split">
+        <div><label for="source">UMF source JSON</label><textarea id="source" spellcheck="false"></textarea><div class="actions"><button id="download-json">Download JSON</button><button id="download-yaml">Download YAML</button></div></div>
+        <div><label for="yaml">Equivalent YAML</label><textarea id="yaml" readonly spellcheck="false"></textarea></div>
+      </div>
+    </section>
+    <section>
+      <label for="binding">Editable Miro binding (private; read-only)</label>
+      <textarea id="binding" readonly spellcheck="false" aria-label="Private Miro binding receipt"></textarea>
+      <div class="actions"><button id="download-binding">Download private binding JSON</button></div>
+    </section>
+    <section>
+      <label for="recovery-binding">Load an existing complete binding (private)</label>
+      <textarea id="recovery-binding" spellcheck="false" aria-label="Private complete binding to load" placeholder="Paste the complete binding JSON here"></textarea>
+      <p class="hint">Paste a validated complete binding and matching source JSON above. Loading checks the board identity only and performs no writes or item capture; current board inspection is a separate explicit action.</p>
+      <div class="actions"><button id="load-complete-binding" class="primary" data-action>Load complete binding and source</button></div>
+    </section>
+    <section>
+      <label for="capture-fence-output">Mapped-object capture fence (private; read-only)</label>
+      <textarea id="capture-fence-output" readonly spellcheck="false" aria-label="Private mapped-object capture fence"></textarea>
+      <p class="hint">Captures are explicit and read-only. The receipt contains only digests, revision kinds, item counts and change counts, not whole-board objects.</p>
+    </section>
+    <section>
+      <label for="raw-board-capture">Full current board capture (private; raw SDK-visible data)</label>
+      <textarea id="raw-board-capture" readonly spellcheck="false" aria-label="Private raw Miro board capture"></textarea>
+      <p class="hint">This explicit read-only action captures all API-visible board items twice. It can include unrelated canvas content; do not publish this text or attach it to public evidence.</p>
+      <div class="actions"><button id="capture-raw-board" data-action>Capture current board, read-only</button></div>
+    </section>
+    <section>
+      <label for="interrupted-receipt">Original interrupted write receipt (private)</label>
+      <textarea id="interrupted-receipt" spellcheck="false" aria-label="Private interrupted write receipt" placeholder="An interrupted write receipt is retained here. After a panel reload, paste the saved receipt here before recovery."></textarea>
+      <p class="hint">Recovery never retries the interrupted write. Keep its receipt separate; a successful later readback does not make the earlier operation atomic or successful.</p>
+      <label for="recovery-target-source">Expected source after the interrupted operation (private)</label>
+      <textarea id="recovery-target-source" spellcheck="false" aria-label="Expected UMF source for read-only recovery"></textarea>
+      <label for="recovery-attestation">Read-only recovery attestation (private)</label>
+      <textarea id="recovery-attestation" readonly spellcheck="false" aria-label="Private read-only recovery attestation"></textarea>
+      <div class="actions"><button id="recover-readback" class="primary" data-action>Recover by two fresh read-only captures</button></div>
+    </section>
+    <section><label for="status">Operation status and receipt</label><pre class="status" id="status" role="status" aria-live="polite">Loading local fixture list. No Miro board operation has run.</pre></section>
+  </main>
+  </div>
+  <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

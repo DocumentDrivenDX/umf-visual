@@ -1,0 +1,961 @@
+{
+  "schemaVersion": 1,
+  "rendererId": "google-slides",
+  "cases": [
+    {
+      "id": "nested-environments",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/nested-environments.json",
+        "sha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34"
+      },
+      "captureFence": {
+        "before": {
+          "revision": "b-qR7ONnrETXYw",
+          "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af"
+        },
+        "after": {
+          "revision": "b-qR7ONnrETXYw",
+          "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af"
+        }
+      },
+      "nativeCaptures": {
+        "noOp": {
+          "before": {
+            "revision": "gV95C4SKlAiJtA",
+            "captureDigestSha256": "7750cdfa5e423e419e261ef1972886a67a1067eeec9497fd0b8e55894f04d303"
+          },
+          "after": {
+            "revision": "gV95C4SKlAiJtA",
+            "captureDigestSha256": "7750cdfa5e423e419e261ef1972886a67a1067eeec9497fd0b8e55894f04d303"
+          },
+          "unchanged": true
+        },
+        "nativeImport": {
+          "before": {
+            "revision": "23DYkWiCIH1wQA",
+            "captureDigestSha256": "8b44c0c2a1e119d705cb383c070f55d56dfb76db3372709a2e3fb70d5c1f6669"
+          },
+          "after": {
+            "revision": "23DYkWiCIH1wQA",
+            "captureDigestSha256": "8b44c0c2a1e119d705cb383c070f55d56dfb76db3372709a2e3fb70d5c1f6669"
+          },
+          "unchanged": true
+        },
+        "initialFinalReadback": {
+          "before": {
+            "revision": "TFEiPf1cuWnuaA",
+            "captureDigestSha256": "b94adf82d0339ff3f0cd88a0bd1744c5bca66d56056ec401ae93d1884b984ce8"
+          },
+          "after": {
+            "revision": "TFEiPf1cuWnuaA",
+            "captureDigestSha256": "b94adf82d0339ff3f0cd88a0bd1744c5bca66d56056ec401ae93d1884b984ce8"
+          },
+          "unchanged": true
+        },
+        "restoreNativeImport": {
+          "before": {
+            "revision": "BzDHhlRQzyGzAA",
+            "captureDigestSha256": "0261249eb7234d79a2470fdaa8b9524ace507c965e8a17180c6fdbe075cad86d"
+          },
+          "after": {
+            "revision": "BzDHhlRQzyGzAA",
+            "captureDigestSha256": "0261249eb7234d79a2470fdaa8b9524ace507c965e8a17180c6fdbe075cad86d"
+          },
+          "unchanged": true
+        },
+        "finalReadback": {
+          "before": {
+            "revision": "-R4kukNoVxYX1g",
+            "captureDigestSha256": "27c221e0eb7a3d5cf7b8212ffa9349ce9b1ec41e8552db6378e2317e47a1fc26"
+          },
+          "after": {
+            "revision": "-R4kukNoVxYX1g",
+            "captureDigestSha256": "27c221e0eb7a3d5cf7b8212ffa9349ce9b1ec41e8552db6378e2317e47a1fc26"
+          },
+          "unchanged": true
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "google-slides",
+          "profileId": "umf.visual.google-slides.network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/groups",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Visual metadata is preserved but not represented by this network profile"
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/1/group",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/1/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              }
+            ]
+          },
+          "preview": {
+            "state": "rendered",
+            "engine": "google-slides",
+            "nativeVersion": "Google Slides API v1 (service unpinned)",
+            "sourceSha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34",
+            "profileId": "umf.visual.google-slides.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af",
+            "revision": "b-qR7ONnrETXYw",
+            "stage": "restored-original",
+            "asset": {
+              "path": "integrations/previews/google-slides/nested-environments-a8333821e4751a1a.png",
+              "sha256": "a8333821e4751a1a34114f3a37e98449107e4e836df2c75c5f0ab6e91136664d",
+              "mediaType": "image/png",
+              "width": 1600,
+              "height": 900
+            }
+          },
+          "roundTrip": {
+            "state": "passed",
+            "sourceSha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34",
+            "profileId": "umf.visual.google-slides.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "checks": {
+              "noop": true,
+              "label": true,
+              "reconnection": true,
+              "movement": true,
+              "style": true,
+              "jsonPersistence": true,
+              "yamlPersistence": true,
+              "preservingUpdate": true,
+              "readback": true
+            },
+            "attestation": {
+              "kind": "google-slides-api",
+              "nativeWritesObserved": true,
+              "injectedTransportVerified": true,
+              "liveTransportVerified": true,
+              "editMethod": "native Slides API",
+              "uiClaim": false
+            }
+          }
+        }
+      ],
+      "assetSourcePath": "fixtures/renderers/google-slides/assets/nested-environments-a8333821e4751a1a.png"
+    },
+    {
+      "id": "process-documents-store",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/process-documents-store.json",
+        "sha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520"
+      },
+      "captureFence": {
+        "before": {
+          "revision": "b-qR7ONnrETXYw",
+          "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af"
+        },
+        "after": {
+          "revision": "b-qR7ONnrETXYw",
+          "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af"
+        }
+      },
+      "nativeCaptures": {
+        "noOp": {
+          "before": {
+            "revision": "TFEiPf1cuWnuaA",
+            "captureDigestSha256": "b94adf82d0339ff3f0cd88a0bd1744c5bca66d56056ec401ae93d1884b984ce8"
+          },
+          "after": {
+            "revision": "TFEiPf1cuWnuaA",
+            "captureDigestSha256": "b94adf82d0339ff3f0cd88a0bd1744c5bca66d56056ec401ae93d1884b984ce8"
+          },
+          "unchanged": true
+        },
+        "nativeImport": {
+          "before": {
+            "revision": "UNp9mUZL9_cp_w",
+            "captureDigestSha256": "c737cc4085fc38035c50faa51140739a29c6dfdb9c3b26eef42275660e5ac680"
+          },
+          "after": {
+            "revision": "UNp9mUZL9_cp_w",
+            "captureDigestSha256": "c737cc4085fc38035c50faa51140739a29c6dfdb9c3b26eef42275660e5ac680"
+          },
+          "unchanged": true
+        },
+        "initialFinalReadback": {
+          "before": {
+            "revision": "DXMXKAMIfexOvg",
+            "captureDigestSha256": "f344e47eca338ffe06b65b173cb0f013cf4554bf79c889776a7ca1fcc8268041"
+          },
+          "after": {
+            "revision": "DXMXKAMIfexOvg",
+            "captureDigestSha256": "f344e47eca338ffe06b65b173cb0f013cf4554bf79c889776a7ca1fcc8268041"
+          },
+          "unchanged": true
+        },
+        "restoreNativeImport": {
+          "before": {
+            "revision": "9t8ITyXomNznog",
+            "captureDigestSha256": "4954d62f663df71ad874940f2839669c542ed8075c191fc7486ee47568b09c6d"
+          },
+          "after": {
+            "revision": "9t8ITyXomNznog",
+            "captureDigestSha256": "4954d62f663df71ad874940f2839669c542ed8075c191fc7486ee47568b09c6d"
+          },
+          "unchanged": true
+        },
+        "finalReadback": {
+          "before": {
+            "revision": "Y6tInIIxSwgTpQ",
+            "captureDigestSha256": "d632c0bd0eac4613a1b37c9b1a16c428cd5dae3cc01fdda4c6d2ee04634f2727"
+          },
+          "after": {
+            "revision": "Y6tInIIxSwgTpQ",
+            "captureDigestSha256": "d632c0bd0eac4613a1b37c9b1a16c428cd5dae3cc01fdda4c6d2ee04634f2727"
+          },
+          "unchanged": true
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "google-slides",
+          "profileId": "umf.visual.google-slides.network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/1/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/2/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/1/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/3/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              }
+            ]
+          },
+          "preview": {
+            "state": "rendered",
+            "engine": "google-slides",
+            "nativeVersion": "Google Slides API v1 (service unpinned)",
+            "sourceSha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520",
+            "profileId": "umf.visual.google-slides.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af",
+            "revision": "b-qR7ONnrETXYw",
+            "stage": "restored-original",
+            "asset": {
+              "path": "integrations/previews/google-slides/process-documents-store-cd46b632516df1eb.png",
+              "sha256": "cd46b632516df1eb505a3314b1cae42c93e1ce35cd75b988866560aff05f2b40",
+              "mediaType": "image/png",
+              "width": 1600,
+              "height": 900
+            }
+          },
+          "roundTrip": {
+            "state": "passed",
+            "sourceSha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520",
+            "profileId": "umf.visual.google-slides.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "checks": {
+              "noop": true,
+              "label": true,
+              "reconnection": true,
+              "movement": true,
+              "style": true,
+              "jsonPersistence": true,
+              "yamlPersistence": true,
+              "preservingUpdate": true,
+              "readback": true
+            },
+            "attestation": {
+              "kind": "google-slides-api",
+              "nativeWritesObserved": true,
+              "injectedTransportVerified": true,
+              "liveTransportVerified": true,
+              "editMethod": "native Slides API",
+              "uiClaim": false
+            }
+          }
+        }
+      ],
+      "assetSourcePath": "fixtures/renderers/google-slides/assets/process-documents-store-cd46b632516df1eb.png"
+    },
+    {
+      "id": "network-16x24",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/network-16x24.json",
+        "sha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4"
+      },
+      "captureFence": {
+        "before": {
+          "revision": "b-qR7ONnrETXYw",
+          "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af"
+        },
+        "after": {
+          "revision": "b-qR7ONnrETXYw",
+          "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af"
+        }
+      },
+      "nativeCaptures": {
+        "noOp": {
+          "before": {
+            "revision": "DXMXKAMIfexOvg",
+            "captureDigestSha256": "f344e47eca338ffe06b65b173cb0f013cf4554bf79c889776a7ca1fcc8268041"
+          },
+          "after": {
+            "revision": "DXMXKAMIfexOvg",
+            "captureDigestSha256": "f344e47eca338ffe06b65b173cb0f013cf4554bf79c889776a7ca1fcc8268041"
+          },
+          "unchanged": true
+        },
+        "nativeImport": {
+          "before": {
+            "revision": "t6uRf-_j5sZ0HA",
+            "captureDigestSha256": "0b94af6870d6a64ed9d19593e01fe88600e534bb40024dcc673806815137a057"
+          },
+          "after": {
+            "revision": "t6uRf-_j5sZ0HA",
+            "captureDigestSha256": "0b94af6870d6a64ed9d19593e01fe88600e534bb40024dcc673806815137a057"
+          },
+          "unchanged": true
+        },
+        "initialFinalReadback": {
+          "before": {
+            "revision": "015Hh-zgDhLP_Q",
+            "captureDigestSha256": "a78e5ccb2bf64773f4f1c39693664f8d113d2b2009ddfe18645eb6497eb8fa25"
+          },
+          "after": {
+            "revision": "015Hh-zgDhLP_Q",
+            "captureDigestSha256": "a78e5ccb2bf64773f4f1c39693664f8d113d2b2009ddfe18645eb6497eb8fa25"
+          },
+          "unchanged": true
+        },
+        "restoreNativeImport": {
+          "before": {
+            "revision": "dUrofHRLtNHiyA",
+            "captureDigestSha256": "f699658a1007fd2b0be0bea03cdd0fc19a291e453e934418b27a9155b7e86baa"
+          },
+          "after": {
+            "revision": "dUrofHRLtNHiyA",
+            "captureDigestSha256": "f699658a1007fd2b0be0bea03cdd0fc19a291e453e934418b27a9155b7e86baa"
+          },
+          "unchanged": true
+        },
+        "finalReadback": {
+          "before": {
+            "revision": "_uw55VpuZx6NmQ",
+            "captureDigestSha256": "401e334806db80f6b92ad03274f7d453c78e02c1bfebd52f4e7f5e515cd22e40"
+          },
+          "after": {
+            "revision": "_uw55VpuZx6NmQ",
+            "captureDigestSha256": "401e334806db80f6b92ad03274f7d453c78e02c1bfebd52f4e7f5e515cd22e40"
+          },
+          "unchanged": true
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "google-slides",
+          "profileId": "umf.visual.google-slides.network/1",
+          "modelVersion": "1.1.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/1/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/10/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/11/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/12/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/13/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/14/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/15/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/16/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/17/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/18/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/19/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/2/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/20/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/21/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/22/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/23/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/3/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/4/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/5/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/6/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/7/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/8/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/9/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              }
+            ]
+          },
+          "preview": {
+            "state": "rendered",
+            "engine": "google-slides",
+            "nativeVersion": "Google Slides API v1 (service unpinned)",
+            "sourceSha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4",
+            "profileId": "umf.visual.google-slides.network/1",
+            "modelVersion": "1.1.0",
+            "mappingVersion": "1",
+            "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af",
+            "revision": "b-qR7ONnrETXYw",
+            "stage": "restored-original",
+            "asset": {
+              "path": "integrations/previews/google-slides/network-16x24-044f3cf080639540.png",
+              "sha256": "044f3cf0806395407aa808d4763fac64edf5bbea1ae2be5de778057b149b3820",
+              "mediaType": "image/png",
+              "width": 1600,
+              "height": 900
+            }
+          },
+          "roundTrip": {
+            "state": "passed",
+            "sourceSha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4",
+            "profileId": "umf.visual.google-slides.network/1",
+            "modelVersion": "1.1.0",
+            "mappingVersion": "1",
+            "checks": {
+              "noop": true,
+              "label": true,
+              "reconnection": true,
+              "movement": true,
+              "style": true,
+              "jsonPersistence": true,
+              "yamlPersistence": true,
+              "preservingUpdate": true,
+              "readback": true
+            },
+            "attestation": {
+              "kind": "google-slides-api",
+              "nativeWritesObserved": true,
+              "injectedTransportVerified": true,
+              "liveTransportVerified": true,
+              "editMethod": "native Slides API",
+              "uiClaim": false
+            }
+          }
+        }
+      ],
+      "assetSourcePath": "fixtures/renderers/google-slides/assets/network-16x24-044f3cf080639540.png"
+    },
+    {
+      "id": "frames-headings-annotations",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/frames-headings-annotations.json",
+        "sha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa"
+      },
+      "captureFence": {
+        "before": {
+          "revision": "b-qR7ONnrETXYw",
+          "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af"
+        },
+        "after": {
+          "revision": "b-qR7ONnrETXYw",
+          "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af"
+        }
+      },
+      "nativeCaptures": {
+        "noOp": {
+          "before": {
+            "revision": "015Hh-zgDhLP_Q",
+            "captureDigestSha256": "a78e5ccb2bf64773f4f1c39693664f8d113d2b2009ddfe18645eb6497eb8fa25"
+          },
+          "after": {
+            "revision": "015Hh-zgDhLP_Q",
+            "captureDigestSha256": "a78e5ccb2bf64773f4f1c39693664f8d113d2b2009ddfe18645eb6497eb8fa25"
+          },
+          "unchanged": true
+        },
+        "nativeImport": {
+          "before": {
+            "revision": "giYcYpb7T_XWNg",
+            "captureDigestSha256": "7da060767794ea54f9082d438a536f3f0addd04574fc7e16be7b74513b657a34"
+          },
+          "after": {
+            "revision": "giYcYpb7T_XWNg",
+            "captureDigestSha256": "7da060767794ea54f9082d438a536f3f0addd04574fc7e16be7b74513b657a34"
+          },
+          "unchanged": true
+        },
+        "initialFinalReadback": {
+          "before": {
+            "revision": "ycFgH00tBurtPg",
+            "captureDigestSha256": "3f498a5437e06b6510b873e3b826d59819b8fdc96765038a582a6dd539a1176d"
+          },
+          "after": {
+            "revision": "ycFgH00tBurtPg",
+            "captureDigestSha256": "3f498a5437e06b6510b873e3b826d59819b8fdc96765038a582a6dd539a1176d"
+          },
+          "unchanged": true
+        },
+        "restoreNativeImport": {
+          "before": {
+            "revision": "21yNMLw-snYpbA",
+            "captureDigestSha256": "09ba52c018b796228c38a5fd5aa8d93a0e56f2d9aaeaf5b3247d7e48d7673f4a"
+          },
+          "after": {
+            "revision": "21yNMLw-snYpbA",
+            "captureDigestSha256": "09ba52c018b796228c38a5fd5aa8d93a0e56f2d9aaeaf5b3247d7e48d7673f4a"
+          },
+          "unchanged": true
+        },
+        "finalReadback": {
+          "before": {
+            "revision": "FPXCjKQMSpureg",
+            "captureDigestSha256": "82c274604dcb24306159a0ebdfadabccd253ecf052b59a0b6b071d2939b7aa6b"
+          },
+          "after": {
+            "revision": "FPXCjKQMSpureg",
+            "captureDigestSha256": "82c274604dcb24306159a0ebdfadabccd253ecf052b59a0b6b071d2939b7aa6b"
+          },
+          "unchanged": true
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "google-slides",
+          "profileId": "umf.visual.google-slides.network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/1/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/edges/2/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              }
+            ]
+          },
+          "preview": {
+            "state": "rendered",
+            "engine": "google-slides",
+            "nativeVersion": "Google Slides API v1 (service unpinned)",
+            "sourceSha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa",
+            "profileId": "umf.visual.google-slides.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af",
+            "revision": "b-qR7ONnrETXYw",
+            "stage": "restored-original",
+            "asset": {
+              "path": "integrations/previews/google-slides/frames-headings-annotations-f48012cecf4736cb.png",
+              "sha256": "f48012cecf4736cb99b4127f3dda8fef2adec2fba7ed4be97bf0329db18ae51d",
+              "mediaType": "image/png",
+              "width": 1600,
+              "height": 900
+            }
+          },
+          "roundTrip": {
+            "state": "passed",
+            "sourceSha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa",
+            "profileId": "umf.visual.google-slides.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "checks": {
+              "noop": true,
+              "label": true,
+              "reconnection": true,
+              "movement": true,
+              "style": true,
+              "jsonPersistence": true,
+              "yamlPersistence": true,
+              "preservingUpdate": true,
+              "readback": true
+            },
+            "attestation": {
+              "kind": "google-slides-api",
+              "nativeWritesObserved": true,
+              "injectedTransportVerified": true,
+              "liveTransportVerified": true,
+              "editMethod": "native Slides API",
+              "uiClaim": false
+            }
+          }
+        }
+      ],
+      "assetSourcePath": "fixtures/renderers/google-slides/assets/frames-headings-annotations-f48012cecf4736cb.png"
+    },
+    {
+      "id": "curved-caption-cross-boundary",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/curved-caption-cross-boundary.json",
+        "sha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c"
+      },
+      "captureFence": {
+        "before": {
+          "revision": "b-qR7ONnrETXYw",
+          "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af"
+        },
+        "after": {
+          "revision": "b-qR7ONnrETXYw",
+          "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af"
+        }
+      },
+      "nativeCaptures": {
+        "noOp": {
+          "before": {
+            "revision": "ycFgH00tBurtPg",
+            "captureDigestSha256": "3f498a5437e06b6510b873e3b826d59819b8fdc96765038a582a6dd539a1176d"
+          },
+          "after": {
+            "revision": "ycFgH00tBurtPg",
+            "captureDigestSha256": "3f498a5437e06b6510b873e3b826d59819b8fdc96765038a582a6dd539a1176d"
+          },
+          "unchanged": true
+        },
+        "nativeImport": {
+          "before": {
+            "revision": "VndxgqUEhcuyIQ",
+            "captureDigestSha256": "80ae7d30d0b5864aeb9d6b2a49370127c39dd919b605b5aa1988d991e073be0b"
+          },
+          "after": {
+            "revision": "VndxgqUEhcuyIQ",
+            "captureDigestSha256": "80ae7d30d0b5864aeb9d6b2a49370127c39dd919b605b5aa1988d991e073be0b"
+          },
+          "unchanged": true
+        },
+        "initialFinalReadback": {
+          "before": {
+            "revision": "tFbe_AZtmZX2ng",
+            "captureDigestSha256": "fd2c40f3f76cd0169566f88c0fa2eb17a788ae0200ce27cf1bcdb0ad9ba60838"
+          },
+          "after": {
+            "revision": "tFbe_AZtmZX2ng",
+            "captureDigestSha256": "fd2c40f3f76cd0169566f88c0fa2eb17a788ae0200ce27cf1bcdb0ad9ba60838"
+          },
+          "unchanged": true
+        },
+        "restoreNativeImport": {
+          "before": {
+            "revision": "e36QBtMID-T8xg",
+            "captureDigestSha256": "7ddcdfa4964b30fd5b9cc037129b3b71780a28305dffb109c7f41ed45b448e65"
+          },
+          "after": {
+            "revision": "e36QBtMID-T8xg",
+            "captureDigestSha256": "7ddcdfa4964b30fd5b9cc037129b3b71780a28305dffb109c7f41ed45b448e65"
+          },
+          "unchanged": true
+        },
+        "finalReadback": {
+          "before": {
+            "revision": "i5Q-mW8QD1xkYg",
+            "captureDigestSha256": "b6dd2fb5b357f20fe9e1b65bf3e7dbb62f03f8088ba106976c26ed4d34413cd7"
+          },
+          "after": {
+            "revision": "i5Q-mW8QD1xkYg",
+            "captureDigestSha256": "b6dd2fb5b357f20fe9e1b65bf3e7dbb62f03f8088ba106976c26ed4d34413cd7"
+          },
+          "unchanged": true
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "google-slides",
+          "profileId": "umf.visual.google-slides.network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/groups",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Visual metadata is preserved but not represented by this network profile"
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/0/group",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/1/group",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Retained in the source companion; not represented in Google Slides semantics"
+              }
+            ]
+          },
+          "preview": {
+            "state": "rendered",
+            "engine": "google-slides",
+            "nativeVersion": "Google Slides API v1 (service unpinned)",
+            "sourceSha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c",
+            "profileId": "umf.visual.google-slides.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "captureDigestSha256": "734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af",
+            "revision": "b-qR7ONnrETXYw",
+            "stage": "restored-original",
+            "asset": {
+              "path": "integrations/previews/google-slides/curved-caption-cross-boundary-6f49a2745bcc0563.png",
+              "sha256": "6f49a2745bcc0563158c4a52a04e9a3a7b2ab446bcce1fbe910ffdd6ee24259b",
+              "mediaType": "image/png",
+              "width": 1600,
+              "height": 900
+            }
+          },
+          "roundTrip": {
+            "state": "passed",
+            "sourceSha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c",
+            "profileId": "umf.visual.google-slides.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "checks": {
+              "noop": true,
+              "label": true,
+              "reconnection": true,
+              "movement": true,
+              "style": true,
+              "jsonPersistence": true,
+              "yamlPersistence": true,
+              "preservingUpdate": true,
+              "readback": true
+            },
+            "attestation": {
+              "kind": "google-slides-api",
+              "nativeWritesObserved": true,
+              "injectedTransportVerified": true,
+              "liveTransportVerified": true,
+              "editMethod": "native Slides API",
+              "uiClaim": false
+            }
+          }
+        }
+      ],
+      "assetSourcePath": "fixtures/renderers/google-slides/assets/curved-caption-cross-boundary-6f49a2745bcc0563.png"
+    }
+  ]
+}

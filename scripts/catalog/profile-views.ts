@@ -3,6 +3,7 @@
  * boilerplate. They are native renderer inputs, not interchange exports. */
 import {quoteDotProfile,readDotProfile,type DotProfileStatement} from '../../src/interchange/dot/profile-syntax';
 import {quoteLiniProfile,readLiniProfile,type LiniProfileNode,type LiniProfileToken} from '../../src/interchange/lini/profile-syntax';
+import {focusedAnnotatedMermaidSource} from '../../src/interchange/mermaid/annotated';
 import type {InterchangeFormat} from '../../src';
 
 function dotStatement(statement:DotProfileStatement):string {
@@ -25,10 +26,17 @@ function liniTokens(tokens:LiniProfileToken[]):string {
  }return out;
 }
 function liniNode(node:LiniProfileNode):string {
+ if(node.type==='link'){
+  const property=(name:string)=>node.properties.find(item=>item.name===name)?.value??[];
+  const from=property('from').map(token=>token.value).join(''),operator=property('operator').map(token=>token.value).join(''),to=property('to').map(token=>token.value).join(''),label=property('label'),className=property('class').map(token=>token.value).join('');
+  if(!from||!to||!['->','-'].includes(operator))throw new Error('Malformed Lini link in annotated profile source');
+  return from+' '+operator+' '+to+(label.length?' '+liniTokens(label):'')+(className?' .'+className:'')+';';
+ }
  const props=node.properties.length?' { '+node.properties.map(p=>p.name+': '+liniTokens(p.value)+';').join(' ')+' }':'';
  return '|'+node.type+'#'+node.id+'|'+(node.label===undefined?'':' '+quoteLiniProfile(node.label))+props+(node.children.length?' [\n'+node.children.map(liniNode).join('\n')+'\n]':';');
 }
 export function focusedProfileSource(source:string,format:InterchangeFormat):string {
+ if(format==='mermaid')return focusedAnnotatedMermaidSource(source);
  if(format==='dot'){
   const graph=readDotProfile(source,{entities:true});
   const statements=graph.statements.filter(s=>!(s.kind==='subgraph'&&s.id==='cluster_umf_annotations'));

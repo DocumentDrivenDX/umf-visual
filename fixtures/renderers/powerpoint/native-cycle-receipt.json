@@ -1,0 +1,3533 @@
+{
+  "schemaVersion": 1,
+  "verifier": "scripts/catalog/verify-powerpoint-five-case.ts",
+  "executionBoundary": "Operator-supplied PowerPoint UI save and subsequent Save As readback files; exact changed semantic source verified independently. The operator supplies UI/no-repair observations separately.",
+  "cases": [
+    {
+      "id": "nested-environments",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/nested-environments.json",
+        "sha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34"
+      },
+      "profileId": "umf.visual.powerpoint.network/1",
+      "modelVersion": "1.0.0",
+      "mappingVersion": "1",
+      "originalArtifactSha256": "1443eadc5c69e6f9c56af0470df3b681b713c96ed81b6d7f249171310796968d",
+      "baselineBindingRevision": 1,
+      "nativeNoOp": {
+        "artifactPath": ".cache/host-live/powerpoint-five-case/nested-environments/nested-environments-native-noop.pptx",
+        "artifactSha256": "f2148f91a0d72d247e27839f3465a0bc05f3afdaf1bc5fac0427761beb610d10",
+        "exactSourceReadback": true,
+        "semanticChanges": 0,
+        "retainedLosses": [
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+          },
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cHJvY2Vzcy1vdXRzaWRl/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c3RvcmUtaW4tYg/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-Y29ubmVjdHMtdG8tc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "nativeSavedArtifactSha256": "1443eadc5c69e6f9c56af0470df3b681b713c96ed81b6d7f249171310796968d",
+      "imported": {
+        "changes": [
+          {
+            "path": "/extensions/umf.visual/nodes/0/label",
+            "before": {
+              "present": true,
+              "value": "Process outside A"
+            },
+            "after": {
+              "present": true,
+              "value": "Native process"
+            }
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/from",
+            "before": {
+              "present": true,
+              "value": "process-outside"
+            },
+            "after": {
+              "present": true,
+              "value": "store-in-b"
+            }
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/to",
+            "before": {
+              "present": true,
+              "value": "store-in-b"
+            },
+            "after": {
+              "present": true,
+              "value": "process-outside"
+            }
+          }
+        ],
+        "nativeOnly": [],
+        "unmapped": [],
+        "retainedLosses": [
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+          },
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cHJvY2Vzcy1vdXRzaWRl/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c3RvcmUtaW4tYg/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-Y29ubmVjdHMtdG8tc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-Y29ubmVjdHMtdG8tc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "preservedArtifact": {
+        "path": ".cache/host-live/powerpoint-five-case/nested-environments/nested-environments-preserved.pptx",
+        "sha256": "a1a532670adad9b95922c35921a068338f40dec95fa202b291ae69c2e5b96cc1",
+        "bytes": 10944,
+        "bindingRevision": 3
+      },
+      "nativePresentationChangesVsExport": {
+        "geometryAndStyleShapes": [
+          "umf-node-cHJvY2Vzcy1vdXRzaWRl",
+          "umf-edge-Y29ubmVjdHMtdG8tc3RvcmU"
+        ],
+        "textStyleShapes": [
+          "umf-node-cHJvY2Vzcy1vdXRzaWRl"
+        ]
+      },
+      "persistence": {
+        "sourceJson": true,
+        "sourceYaml": true,
+        "bindingJson": true
+      },
+      "preservingUpdate": {
+        "path": "/extensions/umf.visual/question",
+        "before": "Which process connects to the data store?",
+        "after": "Which process connects to the data store? Preserving update verified."
+      },
+      "preservingReadback": {
+        "exactAcceptedDocument": true,
+        "semanticChanges": 0,
+        "nativeShapePropertiesPreserved": true,
+        "nativeShapeCount": 6,
+        "sourceLossesRemain": [
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+          },
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cHJvY2Vzcy1vdXRzaWRl/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c3RvcmUtaW4tYg/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-Y29ubmVjdHMtdG8tc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-Y29ubmVjdHMtdG8tc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "hostReadback": {
+        "artifactSha256": "169b4b51d7097098ad712bef8066384e5b448888f36c68a1ea5b59dd0e167125",
+        "inputArtifactSha256": "a1a532670adad9b95922c35921a068338f40dec95fa202b291ae69c2e5b96cc1",
+        "exactUpdatedDocument": true,
+        "semanticChanges": 0,
+        "losses": [
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+          },
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cHJvY2Vzcy1vdXRzaWRl/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c3RvcmUtaW4tYg/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-Y29ubmVjdHMtdG8tc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-Y29ubmVjdHMtdG8tc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ],
+        "operatorAttestation": {
+          "host": {
+            "application": "Microsoft PowerPoint for Mac",
+            "version": "16.114.3"
+          },
+          "observedOn": "2026-10-31",
+          "reopenObserved": true,
+          "noRepairPrompt": true,
+          "updatedQuestionVisible": true,
+          "nativeBoldLabelVisible": true,
+          "attachedEndpointsObserved": true
+        }
+      },
+      "roundTrip": {
+        "state": "passed",
+        "nativeEdits": "operator-supplied PowerPoint UI saves",
+        "nativeEditValuesVerified": true,
+        "umfQuestionUpdateVerifiedByParser": true,
+        "nativeHostReadback": true
+      }
+    },
+    {
+      "id": "process-documents-store",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/process-documents-store.json",
+        "sha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520"
+      },
+      "profileId": "umf.visual.powerpoint.network/1",
+      "modelVersion": "1.0.0",
+      "mappingVersion": "1",
+      "originalArtifactSha256": "f55c6c8a05861089ce5e2c05057b2b86eda61a8aad8eae9d4e93a27b0d439c84",
+      "baselineBindingRevision": 1,
+      "nativeNoOp": {
+        "artifactPath": ".cache/host-live/powerpoint-five-case/process-documents-store/process-documents-store-native-noop.pptx",
+        "artifactSha256": "288b7397b4f4d7247453b0280cb2174f871376a1fbb1f218ca060c7a3b89b288",
+        "exactSourceReadback": true,
+        "semanticChanges": 0,
+        "retainedLosses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/3/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cHJvY2Vzcw/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZG9jdW1lbnQtb25l/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZG9jdW1lbnRzLW1hbnk/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-cHJvY2Vzcy1kb2N1bWVudA/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-ZG9jdW1lbnQtbXVsdGlwbGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-bXVsdGlwbGUtc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "nativeSavedArtifactSha256": "f55c6c8a05861089ce5e2c05057b2b86eda61a8aad8eae9d4e93a27b0d439c84",
+      "imported": {
+        "changes": [
+          {
+            "path": "/extensions/umf.visual/nodes/0/label",
+            "before": {
+              "present": true,
+              "value": "Process"
+            },
+            "after": {
+              "present": true,
+              "value": "Native process"
+            }
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/to",
+            "before": {
+              "present": true,
+              "value": "document-one"
+            },
+            "after": {
+              "present": true,
+              "value": "documents-many"
+            }
+          }
+        ],
+        "nativeOnly": [],
+        "unmapped": [],
+        "retainedLosses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/3/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cHJvY2Vzcw/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZG9jdW1lbnQtb25l/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZG9jdW1lbnRzLW1hbnk/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-cHJvY2Vzcy1kb2N1bWVudA/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-cHJvY2Vzcy1kb2N1bWVudA/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-ZG9jdW1lbnQtbXVsdGlwbGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-bXVsdGlwbGUtc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "preservedArtifact": {
+        "path": ".cache/host-live/powerpoint-five-case/process-documents-store/process-documents-store-preserved.pptx",
+        "sha256": "d67862dff2ee9fdb609f2859a586b17ad47a0806a8156e6480ec9dbe79abdb7d",
+        "bytes": 11205,
+        "bindingRevision": 3
+      },
+      "nativePresentationChangesVsExport": {
+        "geometryAndStyleShapes": [
+          "umf-node-cHJvY2Vzcw",
+          "umf-edge-cHJvY2Vzcy1kb2N1bWVudA"
+        ],
+        "textStyleShapes": [
+          "umf-node-cHJvY2Vzcw"
+        ]
+      },
+      "persistence": {
+        "sourceJson": true,
+        "sourceYaml": true,
+        "bindingJson": true
+      },
+      "preservingUpdate": {
+        "path": "/extensions/umf.visual/question",
+        "before": "How does the process connect the document symbols to storage?",
+        "after": "How does the process connect the document symbols to storage? Preserving update verified."
+      },
+      "preservingReadback": {
+        "exactAcceptedDocument": true,
+        "semanticChanges": 0,
+        "nativeShapePropertiesPreserved": true,
+        "nativeShapeCount": 12,
+        "sourceLossesRemain": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/3/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cHJvY2Vzcw/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZG9jdW1lbnQtb25l/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZG9jdW1lbnRzLW1hbnk/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-cHJvY2Vzcy1kb2N1bWVudA/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-cHJvY2Vzcy1kb2N1bWVudA/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-ZG9jdW1lbnQtbXVsdGlwbGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-bXVsdGlwbGUtc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "hostReadback": {
+        "artifactSha256": "e82e2f806f4eee4a9164c48d8725e5f1c6cbbd81954d232aa315ce710f2b5980",
+        "inputArtifactSha256": "d67862dff2ee9fdb609f2859a586b17ad47a0806a8156e6480ec9dbe79abdb7d",
+        "exactUpdatedDocument": true,
+        "semanticChanges": 0,
+        "losses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/3/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cHJvY2Vzcw/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZG9jdW1lbnQtb25l/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZG9jdW1lbnRzLW1hbnk/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-cHJvY2Vzcy1kb2N1bWVudA/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-cHJvY2Vzcy1kb2N1bWVudA/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-ZG9jdW1lbnQtbXVsdGlwbGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-bXVsdGlwbGUtc3RvcmU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ],
+        "operatorAttestation": {
+          "host": {
+            "application": "Microsoft PowerPoint for Mac",
+            "version": "16.114.3"
+          },
+          "observedOn": "2026-10-31",
+          "reopenObserved": true,
+          "noRepairPrompt": true,
+          "updatedQuestionVisible": true,
+          "nativeBoldLabelVisible": true,
+          "attachedEndpointsObserved": true
+        }
+      },
+      "roundTrip": {
+        "state": "passed",
+        "nativeEdits": "operator-supplied PowerPoint UI saves",
+        "nativeEditValuesVerified": true,
+        "umfQuestionUpdateVerifiedByParser": true,
+        "nativeHostReadback": true
+      }
+    },
+    {
+      "id": "network-16x24",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/network-16x24.json",
+        "sha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4"
+      },
+      "profileId": "umf.visual.powerpoint.network/1",
+      "modelVersion": "1.1.0",
+      "mappingVersion": "1",
+      "originalArtifactSha256": "2b8ce4ddde9087421fc491739a22b1bffb9857f79b2e3982e4e1440e68ee2bf5",
+      "baselineBindingRevision": 1,
+      "nativeNoOp": {
+        "artifactPath": ".cache/host-live/powerpoint-five-case/network-16x24/network-16x24-native-noop.pptx",
+        "artifactSha256": "55e50b8e46f7e3255231680b00e09877e77369e18fdf95f1ae835d42edb1e012",
+        "exactSourceReadback": true,
+        "semanticChanges": 0,
+        "retainedLosses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/3/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/4/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/5/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/6/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/7/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/8/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/9/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/10/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/11/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/12/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/13/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/14/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/15/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/16/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/17/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/18/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/19/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/20/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/21/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/22/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/23/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAz/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA0/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA1/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA3/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA4/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA5/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEw/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEz/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE0/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE1/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "nativeSavedArtifactSha256": "2b8ce4ddde9087421fc491739a22b1bffb9857f79b2e3982e4e1440e68ee2bf5",
+      "imported": {
+        "changes": [
+          {
+            "path": "/extensions/umf.visual/nodes/0/label",
+            "before": {
+              "present": true,
+              "value": "Node 01"
+            },
+            "after": {
+              "present": true,
+              "value": "Native node 01"
+            }
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/to",
+            "before": {
+              "present": true,
+              "value": "n02"
+            },
+            "after": {
+              "present": true,
+              "value": "n03"
+            }
+          }
+        ],
+        "nativeOnly": [],
+        "unmapped": [],
+        "retainedLosses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/3/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/4/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/5/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/6/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/7/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/8/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/9/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/10/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/11/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/12/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/13/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/14/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/15/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/16/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/17/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/18/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/19/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/20/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/21/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/22/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/23/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAz/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA0/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA1/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA3/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA4/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA5/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEw/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEz/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE0/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE1/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-ZTAx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-ZTE2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-ZTE3/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "preservedArtifact": {
+        "path": ".cache/host-live/powerpoint-five-case/network-16x24/network-16x24-preserved.pptx",
+        "sha256": "c0127125a44667fd77da30b3b33f94842b586e01a106bfbc3f45515a19391a89",
+        "bytes": 12039,
+        "bindingRevision": 3
+      },
+      "nativePresentationChangesVsExport": {
+        "geometryAndStyleShapes": [
+          "umf-node-bjAx",
+          "umf-edge-ZTAx",
+          "umf-edge-ZTE2",
+          "umf-edge-ZTE3"
+        ],
+        "textStyleShapes": [
+          "umf-node-bjAx"
+        ]
+      },
+      "persistence": {
+        "sourceJson": true,
+        "sourceYaml": true,
+        "bindingJson": true
+      },
+      "preservingUpdate": {
+        "path": "/extensions/umf.visual/question",
+        "before": "What connections form this network?",
+        "after": "What connections form this network? Preserving update verified."
+      },
+      "preservingReadback": {
+        "exactAcceptedDocument": true,
+        "semanticChanges": 0,
+        "nativeShapePropertiesPreserved": true,
+        "nativeShapeCount": 42,
+        "sourceLossesRemain": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/3/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/4/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/5/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/6/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/7/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/8/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/9/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/10/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/11/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/12/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/13/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/14/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/15/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/16/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/17/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/18/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/19/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/20/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/21/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/22/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/23/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAz/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA0/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA1/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA3/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA4/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA5/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEw/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEz/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE0/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE1/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-ZTAx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-ZTE2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-ZTE3/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "hostReadback": {
+        "artifactSha256": "6b34c271075e166d0792578750c9bee87b3fb55441a24c76641146406ed4c59d",
+        "inputArtifactSha256": "c0127125a44667fd77da30b3b33f94842b586e01a106bfbc3f45515a19391a89",
+        "exactUpdatedDocument": true,
+        "semanticChanges": 0,
+        "losses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/3/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/4/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/5/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/6/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/7/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/8/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/9/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/10/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/11/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/12/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/13/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/14/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/15/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/16/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/17/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/18/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/19/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/20/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/21/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/22/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/23/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjAz/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA0/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA1/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA3/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA4/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjA5/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEw/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjEz/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE0/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE1/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-bjE2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-ZTAx/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-ZTE2/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-ZTE3/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ],
+        "operatorAttestation": {
+          "host": {
+            "application": "Microsoft PowerPoint for Mac",
+            "version": "16.114.3"
+          },
+          "observedOn": "2026-10-31",
+          "reopenObserved": true,
+          "noRepairPrompt": true,
+          "updatedQuestionVisible": true,
+          "nativeBoldLabelVisible": true,
+          "attachedEndpointsObserved": true
+        }
+      },
+      "roundTrip": {
+        "state": "passed",
+        "nativeEdits": "operator-supplied PowerPoint UI saves",
+        "nativeEditValuesVerified": true,
+        "umfQuestionUpdateVerifiedByParser": true,
+        "nativeHostReadback": true
+      }
+    },
+    {
+      "id": "frames-headings-annotations",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/frames-headings-annotations.json",
+        "sha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa"
+      },
+      "profileId": "umf.visual.powerpoint.network/1",
+      "modelVersion": "1.0.0",
+      "mappingVersion": "1",
+      "originalArtifactSha256": "fdc993fb4822fc71db80befe410ab98f03bdacb8c9419d8b6cf55ec17d385d10",
+      "baselineBindingRevision": 1,
+      "nativeNoOp": {
+        "artifactPath": ".cache/host-live/powerpoint-five-case/frames-headings-annotations/frames-headings-annotations-native-noop.pptx",
+        "artifactSha256": "0820a9e4b0ec137d937e7ed66cf2676ad087e3f8155e70de1e305749e2b1aa2c",
+        "exactSourceReadback": true,
+        "semanticChanges": 0,
+        "retainedLosses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-YXBp/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-d29ya2Vy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cXVldWU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZGF0YWJhc2U/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "nativeSavedArtifactSha256": "fdc993fb4822fc71db80befe410ab98f03bdacb8c9419d8b6cf55ec17d385d10",
+      "imported": {
+        "changes": [
+          {
+            "path": "/extensions/umf.visual/nodes/0/label",
+            "before": {
+              "present": true,
+              "value": "API"
+            },
+            "after": {
+              "present": true,
+              "value": "Native API"
+            }
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/to",
+            "before": {
+              "present": true,
+              "value": "worker"
+            },
+            "after": {
+              "present": true,
+              "value": "queue"
+            }
+          }
+        ],
+        "nativeOnly": [],
+        "unmapped": [],
+        "retainedLosses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-YXBp/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-d29ya2Vy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cXVldWU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZGF0YWJhc2U/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-YXBpLXdvcmtlcg/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "preservedArtifact": {
+        "path": ".cache/host-live/powerpoint-five-case/frames-headings-annotations/frames-headings-annotations-preserved.pptx",
+        "sha256": "5c473473da2b4bcd35dd424ec29b3864c2edca4187acea4e34932db9cf221514",
+        "bytes": 11007,
+        "bindingRevision": 3
+      },
+      "nativePresentationChangesVsExport": {
+        "geometryAndStyleShapes": [
+          "umf-node-YXBp",
+          "umf-edge-YXBpLXdvcmtlcg"
+        ],
+        "textStyleShapes": [
+          "umf-node-YXBp"
+        ]
+      },
+      "persistence": {
+        "sourceJson": true,
+        "sourceYaml": true,
+        "bindingJson": true
+      },
+      "preservingUpdate": {
+        "path": "/extensions/umf.visual/question",
+        "before": "How do the components connect?",
+        "after": "How do the components connect? Preserving update verified."
+      },
+      "preservingReadback": {
+        "exactAcceptedDocument": true,
+        "semanticChanges": 0,
+        "nativeShapePropertiesPreserved": true,
+        "nativeShapeCount": 9,
+        "sourceLossesRemain": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-YXBp/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-d29ya2Vy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cXVldWU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZGF0YWJhc2U/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-YXBpLXdvcmtlcg/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "hostReadback": {
+        "artifactSha256": "a4ab3b9be6e670d46acf01970fd611ca8a6f7e68cecbef031fdba236c81f05a3",
+        "inputArtifactSha256": "5c473473da2b4bcd35dd424ec29b3864c2edca4187acea4e34932db9cf221514",
+        "exactUpdatedDocument": true,
+        "semanticChanges": 0,
+        "losses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-YXBp/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-d29ya2Vy/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-cXVldWU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-ZGF0YWJhc2U/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-YXBpLXdvcmtlcg/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ],
+        "operatorAttestation": {
+          "host": {
+            "application": "Microsoft PowerPoint for Mac",
+            "version": "16.114.3"
+          },
+          "observedOn": "2026-10-31",
+          "reopenObserved": true,
+          "noRepairPrompt": true,
+          "updatedQuestionVisible": true,
+          "nativeBoldLabelVisible": true,
+          "attachedEndpointsObserved": true
+        }
+      },
+      "roundTrip": {
+        "state": "passed",
+        "nativeEdits": "operator-supplied PowerPoint UI saves",
+        "nativeEditValuesVerified": true,
+        "umfQuestionUpdateVerifiedByParser": true,
+        "nativeHostReadback": true
+      }
+    },
+    {
+      "id": "curved-caption-cross-boundary",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/curved-caption-cross-boundary.json",
+        "sha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c"
+      },
+      "profileId": "umf.visual.powerpoint.network/1",
+      "modelVersion": "1.0.0",
+      "mappingVersion": "1",
+      "originalArtifactSha256": "05d92dfb854db3b88bacfda5c6241bcc27eca7add56cf1d3e9fbf665fce1db66",
+      "baselineBindingRevision": 1,
+      "nativeNoOp": {
+        "artifactPath": ".cache/host-live/powerpoint-five-case/curved-caption-cross-boundary/curved-caption-cross-boundary-native-noop.pptx",
+        "artifactSha256": "72b3ad60224e8ec0050f578f6dc0647dcf1cf796a406c800f9224f0fc214f383",
+        "exactSourceReadback": true,
+        "semanticChanges": 0,
+        "retainedLosses": [
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+          },
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/0/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c291cmNlLW5vZGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-dGFyZ2V0LW5vZGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-Y3Jvc3MtZWRnZQ/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "nativeSavedArtifactSha256": "05d92dfb854db3b88bacfda5c6241bcc27eca7add56cf1d3e9fbf665fce1db66",
+      "imported": {
+        "changes": [
+          {
+            "path": "/extensions/umf.visual/nodes/0/label",
+            "before": {
+              "present": true,
+              "value": "Source"
+            },
+            "after": {
+              "present": true,
+              "value": "Native source"
+            }
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/from",
+            "before": {
+              "present": true,
+              "value": "source-node"
+            },
+            "after": {
+              "present": true,
+              "value": "target-node"
+            }
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/to",
+            "before": {
+              "present": true,
+              "value": "target-node"
+            },
+            "after": {
+              "present": true,
+              "value": "source-node"
+            }
+          }
+        ],
+        "nativeOnly": [],
+        "unmapped": [],
+        "retainedLosses": [
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+          },
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/0/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c291cmNlLW5vZGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-dGFyZ2V0LW5vZGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-Y3Jvc3MtZWRnZQ/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-Y3Jvc3MtZWRnZQ/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "preservedArtifact": {
+        "path": ".cache/host-live/powerpoint-five-case/curved-caption-cross-boundary/curved-caption-cross-boundary-preserved.pptx",
+        "sha256": "d331e771c1c6fffbf9fb40aec6c11baeb474063ed48a20d0e4243b370587cbfd",
+        "bytes": 10907,
+        "bindingRevision": 3
+      },
+      "nativePresentationChangesVsExport": {
+        "geometryAndStyleShapes": [
+          "umf-node-c291cmNlLW5vZGU",
+          "umf-edge-Y3Jvc3MtZWRnZQ"
+        ],
+        "textStyleShapes": [
+          "umf-node-c291cmNlLW5vZGU"
+        ]
+      },
+      "persistence": {
+        "sourceJson": true,
+        "sourceYaml": true,
+        "bindingJson": true
+      },
+      "preservingUpdate": {
+        "path": "/extensions/umf.visual/question",
+        "before": "Which items are connected?",
+        "after": "Which items are connected? Preserving update verified."
+      },
+      "preservingReadback": {
+        "exactAcceptedDocument": true,
+        "semanticChanges": 0,
+        "nativeShapePropertiesPreserved": true,
+        "nativeShapeCount": 6,
+        "sourceLossesRemain": [
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+          },
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/0/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c291cmNlLW5vZGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-dGFyZ2V0LW5vZGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-Y3Jvc3MtZWRnZQ/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-Y3Jvc3MtZWRnZQ/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ]
+      },
+      "hostReadback": {
+        "artifactSha256": "e7634e2317859f084d9c11bcd4e5729ed7154b3e10126ec7e6211fe7144e939c",
+        "inputArtifactSha256": "d331e771c1c6fffbf9fb40aec6c11baeb474063ed48a20d0e4243b370587cbfd",
+        "exactUpdatedDocument": true,
+        "semanticChanges": 0,
+        "losses": [
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+          },
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/0/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-title/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-question/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-c291cmNlLW5vZGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-node-dGFyZ2V0LW5vZGU/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-Y3Jvc3MtZWRnZQ/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          },
+          {
+            "path": "/ppt/slides/slide1.xml#umf-edge-label-Y3Jvc3MtZWRnZQ/presentation",
+            "code": "NATIVE_ONLY",
+            "family": "native",
+            "representation": "retained-only",
+            "message": "Native geometry, style, or unmapped PowerPoint content is preserved without UMF interpretation."
+          }
+        ],
+        "operatorAttestation": {
+          "host": {
+            "application": "Microsoft PowerPoint for Mac",
+            "version": "16.114.3"
+          },
+          "observedOn": "2026-10-31",
+          "reopenObserved": true,
+          "noRepairPrompt": true,
+          "updatedQuestionVisible": true,
+          "nativeBoldLabelVisible": true,
+          "attachedEndpointsObserved": true
+        }
+      },
+      "roundTrip": {
+        "state": "passed",
+        "nativeEdits": "operator-supplied PowerPoint UI saves",
+        "nativeEditValuesVerified": true,
+        "umfQuestionUpdateVerifiedByParser": true,
+        "nativeHostReadback": true
+      }
+    }
+  ]
+}

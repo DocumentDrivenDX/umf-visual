@@ -112,7 +112,7 @@ try{
   checks.push('complete annotated native render/source, coverage and representation distinctions; example JSON stays collapsed');
 
   const completeWidth=await full.evaluate(img=>(img as HTMLImageElement).naturalWidth);
-  await page.getByRole('tab',{name:choice.format==='dot'?'DOT':choice.format==='lini'?'Lini':'Mermaid'}).click();
+  await page.locator('#profile-select').selectOption('native');
   if(new URL(page.url()).searchParams.has('profile'))throw new Error('Native baseline selection did not clear the optional profile parameter.');
   if(!(await page.locator('#baseline-label').innerText()).includes('NATIVE BASELINE'))throw new Error('Existing native target was not retained as an explicit baseline.');
   const baseline=sample.targets[choice.format];

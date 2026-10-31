@@ -29,14 +29,15 @@ export function readLiniProfile(source:string):LiniProfileNode[] {
    if(!closed)fail('Unterminated string',offset);if(/[\ud800-\udfff]/u.test(value))fail('Unpaired surrogate',offset);
    tokens.push({kind:'string',value,offset});continue;
   }
-  if('|#{}[]:;,()'.includes(c)){tokens.push({kind:'symbol',value:c,offset});at++;continue;}
+  if(source.startsWith('->',at)){tokens.push({kind:'symbol',value:'->',offset});at+=2;continue;}
   const number=/^-?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?/u.exec(source.slice(at));
   if(number){tokens.push({kind:'number',value:number[0],offset});at+=number[0].length;continue;}
+  if('|#{}[]:;,().'.includes(c)||c==='-'&&!source.startsWith('--',at)){tokens.push({kind:'symbol',value:c,offset});at++;continue;}
   const word=/^(?:--)?[A-Za-z_][A-Za-z0-9_-]*/u.exec(source.slice(at));
   if(word){tokens.push({kind:'word',value:word[0],offset});at+=word[0].length;continue;}
   fail('Unsupported Lini token',at);
  }
- let cursor=0,count=0;const used=new Set<string>();
+ let cursor=0,count=0,linkCount=0;const used=new Set<string>();
  const peek=()=>tokens[cursor];
  const take=()=>{const t=tokens[cursor++];if(!t)fail('Unexpected end of source',source.length);return t;};
  const expect=(value:string)=>{const t=take();if(t.value!==value||t.kind!=='symbol')fail('Expected '+JSON.stringify(value),t.offset);};
@@ -46,6 +47,15 @@ export function readLiniProfile(source:string):LiniProfileNode[] {
   while(peek()&&!(peek().kind==='symbol'&&peek().value===']')){
    if(peek().value===';'&&peek().kind==='symbol'){take();continue;}
    if(++count>20_000)fail('Node limit exceeded',peek().offset);
+   if(peek()?.kind==='word'){
+    const endpoint=()=>{const first=take();if(first.kind!=='word')fail('Expected link endpoint',first.offset);let value=first.value;if(peek()?.kind==='symbol'&&peek()?.value==='.') {take();const field=take();if(field.kind!=='word')fail('Expected qualified endpoint',field.offset);value+='.'+field.value;}return value;};
+    const from=endpoint(),operator=take();if(operator.kind!=='symbol'||!['->','-'].includes(operator.value))fail('Expected a supported link operator',operator.offset);const to=endpoint(),label=peek()?.kind==='string'?take().value:undefined;
+    let className:string|undefined;if(peek()?.kind==='symbol'&&peek()?.value==='.') {take();const classToken=take();if(classToken.kind!=='word')fail('Expected link class',classToken.offset);className=classToken.value;}
+    const properties:LiniProfileProperty[]=[{name:'from',value:[{kind:'word',value:from,offset:operator.offset}]},{name:'operator',value:[operator]},{name:'to',value:[{kind:'word',value:to,offset:operator.offset}]}];
+    if(label!==undefined)properties.push({name:'label',value:[{kind:'string',value:label,offset:operator.offset}]});
+    if(className!==undefined)properties.push({name:'class',value:[{kind:'word',value:className,offset:operator.offset}]});
+    result.push({type:'link',id:'__lini_link_'+linkCount++,...(label===undefined?{}:{label}),properties,children:[]});continue;
+   }
    expect('|');const type=word();expect('#');const id=word();expect('|');
    if(used.has(id))fail('Duplicate native identity '+id,peek()?.offset??source.length);used.add(id);
    const label=peek()?.kind==='string'?take().value:undefined;
@@ -58,7 +68,7 @@ export function readLiniProfile(source:string):LiniProfileNode[] {
       const t=peek();if(t.kind==='symbol'&&t.value===';'&&parens===0)break;
       if(t.kind==='symbol'&&t.value==='(')parens++;
       if(t.kind==='symbol'&&t.value===')'){if(--parens<0)fail('Unmatched property parenthesis',t.offset);}
-      if(t.kind==='symbol'&&!['(',')',','].includes(t.value))fail('Unsupported property value token',t.offset);
+      if(t.kind==='symbol'&&!['(',')',',','.'].includes(t.value))fail('Unsupported property value token',t.offset);
       value.push(take());
      }
      if(!value.length)fail('Empty property',peek()?.offset??source.length);expect(';');properties.push({name,value});

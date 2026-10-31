@@ -24,7 +24,7 @@ ddx:
 
 ## Purpose
 
-Version 1.0.0 design for explicitly selected profiles; implementation qualification
+Version 1.1.0 design for explicitly selected profiles; implementation qualification
 is recorded separately. Reconciled against merged main 3139590.
 The owner requests complete meaning in at least one suitable target
 for each of the 53 unchanged examples, with faithful previews of all 22 forms.
@@ -70,7 +70,8 @@ shape. Luna helpers and native adapters use this seam:
 
 ```ts
 type AnnotatedProfile = 'umf.visual.dot.annotated/1'
-  | 'umf.visual.lini.annotated/1';
+  | 'umf.visual.lini.annotated/1'
+  | 'umf.visual.mermaid.annotated/1';
 // Existing import/export options gain optional profile: AnnotatedProfile.
 // Omitted profile selects existing behavior; unknown/mismatched profile refuses.
 interface AnnotatedContext extends AdapterContext { profile?: AnnotatedProfile }
@@ -133,8 +134,50 @@ capability/evidence facts. Legacy receipts omit the profile selection and keep
 their existing validation/replay behavior. Exact replay
 still reparses with recorded interpretation and compares derived/current/baseline
 documents; a forged coverage list cannot bypass that comparison.
+An unchanged reported-loss projection may retain a valid receipt: hard parse
+errors still refuse admission. Original replay preserves its loss diagnostics;
+strict mode refuses while retaining the companion, and reported-loss mode may
+return the exact bytes after the same independent baseline and identity checks.
 
 ## Examples
+
+### Native-first continuation profiles
+
+The P8-P14 continuation adds a Mermaid annotation profile and extends the
+qualified Lini profile to flow/pipeline where independently proven. These are
+mapping work packages, not blanket implemented support. Capability records MUST
+declare exact family/model/mapping versions before a cohort qualifies. Existing
+native defaults and accepted historical receipts MUST NOT be reinterpreted.
+
+Owners first probe intrinsic title, grouping, field-key/cardinality/reference
+and sequence meaning. An available intrinsic mapping MUST NOT be replaced by a
+metadata blob or legend merely to remove a loss. If the native family cannot
+represent ladder geometry, field ports, identifying relations or an exact
+multiplicity, the corresponding path remains loss/refusal. Model 1.1.0 support
+requires its own typed registry, stable field IDs and exact/unspecified-value
+tests; registration alone is insufficient.
+
+The first Lini-flow positive witness is `visual-catalog-canary-flow`: native
+nodes/edges plus separately visible title/source/omissions values, with complete
+document readback. Flow and pipeline cohorts then qualify independently. The
+first Mermaid cohort is the five sequence examples; ER field/reference
+eligibility is a separate native probe. Unsupported families remain visible.
+
+New carriers MUST reuse the owned typed-entry/coverage seam. Format-local
+readers reconstruct visible values and intrinsic semantics independently of the
+original document. There MUST be no hidden authoritative copy of scalar values.
+Native IDs/descriptors may carry path/type/owner identity only. Every admitted
+carrier needs an actual native locator, a visible owner association, edited
+readback and independent renderer evidence. Container presence/order and empty,
+null, false and zero distinctions follow the existing grammar unchanged.
+
+The portable reader MUST reject duplicates, inconsistent carrier/intrinsic
+values, unregistered paths, unsafe native syntax and unrepresented residual
+AST content rather than quietly remove them. Complete-document comparison and
+canonical native-AST audit remain mandatory for strict complete coverage.
+Replay reparses recorded source under its profile/model interpretation; forged
+baselines or coverage arrays cannot replay stale native text. Format-local
+annotations cannot expand vocabulary semantics or flatten rich text.
 
 The following specimens define the proposed readable wire grammar.
 

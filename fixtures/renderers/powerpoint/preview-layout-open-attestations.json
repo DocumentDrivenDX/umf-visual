@@ -1,0 +1,29 @@
+{
+  "evidenceType": "umf.visual.powerpoint.preview-layout-native-open/1",
+  "entries": [
+    {
+      "id": "process-documents-store",
+      "artifactSha256": "4642c5421babd29de9a9deda2d3bc21b08a1cce19875e6e2c0176a993ead08db",
+      "application": "Microsoft PowerPoint for Mac",
+      "version": "16.114.3",
+      "observer": "Codex computer-use",
+      "method": "Opened the exact v3 file through PowerPoint native Open dialog; inspected the native rendered slide and absence of a repair prompt.",
+      "reopenObserved": true,
+      "noRepairPrompt": true,
+      "screenshotSha256": "188c393b2c56644bcab0cb6b9a2707f644d487d03ff42f2fd8aa12e75539a645",
+      "screenshotPrivacy": "Private native application screenshot retained; no screenshot path or host identifier is published."
+    },
+    {
+      "id": "network-16x24",
+      "artifactSha256": "db78cb33ca2f876e386bf00430096f83af667cc7fc1fa2f2d6588ced9d457029",
+      "application": "Microsoft PowerPoint for Mac",
+      "version": "16.114.3",
+      "observer": "Codex computer-use",
+      "method": "Opened the exact v3 file through PowerPoint native Open dialog; inspected the native rendered slide and absence of a repair prompt.",
+      "reopenObserved": true,
+      "noRepairPrompt": true,
+      "screenshotSha256": "8b020300beb71f0c0bff0ef598343be3e3ec593750b9ac2c9d15d1df7191d466",
+      "screenshotPrivacy": "Private native application screenshot retained; no screenshot path or host identifier is published."
+    }
+  ]
+}

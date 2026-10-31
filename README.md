@@ -94,7 +94,7 @@ Canonical conversion is a projection, not an equivalence claim.
 | --- | --- | --- |
 | Graphviz DOT | Directed flows, nested named clusters/membership, labels and descriptive tooltips; scoped defaults and chains | Graphviz native parser/render |
 | Mermaid | Bounded flowchart and ER diagrams; ordered sequences with call/return/async messages, notes and loops | Mermaid 12.2.0 in Chromium |
-| Lini | Flat block/entity cards, quoted fields and directed links to cards/declared fields | Pinned Lini 1.1.0 WASM |
+| Lini | Native outer-group titles, flat block/entity cards, quoted fields and directed links to cards/declared fields | Pinned Lini 1.1.0 WASM |
 
 The public `interchangeCapabilities` array describes the exact profile versions
 and subsets. These adapters do not translate every UMF form. Unsupported content,
@@ -125,17 +125,29 @@ if (projected.ok) {
 }
 ```
 
-`umf.visual.dot.annotated/1` covers bounded flow, structural/entity, state and
-sequence views. `umf.visual.lini.annotated/1` covers bounded metric, timeline and
-comparison views. Initial mapping version is 0.1.0; both currently require the
-canonical frozen 1.0.0 vocabulary declaration. Generated 1.1.0 types do not
-establish native support for stable field IDs or exact multiplicities.
+Current source profiles qualify these bounded subsets:
+
+| Explicit profile | Mapping version | Subset |
+| --- | --- | --- |
+| `umf.visual.dot.annotated/1` | 0.1.0 | Flow, structural/entity, state and sequence views |
+| `umf.visual.lini.annotated/1` | 0.2.0 | Metric, timeline, comparison and directed flow networks; pipeline geometry remains reported loss |
+| `umf.visual.mermaid.annotated/1` | 0.1.0 | Sequence lifelines with visible typed notes; ladder geometry remains reported loss |
+
+These profiles require the canonical frozen 1.0.0 vocabulary declaration.
+Generated 1.1.0 types do not establish native support for stable field IDs,
+exact multiplicities or the larger model's resource bounds. Strict mode refuses
+remaining geometry losses; reported-loss mode exposes them, including on exact
+retained-source replay.
 
 The source tree also contains bounded editable-network host APIs for PowerPoint,
 Google Slides and Miro. See the [editable host integration guide](docs/editable-integrations.md)
 for package imports, strict/report behavior, revision-fenced readback and update
-examples. The Miro editable binding profile has no native-host evidence claimed
-yet; the older Miro capture/clipboard evidence is a separate profile.
+examples. Named native-host proofs qualify specific PowerPoint, Slides and Miro
+cases; the older Miro capture/clipboard evidence is a separate profile. The
+[current continuation evidence](docs/helix/04-build/example-completion-evidence.md#p8-p14-continuation-review--2026-10-31)
+distinguishes the fifteen locally qualified host cycles from conversion
+previews and the still-pending release/CI gates. It does not claim whole-board
+or arbitrary-edit support.
 
 Intrinsic meaning uses native connections, markers, ports, chart data or
 table/grid geometry. Registered additional metadata uses visible, typed native

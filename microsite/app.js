@@ -3,7 +3,11 @@ import {renderIntegrationCatalog} from './integrations.js';
 const TARGETS = ['dot', 'mermaid', 'lini'];
 const LABELS = {dot: 'DOT', mermaid: 'Mermaid', lini: 'Lini'};
 const STATUS = ['supported', 'reported-loss', 'unsupported'];
-const state = {catalog: null, query: '', kind: new Set(), form: new Set(), profiles: new Set(), status: new Set(), sort: 'title', selected: null, target: 'dot', profileId: null, profileView: 'diagram', showSecondary: false};
+const SIX_TARGETS = [
+  ['dot', 'DOT'], ['mermaid', 'Mermaid'], ['lini', 'Lini'],
+  ['powerpoint', 'PowerPoint'], ['google-slides', 'Google Slides'], ['miro', 'Miro'],
+];
+const state = {catalog: null, query: '', kind: new Set(), form: new Set(), profiles: new Set(), status: new Set(), sort: 'title', selected: null, target: 'dot', profileId: null, profileView: 'diagram', view: 'native', lastQualifiedByTarget: Object.create(null), showSecondary: false};
 const $ = (id) => document.getElementById(id);
 const el = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = String(text); return node; };
 const safeJson = (value) => JSON.stringify(value, null, 2);
@@ -41,11 +45,12 @@ function updateThemeButton() {
   $('theme-toggle').setAttribute('aria-label', dark ? 'Use light color theme' : 'Use dark color theme');
   $('theme-toggle').title = dark ? 'Use light color theme' : 'Use dark color theme';
 }
-function setUrl(id = state.selected, target = state.target, profileId = state.profileId) {
+function setUrl(id = state.selected, target = state.target, profileId = state.profileId, view = state.view) {
   const url = new URL(location.href);
   if (id) url.searchParams.set('id', id); else url.searchParams.delete('id');
   if (id) url.searchParams.set('target', TARGETS.includes(target) ? target : 'dot'); else url.searchParams.delete('target');
   if (id && profileId) url.searchParams.set('profile', profileId); else url.searchParams.delete('profile');
+  if (id) url.searchParams.set('view', ['native', 'diagram', 'complete'].includes(view) ? view : 'native'); else url.searchParams.delete('view');
   history.replaceState(null, '', url);
 }
 function statusName(status) { return status === 'reported-loss' ? 'Reported loss' : status === 'unevaluated' ? 'Not evaluated' : status[0].toUpperCase() + status.slice(1); }
@@ -242,16 +247,21 @@ function preferredSelection(item) {
 }
 function preferredPreview(item) {
   const choice = preferredSelection(item);
-  const variant = choice.profileId && (item.profileVariants || []).find(candidate => candidate.profileId === choice.profileId && candidate.format === choice.target);
+  const variant = choice.profileId && (item.profileVariants || []).find(candidate => candidate.profileId === choice.profileId && candidate.format === choice.target && candidate.result?.ok);
   if (variant?.diagramRender?.ok && variant.diagramRender.svgPath) return {target: choice.target, render: variant.diagramRender, label: `${LABELS[choice.target]} · QUALIFIED DIAGRAM`};
   const baseline = item.targets?.[choice.target]?.render;
   if (baseline?.ok && baseline.svgPath) return {target: choice.target, render: baseline, label: `${LABELS[choice.target]} · NATIVE BASELINE`};
   return null;
 }
-function openDetail(id, target, profileId = null) {
+function openDetail(id, target, profileId = null, requestedView = null) {
   const item = allItems().find(candidate => candidate.id === id); if (!item) return;
-  const preferred = target === undefined ? preferredSelection(item) : {target: TARGETS.includes(target) ? target : 'dot', profileId};
-  state.selected = item.id; state.target = preferred.target; state.profileId = preferred.profileId; state.profileView = 'diagram';
+  const requestedVariant = profileId && (item.profileVariants || []).find(candidate => candidate.profileId === profileId);
+  const preferred = target === undefined ? preferredSelection(item) : {target: TARGETS.includes(target) ? target : 'dot', profileId: requestedVariant?.format === target ? requestedVariant.profileId : profileId};
+  state.selected = item.id; state.target = requestedVariant?.profileId === profileId ? requestedVariant.format : preferred.target;
+  state.profileId = preferred.profileId; state.profileView = requestedView === 'complete' ? 'complete' : 'diagram';
+  state.view = ['native', 'diagram', 'complete'].includes(requestedView) ? requestedView : (state.profileId ? 'diagram' : 'native');
+  state.lastQualifiedByTarget = Object.create(null);
+  if (state.profileId) state.lastQualifiedByTarget[state.target] = state.profileId;
   $('detail-title').textContent = item.title;
   $('detail-kicker').textContent = `SAMPLE INSTANCE / ${String(item.id).toUpperCase()}`;
   const meta = $('detail-meta'); meta.replaceChildren(makeBadge(item.kind), makeBadge(item.form), makeBadge(sampleSetLabel(item), 'badge origin-badge'));
@@ -259,43 +269,51 @@ function openDetail(id, target, profileId = null) {
   $('umf-source').textContent = safeJson(item.document ?? {});
   const provenance = $('provenance'); provenance.textContent = `${item.sourcePath || 'Source path unavailable'}\nSHA-256  ${item.sourceSha256 || 'not supplied'}`;
   for (const key of TARGETS) { const tab = $(`tab-${key}`); tab.setAttribute('aria-selected', String(key === state.target)); tab.tabIndex = key === state.target ? 0 : -1; }
-  renderProfileControls(item); showSelectedTarget(item); setUrl(item.id, state.target, state.profileId);
+  renderProfileControls(item); showSelectedTarget(item); setUrl(item.id, state.target, state.profileId, state.view);
   const dialog = $('detail-dialog'); if (!dialog.open) dialog.showModal();
 }
 function renderProfileControls(item) {
-  const variants = Array.isArray(item.profileVariants) ? item.profileVariants : [];
+  const variants = (Array.isArray(item.profileVariants) ? item.profileVariants : []).filter(candidate => candidate.format === state.target && candidate.result?.ok);
   const controls = $('qualified-profile-controls');
-  controls.hidden = variants.length === 0;
-  $('baseline-label').hidden = Boolean(state.profileId);
-  if (!variants.length) return;
+  controls.hidden = !Array.isArray(item.profileVariants) || item.profileVariants.length === 0;
+  $('baseline-label').hidden = state.view !== 'native';
+  $('baseline-label').textContent = `NATIVE BASELINE PROFILE · ${LABELS[state.target]}`;
+  if (controls.hidden) return;
   const select = $('profile-select'); select.replaceChildren();
-  const baseline = document.createElement('option'); baseline.value = ''; baseline.textContent = `Native baseline · ${LABELS[state.target]}`; select.append(baseline);
+  const baseline = document.createElement('option'); baseline.value = 'native'; baseline.textContent = `Native baseline · ${LABELS[state.target]}`; select.append(baseline);
+  if (state.view !== 'native' && variants.length !== 1) {
+    const placeholder = document.createElement('option'); placeholder.value = 'unavailable'; placeholder.textContent = variants.length > 1 ? 'Choose a qualified profile' : `Qualified profile unavailable · ${LABELS[state.target]}`;
+    placeholder.disabled = variants.length === 0; select.append(placeholder);
+  }
   for (const variant of variants) {
     const option = document.createElement('option'); option.value = variant.profileId;
     option.textContent = `${LABELS[variant.format] || variant.format} · ${variant.profileId} · mapping ${variant.mappingVersion || '—'} · model ${variant.modelVersion || '—'}`;
     select.append(option);
   }
-  select.value = state.profileId || '';
+  select.value = state.view === 'native' ? 'native' : (variants.some(variant => variant.profileId === state.profileId) ? state.profileId : variants.length === 1 ? variants[0].profileId : 'unavailable');
   const variant = variants.find(candidate => candidate.profileId === state.profileId);
   const preferred = item.preferredRelease?.profileId === variant?.profileId && item.preferredRelease?.format === variant?.format;
-  $('profile-description').textContent = variant
-    ? `${preferred ? 'Qualified annotation profile · preferred release. ' : 'Annotation profile variant. '}Readable native annotations are explicitly selected; the existing native baseline remains available below. Mapping ${variant.mappingVersion || '—'}; model ${variant.modelVersion || '—'}.`
-    : `Choose an emitted annotation profile to inspect its complete native view and field coverage. Existing target tabs remain the unannotated native baselines.`;
-  const viewSwitch = $('profile-view-switch'); viewSwitch.hidden = !variant;
-  $('view-diagram').setAttribute('aria-selected', String(state.profileView === 'diagram')); $('view-diagram').tabIndex = state.profileView === 'diagram' ? 0 : -1;
-  $('view-complete').setAttribute('aria-selected', String(state.profileView === 'complete')); $('view-complete').tabIndex = state.profileView === 'complete' ? 0 : -1;
-  $('baseline-label').textContent = variant ? '' : `NATIVE BASELINE PROFILE · ${LABELS[state.target]}`;
+  $('profile-description').textContent = state.view === 'native'
+    ? `Native baseline mode is explicit for ${LABELS[state.target]}. Select an available annotation profile to switch modes.`
+    : variant
+      ? `${preferred ? 'Qualified annotation profile · preferred release. ' : 'Annotation profile variant. '}Mapping ${variant.mappingVersion || '—'}; model ${variant.modelVersion || '—'}. Selecting another target preserves annotated mode where a matching profile exists.`
+      : variants.length > 1 ? `Several qualified annotation profiles exist for ${LABELS[state.target]}; choose one explicitly.` : `No qualified annotation profile is recorded for ${LABELS[state.target]}. Native fallback is disabled; switch to the baseline explicitly if desired.`;
+  const viewSwitch = $('profile-view-switch'); viewSwitch.hidden = state.view === 'native' || !variant;
+  $('view-diagram').setAttribute('aria-selected', String(state.view === 'diagram')); $('view-diagram').tabIndex = state.view === 'diagram' ? 0 : -1;
+  $('view-complete').setAttribute('aria-selected', String(state.view === 'complete')); $('view-complete').tabIndex = state.view === 'complete' ? 0 : -1;
 }
 function showSelectedTarget(item) {
-  if (state.profileId) {
-    const variant = (item.profileVariants || []).find(candidate => candidate.profileId === state.profileId && candidate.format === state.target);
+  if (state.view !== 'native') {
+    const variants = (item.profileVariants || []).filter(candidate => candidate.format === state.target && candidate.result?.ok);
+    let variant = variants.find(candidate => candidate.profileId === state.profileId);
+    if (!variant && variants.length === 1) {variant = variants[0]; state.profileId = variant.profileId; state.lastQualifiedByTarget[state.target] = variant.profileId;}
     if (variant) {
-      for (const key of TARGETS) { const tab = $(`tab-${key}`); tab.setAttribute('aria-selected', 'false'); tab.tabIndex = key === state.target ? 0 : -1; }
+      for (const key of TARGETS) { const tab = $(`tab-${key}`); tab.setAttribute('aria-selected', String(key === state.target)); tab.tabIndex = key === state.target ? 0 : -1; }
       renderProfileControls(item); showVariant(item, variant); return;
     }
-    state.profileId = null;
+    renderProfileControls(item); showQualifiedUnavailable(item, variants.length); return;
   }
-  renderProfileControls(item); showTarget(item, state.target);
+  state.profileId = null; renderProfileControls(item); showTarget(item, state.target);
 }
 function safeRenderPath(path, sha256) {
   if (typeof path !== 'string' || !/^renders\/[A-Za-z0-9._/-]+\.svg$/.test(path) || path.split('/').some(part => part === '..')) return null;
@@ -315,6 +333,33 @@ function addDiagnostics(panel, diagnostics) {
 function addIdentityMap(panel, map) {
   if (!Array.isArray(map) || !map.length) return;
   const details = document.createElement('details'); details.className = 'identity-details'; const summary = el('summary', '', `Identity map · ${map.length} entries`); const pre = document.createElement('pre'); pre.textContent = safeJson(map); details.append(summary, pre); panel.append(details);
+}
+function showQualifiedUnavailable(item, candidateCount) {
+  const panel = $('target-panel'); panel.replaceChildren(); panel.setAttribute('aria-labelledby', `tab-${state.target}`);
+  for (const key of TARGETS) { $(`tab-${key}`).setAttribute('aria-selected', String(key === state.target)); $(`tab-${key}`).tabIndex = key === state.target ? 0 : -1; }
+  const message = candidateCount > 1
+    ? `Several qualified annotation profiles exist for ${LABELS[state.target]}. Choose one explicitly above; no profile was selected.`
+    : `No qualified annotation profile is recorded for ${LABELS[state.target]}. This view stays unavailable instead of substituting an unannotated baseline.`;
+  panel.append(el('p', 'profile-status', `QUALIFIED ANNOTATION VIEW · ${LABELS[state.target]} · UNAVAILABLE`), el('p', 'profile-view-error', message));
+  const useNative = el('button', 'icon-button', `Switch to ${LABELS[state.target]} native baseline`); useNative.type = 'button';
+  useNative.addEventListener('click', () => {
+    state.view = 'native'; state.profileId = null;
+    renderProfileControls(item); showTarget(item, state.target); setUrl(item.id, state.target, null, state.view);
+  });
+  panel.append(useNative);
+  const baseline = item.targets?.[state.target];
+  if (baseline) {
+    const details = document.createElement('details'); details.className = 'profile-baseline-details';
+    const losses = (baseline.diagnostics || []).filter(diagnostic => diagnostic.loss).length;
+    details.append(el('summary', '', `Underlying native baseline · ${statusName(baseline.status || 'unevaluated')} · ${losses} reported losses`));
+    details.append(el('p', 'target-explainer', 'This is supporting baseline evidence only; it does not replace the unavailable qualified view.'));
+    if (typeof baseline.source === 'string') {
+      const sourceDetails = document.createElement('details'); sourceDetails.className = 'profile-native-source';
+      sourceDetails.append(el('summary', '', `${LABELS[state.target]} baseline source`));
+      const pre = el('pre', 'code-block'); const code = document.createElement('code'); code.textContent = baseline.source; pre.append(code); sourceDetails.append(pre); details.append(sourceDetails);
+    }
+    addDiagnostics(details, baseline.diagnostics); addIdentityMap(details, baseline.identityMap); panel.append(details);
+  }
 }
 function profileCoverageDetails(coverage) {
   const details = document.createElement('details'); details.className = 'profile-coverage';
@@ -364,15 +409,16 @@ function appendProfileRender(panel, render, title, mode) {
   panel.append(el('p', 'profile-full-caption', `${title} · ${render.engine || 'native engine'} ${render.nativeVersion || '(version unavailable)'}`));
 }
 function showVariant(item, variant) {
-  const panel = $('target-panel'); panel.replaceChildren(); panel.setAttribute('aria-labelledby', state.profileView === 'complete' ? 'view-complete' : 'view-diagram');
+  const view = state.view === 'complete' ? 'complete' : 'diagram';
+  const panel = $('target-panel'); panel.replaceChildren(); panel.setAttribute('aria-labelledby', view === 'complete' ? 'view-complete' : 'view-diagram');
   const result = variant.result || {}; const isPreferred = item.preferredRelease?.format === variant.format && item.preferredRelease?.profileId === variant.profileId;
   panel.append(el('p', 'profile-status', `${isPreferred ? 'QUALIFIED ANNOTATION PROFILE · PREFERRED RELEASE' : 'ANNOTATION PROFILE VARIANT'} · ${LABELS[variant.format] || variant.format} · ${statusName(result.status || 'unevaluated')}`));
   panel.append(el('p', 'profile-version', `Profile ${variant.profileId} · mapping ${variant.mappingVersion || '—'} · model ${variant.modelVersion || '—'} · ${result.ok ? 'native source emitted' : 'no native source emitted'}`));
-  panel.append(el('p', 'profile-view-note', state.profileView === 'diagram'
+  panel.append(el('p', 'profile-view-note', view === 'diagram'
     ? `Focused view: ${variant.diagramDescription || 'Native diagram meaning and title are retained; only profile annotation and boilerplate are removed from this focused render.'}`
     : 'Complete view: all readable native annotations are included. This is the full annotated native export.'));
-  appendProfileRender(panel, state.profileView === 'diagram' ? variant.diagramRender : result.render,
-    state.profileView === 'diagram' ? 'Focused diagram view' : 'Complete annotated view', state.profileView);
+  appendProfileRender(panel, view === 'diagram' ? variant.diagramRender : result.render,
+    view === 'diagram' ? 'Focused diagram view' : 'Complete annotated view', view);
   const baseline = item.targets?.[variant.format]; const baselineDetails = document.createElement('details'); baselineDetails.className = 'profile-baseline-details';
   const baselineLosses = (baseline?.diagnostics || []).filter(diagnostic => diagnostic.loss).length;
   baselineDetails.append(el('summary', '', `Unchanged ${LABELS[variant.format]} baseline · ${statusName(baseline?.status || 'unevaluated')} · ${baselineLosses} reported losses`));
@@ -389,7 +435,8 @@ function showVariant(item, variant) {
     const sourceDetails = document.createElement('details'); sourceDetails.className = 'profile-native-source profile-complete-source';
     sourceDetails.append(el('summary', '', `Complete annotated ${LABELS[variant.format]} source`));
     const pre = el('pre', 'code-block'); const code = document.createElement('code'); code.textContent = result.source; pre.append(code); sourceDetails.append(pre);
-    const download = el('button', 'icon-button', 'Download annotated source'); download.type = 'button'; download.addEventListener('click', () => downloadText(`${item.id}.${variant.format === 'dot' ? 'dot' : 'lini'}`, result.source));
+    const extension = variant.format === 'dot' ? 'dot' : variant.format === 'mermaid' ? 'mmd' : 'lini';
+    const download = el('button', 'icon-button', 'Download annotated source'); download.type = 'button'; download.addEventListener('click', () => downloadText(`${item.id}.${extension}`, result.source));
     sourceDetails.append(download, el('p', 'profile-coverage-note', 'This exact native source produced the complete annotated render.')); panel.append(sourceDetails);
   }
   addDiagnostics(panel, result.diagnostics); addIdentityMap(panel, result.identityMap);
@@ -433,6 +480,88 @@ function showTarget(item, target) {
 function downloadText(filename, content) {
   const url = URL.createObjectURL(new Blob([content], {type: 'text/plain;charset=utf-8'})); const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+function safeEvidenceAsset(asset) {
+  if (!asset || typeof asset.path !== 'string' || !/^(integrations|renders)\/[A-Za-z0-9._/-]+\.(?:png|svg|jpe?g)$/i.test(asset.path) || asset.path.split('/').some(part => part === '..')) return null;
+  if (!/^[a-f0-9]{64}$/i.test(asset.sha256 || '') || !['image/png', 'image/svg+xml', 'image/jpeg'].includes(asset.mediaType)) return null;
+  if (!Number.isFinite(asset.width) || !Number.isFinite(asset.height) || asset.width <= 0 || asset.height <= 0) return null;
+  return new URL(asset.path, new URL('./', location.href)).href + `?v=${encodeURIComponent(asset.sha256)}`;
+}
+function rendererTargetFor(integrationCase, rendererId) {
+  return Array.isArray(integrationCase.rendererTargets) ? integrationCase.rendererTargets.find(target => target.rendererId === rendererId) : undefined;
+}
+function appendReceiptDetails(container, label, value) {
+  if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) return;
+  const details = document.createElement('details'); details.className = 'six-target-details';
+  const count = Array.isArray(value) ? ` · ${value.length}` : '';
+  details.append(el('summary', '', `${label}${count}`));
+  const pre = el('pre', 'integration-json'); pre.textContent = safeJson(value); details.append(pre); container.append(details);
+}
+function renderDestinationCard(integrationCase, rendererId, label) {
+  const target = rendererTargetFor(integrationCase, rendererId);
+  const card = el('article', 'six-target-card'); card.dataset.target = rendererId;
+  const heading = el('div', 'six-target-card-head'); heading.append(el('h3', '', label));
+  const projection = target?.projection;
+  const projectionLabel = projection ? `${projection.state || 'state unavailable'} · ${projection.status || 'status unavailable'}` : 'No projection receipt';
+  const projectionStatus = ['supported', 'reported-loss', 'unsupported', 'not-evaluated'].includes(projection?.status) ? projection.status : 'not-evaluated';
+  heading.append(el('span', `six-target-badge ${projectionStatus}`, projectionLabel)); card.append(heading);
+  card.append(el('p', 'six-target-profile', target?.profileId ? `${target.profileId} · model ${target.modelVersion || '—'} · mapping ${target.mappingVersion || '—'}` : 'Profile and version receipt unavailable.'));
+  if (projection) card.append(el('p', 'six-target-evidence', `Projection: ${projection.state || 'unknown'} · ${projection.status || 'not evaluated'}`));
+  else card.append(el('p', 'six-target-evidence', 'Projection: not attempted or no target receipt supplied.'));
+
+  const preview = target?.preview;
+  const previewState = ['rendered', 'failed', 'unavailable'].includes(preview?.state) ? preview.state : 'unavailable';
+  const previewBox = el('div', `six-target-preview ${previewState}`);
+  if (preview?.state === 'rendered') {
+    const sourceMatches = preview.sourceSha256 === integrationCase.commonSha256;
+    const profileMatches = preview.profileId === target.profileId && preview.modelVersion === target.modelVersion && preview.mappingVersion === target.mappingVersion;
+    const digestExists = Boolean(preview.inputArtifactSha256 || preview.captureDigestSha256);
+    const src = safeEvidenceAsset(preview.asset);
+    if (sourceMatches && profileMatches && digestExists && src) {
+      const image = document.createElement('img'); image.src = src; image.alt = `${label} preview for ${integrationCase.title}, rendered by ${preview.engine} ${preview.nativeVersion}`; image.loading = 'lazy';
+      image.addEventListener('error', () => previewBox.replaceChildren(el('p', 'six-target-unavailable', 'The receipt-matched preview asset failed to load.')));
+      previewBox.append(image, el('p', 'six-target-render-meta', `${preview.engine} ${preview.nativeVersion} · ${preview.stage} · ${preview.asset.width}×${preview.asset.height}`));
+    } else previewBox.append(el('p', 'six-target-unavailable', 'Render withheld: receipt does not match the exact source, profile/version, input digest, or a safe hashed image asset.'));
+  } else {
+    const reason = preview?.error || (preview?.state === 'failed' ? 'The recorded renderer failed.' : 'No native render receipt was supplied. A plan or source export is not a preview.');
+    previewBox.append(el('p', 'six-target-unavailable', `${previewState === 'unavailable' ? 'Preview unavailable' : `Preview ${previewState}`} · ${reason}`));
+  }
+  card.append(previewBox);
+  const cycle = target?.roundTrip;
+  const cycleState = ['verified', 'planned', 'refused', 'partial', 'not-attempted'].includes(cycle?.state) ? cycle.state : 'not-attempted';
+  card.append(el('p', `six-target-cycle ${cycleState}`, `Edited cycle: ${cycle?.state || 'not attempted'}${cycle?.stage ? ` · ${cycle.stage}` : ''}${cycle?.reason ? ` · ${cycle.reason}` : ''}`));
+  const versions = {sourceSha256: target?.sourceSha256, artifactSha256: preview?.inputArtifactSha256, captureDigestSha256: preview?.captureDigestSha256, revision: preview?.revision, renderSha256: preview?.asset?.sha256};
+  if (Object.values(versions).some(value => value !== undefined)) appendReceiptDetails(card, 'Source and artifact hashes', versions);
+  appendReceiptDetails(card, 'Projection diagnostics', projection?.diagnostics);
+  appendReceiptDetails(card, 'Projection losses', projection?.losses);
+  appendReceiptDetails(card, 'Edited-cycle receipt', cycle);
+  const artifacts = Array.isArray(target?.artifacts) ? target.artifacts : target?.artifacts && typeof target.artifacts === 'object' ? Object.values(target.artifacts) : [];
+  for (const artifact of artifacts) {
+    if (typeof artifact?.path !== 'string' || !/^integrations\/[A-Za-z0-9._/-]+$/.test(artifact.path) || artifact.path.split('/').some(part => part === '..') || !/^[a-f0-9]{64}$/i.test(artifact.sha256 || '')) continue;
+    const extension = artifact.path.split('.').pop()?.toLowerCase();
+    const isPreview = artifact.path === preview?.asset?.path;
+    const artifactLabel = artifact.label || (isPreview ? `rendered preview (${extension?.toUpperCase() || 'image'})` : extension === 'dot' ? 'DOT source' : extension === 'mmd' ? 'Mermaid source' : extension === 'lini' ? 'Lini source' : extension === 'pptx' ? 'PowerPoint file' : extension === 'json' ? 'UMF JSON document' : `${label} artifact`);
+    const link = el('a', 'six-target-download', `Download ${artifactLabel}`); link.href = new URL(artifact.path, new URL('./', location.href)).href; link.download = ''; card.append(link);
+  }
+  return card;
+}
+function renderSixTargetMatrix(data, root) {
+  const cases = Array.isArray(data?.cases) ? data.cases : [];
+  const selector = $('six-target-case-select'); selector.replaceChildren();
+  for (const entry of cases) {const option = document.createElement('option'); option.value = entry.id; option.textContent = entry.title; selector.append(option);}
+  if (!cases.length) {root.replaceChildren(el('p', 'six-target-unavailable', 'No integration cases are available for the six-target matrix.')); return;}
+  const selected = cases.find(entry => entry.id === 'process-documents-store') || cases[0];
+  selector.value = selected.id;
+  const render = () => {
+    const current = cases.find(entry => entry.id === selector.value) || selected; root.replaceChildren();
+    const source = current.commonDocument ? current.commonDocument.umf ? current.commonDocument : current.commonDocument.document : null;
+    const sourceLabel = current.commonSha256 ? `Source SHA-256 ${current.commonSha256}` : 'Common source hash unavailable';
+    root.append(el('p', 'six-target-source', `${current.title} · ${current.commonPath || 'path unavailable'} · ${sourceLabel}${source ? ` · ${current.commonProjection || 'common projection'}` : ' · no common projection'}`));
+    const grid = el('div', 'six-target-grid-cards');
+    for (const [rendererId, label] of SIX_TARGETS) grid.append(renderDestinationCard(current, rendererId, label));
+    root.append(grid);
+  };
+  selector.onchange = render; render();
+}
 let toastTimer;
 function toast(message) { const node = $('toast'); node.textContent = message; node.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => node.classList.remove('show'), 1500); }
 async function copyText(text, message) { try { await navigator.clipboard.writeText(text); toast(message); } catch { toast('Clipboard access is unavailable here'); } }
@@ -447,6 +576,7 @@ async function loadIntegrationCatalog() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     renderIntegrationCatalog(data, mount);
+    renderSixTargetMatrix(data, $('six-target-matrix'));
   } catch (error) {
     console.error('Integration evidence load failed', error);
     mount.replaceChildren(el('p', 'integration-load-error', 'Synthetic integration evidence is unavailable. The language reference and sample catalogue remain available.'));
@@ -470,21 +600,35 @@ async function init() {
     $('download-umf').addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); const item = allItems().find(candidate => candidate.id === state.selected); if (item) downloadText(`${item.id}.json`, safeJson(item.document ?? {})); });
     $('close-detail').addEventListener('click', () => $('detail-dialog').close());
     $('detail-dialog').addEventListener('close', () => { state.selected = null; setUrl(null); });
-    for (const key of TARGETS) $(`tab-${key}`).addEventListener('click', () => {
-      state.target = key; state.profileId = null;
-      const item = allItems().find(candidate => candidate.id === state.selected);
-      if (item) { renderProfileControls(item); showTarget(item, key); setUrl(item.id, key, null); }
-    });
+    const selectTarget = key => {
+      state.target = key;
+      const item = allItems().find(candidate => candidate.id === state.selected); if (!item) return;
+      if (state.view === 'native') state.profileId = null;
+      else {
+        const variants = (item.profileVariants || []).filter(candidate => candidate.format === key && candidate.result?.ok);
+        const remembered = variants.find(candidate => candidate.profileId === state.lastQualifiedByTarget[key]);
+        state.profileId = remembered?.profileId || (variants.length === 1 ? variants[0].profileId : null);
+        if (state.profileId) state.lastQualifiedByTarget[key] = state.profileId;
+      }
+      renderProfileControls(item); showSelectedTarget(item); setUrl(item.id, key, state.profileId, state.view);
+    };
+    for (const key of TARGETS) $(`tab-${key}`).addEventListener('click', () => selectTarget(key));
     $('profile-select').addEventListener('change', event => {
       const item = allItems().find(candidate => candidate.id === state.selected); if (!item) return;
-      const id = event.target.value; const variant = (item.profileVariants || []).find(candidate => candidate.profileId === id);
-      state.profileId = variant?.profileId || null; if (variant) state.target = variant.format; state.profileView = 'diagram';
-      renderProfileControls(item); showSelectedTarget(item); setUrl(item.id, state.target, state.profileId);
+      const id = event.target.value;
+      if (id === 'native') {state.view = 'native'; state.profileId = null;}
+      else {
+        const variant = (item.profileVariants || []).find(candidate => candidate.profileId === id && candidate.format === state.target);
+        if (!variant) return;
+        state.view = 'diagram'; state.profileView = 'diagram'; state.profileId = variant.profileId; state.lastQualifiedByTarget[state.target] = variant.profileId;
+      }
+      renderProfileControls(item); showSelectedTarget(item); setUrl(item.id, state.target, state.profileId, state.view);
     });
     const selectProfileView = (view, focus = false) => {
       if (!state.profileId) return; state.profileView = view;
+      state.view = view;
       const item = allItems().find(candidate => candidate.id === state.selected);
-      if (item) { renderProfileControls(item); showSelectedTarget(item); }
+      if (item) { renderProfileControls(item); showSelectedTarget(item); setUrl(item.id, state.target, state.profileId, state.view); }
       if (focus) $(`view-${view}`).focus();
     };
     $('view-diagram').addEventListener('click', () => selectProfileView('diagram'));
@@ -499,13 +643,13 @@ async function init() {
       if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return; event.preventDefault();
       const focusedTarget = event.target instanceof Element ? event.target.closest('[role="tab"]')?.dataset.target : undefined;
       const index = TARGETS.indexOf(focusedTarget || state.target); const next = TARGETS[(index + (event.key === 'ArrowRight' ? 1 : 2)) % 3];
-      state.target = next; state.profileId = null; $(`tab-${next}`).focus(); const item = allItems().find(candidate => candidate.id === state.selected); if (item) { renderProfileControls(item); showTarget(item, next); setUrl(item.id, next, null); }
+      selectTarget(next); $(`tab-${next}`).focus();
     });
-    const initialParams = new URLSearchParams(location.search); const initialId = initialParams.get('id'); const initialTarget = initialParams.get('target'); const initialProfile = initialParams.get('profile');
+    const initialParams = new URLSearchParams(location.search); const initialId = initialParams.get('id'); const initialTarget = initialParams.get('target'); const initialProfile = initialParams.get('profile'); const initialView = initialParams.get('view');
     updateList();
     if (initialId) {
       const item = findItemForUrl(initialId);
-      if (item) openDetail(item.id, initialTarget || 'dot', initialProfile);
+      if (item) openDetail(item.id, initialTarget || 'dot', initialProfile, initialView);
     }
   } catch (error) {
     console.error('Catalogue load failed', error); $('load-error').hidden = false; $('result-count').textContent = 'Catalogue unavailable';

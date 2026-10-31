@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-10-31",
+  "evidenceBoundary": "Operator-observed native PowerPoint UI reopen and Save As; exact artifact digests bind these observations. No inference of UI execution from OOXML alone.",
+  "host": {
+    "application": "Microsoft PowerPoint for Mac",
+    "version": "16.114.3"
+  },
+  "cases": [
+    {
+      "id": "nested-environments",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/nested-environments.json",
+        "sha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34"
+      },
+      "inputArtifactSha256": "a1a532670adad9b95922c35921a068338f40dec95fa202b291ae69c2e5b96cc1",
+      "outputArtifactSha256": "169b4b51d7097098ad712bef8066384e5b448888f36c68a1ea5b59dd0e167125",
+      "reopenObserved": true,
+      "noRepairPrompt": true,
+      "updatedQuestionVisible": true,
+      "nativeBoldLabelVisible": true,
+      "attachedEndpointsObserved": true
+    },
+    {
+      "id": "process-documents-store",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/process-documents-store.json",
+        "sha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520"
+      },
+      "inputArtifactSha256": "d67862dff2ee9fdb609f2859a586b17ad47a0806a8156e6480ec9dbe79abdb7d",
+      "outputArtifactSha256": "e82e2f806f4eee4a9164c48d8725e5f1c6cbbd81954d232aa315ce710f2b5980",
+      "reopenObserved": true,
+      "noRepairPrompt": true,
+      "updatedQuestionVisible": true,
+      "nativeBoldLabelVisible": true,
+      "attachedEndpointsObserved": true
+    },
+    {
+      "id": "network-16x24",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/network-16x24.json",
+        "sha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4"
+      },
+      "inputArtifactSha256": "c0127125a44667fd77da30b3b33f94842b586e01a106bfbc3f45515a19391a89",
+      "outputArtifactSha256": "6b34c271075e166d0792578750c9bee87b3fb55441a24c76641146406ed4c59d",
+      "reopenObserved": true,
+      "noRepairPrompt": true,
+      "updatedQuestionVisible": true,
+      "nativeBoldLabelVisible": true,
+      "attachedEndpointsObserved": true
+    },
+    {
+      "id": "frames-headings-annotations",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/frames-headings-annotations.json",
+        "sha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa"
+      },
+      "inputArtifactSha256": "5c473473da2b4bcd35dd424ec29b3864c2edca4187acea4e34932db9cf221514",
+      "outputArtifactSha256": "a4ab3b9be6e670d46acf01970fd611ca8a6f7e68cecbef031fdba236c81f05a3",
+      "reopenObserved": true,
+      "noRepairPrompt": true,
+      "updatedQuestionVisible": true,
+      "nativeBoldLabelVisible": true,
+      "attachedEndpointsObserved": true
+    },
+    {
+      "id": "curved-caption-cross-boundary",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/curved-caption-cross-boundary.json",
+        "sha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c"
+      },
+      "inputArtifactSha256": "d331e771c1c6fffbf9fb40aec6c11baeb474063ed48a20d0e4243b370587cbfd",
+      "outputArtifactSha256": "e7634e2317859f084d9c11bcd4e5729ed7154b3e10126ec7e6211fe7144e939c",
+      "reopenObserved": true,
+      "noRepairPrompt": true,
+      "updatedQuestionVisible": true,
+      "nativeBoldLabelVisible": true,
+      "attachedEndpointsObserved": true
+    }
+  ]
+}
