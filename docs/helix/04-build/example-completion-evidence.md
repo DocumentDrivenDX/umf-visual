@@ -342,14 +342,35 @@ all fifteen host cycles, loss accounting, and both site browser gates. The
 local repeated catalog build also passes byte reproducibility. Main/Pages,
 release archives and served-hash verification still require delivery evidence.
 
-### DOT scope and unfinished reduction outcome
+### DOT eligibility closure and unchanged reduction outcome
 
 The [pre-merge fulfillment audit](example-completion-plan.md#p10-d-fulfillment-audit-before-merge--2026-10-31)
-records an unmet P10-D expectation: ordinary DOT losses remain 629. The ranked
-role/status/style probe is complete, but it qualified no native typed mapping
-and did not reduce omissions. Native record ports are a separate open adapter
-mapping candidate; typed entity/port support is not implemented by this cut.
+records the original unmet P10-D forecast: ordinary DOT losses remain 629 → 629.
+The [reviewed acceptance amendment](example-completion-plan.md#reviewed-p10-d-eligibility-amendment--2026-10-31)
+completes the approved role/status/style eligibility package under a bounded
+positive-or-negative native-evidence criterion. It qualified no native typed
+mapping and did not reduce omissions.
+
+Native record ports remain a separate open adapter mapping candidate; typed
+entity/port support is not implemented by this cut.
 Newly emitted entity pairs would be a separate gain, not a reduction of the
-existing comparable loss population. This candidate review approval concerns
-the implemented source/evidence; it does not declare all P8-P14 acceptance or
-all language/renderer losses resolved.
+existing comparable loss population. The original reduction forecast remains
+unachieved, and no universal native limitation is inferred. The earlier
+53-example/22-form suitable-target gate is met separately. Language/renderer
+losses remain as reported.
+
+### Late P14 provenance correction
+
+The follow-up `3054373` selects the exact ordinary profile for each coverage
+summary and ledger. The ledger refuses missing or duplicate ordinary capabilities.
+Browser checks cover all three
+ordinary profile/version labels; focused UI/ledger validation passes 11 tests/1,053 assertions.
+
+The limits copy distinguishes frozen model 1.0's 15-node graph bound from explicit
+model 1.1's 500-node and 10,000-per-connection-list limits. Adapter profiles retain
+their separately qualified narrower bounds. Ordinary loss counts and all 53
+source identities are unchanged by these provenance corrections.
+
+Final follow-up CI, served-asset hashes and release archive digests remain
+publication gates. The release publication receipt will bind the actual final
+main commit, workflow and verified assets; this amendment does not establish publication.

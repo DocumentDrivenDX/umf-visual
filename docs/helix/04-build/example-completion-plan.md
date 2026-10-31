@@ -444,7 +444,7 @@ alongside mapping work rather than waiting for all losses to be resolved.
 | P8 | Catalog selection/discovery: `microsite/`, existing UI tests and STP-095 amendment | Current audit | Format, profile and diagram/complete view are explicit selections; target switches preserve a compatible profile intent or show unavailable, never silently substitute a different profile. Deep links/reload and keyboard navigation retain selection. Coverage/loss summaries identify their active profile. |
 | P8-V | First six-target vertical slice: root joins one existing shared flow source, format/host owners capture it | P8 selection/data seam; parallel with P9 | Start with `process-documents-store`: one exact source hash, actual DOT/Mermaid/Lini/PowerPoint/Slides/Miro images, downloadable emitted artifacts or host captures, and visible losses. Reported-loss previews are useful; plans or an image from another renderer do not satisfy this slice. |
 | P9 | Current loss inventory and ranked cohorts: `scripts/catalog/loss-ledger*`, data tests; root updates governing mapping contracts | Current audit; P8 data needs | Include ordinary profiles, variants and all three host families. Rank maximal omitted pointer subtrees by affected fixtures and fixability; preserve raw diagnostics and source hashes. Each candidate names native mapping, adapter gap, model gap, native limit, additional annotation or unknown cause, with a qualified probe and owner. |
-| P10-D | Native DOT mapping cohort: `src/interchange/dot/` and format tests | P9 approved DOT cohort | Add only native constructs justified by the ranked examples; verify independent Graphviz meaning and edited readback. Show reduced comparable ordinary-profile omissions without claiming zero loss while metadata remains. |
+| P10-D | Native DOT eligibility/mapping cohort: `src/interchange/dot/` and format tests | P9 approved role/status/style cohort | Run native positive/negative and edited-readback probes. Implement demonstrated native-to-model equivalences; otherwise retain losses/refusals and record bounded negative evidence, zero comparable delta and separate mapping candidates. The reviewed amendment below preserves the original unachieved reduction forecast. |
 | P10-M | Native Mermaid mapping cohort: `src/interchange/mermaid/` and format tests | P9 approved Mermaid cohort | Start with five sequence examples and a separate four-example ER eligibility probe. Verify participant/message/note/group meaning; ladder layout remains unsupported if native geometry cannot satisfy it. Probe field ports and identifying relationships without assuming equivalence. Actual database/render evidence distinguishes intrinsic semantics from text. |
 | P10-L | Native Lini mapping cohort: `src/interchange/lini/` and format tests | P9 approved Lini cohort | Probe title loss across 23 emitted cases, then flow/pipeline cohorts and four entity examples. Qualify native key/cardinality/reference slots individually; preserve unspecified values and refuse unsupported direction rather than choosing defaults. Native proofs precede any promised reduction. |
 | P11-M / P11-L | Separate opt-in Mermaid and Lini-flow visible annotation packages, with format-local modules/tests; root integrates facade | Relevant P10 native cohort; reviewed CONTRACT-087 extension | Registered additional metadata has readable owner-associated editable native carriers and independent typed readback. No annotation replaces intrinsic connectivity/layout/chart meaning. Lini flow canary is a required positive case; all unrepresented paths remain loss/refusal. |
@@ -569,7 +569,7 @@ not substitute for the remaining native/UI/CI gates.
 | Gate / package | Observed result | Remaining evidence |
 | --- | --- | --- |
 | P9 current inventory | Separate ordinary/variant/host populations and raw evidence retained; repository-owned immutable planning baseline and exact ordinary-profile selection fix the clean-checkout/version attribution findings. Current ordinary raw counts are 629/792/530; 23 Lini title losses removed | Final generated ledger/probe report after integration; preserve bounded attribution and unknowns outside the actual field probes |
-| P10-D | Graphviz JSON/SVG presentation/port probe in `scripts/native-dot-cohort.ts`; no new intrinsic ordinary-role/status mapping qualified | Preserve presentation losses and ordinary port refusal; no invented semantic reduction |
+| P10-D | Graphviz JSON/SVG presentation/port probe in `scripts/native-dot-cohort.ts`; no new intrinsic ordinary-role/status mapping qualified | Completed under the reviewed amended eligibility criterion below; ordinary losses remain 629 → 629, with presentation losses and port refusal retained. Entity/field-port mapping remains a separate open candidate |
 | P10-L/P11-L / P11-V | Native title/flow and signed-number/scope regressions pass. Independently rerun pinned entity and model-boundary probes pass: exact fields/declared endpoint edit, no inferred keys/cardinality, native runtime 1.1.0 can render 16 blocks while the frozen UMF mapping refuses its unsupported model | Keep key/cardinality/direction losses and pipeline geometry loss. These negative feature attempts establish the bounded mapping, not universal native impossibility; final ledger must retain that qualification |
 | P10-M/P11-M | Independent Chromium rerun passes all five sources after wrapping and full-source coverage-locator corrections. Annotation widths are 330–551 pixels; hostile literal markup remains text. Source/model/mapping/native-source hashes are recorded. Four-fixture ER DB/SVG probe preserves field/cardinality meaning and explicit port/identification losses | Preserve final native receipts/assets through integration; ladder geometry remains reported loss and identifying metadata is not inferred into the frozen model |
 | P12-P | Five required native no-op saves, exact independently declared UI label/endpoint edits, JSON/YAML source and binding persistence, changed UMF question, preserving update and actual PowerPoint Save As readback pass | Final preview/cycle join, visual inspection and integrated CI |
@@ -631,10 +631,39 @@ requires counting separately rather than subtracting from the comparable 629.
 That candidate remains open in the bounded probe/loss report and is not silently
 promoted into implemented support or dismissed as a native impossibility.
 
-This disposition preserves the original acceptance and records the unfinished
-outcome explicitly. The release candidate may describe its qualified implemented
-cohorts and completed probes, but **must not claim every P8-P14 acceptance is
-closed or that DOT ordinary losses were burned down**. Future native DOT mapping
-needs an approved field-specific cohort, independent native meaning and edited
-readback, without weakening the frozen models or replacing native semantics
-with opaque data. No deadline or completion version is established here.
+At this audit, the original acceptance remained active and its reduction outcome
+was unfinished. The reviewed amendment below supersedes that acceptance, while
+preserving the unachieved forecast and all source/metric scope. Future native
+DOT mapping needs an approved field-specific cohort, independent native meaning
+and edited readback. No deadline or completion version is established here.
+
+### Reviewed P10-D eligibility amendment — 2026-10-31
+
+Root implementation review accepted this evidence-driven amendment after Sol's
+scope review. P10-D now closes the approved role/status/style eligibility cohort when
+native and edited-readback evidence either qualifies a mapping or records its
+bounded negative result. Demonstrated equivalences still require implementation;
+this amendment does not permit replacing available native semantics with annotations.
+
+The original forecast, “Show reduced comparable ordinary-profile omissions,”
+remains **unachieved**. The comparable ordinary DOT population remains 629 → 629
+raw emitted-loss diagnostics across the unchanged 53-source corpus. Graphviz
+presentation changes do not establish typed role/status meaning, so no such
+mapping or reduction is claimed.
+
+P10-D's negative eligibility package is **completed under this amended
+criterion**. Its source hashes, native JSON/SVG, edited-readback probes and
+retained losses/refusals remain in `scripts/native-dot-cohort.ts` and the
+[bounded probe/loss report](evidence/renderer-coverage-loss-progress.json).
+This result establishes the tested profile boundary, not universal native impossibility.
+
+Native record ports remain a separate **open entity/field-port mapping
+candidate**. They do not qualify entity parsing, field identities or reference
+semantics. New supported entity pairs must be counted separately from changes
+to the existing comparable 629-loss population.
+
+This amendment changes one package's acceptance, not the frozen models, fixture
+scope or publication gates. The earlier 53-example/22-form suitable-target gate
+is met separately; neither that milestone nor this probe establishes all-format
+or whole-language completeness. Final follow-up CI, served-artifact identity and
+release archive verification remain required.
