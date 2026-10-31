@@ -1,0 +1,930 @@
+{
+  "schemaVersion": 1,
+  "evidenceType": "independent-native-browser-er-probe",
+  "engine": "Mermaid",
+  "nativeVersion": "12.2.0",
+  "browserVersion": "153.0.8010.12",
+  "scope": "Four pinned entity fixtures. This probe confirms Mermaid DB/SVG preservation of serialized fields and cardinality markers; it does not infer identifying semantics or Visual field-port semantics from Mermaid presentation.",
+  "cases": [
+    {
+      "id": "visual-catalog-canary-entities",
+      "path": "fixtures/catalog/canary-entities.json",
+      "sourceSha256": "6b101dd70cab0fbb10a87b195515d76d06f62828afe02d1f368afe417ecfbd6e",
+      "emittedSourceSha256": "b6b552c87f0592fec0218ed7c0f8a1e5370b23a099aa60c291bdfcaf94e9797d",
+      "emittedSource": "---\ntitle: \"Entity relationship canary\"\n---\nerDiagram\n  \"A #34;quoted#34; record · 東京\" {\n    uuid id PK\n    text display_name\n  }\n  \"Event #38; audit\" {\n    uuid record_id\n  }\n  \"A #34;quoted#34; record · 東京\" ||--o{ \"Event #38; audit\" : \"emits #34;events#34;\"\n",
+      "losses": {
+        "MERMAID_IDENTIFICATION": 1,
+        "MERMAID_NULLABLE": 1
+      },
+      "fieldCount": 3,
+      "fields": [
+        {
+          "entity": "A \"quoted\" record · 東京",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "display_name",
+              "type": "text",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "Event & audit",
+          "fields": [
+            {
+              "name": "record_id",
+              "type": "uuid",
+              "keys": []
+            }
+          ]
+        }
+      ],
+      "relationships": [
+        {
+          "id": "record-events",
+          "label": "emits \"events\"",
+          "from": {
+            "node": "record"
+          },
+          "to": {
+            "node": "event"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        }
+      ],
+      "svgSha256": "79c170c799ffc1b43afcf1046497e91562cf7ba033f56a390ef2b8fe0793cced",
+      "svgPath": ".cache/mermaid-er-probe/visual-catalog-canary-entities.svg",
+      "viewBox": "4 -47 241.328125 381.75"
+    },
+    {
+      "id": "visual-inventory-beacon-schema-tickets",
+      "path": "fixtures/visual/inventory/beacon-schema-tickets.json",
+      "sourceSha256": "3ea8d7e5c8941457901cecb9a6755bc02fd5119c0a9e6fb92bf9e21d4881054e",
+      "emittedSourceSha256": "12d594f934e9bac0beea550ba2fe8787dc2e112e30f1ba6f23f5c2f2d63f49ee",
+      "emittedSource": "---\ntitle: \"What Beacon keeps for a ticket\"\n---\nerDiagram\n  customers {\n    uuid id PK\n    uuid workspace_id FK\n    text external_ref\n  }\n  tickets {\n    uuid id PK\n    uuid customer_id FK\n    uuid workspace_id FK\n    text phase\n    timestamptz opened_at\n  }\n  messages {\n    uuid id PK\n    uuid ticket_id FK\n    text author\n    timestamptz sent_at\n  }\n  attachments {\n    uuid id PK\n    uuid message_id FK\n    text object_key\n    bigint bytes\n  }\n  tags {\n    uuid id PK\n    text label\n  }\n  ticket_tags {\n    uuid ticket_id FK\n    uuid tag_id FK\n  }\n  kb_articles {\n    uuid id PK\n    text external_ref\n    text title\n  }\n  drafts {\n    uuid id PK\n    uuid ticket_id FK\n    uuid agent_id FK\n    text model_purpose\n    timestamptz created_at\n    text tone\n  }\n  draft_sources {\n    uuid draft_id FK\n    uuid article_id FK\n  }\n  reviews {\n    uuid id PK\n    uuid draft_id FK\n    text outcome\n    timestamptz reviewed_at\n  }\n  customers ||--o{ tickets : \"customer_id\"\n  tickets ||--o{ messages : \"ticket_id\"\n  messages ||--o{ attachments : \"message_id\"\n  tickets ||--o{ ticket_tags : \"ticket_id\"\n  tags ||--o{ ticket_tags : \"tag_id\"\n  tickets ||--o{ drafts : \"ticket_id\"\n  drafts ||--o{ draft_sources : \"draft_id\"\n  kb_articles ||--o{ draft_sources : \"article_id\"\n  drafts ||--o{ reviews : \"draft_id\"\n",
+      "losses": {
+        "INTERCHANGE_UNREPRESENTED_FIELD": 15,
+        "MERMAID_FIELD_REFERENCE": 9,
+        "MERMAID_IDENTIFICATION": 9,
+        "MERMAID_NODE_FIELDS": 10
+      },
+      "fieldCount": 35,
+      "fields": [
+        {
+          "entity": "customers",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "workspace_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "external_ref",
+              "type": "text",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "tickets",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "customer_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "workspace_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "phase",
+              "type": "text",
+              "keys": []
+            },
+            {
+              "name": "opened_at",
+              "type": "timestamptz",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "messages",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "ticket_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "author",
+              "type": "text",
+              "keys": []
+            },
+            {
+              "name": "sent_at",
+              "type": "timestamptz",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "attachments",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "message_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "object_key",
+              "type": "text",
+              "keys": []
+            },
+            {
+              "name": "bytes",
+              "type": "bigint",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "tags",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "label",
+              "type": "text",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "ticket_tags",
+          "fields": [
+            {
+              "name": "ticket_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "tag_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            }
+          ]
+        },
+        {
+          "entity": "kb_articles",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "external_ref",
+              "type": "text",
+              "keys": []
+            },
+            {
+              "name": "title",
+              "type": "text",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "drafts",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "ticket_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "agent_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "model_purpose",
+              "type": "text",
+              "keys": []
+            },
+            {
+              "name": "created_at",
+              "type": "timestamptz",
+              "keys": []
+            },
+            {
+              "name": "tone",
+              "type": "text",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "draft_sources",
+          "fields": [
+            {
+              "name": "draft_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "article_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            }
+          ]
+        },
+        {
+          "entity": "reviews",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "draft_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "outcome",
+              "type": "text",
+              "keys": []
+            },
+            {
+              "name": "reviewed_at",
+              "type": "timestamptz",
+              "keys": []
+            }
+          ]
+        }
+      ],
+      "relationships": [
+        {
+          "id": "customers--tickets--customer-id",
+          "label": "customer_id",
+          "from": {
+            "node": "customers"
+          },
+          "to": {
+            "node": "tickets",
+            "field": "customer_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "tickets--messages--ticket-id",
+          "label": "ticket_id",
+          "from": {
+            "node": "tickets"
+          },
+          "to": {
+            "node": "messages",
+            "field": "ticket_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "messages--attachments--message-id",
+          "label": "message_id",
+          "from": {
+            "node": "messages"
+          },
+          "to": {
+            "node": "attachments",
+            "field": "message_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "tickets--ticket_tags--ticket-id",
+          "label": "ticket_id",
+          "from": {
+            "node": "tickets"
+          },
+          "to": {
+            "node": "ticket_tags",
+            "field": "ticket_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "tags--ticket_tags--tag-id",
+          "label": "tag_id",
+          "from": {
+            "node": "tags"
+          },
+          "to": {
+            "node": "ticket_tags",
+            "field": "tag_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "tickets--drafts--ticket-id",
+          "label": "ticket_id",
+          "from": {
+            "node": "tickets"
+          },
+          "to": {
+            "node": "drafts",
+            "field": "ticket_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "drafts--draft_sources--draft-id",
+          "label": "draft_id",
+          "from": {
+            "node": "drafts"
+          },
+          "to": {
+            "node": "draft_sources",
+            "field": "draft_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "kb_articles--draft_sources--article-id",
+          "label": "article_id",
+          "from": {
+            "node": "kb_articles"
+          },
+          "to": {
+            "node": "draft_sources",
+            "field": "article_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "drafts--reviews--draft-id",
+          "label": "draft_id",
+          "from": {
+            "node": "drafts"
+          },
+          "to": {
+            "node": "reviews",
+            "field": "draft_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        }
+      ],
+      "svgSha256": "6c7cf34a90b800504e11bce6dd02952eeec6c3f03ee6f9cf1c74d8497334a900",
+      "svgPath": ".cache/mermaid-er-probe/visual-inventory-beacon-schema-tickets.svg",
+      "viewBox": "4 -47 1119.489501953125 1310.5"
+    },
+    {
+      "id": "visual-inventory-beacon-schema-workspace",
+      "path": "fixtures/visual/inventory/beacon-schema-workspace.json",
+      "sourceSha256": "74cc43f6171ed212876b6fab8fc9ee1429dbd4bca2e7c79394d46e9800bb3dad",
+      "emittedSourceSha256": "cec70edf674c1dee697b80526366a18497806d25cc298d71aa883e6715a888c1",
+      "emittedSource": "---\ntitle: \"What a workspace keeps\"\n---\nerDiagram\n  workspaces {\n    uuid id PK\n    text name\n    timestamptz created_at\n  }\n  agents {\n    uuid id PK\n    uuid workspace_id FK\n    text email\n    text role\n  }\n  settings {\n    uuid workspace_id PK, FK\n    text default_tone\n    boolean auto_draft\n  }\n  integrations {\n    uuid id PK\n    uuid workspace_id FK\n    text kind\n    timestamptz connected_at\n  }\n  jobs {\n    uuid id PK\n    uuid workspace_id FK\n    text kind\n  }\n  job_runs {\n    uuid id PK\n    uuid job_id FK\n    timestamptz started_at\n    timestamptz finished_at\n  }\n  schedules {\n    uuid id PK\n    uuid job_id FK\n    text cron\n  }\n  workspaces ||--o{ agents : \"workspace_id\"\n  workspaces ||--o{ settings : \"workspace_id\"\n  workspaces ||--o{ integrations : \"workspace_id\"\n  workspaces ||--o{ jobs : \"workspace_id\"\n  jobs ||--o{ job_runs : \"job_id\"\n  jobs ||--o{ schedules : \"job_id\"\n",
+      "losses": {
+        "INTERCHANGE_UNREPRESENTED_FIELD": 12,
+        "MERMAID_FIELD_REFERENCE": 6,
+        "MERMAID_IDENTIFICATION": 6,
+        "MERMAID_NODE_FIELDS": 7
+      },
+      "fieldCount": 24,
+      "fields": [
+        {
+          "entity": "workspaces",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "name",
+              "type": "text",
+              "keys": []
+            },
+            {
+              "name": "created_at",
+              "type": "timestamptz",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "agents",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "workspace_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "email",
+              "type": "text",
+              "keys": []
+            },
+            {
+              "name": "role",
+              "type": "text",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "settings",
+          "fields": [
+            {
+              "name": "workspace_id",
+              "type": "uuid",
+              "keys": [
+                "PK",
+                "FK"
+              ]
+            },
+            {
+              "name": "default_tone",
+              "type": "text",
+              "keys": []
+            },
+            {
+              "name": "auto_draft",
+              "type": "boolean",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "integrations",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "workspace_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "kind",
+              "type": "text",
+              "keys": []
+            },
+            {
+              "name": "connected_at",
+              "type": "timestamptz",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "jobs",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "workspace_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "kind",
+              "type": "text",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "job_runs",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "job_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "started_at",
+              "type": "timestamptz",
+              "keys": []
+            },
+            {
+              "name": "finished_at",
+              "type": "timestamptz",
+              "keys": []
+            }
+          ]
+        },
+        {
+          "entity": "schedules",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "keys": [
+                "PK"
+              ]
+            },
+            {
+              "name": "job_id",
+              "type": "uuid",
+              "keys": [
+                "FK"
+              ]
+            },
+            {
+              "name": "cron",
+              "type": "text",
+              "keys": []
+            }
+          ]
+        }
+      ],
+      "relationships": [
+        {
+          "id": "workspaces--agents--workspace-id",
+          "label": "workspace_id",
+          "from": {
+            "node": "workspaces"
+          },
+          "to": {
+            "node": "agents",
+            "field": "workspace_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "workspaces--settings--workspace-id",
+          "label": "workspace_id",
+          "from": {
+            "node": "workspaces"
+          },
+          "to": {
+            "node": "settings",
+            "field": "workspace_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "workspaces--integrations--workspace-id",
+          "label": "workspace_id",
+          "from": {
+            "node": "workspaces"
+          },
+          "to": {
+            "node": "integrations",
+            "field": "workspace_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "workspaces--jobs--workspace-id",
+          "label": "workspace_id",
+          "from": {
+            "node": "workspaces"
+          },
+          "to": {
+            "node": "jobs",
+            "field": "workspace_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "jobs--job_runs--job-id",
+          "label": "job_id",
+          "from": {
+            "node": "jobs"
+          },
+          "to": {
+            "node": "job_runs",
+            "field": "job_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "jobs--schedules--job-id",
+          "label": "job_id",
+          "from": {
+            "node": "jobs"
+          },
+          "to": {
+            "node": "schedules",
+            "field": "job_id"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        }
+      ],
+      "svgSha256": "bcfd059ef71450985712245019b61155fe711e068cda6e729b30a20c83fb880c",
+      "svgPath": ".cache/mermaid-er-probe/visual-inventory-beacon-schema-workspace.svg",
+      "viewBox": "4 -47 1241.0390625 887.5"
+    },
+    {
+      "id": "visual-inventory-tpl-sd-domain",
+      "path": "fixtures/visual/inventory/tpl-sd-domain.json",
+      "sourceSha256": "b054796bb6031693eb3df54ff03cc7b27fb2ad8fa4ba90bd66f7f36573bd6471",
+      "emittedSourceSha256": "54bbafd310cf2847b1fa326e3e90f6112548dcd6a5ae47e31cd0e932cffa9fec",
+      "emittedSource": "---\ntitle: \"Domain Model\"\n---\nerDiagram\n  Client {\n  }\n  \"Import Session\" {\n  }\n  \"Import File\" {\n  }\n  \"Source Row\" {\n  }\n  \"Mapping Profile\" {\n  }\n  \"Validation Result\" {\n  }\n  \"Match Evidence\" {\n  }\n  Client ||--o{ \"Import Session\" : \"owns\"\n  \"Import Session\" ||--|{ \"Import File\" : \"contains\"\n  \"Import Session\" ||--o{ \"Source Row\" : \"accepts\"\n  Client ||--o{ \"Mapping Profile\" : \"saves\"\n  \"Import File\" ||--o{ \"Validation Result\" : \"produces\"\n  \"Source Row\" ||--o{ \"Match Evidence\" : \"supports\"\n",
+      "losses": {
+        "INTERCHANGE_UNREPRESENTED_FIELD": 5,
+        "MERMAID_IDENTIFICATION": 6
+      },
+      "fieldCount": 0,
+      "fields": [
+        {
+          "entity": "Client",
+          "fields": []
+        },
+        {
+          "entity": "Import Session",
+          "fields": []
+        },
+        {
+          "entity": "Import File",
+          "fields": []
+        },
+        {
+          "entity": "Source Row",
+          "fields": []
+        },
+        {
+          "entity": "Mapping Profile",
+          "fields": []
+        },
+        {
+          "entity": "Validation Result",
+          "fields": []
+        },
+        {
+          "entity": "Match Evidence",
+          "fields": []
+        }
+      ],
+      "relationships": [
+        {
+          "id": "client--import_session",
+          "label": "owns",
+          "from": {
+            "node": "client"
+          },
+          "to": {
+            "node": "import_session"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "import_session--import_file",
+          "label": "contains",
+          "from": {
+            "node": "import_session"
+          },
+          "to": {
+            "node": "import_file"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "one-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "import_session--source_row",
+          "label": "accepts",
+          "from": {
+            "node": "import_session"
+          },
+          "to": {
+            "node": "source_row"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "client--mapping_profile",
+          "label": "saves",
+          "from": {
+            "node": "client"
+          },
+          "to": {
+            "node": "mapping_profile"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "import_file--validation_result",
+          "label": "produces",
+          "from": {
+            "node": "import_file"
+          },
+          "to": {
+            "node": "validation_result"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        },
+        {
+          "id": "source_row--match_evidence",
+          "label": "supports",
+          "from": {
+            "node": "source_row"
+          },
+          "to": {
+            "node": "match_evidence"
+          },
+          "fromCardinality": "exactly-one",
+          "toCardinality": "zero-or-many",
+          "mermaidRelationshipType": "IDENTIFYING",
+          "mermaidHasFieldPorts": false
+        }
+      ],
+      "svgSha256": "918208ebc79344c8b48d9a281141a671e5ad3e8c04ce79b2f399bcf1628d90a5",
+      "svgPath": ".cache/mermaid-er-probe/visual-inventory-tpl-sd-domain.svg",
+      "viewBox": "4 -47 458.16015625 706"
+    }
+  ],
+  "negativeControl": {
+    "source": "erDiagram\n  RECORD {\n    string? *name\n  }\n",
+    "parsedAttributes": [
+      {
+        "name": "*name",
+        "type": "string?",
+        "keys": []
+      }
+    ],
+    "svgSha256": "7de76cb852f91174afc59681b9cf1caf8b2e97d7ef84f2b4711364dc4bc8fc7a",
+    "svgPath": ".cache/mermaid-er-probe/literal-star-type.svg",
+    "assertions": {
+      "leadingStarIsLiteral": true,
+      "nullableTypeSuffixIsLiteral": true,
+      "starDoesNotBecomeKey": true
+    }
+  }
+}

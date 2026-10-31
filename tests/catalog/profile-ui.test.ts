@@ -5,7 +5,7 @@ describe('qualified annotation profile interface',()=>{
     const html=await Bun.file('microsite/index.html').text();
     const app=await Bun.file('microsite/app.js').text();
     const css=await Bun.file('microsite/styles.css').text();
-    for(const text of ['id="qualified-profile-controls"','id="profile-select"','Annotation profile variant','id="view-diagram"','id="view-complete"','aria-label="Native baseline target"','id="release-coverage-stats"','aria-label="Preferred release coverage by form"'])expect(html).toContain(text);
+    for(const text of ['id="qualified-profile-controls"','id="profile-select"','id="view-diagram"','id="view-complete"','aria-label="Target format"','id="release-coverage-stats"','aria-label="Preferred release coverage by form"','STRICT PROFILE CHOICE · EXAMPLE/FORM COVERAGE','They do not imply every target is loss-free'])expect(html).toContain(text);
     for(const text of ['preferredRelease','profileVariants','diagramRender','Complete annotated view','representation','row.path','Unchanged','Download annotated source','Open focused diagram SVG in new tab','QUALIFIED ANNOTATION PROFILE','renderReleaseCoverage','examples with qualified choice'])expect(app).toContain(text);
     expect(app).toContain("url.searchParams.set('profile', profileId)");
     expect(app).toContain("url.searchParams.delete('profile')");

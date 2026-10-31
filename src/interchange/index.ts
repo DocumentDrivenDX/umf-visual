@@ -11,14 +11,16 @@ export * from './types';
 export {dotAdapter} from './dot';
 export {mermaidAdapter} from './mermaid';
 export {liniAdapter} from './lini';
+export {MERMAID_ANNOTATED_PROFILE} from './mermaid/annotated';
 
 const MAX_SOURCE_BYTES=262_144;
 const VISUAL_EXTENSION_PATH='/extensions/'+VISUAL_EXTENSION;
 const adapters:Record<InterchangeFormat,VisualInterchangeAdapter>={dot:dotAdapter,mermaid:mermaidAdapter,lini:liniAdapter};
 export const interchangeCapabilities=[
+ {format:'mermaid' as const,profile:'umf.visual.mermaid.annotated/1',version:'0.1.0',subset:'Explicit opt-in visual 1.0.0 sequence lifelines with visible typed annotations and native participant/message readback; ladder layout remains reported loss.',directions:['import','export'] as ('import'|'export')[]},
  ...Object.values(adapters).map(({format,version,subset})=>({format,profile:format==='lini'?'umf.visual.lini/1':'umf.visual.'+format+'/1',version,subset,directions:['import','export'] as ('import'|'export')[]})),
  {format:'dot' as const,profile:'umf.visual.dot.annotated/1',version:'0.1.0',subset:'Explicit opt-in visual 1.0.0 profile: directed flows, entity/containment structures, sequence rails/rungs and state views, with visible typed application/provenance annotations; full-document and canonical native AST readback. Other families refuse until independently qualified.',directions:['import','export'] as ('import'|'export')[]},
- {format:'lini' as const,profile:'umf.visual.lini.annotated/1',version:'0.1.0',subset:'Explicit opt-in visual 1.0.0 profile for pinned Lini 1.1.0 chart/table/grid metric, timeline and comparison forms, with visible typed application/provenance annotations; full-document and canonical native AST readback.',directions:['import','export'] as ('import'|'export')[]},
+ {format:'lini' as const,profile:'umf.visual.lini.annotated/1',version:'0.2.0',subset:'Explicit opt-in visual 1.0.0 profile for pinned Lini 1.1.0 chart/table/grid metric, timeline and comparison forms plus directed flow networks (pipeline layout remains reported loss), with visible typed application/provenance annotations; full-document and canonical native AST readback.',directions:['import','export'] as ('import'|'export')[]},
 ];
 const error=(code:string,path:string,message:string)=>interchangeDiagnostic(code,path,message,{severity:'error',loss:false});
 const loss=(code:string,path:string,message:string)=>interchangeDiagnostic(code,path,message,{severity:'warning',loss:true});

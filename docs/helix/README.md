@@ -105,3 +105,8 @@ source/native revision fences, editable host identities and atomic reconciliatio
 The reader-facing [editable host integration guide](../editable-integrations.md)
 documents the current package APIs and example flows; it does not replace this
 contract or its host-specific evidence.
+
+[v0.3.0 candidate release notes](05-deploy/release-notes-v0.3.0.md) and the
+[publication checklist](05-deploy/deployment-checklist-v0.3.0.md) record the local
+fifteen-pair host pass and retain final CI and artifact-verification gates. They are not a
+published release claim.

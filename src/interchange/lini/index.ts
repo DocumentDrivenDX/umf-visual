@@ -5,7 +5,7 @@ import type {AdapterContext,AdapterParseResult,AdapterSerializeResult,IdentityMa
 
 /** Bounded Lini 1.1.0 profile: flat entity cards, tooltips, entity fields and links. */
 export const liniAdapter:VisualInterchangeAdapter={
- format:'lini',version:'0.2.0',
+ format:'lini',version:'0.3.0',
  subset:'Lini 1.1.0 flat block/entity cards with quoted labels and optional tooltip hints mapped to Visual node detail, quoted field display types, and directed links between cards or declared fields; undirected links refuse; field tooltips and layout/style declarations are retained with loss reports.',
  parse(source,context){return parseLini(source,context);},
  serialize(visual,context){return serializeLini(visual,context);},
@@ -59,9 +59,13 @@ function parseLini(source:string,context:AdapterContext):AdapterParseResult{
  if(lines.length>MAX_LINES){fail('LINI_SOURCE_SIZE',undefined,'Lini source exceeds the adapter line limit.');return{diagnostics,identityMap};}
  const nodes:NodeRec[]=[],byPath=new Map<string,NodeRec>(),usedVisualIds=new Set<string>();const refs:{from:string;to:string;label?:string;line:Line;directed:boolean}[]=[];
  const allocate=(kind:'node'|'edge'|'reference',index:number):string=>{let n=index,id=syntheticId(kind,n);while(usedVisualIds.has(id))id=syntheticId(kind,++n);usedVisualIds.add(id);return id;};
- let inEntity:NodeRec|undefined,fatal=false,braceDepth=0;
+ let inEntity:NodeRec|undefined,fatal=false,braceDepth=0,visualTitle:string|undefined,visualGroup=false,visualGroupSeen=false,visualGroupLine:Line|undefined;
  const issue=(code:string,line:Line|undefined,message:string)=>{fail(code,line,message);fatal=true;};
  for(const line of lines){const text=trimNativeWhitespace(line.text);if(!text||text.startsWith('//'))continue;
+  if(visualGroupSeen&&!visualGroup){issue('LINI_TITLE_SCOPE',line,'The outer title group must enclose every graph statement in this bounded profile.');continue;}
+  const titleGroup=/^\|group#umf_visual\|\s*("(?:\\.|[^"\\])*")\s*\{([^{}]*)\}\s*\[$/.exec(text);
+  if(titleGroup){if(visualGroupSeen||nodes.length||refs.length||inEntity||braceDepth){issue('LINI_TITLE_GROUP',line,'Only one outer title group may wrap a flat Lini diagram.');continue;}const parsedTitle=parseString(titleGroup[1]!);if(parsedTitle===undefined||parsedTitle.length===0){issue('LINI_TITLE',line,'The outer Lini title group requires a nonempty valid native string.');continue;}visualTitle=trimNativeLabel(parsedTitle,line,diagnostics,vp('/title'));visualGroup=true;visualGroupSeen=true;visualGroupLine=line;if(titleGroup[2]!.trim())diagnostics.push(diag('LINI_PRESENTATION',linePath(line.number),'Outer title-group layout and style are retained in the source receipt; Visual has no native layout field.',{start:line.start,end:line.end}));continue;}
+  if(visualGroup&&text===']'&&!inEntity&&braceDepth===0){visualGroup=false;continue;}
   // Layout and style blocks are opaque presentation metadata. Balance braces so
   // their body cannot be mistaken for graph statements.
   if(!inEntity&&braceDepth>0){const balance=braceDelta(text);if(balance.invalid||braceDepth+balance.delta<0){issue('LINI_STYLE',line,'Malformed layout or style block.');continue;}braceDepth+=balance.delta;if(braceDepth===0&&balance.closedAt!==undefined&&trimNativeWhitespace(text.slice(balance.closedAt+1))){issue('LINI_STYLE_TRAILING',line,'Graph statements after a style block on the same line are outside the supported statement boundaries.');}continue;}
@@ -69,7 +73,7 @@ function parseLini(source:string,context:AdapterContext):AdapterParseResult{
   if(inEntity){
    if(text===']'){inEntity=undefined;continue;}
    const fm=/^\|cell#([A-Za-z_][A-Za-z0-9_]*)\|\s*("(?:\\.|[^"\\])*")\s*(?:\{\s*hint:\s*("(?:\\.|[^"\\])*");\s*\})?\s*;\s*("(?:\\.|[^"\\])*"|[^;]+)\s*;?$/.exec(text);
-   if(fm){const rawName=parseString(fm[2]),parsedType=parseString(fm[4]!);if(rawName===undefined||parsedType===undefined||(fm[3]!==undefined&&parseString(fm[3])===undefined)){issue('LINI_FIELD',line,'Lini field name, type and optional hint must be valid Lini strings.');continue;}if(inEntity.fields.some(field=>field.path===fm[1])){issue('LINI_FIELD_ID',line,'Repeated field source path '+JSON.stringify(fm[1])+' is ambiguous.');continue;}const fieldPath=vp('/structure/entities/'+nodes.indexOf(inEntity)+'/fields/'+inEntity.fields.length),name=trimNativeLabel(rawName,line,diagnostics,fieldPath+'/name'),type=trimNativeLabel(parsedType,line,diagnostics,fieldPath+'/type');inEntity.fields.push({path:fm[1]!,name,type,line});identityMap.push(identityMapping('field',inEntity.path+'.'+fm[1],inEntity.id,fieldPath+'/name',linePath(line.number)));if(fm[3])diagnostics.push(diag('LINI_HINT_LOSS',linePath(line.number),'Lini field hint is tooltip text and has no Visual field.',{start:line.start,end:line.end}));continue;}
+   if(fm){const rawName=parseString(fm[2]),parsedType=parseString(fm[4]!);if(rawName===undefined||parsedType===undefined||(fm[3]!==undefined&&parseString(fm[3])===undefined)){issue('LINI_FIELD',line,'Lini field name, type and optional hint must be valid Lini strings.');continue;}if(inEntity.fields.some(field=>field.path===fm[1])){issue('LINI_FIELD_ID',line,'Repeated field source path '+JSON.stringify(fm[1])+' is ambiguous.');continue;}const fieldPath=vp('/structure/entities/'+nodes.indexOf(inEntity)+'/fields/'+inEntity.fields.length),name=trimNativeLabel(rawName,line,diagnostics,fieldPath+'/name'),type=trimNativeLabel(parsedType,line,diagnostics,fieldPath+'/type');inEntity.fields.push({path:fm[1]!,name,type,line});identityMap.push(identityMapping('field',(visualGroup?'umf_visual.':'')+inEntity.path+'.'+fm[1],inEntity.id,fieldPath+'/name',linePath(line.number)));if(fm[3])diagnostics.push(diag('LINI_HINT_LOSS',linePath(line.number),'Lini field hint is tooltip text and has no Visual field.',{start:line.start,end:line.end}));continue;}
    if(/^\|footer\|/.test(text)){diagnostics.push(diag('LINI_FOOTER_LOSS',linePath(line.number),'Lini footer content is preserved by the source receipt but has no visual field.',{start:line.start,end:line.end}));continue;}
    issue('LINI_ENTITY_ROW',line,'Entity rows outside the supported field subset are refused.');continue;
   }
@@ -80,7 +84,7 @@ function parseLini(source:string,context:AdapterContext):AdapterParseResult{
   if(edge){if(refs.length>=MAX_EDGES){issue('LINI_EDGE_SIZE',line,'Lini link count exceeds the adapter limit.');continue;}const rawLabel=edge[4]===undefined?undefined:parseString(edge[4]);if(edge[4]!==undefined&&rawLabel===undefined){issue('LINI_LINK',line,'Link label must be a valid Lini string.');continue;}const label=rawLabel===undefined?undefined:trimNativeLabel(rawLabel,line,diagnostics,linePath(line.number));if(edge[5])diagnostics.push(diag('LINI_LINK_CLASS',linePath(line.number),'Lini link class is presentation metadata without a corresponding Visual edge status.',{start:line.start,end:line.end}));refs.push({from:edge[1]!,to:edge[3]!,...(label===undefined?{}:{label}),line,directed:edge[2]==='->'});continue;}
   issue('LINI_UNSUPPORTED',line,'Statement is outside the supported flat entity and link subset.');
  }
- if(inEntity)issue('LINI_ENTITY',inEntity.line,'Entity body is not closed.');
+ if(inEntity)issue('LINI_ENTITY',inEntity.line,'Entity body is not closed.');if(visualGroup)issue('LINI_TITLE_GROUP',visualGroupLine,'The outer title group is not closed.');
  if(braceDepth!==0)issue('LINI_STYLE',undefined,'Unclosed layout or style block.');
  if(!nodes.length){issue('LINI_EMPTY',undefined,'No supported entity cards were found.');}
  const isFlow=nodes.every(n=>n.kind==='node');
@@ -88,6 +92,7 @@ function parseLini(source:string,context:AdapterContext):AdapterParseResult{
  if(isFlow&&nodes.some(node=>node.fields.length)){issue('LINI_FLOW_FIELDS',undefined,'Flow blocks with entity field rows are outside the supported graph profile.');return{diagnostics,identityMap:[]};}
  const references:{id:string;from:{node:string;field?:string};to:{node:string;field?:string};label?:string}[]=[];
  const occurrences=new Map<string,number>();
+ const nativePrefix=visualGroupSeen?'umf_visual.':'';
  for(const [index,edge]of refs.entries()){
   const endpoint=(value:string)=>{const [native,field]=value.split('.');const node=byPath.get(native!);if(!node)return;const found=field?node.fields.find(item=>item.path===field):undefined;if(field&&!found)return;return{node:node.id,...(field?{field:found!.name}:{})};};
   const from=endpoint(edge.from),to=endpoint(edge.to);if(!from||!to){issue('LINI_ENDPOINT',edge.line,'Every link endpoint must name a declared card or declared field.');continue;}
@@ -95,13 +100,13 @@ function parseLini(source:string,context:AdapterContext):AdapterParseResult{
   if(!isFlow)diagnostics.push(diag('LINI_REFERENCE_DIRECTION',linePath(edge.line.number),'The native link arrow direction has no explicit direction property on a Visual entity reference; retained source preserves it.',{start:edge.line.start,end:edge.line.end}));
   const fromPath=edge.from.split('.')[0]!,toPath=edge.to.split('.')[0]!,pair=JSON.stringify([fromPath,edge.from.split('.')[1]??'',toPath,edge.to.split('.')[1]??'']),occurrence=(occurrences.get(pair)??0)+1;occurrences.set(pair,occurrence);
   references.push({id:allocate(isFlow?'edge':'reference',references.length),from,to,...(edge.label===undefined?{}:{label:edge.label})});
-  identityMap.push(identityMapping(isFlow?'edge':'reference',`${edge.from}->${edge.to}#${occurrence}`,references.at(-1)!.id,isFlow?vp('/edges/'+(references.length-1)+'/id'):vp('/structure/references/'+(references.length-1)+'/id'),linePath(edge.line.number)));
+  identityMap.push(identityMapping(isFlow?'edge':'reference',`${nativePrefix}${edge.from}->${nativePrefix}${edge.to}#${occurrence}`,references.at(-1)!.id,isFlow?vp('/edges/'+(references.length-1)+'/id'):vp('/structure/references/'+(references.length-1)+'/id'),linePath(edge.line.number)));
  }
  if(fatal)return{diagnostics,identityMap:[]};
  const visual:Visual=isFlow
-  ?{id:context.id,kind:'flow',form:'network',question:context.question,nodes:nodes.map(n=>({id:n.id,label:n.label,...(n.detail===undefined?{}:{detail:n.detail})})),...(references.length?{edges:references.map(r=>({id:r.id,from:r.from.node,to:r.to.node,...(r.label===undefined?{}:{label:r.label})}))}:{})}
-  :{id:context.id,kind:'structure',form:'entities',question:context.question,nodes:nodes.map(n=>({id:n.id,label:n.label,...(n.detail===undefined?{}:{detail:n.detail})})),structure:{entities:nodes.map(n=>({node:n.id,fields:n.fields.map(f=>({name:f.name,...(f.type!==undefined?{type:f.type}:{})}))})),...(references.length?{references}:{})}};
- nodes.forEach((n,i)=>identityMap.push(identityMapping('node',n.path,n.id,vp('/nodes/'+i+'/id'),linePath(n.line.number))));
+  ?{id:context.id,kind:'flow',form:'network',question:context.question,...(visualTitle===undefined?{}:{title:visualTitle}),nodes:nodes.map(n=>({id:n.id,label:n.label,...(n.detail===undefined?{}:{detail:n.detail})})),...(references.length?{edges:references.map(r=>({id:r.id,from:r.from.node,to:r.to.node,...(r.label===undefined?{}:{label:r.label})}))}:{})}
+  :{id:context.id,kind:'structure',form:'entities',question:context.question,...(visualTitle===undefined?{}:{title:visualTitle}),nodes:nodes.map(n=>({id:n.id,label:n.label,...(n.detail===undefined?{}:{detail:n.detail})})),structure:{entities:nodes.map(n=>({node:n.id,fields:n.fields.map(f=>({name:f.name,...(f.type!==undefined?{type:f.type}:{})}))})),...(references.length?{references}:{})}};
+ nodes.forEach((n,i)=>identityMap.push(identityMapping('node',nativePrefix+n.path,n.id,vp('/nodes/'+i+'/id'),linePath(n.line.number))));
  for(const line of lines)if(/^\s*(?:\{|\|[^|]+\|\s*\{)/.test(trimNativeWhitespace(line.text)))diagnostics.push(diag('LINI_PRESENTATION',linePath(line.number),'Lini layout and style declarations are retained in the source receipt but are not represented in Visual.',{start:line.start,end:line.end}));
  return{visual,diagnostics,identityMap};
 }
@@ -141,9 +146,8 @@ function serializeLini(visual:Visual,_context:AdapterContext):AdapterSerializeRe
   for(const key of ['fromCardinality','toCardinality'] as const)if(reference[key]!==undefined)bad('LINI_CARDINALITY',vp('/structure/references/'+i+'/'+key),'Lini link labels have no cardinality semantics; the value is omitted.');
   if(reference.label!==undefined){const nums=[reference.fromCardinality,reference.toCardinality].filter((x):x is VisualCardinality=>x!==undefined);if(nums.length)bad('LINI_REFERENCE_LABEL',vp('/structure/references/'+i+'/label'),'Cardinality is not appended to the user label and needs a distinct Lini mapping.');}
  }
- if(visual.title!==undefined)bad('LINI_TITLE',vp('/title'),'Lini card diagrams have no visual title field.');
  for(const field of ['groups','edges','steps','sequence','state','timeline','comparison','metric','takeaway','audience','source','omissions'] as const)if(visual[field]!==undefined)bad('LINI_VISUAL_FIELD',vp('/'+field),'Lini entity export does not represent visual '+field+'.');
- return{text:diagnostics.some(d=>d.severity==='error')?undefined:lines.join('\n')+'\n',diagnostics,identityMap};
+ return finishLiniSerialization(visual,lines,diagnostics,identityMap);
 }
 
 function serializeFlow(visual:Visual):AdapterSerializeResult{
@@ -164,6 +168,16 @@ function serializeFlow(visual:Visual):AdapterSerializeResult{
  }
  for(const [i,node]of nodes.entries())for(const key of ['role','status','emphasis','evidence','group','parent','layer'] as const)if(node[key]!==undefined)bad('LINI_NODE_FIELD',vp('/nodes/'+i+'/'+key),'Lini cards do not represent node '+key+'.');
  for(const field of ['groups','steps','sequence','structure','state','timeline','comparison','metric','takeaway','audience','source','omissions'] as const)if(visual[field]!==undefined)bad('LINI_VISUAL_FIELD',vp('/'+field),'Lini flow export does not represent visual '+field+'.');
- if(visual.title!==undefined)bad('LINI_TITLE',vp('/title'),'Lini source has no visual title field.');
- return{text:diagnostics.some(d=>d.severity==='error')?undefined:lines.join('\n')+'\n',diagnostics,identityMap};
+ return finishLiniSerialization(visual,lines,diagnostics,identityMap);
+}
+
+function finishLiniSerialization(visual:Visual,lines:string[],diagnostics:InterchangeDiagnostic[],identityMap:IdentityMapping[]):AdapterSerializeResult{
+ if(diagnostics.some(d=>d.severity==='error'))return{diagnostics,identityMap};
+ if(visual.title===undefined)return{text:lines.join('\n')+'\n',diagnostics,identityMap};
+ if(visual.title.length===0||!supportedNativeText(visual.title)){diagnostics.push(diag('LINI_TITLE',vp('/title'),'Lini group captions require nonempty text with supported native characters.',undefined,'error',true));return{diagnostics,identityMap};}
+ if(trimNativeWhitespace(visual.title)!==visual.title)diagnostics.push(diag('LINI_TITLE_TRIM',vp('/title'),'Lini trims boundary whitespace from native group captions.'));
+ const style=lines[0]?.startsWith('{')?lines[0]:'{ layout: grid; columns: repeat(2); gap: 100 140; clearance: 16; padding: 32; }';
+ const body=lines[0]?.startsWith('{')?lines.slice(1):lines;
+ const text=['|group#umf_visual| '+quote(visual.title)+' '+style+' [',...body,']'].join('\n')+'\n';
+ return{text,diagnostics,identityMap:identityMap.map(item=>({...item,nativeId:'umf_visual.'+item.nativeId.replace('->','->umf_visual.')}))};
 }

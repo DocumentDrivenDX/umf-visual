@@ -150,10 +150,14 @@ describe('Mermaid 12.2 bounded adapter',()=>{
   expect(result.visual?.nodes?.[0].label).toBe('A');
  });
 
- test('does not infer ER nullable or primary-key semantics from display syntax',()=>{
+ test('preserves literal ER type and field-name text without inferring constraints',()=>{
   const result=mermaidAdapter.parse('erDiagram\n  PERSON {\n    string? *id\n  }\n',ctx);
-  expect(result.visual?.structure?.entities?.[0].fields[0]).toEqual({name:'id',type:'string?'});
-  expect(result.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_PRIMARY_MARKER',loss:true}));
+  expect(result.visual?.structure?.entities?.[0].fields[0]).toEqual({name:'*id',type:'string?'});
+  expect(result.diagnostics).toContainEqual(expect.objectContaining({code:'MERMAID_OPTIONAL_TYPE',loss:false}));
+  expect(result.diagnostics.some(item=>item.code==='MERMAID_PRIMARY_MARKER')).toBe(false);
+  const literal=mermaidAdapter.serialize({id:'starred-field',kind:'structure',form:'entities',question:'q',nodes:[{id:'n',label:'Person'}],structure:{entities:[{node:'n',fields:[{name:'*id',type:'string'}]}]}},ctx);
+  expect(literal.text).toContain('string *id');
+  expect(mermaidAdapter.parse(literal.text!,ctx).visual?.structure?.entities?.[0].fields[0]?.name).toBe('*id');
   const exported=mermaidAdapter.serialize({id:'v',kind:'structure',form:'entities',question:'q',nodes:[{id:'n',label:'Person'}],structure:{entities:[{node:'n',fields:[{name:'id',type:'string',nullable:true}]}]}},ctx);
   expect(exported.text).toContain('string id');
   expect(exported.text).not.toContain('string? id');

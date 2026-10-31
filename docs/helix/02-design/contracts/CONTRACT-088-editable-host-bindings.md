@@ -176,6 +176,28 @@ or timeout, return `interrupted` with known and uncertain outcomes; do not
 automatically retry, delete partial work or claim remote atomicity. Recovery is
 read-only until correspondence and current host state are independently checked.
 
+A later explicit read-only recovery MAY establish final readback after a host
+write's immediate verification fence refused. It MUST retain that interrupted
+receipt and cause, take two fresh agreeing actual observations, validate all
+mapped identities and the complete expected source, and check native-only and
+unowned content. It MUST NOT retry the write, mark the failed fence successful,
+or claim atomicity. A complete recovered binding needs independent semantic
+reconciliation against a previously admitted correspondence; changing a state
+flag alone is insufficient. Evidence records the successful later readback and
+its recovery method separately from the original interrupted operation.
+If host-managed metadata drifts while observations settle, a bounded evidence
+comparison MAY report exact path/value, presence or order exceptions separately.
+Both raw captures and native-only differences MUST remain retained; every other
+property and prior identity must still compare. Such exceptions do not establish
+semantic equivalence, permit adapter-wide normalization, remove losses, or
+support an unqualified claim that all native properties were unchanged.
+Separately authorized operations on unowned objects MAY explain an interleaved
+change only through independent receipts matching the same resource, identities
+and exact before/after property deltas. Evidence MUST name that separate
+operation rather than label the change normalization or unchanged preservation.
+Unmatched drift remains a conflict; a matching final capture alone is not
+causal proof that an earlier write preserved the whole board.
+
 ## Precedence and Compatibility
 
 CONTRACT-083 owns model semantics, CONTRACT-084 owns existing Miro profiles,
@@ -210,6 +232,26 @@ board content. If the document changed locally or a copied native object claims
 the same slot, return the original binding/current capture and no document.
 
 ## Verification Handoff
+
+P12 extends qualification to each of the five shared synthetic integration
+cases in each of the three host families. Fifteen actual previews and fifteen
+supported repeated cycles are separate gates under CONTRACT-085. Every pair
+must bind exact source/profile/model/mapping identity to actual native artifact
+or fenced capture and final readback. A previous canary or different case's
+host receipt MUST NOT qualify an untested pair. Unavailable/unsupported pairs
+stay open unless explicitly deferred by the owner.
+
+Each cycle exercises qualified native text and eligible attached-endpoint edits,
+native style/movement, fenced semantic import, serialized binding and a
+different UMF-owned preserving update followed by actual native readback.
+Unsupported structural edits MUST refuse; unknown/native-only properties and
+losses MUST survive the cycle. A plan, format parser, screenshot or converted
+PPTX alone does not establish this host cycle. Public images use isolated
+synthetic resources, with no unrelated private native content.
+The receipt distinguishes editor UI actions, direct native API/SDK edits and
+offline trace replay. Actual host API cycles may qualify their stated boundary;
+they MUST NOT be described as UI-edited or direct live transport if that route
+was not exercised.
 
 Every profile needs export → actual native no-op/save → native text/reconnect
 and movement/group edits → fenced import → JSON/YAML persistence → a second

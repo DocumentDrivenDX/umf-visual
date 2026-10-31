@@ -9,6 +9,8 @@ import {observeGoogleSlides, planGoogleSlidesExport} from '../../src/adapters/go
 import type {GoogleSlidesBox, GoogleSlidesPlacement} from '../../src/adapters/google-slides/types.js';
 import {planEditableMiroExport} from '../../src/adapters/miro/editable/index.js';
 import type {EditablePlan} from '../../src/adapters/miro/editable/types.js';
+import type {RendererTargetEvidence} from './renderer-types.js';
+import {buildRendererEvidence} from './renderer-evidence.js';
 
 const root = resolve(import.meta.dir, '../..');
 const corpusRoot = join(root, 'fixtures/integrations/complex-miro');
@@ -27,6 +29,7 @@ export type IntegrationTarget = {
   artifact?: {path: string; sha256: string; mediaType: string; bytes: number};
 };
 export type IntegrationCase = {
+  rendererTargets?: RendererTargetEvidence[];
   id: string;
   title: string;
   commonProjection: 'complete-topology-projection' | 'partial-explicit-projection' | 'no-common-projection';
@@ -242,12 +245,13 @@ async function hostConformance(outputDir:string,cases:IntegrationCase[]):Promise
 }
 
 /** Generates additive PPTX/XML, Google Slides planner and editable Miro evidence for six synthetic examples. */
-export async function buildIntegrationCatalog(outputDirectory: string): Promise<IntegrationCatalog> {
+export async function buildIntegrationCatalog(outputDirectory: string, options: {rendererEvidence?: boolean} = {}): Promise<IntegrationCatalog> {
   const outputDir = resolve(outputDirectory), manifestPath = join(corpusRoot, 'manifest.json'), schemaPath = join(corpusRoot, 'native-witness.schema.json');
   const [manifest, schemaBytes] = await Promise.all([readJson(manifestPath), readFile(schemaPath)]);
   validateManifest(manifest.value);
   const cases = [] as IntegrationCase[];
   for (const manifestCase of manifest.value.cases) cases.push(await loadCase(manifestCase, outputDir));
+  if (options.rendererEvidence !== false) await buildRendererEvidence(cases,outputDir);
   const targets = cases.flatMap(item => Object.values(item.targets));
   const hostProofs=await hostConformance(outputDir,cases);
   const catalog: IntegrationCatalog = {schemaVersion: 1, catalogProfile: 'umf.visual.integration-examples/1',

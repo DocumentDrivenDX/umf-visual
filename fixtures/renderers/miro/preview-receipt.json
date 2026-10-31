@@ -1,0 +1,1040 @@
+{
+  "schemaVersion": 1,
+  "rendererId": "miro",
+  "cases": [
+    {
+      "id": "nested-environments",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/nested-environments.json",
+        "sha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34"
+      },
+      "captureFence": {
+        "before": {
+          "revision": "fadc2c4739ea8acdfa33ed06ccbfd0c767e8d6ce8efbaa81fb9e7b49dbed61e1",
+          "captureDigestSha256": "fadc2c4739ea8acdfa33ed06ccbfd0c767e8d6ce8efbaa81fb9e7b49dbed61e1"
+        },
+        "after": {
+          "revision": "fadc2c4739ea8acdfa33ed06ccbfd0c767e8d6ce8efbaa81fb9e7b49dbed61e1",
+          "captureDigestSha256": "fadc2c4739ea8acdfa33ed06ccbfd0c767e8d6ce8efbaa81fb9e7b49dbed61e1"
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "miro",
+          "profileId": "umf.visual.miro.editable-network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/nodes/1/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this node field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/0",
+                "code": "GROUP_MEMBERS",
+                "family": "semantic",
+                "representation": "unrepresented",
+                "message": "Miro groups require at least two members; this group membership cannot be created in the qualified profile."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/0/label",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Miro native groups have no corresponding editable group label field."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/0/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Miro grouping expresses presentation membership; it does not carry the common group role."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/1/parent",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in source; native group nesting and supplemental properties are not editable common group fields."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/1",
+                "code": "GROUP_MEMBERS",
+                "family": "semantic",
+                "representation": "unrepresented",
+                "message": "Miro groups require at least two members; this group membership cannot be created in the qualified profile."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/1/label",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Miro native groups have no corresponding editable group label field."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/1/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Miro grouping expresses presentation membership; it does not carry the common group role."
+              }
+            ]
+          },
+          "preview": {
+            "state": "rendered",
+            "engine": "miro",
+            "nativeVersion": "Miro observed service 1.105564.0 / Web SDK v2 (unpinned)",
+            "sourceSha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34",
+            "profileId": "umf.visual.miro.editable-network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "captureDigestSha256": "fadc2c4739ea8acdfa33ed06ccbfd0c767e8d6ce8efbaa81fb9e7b49dbed61e1",
+            "revision": "fadc2c4739ea8acdfa33ed06ccbfd0c767e8d6ce8efbaa81fb9e7b49dbed61e1",
+            "stage": "restored-original",
+            "asset": {
+              "path": "integrations/previews/miro/nested-environments-d751a8bc935e694d.jpg",
+              "sha256": "d751a8bc935e694d88e60826364ca0611a3db54fbd4b6f82cb66911b1959692c",
+              "mediaType": "image/jpeg",
+              "width": 600,
+              "height": 500
+            }
+          },
+          "roundTrip": {
+            "state": "passed",
+            "sourceSha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34",
+            "profileId": "umf.visual.miro.editable-network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "checks": {
+              "noop": true,
+              "label": true,
+              "reconnection": true,
+              "movement": true,
+              "style": true,
+              "jsonPersistence": true,
+              "yamlPersistence": true,
+              "preservingUpdate": true,
+              "readback": true
+            },
+            "attestation": {
+              "kind": "miro-web-sdk",
+              "nativeWritesObserved": true,
+              "captureFenceVerified": true,
+              "revisionKind": "content-digest",
+              "serverCas": false,
+              "atomicRevision": false,
+              "unownedContentRetainedExceptRecordedMetadataDrift": true,
+              "readonlyRecoveryStages": [
+                "restore"
+              ],
+              "interruptedWritesRetained": [
+                {
+                  "stage": "restore",
+                  "causeCodes": [
+                    "WRITE_INTERRUPTED",
+                    "CONCURRENT_EDIT"
+                  ],
+                  "receiptSha256": "6f2066ee2824c64b237559223238f78614260a6b47ab081f8b80cbde0292bc30",
+                  "recoveryWritesPerformed": false,
+                  "atomicityClaimed": false,
+                  "unownedPriorCount": 103,
+                  "unownedCurrentCount": 159,
+                  "qualifiedMetadataDriftCount": 17,
+                  "newlyObservedUnownedCount": 56
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "assetSourcePath": "fixtures/renderers/miro/assets/nested-environments-d751a8bc935e694d.jpg",
+      "preservation": {
+        "nativeNodePositionAndFillRetained": true,
+        "nativeConnectorAttachmentsAndStyleRetained": true,
+        "unownedObjectsComparedAcrossThreeTransitions": [
+          {
+            "priorCount": 103,
+            "currentCount": 103,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          },
+          {
+            "priorCount": 103,
+            "currentCount": 103,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          },
+          {
+            "priorCount": 103,
+            "currentCount": 159,
+            "newlyObservedCount": 56,
+            "qualifiedMetadataDriftCount": 17,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          }
+        ],
+        "totalUnownedSnapshotsCompared": 309,
+        "volatileFieldsExcluded": [
+          "modifiedAt",
+          "modifiedBy"
+        ],
+        "sourceRestored": true
+      }
+    },
+    {
+      "id": "process-documents-store",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/process-documents-store.json",
+        "sha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520"
+      },
+      "captureFence": {
+        "before": {
+          "revision": "10519e3d86649191707257e2c3eabce999251f670c06658b60b5b76b0697ca8b",
+          "captureDigestSha256": "10519e3d86649191707257e2c3eabce999251f670c06658b60b5b76b0697ca8b"
+        },
+        "after": {
+          "revision": "10519e3d86649191707257e2c3eabce999251f670c06658b60b5b76b0697ca8b",
+          "captureDigestSha256": "10519e3d86649191707257e2c3eabce999251f670c06658b60b5b76b0697ca8b"
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "miro",
+          "profileId": "umf.visual.miro.editable-network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/nodes/1/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this node field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/3/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this node field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/1/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/2/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              }
+            ]
+          },
+          "preview": {
+            "state": "rendered",
+            "engine": "miro",
+            "nativeVersion": "Miro observed service 1.105564.0 / Web SDK v2 (unpinned)",
+            "sourceSha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520",
+            "profileId": "umf.visual.miro.editable-network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "captureDigestSha256": "10519e3d86649191707257e2c3eabce999251f670c06658b60b5b76b0697ca8b",
+            "revision": "10519e3d86649191707257e2c3eabce999251f670c06658b60b5b76b0697ca8b",
+            "stage": "restored-original",
+            "asset": {
+              "path": "integrations/previews/miro/process-documents-store-adb758a15dcdbf2b.jpg",
+              "sha256": "adb758a15dcdbf2b160cedcc39bc18281a893e69bc297e0bf95ae81362fbc14d",
+              "mediaType": "image/jpeg",
+              "width": 1040,
+              "height": 510
+            }
+          },
+          "roundTrip": {
+            "state": "passed",
+            "sourceSha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520",
+            "profileId": "umf.visual.miro.editable-network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "checks": {
+              "noop": true,
+              "label": true,
+              "reconnection": true,
+              "movement": true,
+              "style": true,
+              "jsonPersistence": true,
+              "yamlPersistence": true,
+              "preservingUpdate": true,
+              "readback": true
+            },
+            "attestation": {
+              "kind": "miro-web-sdk",
+              "nativeWritesObserved": true,
+              "captureFenceVerified": true,
+              "revisionKind": "content-digest",
+              "serverCas": false,
+              "atomicRevision": false,
+              "unownedContentRetainedExceptRecordedMetadataDrift": true,
+              "readonlyRecoveryStages": [],
+              "interruptedWritesRetained": []
+            }
+          }
+        }
+      ],
+      "assetSourcePath": "fixtures/renderers/miro/assets/process-documents-store-adb758a15dcdbf2b.jpg",
+      "preservation": {
+        "nativeNodePositionAndFillRetained": true,
+        "nativeConnectorAttachmentsAndStyleRetained": true,
+        "unownedObjectsComparedAcrossThreeTransitions": [
+          {
+            "priorCount": 94,
+            "currentCount": 94,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          },
+          {
+            "priorCount": 94,
+            "currentCount": 94,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          },
+          {
+            "priorCount": 94,
+            "currentCount": 94,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          }
+        ],
+        "totalUnownedSnapshotsCompared": 282,
+        "volatileFieldsExcluded": [
+          "modifiedAt",
+          "modifiedBy"
+        ],
+        "sourceRestored": true
+      }
+    },
+    {
+      "id": "network-16x24",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/network-16x24.json",
+        "sha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4"
+      },
+      "captureFence": {
+        "before": {
+          "revision": "627b29d2545919e368a528f90e8c15c3eb59ecccbe4de65c746970a33debbdda",
+          "captureDigestSha256": "627b29d2545919e368a528f90e8c15c3eb59ecccbe4de65c746970a33debbdda"
+        },
+        "after": {
+          "revision": "627b29d2545919e368a528f90e8c15c3eb59ecccbe4de65c746970a33debbdda",
+          "captureDigestSha256": "627b29d2545919e368a528f90e8c15c3eb59ecccbe4de65c746970a33debbdda"
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "miro",
+          "profileId": "umf.visual.miro.editable-network/1",
+          "modelVersion": "1.1.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/1/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/2/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/3/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/4/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/5/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/6/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/7/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/8/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/9/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/10/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/11/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/12/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/13/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/14/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/15/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/16/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/17/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/18/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/19/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/20/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/21/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/22/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/23/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              }
+            ]
+          },
+          "preview": {
+            "state": "rendered",
+            "engine": "miro",
+            "nativeVersion": "Miro observed service 1.105564.0 / Web SDK v2 (unpinned)",
+            "sourceSha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4",
+            "profileId": "umf.visual.miro.editable-network/1",
+            "modelVersion": "1.1.0",
+            "mappingVersion": "1",
+            "captureDigestSha256": "627b29d2545919e368a528f90e8c15c3eb59ecccbe4de65c746970a33debbdda",
+            "revision": "627b29d2545919e368a528f90e8c15c3eb59ecccbe4de65c746970a33debbdda",
+            "stage": "restored-original",
+            "asset": {
+              "path": "integrations/previews/miro/network-16x24-f2897feefe52c00e.jpg",
+              "sha256": "f2897feefe52c00ef869a6cd3d99bf36c9e2eb2353f208714214c7162811b06d",
+              "mediaType": "image/jpeg",
+              "width": 890,
+              "height": 500
+            }
+          },
+          "roundTrip": {
+            "state": "passed",
+            "sourceSha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4",
+            "profileId": "umf.visual.miro.editable-network/1",
+            "modelVersion": "1.1.0",
+            "mappingVersion": "1",
+            "checks": {
+              "noop": true,
+              "label": true,
+              "reconnection": true,
+              "movement": true,
+              "style": true,
+              "jsonPersistence": true,
+              "yamlPersistence": true,
+              "preservingUpdate": true,
+              "readback": true
+            },
+            "attestation": {
+              "kind": "miro-web-sdk",
+              "nativeWritesObserved": true,
+              "captureFenceVerified": true,
+              "revisionKind": "content-digest",
+              "serverCas": false,
+              "atomicRevision": false,
+              "unownedContentRetainedExceptRecordedMetadataDrift": true,
+              "readonlyRecoveryStages": [
+                "update",
+                "restore"
+              ],
+              "interruptedWritesRetained": [
+                {
+                  "stage": "update",
+                  "causeCodes": [
+                    "WRITE_INTERRUPTED",
+                    "CONCURRENT_EDIT"
+                  ],
+                  "receiptSha256": "c776fef1a0b7f652067383c15b0058492653bab357ca0f2744476e1171cbe749",
+                  "recoveryWritesPerformed": false,
+                  "atomicityClaimed": false,
+                  "unownedPriorCount": 169,
+                  "unownedCurrentCount": 169,
+                  "qualifiedMetadataDriftCount": 0,
+                  "newlyObservedUnownedCount": 0
+                },
+                {
+                  "stage": "restore",
+                  "causeCodes": [
+                    "WRITE_INTERRUPTED",
+                    "CONCURRENT_EDIT"
+                  ],
+                  "receiptSha256": "c75526a3adfe6e024ce210d9e3355a0991a428d2cad332ea5a7aed08c1a435a1",
+                  "recoveryWritesPerformed": false,
+                  "atomicityClaimed": false,
+                  "unownedPriorCount": 169,
+                  "unownedCurrentCount": 169,
+                  "qualifiedMetadataDriftCount": 0,
+                  "newlyObservedUnownedCount": 0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "assetSourcePath": "fixtures/renderers/miro/assets/network-16x24-f2897feefe52c00e.jpg",
+      "preservation": {
+        "nativeNodePositionAndFillRetained": true,
+        "nativeConnectorAttachmentsAndStyleRetained": true,
+        "unownedObjectsComparedAcrossThreeTransitions": [
+          {
+            "priorCount": 169,
+            "currentCount": 169,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          },
+          {
+            "priorCount": 169,
+            "currentCount": 169,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          },
+          {
+            "priorCount": 169,
+            "currentCount": 169,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          }
+        ],
+        "totalUnownedSnapshotsCompared": 507,
+        "volatileFieldsExcluded": [
+          "modifiedAt",
+          "modifiedBy"
+        ],
+        "sourceRestored": true
+      }
+    },
+    {
+      "id": "frames-headings-annotations",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/frames-headings-annotations.json",
+        "sha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa"
+      },
+      "captureFence": {
+        "before": {
+          "revision": "c44972acf4958b51eb7e5d65cfa1bb05cfb46e1725d3035466113d7a6cd32c61",
+          "captureDigestSha256": "c44972acf4958b51eb7e5d65cfa1bb05cfb46e1725d3035466113d7a6cd32c61"
+        },
+        "after": {
+          "revision": "c44972acf4958b51eb7e5d65cfa1bb05cfb46e1725d3035466113d7a6cd32c61",
+          "captureDigestSha256": "c44972acf4958b51eb7e5d65cfa1bb05cfb46e1725d3035466113d7a6cd32c61"
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "miro",
+          "profileId": "umf.visual.miro.editable-network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/1/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/2/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              }
+            ]
+          },
+          "preview": {
+            "state": "rendered",
+            "engine": "miro",
+            "nativeVersion": "Miro observed service 1.105564.0 / Web SDK v2 (unpinned)",
+            "sourceSha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa",
+            "profileId": "umf.visual.miro.editable-network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "captureDigestSha256": "c44972acf4958b51eb7e5d65cfa1bb05cfb46e1725d3035466113d7a6cd32c61",
+            "revision": "c44972acf4958b51eb7e5d65cfa1bb05cfb46e1725d3035466113d7a6cd32c61",
+            "stage": "restored-original",
+            "asset": {
+              "path": "integrations/previews/miro/frames-headings-annotations-52e2d44612b4bc8b.jpg",
+              "sha256": "52e2d44612b4bc8b4a0bd7ebe06f02adc7bcb067eea58785550f23a0985d47c4",
+              "mediaType": "image/jpeg",
+              "width": 1040,
+              "height": 510
+            }
+          },
+          "roundTrip": {
+            "state": "passed",
+            "sourceSha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa",
+            "profileId": "umf.visual.miro.editable-network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "checks": {
+              "noop": true,
+              "label": true,
+              "reconnection": true,
+              "movement": true,
+              "style": true,
+              "jsonPersistence": true,
+              "yamlPersistence": true,
+              "preservingUpdate": true,
+              "readback": true
+            },
+            "attestation": {
+              "kind": "miro-web-sdk",
+              "nativeWritesObserved": true,
+              "captureFenceVerified": true,
+              "revisionKind": "content-digest",
+              "serverCas": false,
+              "atomicRevision": false,
+              "unownedContentRetainedExceptRecordedMetadataDrift": true,
+              "readonlyRecoveryStages": [
+                "update",
+                "restore"
+              ],
+              "interruptedWritesRetained": [
+                {
+                  "stage": "update",
+                  "causeCodes": [
+                    "WRITE_INTERRUPTED",
+                    "CONCURRENT_EDIT"
+                  ],
+                  "receiptSha256": "6182da61841d217ad04b3fee1fbe1ac6452be44c0c9e73cfe28064de34b85718",
+                  "recoveryWritesPerformed": false,
+                  "atomicityClaimed": false,
+                  "unownedPriorCount": 108,
+                  "unownedCurrentCount": 155,
+                  "qualifiedMetadataDriftCount": 26,
+                  "newlyObservedUnownedCount": 47
+                },
+                {
+                  "stage": "restore",
+                  "causeCodes": [
+                    "WRITE_INTERRUPTED",
+                    "CONCURRENT_EDIT"
+                  ],
+                  "receiptSha256": "7a54451dc087b7d2cc7f7385913879f8328bc2c18c63912d4eb05774545e692b",
+                  "recoveryWritesPerformed": false,
+                  "atomicityClaimed": false,
+                  "unownedPriorCount": 155,
+                  "unownedCurrentCount": 155,
+                  "qualifiedMetadataDriftCount": 0,
+                  "newlyObservedUnownedCount": 0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "assetSourcePath": "fixtures/renderers/miro/assets/frames-headings-annotations-52e2d44612b4bc8b.jpg",
+      "preservation": {
+        "nativeNodePositionAndFillRetained": true,
+        "nativeConnectorAttachmentsAndStyleRetained": true,
+        "unownedObjectsComparedAcrossThreeTransitions": [
+          {
+            "priorCount": 108,
+            "currentCount": 108,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          },
+          {
+            "priorCount": 108,
+            "currentCount": 155,
+            "newlyObservedCount": 47,
+            "qualifiedMetadataDriftCount": 26,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          },
+          {
+            "priorCount": 155,
+            "currentCount": 155,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          }
+        ],
+        "totalUnownedSnapshotsCompared": 371,
+        "volatileFieldsExcluded": [
+          "modifiedAt",
+          "modifiedBy"
+        ],
+        "sourceRestored": true
+      }
+    },
+    {
+      "id": "curved-caption-cross-boundary",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/curved-caption-cross-boundary.json",
+        "sha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c"
+      },
+      "captureFence": {
+        "before": {
+          "revision": "f8b33500f061582dfda2357db372ed9dbccb372a6e87a477aebbe42d7da6b09d",
+          "captureDigestSha256": "f8b33500f061582dfda2357db372ed9dbccb372a6e87a477aebbe42d7da6b09d"
+        },
+        "after": {
+          "revision": "f8b33500f061582dfda2357db372ed9dbccb372a6e87a477aebbe42d7da6b09d",
+          "captureDigestSha256": "f8b33500f061582dfda2357db372ed9dbccb372a6e87a477aebbe42d7da6b09d"
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "miro",
+          "profileId": "umf.visual.miro.editable-network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Preserved in the binding source; this edge field is not represented by an editable Miro slot."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/0",
+                "code": "GROUP_MEMBERS",
+                "family": "semantic",
+                "representation": "unrepresented",
+                "message": "Miro groups require at least two members; this group membership cannot be created in the qualified profile."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/0/label",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Miro native groups have no corresponding editable group label field."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/0/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Miro grouping expresses presentation membership; it does not carry the common group role."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/1",
+                "code": "GROUP_MEMBERS",
+                "family": "semantic",
+                "representation": "unrepresented",
+                "message": "Miro groups require at least two members; this group membership cannot be created in the qualified profile."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/1/label",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Miro native groups have no corresponding editable group label field."
+              },
+              {
+                "path": "/extensions/umf.visual/groups/1/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Miro grouping expresses presentation membership; it does not carry the common group role."
+              }
+            ]
+          },
+          "preview": {
+            "state": "rendered",
+            "engine": "miro",
+            "nativeVersion": "Miro observed service 1.105564.0 / Web SDK v2 (unpinned)",
+            "sourceSha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c",
+            "profileId": "umf.visual.miro.editable-network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "captureDigestSha256": "f8b33500f061582dfda2357db372ed9dbccb372a6e87a477aebbe42d7da6b09d",
+            "revision": "f8b33500f061582dfda2357db372ed9dbccb372a6e87a477aebbe42d7da6b09d",
+            "stage": "restored-original",
+            "asset": {
+              "path": "integrations/previews/miro/curved-caption-cross-boundary-7f8d5ef17d823bc7.jpg",
+              "sha256": "7f8d5ef17d823bc7d6c326e037d7e3ed5957d0cc4d39e09055e0543409a79782",
+              "mediaType": "image/jpeg",
+              "width": 600,
+              "height": 500
+            }
+          },
+          "roundTrip": {
+            "state": "passed",
+            "sourceSha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c",
+            "profileId": "umf.visual.miro.editable-network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "checks": {
+              "noop": true,
+              "label": true,
+              "reconnection": true,
+              "movement": true,
+              "style": true,
+              "jsonPersistence": true,
+              "yamlPersistence": true,
+              "preservingUpdate": true,
+              "readback": true
+            },
+            "attestation": {
+              "kind": "miro-web-sdk",
+              "nativeWritesObserved": true,
+              "captureFenceVerified": true,
+              "revisionKind": "content-digest",
+              "serverCas": false,
+              "atomicRevision": false,
+              "unownedContentRetainedExceptRecordedMetadataDrift": true,
+              "readonlyRecoveryStages": [
+                "update",
+                "restore"
+              ],
+              "interruptedWritesRetained": [
+                {
+                  "stage": "update",
+                  "causeCodes": [
+                    "WRITE_INTERRUPTED",
+                    "CONCURRENT_EDIT"
+                  ],
+                  "receiptSha256": "c9de10222b679848f6a2fe43963cbe8e0f19c10b8100d05a0e21b5c3944817dd",
+                  "recoveryWritesPerformed": false,
+                  "atomicityClaimed": false,
+                  "unownedPriorCount": 164,
+                  "unownedCurrentCount": 164,
+                  "qualifiedMetadataDriftCount": 0,
+                  "newlyObservedUnownedCount": 0
+                },
+                {
+                  "stage": "restore",
+                  "causeCodes": [
+                    "WRITE_INTERRUPTED",
+                    "CONCURRENT_EDIT"
+                  ],
+                  "receiptSha256": "ab9a8fbde60f8c89719cf6802c796d5767a638dd5a83bb7e1e2bee5ead7f42ab",
+                  "recoveryWritesPerformed": false,
+                  "atomicityClaimed": false,
+                  "unownedPriorCount": 164,
+                  "unownedCurrentCount": 164,
+                  "qualifiedMetadataDriftCount": 0,
+                  "newlyObservedUnownedCount": 0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "assetSourcePath": "fixtures/renderers/miro/assets/curved-caption-cross-boundary-7f8d5ef17d823bc7.jpg",
+      "preservation": {
+        "nativeNodePositionAndFillRetained": true,
+        "nativeConnectorAttachmentsAndStyleRetained": true,
+        "unownedObjectsComparedAcrossThreeTransitions": [
+          {
+            "priorCount": 164,
+            "currentCount": 164,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          },
+          {
+            "priorCount": 164,
+            "currentCount": 164,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          },
+          {
+            "priorCount": 164,
+            "currentCount": 164,
+            "newlyObservedCount": 0,
+            "qualifiedMetadataDriftCount": 0,
+            "unqualifiedChangeCount": 0,
+            "missingObjectCount": 0
+          }
+        ],
+        "totalUnownedSnapshotsCompared": 492,
+        "volatileFieldsExcluded": [
+          "modifiedAt",
+          "modifiedBy"
+        ],
+        "sourceRestored": true
+      }
+    }
+  ]
+}

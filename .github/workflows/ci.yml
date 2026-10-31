@@ -35,10 +35,20 @@ jobs:
       - run: bun run test:browser
       - run: bun run test:native:wave2
       - run: bun run test:native:annotated
+      - run: bun scripts/native-lini-entities-cohort.ts
+      - run: bun scripts/native-lini-model-version-boundary.ts
+      - run: bun scripts/native-mermaid-annotated.ts
+      - run: bun scripts/native-mermaid-er-probe.ts
+      - name: Qualify ordinary DOT cohort with the installed Graphviz runtime
+        run: mkdir -p .cache && bun scripts/native-dot-cohort.ts | tee .cache/native-dot-cohort.json
       - run: bun run test:native:layout
       - run: bun run build:catalog
+      # build:catalog joins durable host preview receipts; test:catalog validates
+      # their source, profile, artifact, and image hashes without live host writes.
       - run: bun run test:catalog
       - run: bun run test:release:catalog
+      - name: Require complete exact-source host cycles for the integration corpus
+        run: bun scripts/catalog/verify-host-completion.ts
       - run: bun run report:loss
       - run: bun run report:loss:wave2
       - run: bun run report:loss:ledger --release
@@ -52,15 +62,25 @@ jobs:
           path: |
             .cache/native-annotated.json
             .cache/native-lini-annotated.json
+            .cache/native-lini-entities-cohort.json
+            .cache/native-lini-model-version-boundary.json
+            .cache/mermaid-annotated/receipt.json
+            .cache/mermaid-annotated/*.svg
+            .cache/mermaid-er-probe/receipt.json
+            .cache/mermaid-er-probe/*.svg
+            .cache/native-dot-cohort.json
             .cache/native-lini-visual-layout.json
             .cache/lini-visual-layout/*.png
             .cache/lini-visual-layout/*.json
             .cache/browser.json
             .cache/catalog-ui-browser.json
             dist-site/integrations.json
+            .cache/host-completion.json
             .cache/loss-ledger.json
             .cache/catalog-profile-ui-browser.json
             .cache/catalog-profile-*.png
+            fixtures/renderers/powerpoint/preview-receipt.json
+            fixtures/renderers/powerpoint/assets/*.png
           include-hidden-files: true
           if-no-files-found: error
       - uses: actions/upload-artifact@v4

@@ -1,0 +1,1330 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/catalog/powerpoint-five-case.ts",
+  "previewEngine": {
+    "name": "LibreOfficeDev",
+    "version": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+    "command": "headless PDF export; pdftoppm 144 dpi"
+  },
+  "cases": [
+    {
+      "id": "nested-environments",
+      "title": "Nested environment containment",
+      "modelVersion": "1.0.0",
+      "profile": "umf.visual.powerpoint.network/1",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/nested-environments.json",
+        "sha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34"
+      },
+      "assetSourcePath": "fixtures/renderers/powerpoint/assets/nested-environments-d9dae4c22fa95b07.png",
+      "artifact": {
+        "path": ".cache/host-live/powerpoint-five-case/nested-environments/nested-environments.pptx",
+        "sha256": "87ff2773fe26b9c416bf1c4d6dcec03b43b8855af9781b84e56b92f94541cda1",
+        "bytes": 9755
+      },
+      "adapterReadback": {
+        "exactDocument": true,
+        "changes": 0,
+        "losses": [
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+          },
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+          }
+        ]
+      },
+      "preview": {
+        "engine": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+        "pdf": {
+          "path": ".cache/host-live/powerpoint-five-case/nested-environments/preview/nested-environments.pdf",
+          "sha256": "02a9db501e7495d09a636b3fc7d47df8a3784cc1d466b70bd54ec0d24810c50e"
+        },
+        "png": {
+          "path": ".cache/host-live/powerpoint-five-case/nested-environments/preview/nested-environments.png",
+          "sha256": "d9dae4c22fa95b07ebb9814e2f99f71933801daae67d415579ef8127700659ad",
+          "width": 1921,
+          "height": 1080
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "powerpoint",
+          "profileId": "umf.visual.powerpoint.network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/groups",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+              },
+              {
+                "path": "/extensions/umf.visual/id",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/1/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint node cards do not represent this node property."
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/1/group",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint node cards do not represent this node property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/id",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+              },
+              {
+                "path": "/umf",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+              },
+              {
+                "path": "/extensions/umf.visual/groups",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+              }
+            ]
+          },
+          "artifacts": [
+            {
+              "path": "integrations/downloads/powerpoint-nested-environments-87ff2773fe26b9c4.pptx",
+              "sha256": "87ff2773fe26b9c416bf1c4d6dcec03b43b8855af9781b84e56b92f94541cda1",
+              "mediaType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+              "bytes": 9755
+            }
+          ],
+          "preview": {
+            "state": "rendered",
+            "engine": "libreoffice",
+            "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+            "sourceSha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34",
+            "profileId": "umf.visual.powerpoint.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "inputArtifactSha256": "87ff2773fe26b9c416bf1c4d6dcec03b43b8855af9781b84e56b92f94541cda1",
+            "stage": "export",
+            "asset": {
+              "path": "integrations/previews/powerpoint/nested-environments-d9dae4c22fa95b07.png",
+              "sha256": "d9dae4c22fa95b07ebb9814e2f99f71933801daae67d415579ef8127700659ad",
+              "mediaType": "image/png",
+              "width": 1921,
+              "height": 1080
+            }
+          }
+        }
+      ],
+      "artifactSourcePath": "fixtures/renderers/powerpoint/assets/nested-environments-87ff2773fe26b9c4.pptx"
+    },
+    {
+      "id": "process-documents-store",
+      "title": "Process, document, multiple documents, data store",
+      "modelVersion": "1.0.0",
+      "profile": "umf.visual.powerpoint.network/1",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/process-documents-store.json",
+        "sha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520"
+      },
+      "assetSourcePath": "fixtures/renderers/powerpoint/assets/process-documents-store-layoutv3-d3e166e4c483d4da.png",
+      "artifact": {
+        "path": ".cache/pptx-preview-layout/process-documents-store/process-documents-store-preview-layout-v3.pptx",
+        "sha256": "4642c5421babd29de9a9deda2d3bc21b08a1cce19875e6e2c0176a993ead08db",
+        "bytes": 9967
+      },
+      "adapterReadback": {
+        "exactDocument": true,
+        "changes": 0,
+        "losses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/3/role",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          }
+        ]
+      },
+      "preview": {
+        "engine": "libreoffice",
+        "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+        "png": {
+          "path": "fixtures/renderers/powerpoint/assets/process-documents-store-layoutv3-d3e166e4c483d4da.png",
+          "sha256": "d3e166e4c483d4da34768b15d7b4e3228e6bde026b02e51e1993b2c752bea739",
+          "width": 1921,
+          "height": 1080
+        },
+        "stage": "native-only-preview-layout",
+        "nativeOpen": {
+          "application": "Microsoft PowerPoint for Mac",
+          "version": "16.114.3",
+          "observer": "Codex computer-use",
+          "method": "Opened the exact v3 file through PowerPoint native Open dialog; inspected the native rendered slide and absence of a repair prompt.",
+          "reopenObserved": true,
+          "noRepairPrompt": true,
+          "screenshotSha256": "188c393b2c56644bcab0cb6b9a2707f644d487d03ff42f2fd8aa12e75539a645",
+          "screenshotPrivacy": "Private native application screenshot retained; no screenshot path or host identifier is published."
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "powerpoint",
+          "profileId": "umf.visual.powerpoint.network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/id",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/1/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint node cards do not represent this node property."
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/3/role",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint node cards do not represent this node property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/1/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/2/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/id",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+              },
+              {
+                "path": "/umf",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+              }
+            ]
+          },
+          "artifacts": [
+            {
+              "path": "fixtures/renderers/powerpoint/assets/process-documents-store-layoutv3-4642c5421babd29d.pptx",
+              "sha256": "4642c5421babd29de9a9deda2d3bc21b08a1cce19875e6e2c0176a993ead08db",
+              "mediaType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+              "bytes": 9967
+            },
+            {
+              "path": "integrations/downloads/powerpoint-process-documents-store-58bc9b6ec0d0e7c1.pptx",
+              "sha256": "58bc9b6ec0d0e7c1c74c5a71390162a8fd783742e7dd3d014165e46e0c420905",
+              "mediaType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+              "bytes": 9981
+            }
+          ],
+          "preview": {
+            "state": "rendered",
+            "engine": "libreoffice",
+            "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+            "sourceSha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520",
+            "profileId": "umf.visual.powerpoint.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "inputArtifactSha256": "4642c5421babd29de9a9deda2d3bc21b08a1cce19875e6e2c0176a993ead08db",
+            "stage": "native-only-preview-layout",
+            "nativeOpen": {
+              "application": "Microsoft PowerPoint for Mac",
+              "version": "16.114.3",
+              "observer": "Codex computer-use",
+              "method": "Opened the exact v3 file through PowerPoint native Open dialog; inspected the native rendered slide and absence of a repair prompt.",
+              "reopenObserved": true,
+              "noRepairPrompt": true,
+              "screenshotSha256": "188c393b2c56644bcab0cb6b9a2707f644d487d03ff42f2fd8aa12e75539a645",
+              "screenshotPrivacy": "Private native application screenshot retained; no screenshot path or host identifier is published."
+            },
+            "asset": {
+              "path": "fixtures/renderers/powerpoint/assets/process-documents-store-layoutv3-d3e166e4c483d4da.png",
+              "sha256": "d3e166e4c483d4da34768b15d7b4e3228e6bde026b02e51e1993b2c752bea739",
+              "mediaType": "image/png",
+              "width": 1921,
+              "height": 1080
+            }
+          },
+          "previewVariants": [
+            {
+              "state": "rendered",
+              "engine": "libreoffice",
+              "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+              "sourceSha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520",
+              "profileId": "umf.visual.powerpoint.network/1",
+              "modelVersion": "1.0.0",
+              "mappingVersion": "1",
+              "inputArtifactSha256": "58bc9b6ec0d0e7c1c74c5a71390162a8fd783742e7dd3d014165e46e0c420905",
+              "stage": "export",
+              "asset": {
+                "path": "integrations/previews/powerpoint/process-documents-store-c58ce25bc3ebd6d0.png",
+                "sha256": "c58ce25bc3ebd6d0a54c4354d8ba43497e183616ed507ba3c5ccb5fb615d96af",
+                "mediaType": "image/png",
+                "width": 1921,
+                "height": 1080
+              }
+            },
+            {
+              "state": "rendered",
+              "engine": "libreoffice",
+              "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+              "sourceSha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520",
+              "profileId": "umf.visual.powerpoint.network/1",
+              "modelVersion": "1.0.0",
+              "mappingVersion": "1",
+              "inputArtifactSha256": "4642c5421babd29de9a9deda2d3bc21b08a1cce19875e6e2c0176a993ead08db",
+              "stage": "native-only-preview-layout",
+              "nativeOpen": {
+                "application": "Microsoft PowerPoint for Mac",
+                "version": "16.114.3",
+                "reopenObserved": true,
+                "noRepairPrompt": true
+              },
+              "asset": {
+                "path": "fixtures/renderers/powerpoint/assets/process-documents-store-layoutv3-d3e166e4c483d4da.png",
+                "sha256": "d3e166e4c483d4da34768b15d7b4e3228e6bde026b02e51e1993b2c752bea739",
+                "mediaType": "image/png",
+                "width": 1921,
+                "height": 1080
+              }
+            }
+          ]
+        }
+      ],
+      "artifactSourcePath": "fixtures/renderers/powerpoint/assets/process-documents-store-layoutv3-4642c5421babd29d.pptx"
+    },
+    {
+      "id": "network-16x24",
+      "title": "Connected network with 16 nodes and 24 links",
+      "modelVersion": "1.1.0",
+      "profile": "umf.visual.powerpoint.network/1",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/network-16x24.json",
+        "sha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4"
+      },
+      "assetSourcePath": "fixtures/renderers/powerpoint/assets/network-16x24-layoutv3-531cf07d9bbc84db.png",
+      "artifact": {
+        "path": ".cache/pptx-preview-layout/network-16x24/network-16x24-preview-layout-v3.pptx",
+        "sha256": "db78cb33ca2f876e386bf00430096f83af667cc7fc1fa2f2d6588ced9d457029",
+        "bytes": 10997
+      },
+      "adapterReadback": {
+        "exactDocument": true,
+        "changes": 0,
+        "losses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/3/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/4/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/5/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/6/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/7/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/8/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/9/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/10/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/11/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/12/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/13/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/14/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/15/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/16/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/17/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/18/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/19/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/20/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/21/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/22/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/23/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          }
+        ]
+      },
+      "preview": {
+        "engine": "libreoffice",
+        "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+        "png": {
+          "path": "fixtures/renderers/powerpoint/assets/network-16x24-layoutv3-531cf07d9bbc84db.png",
+          "sha256": "531cf07d9bbc84db473ad696c4744cc368bd5100e4890f78b7c70a6269240bc9",
+          "width": 1921,
+          "height": 1080
+        },
+        "stage": "native-only-preview-layout",
+        "nativeOpen": {
+          "application": "Microsoft PowerPoint for Mac",
+          "version": "16.114.3",
+          "observer": "Codex computer-use",
+          "method": "Opened the exact v3 file through PowerPoint native Open dialog; inspected the native rendered slide and absence of a repair prompt.",
+          "reopenObserved": true,
+          "noRepairPrompt": true,
+          "screenshotSha256": "8b020300beb71f0c0bff0ef598343be3e3ec593750b9ac2c9d15d1df7191d466",
+          "screenshotPrivacy": "Private native application screenshot retained; no screenshot path or host identifier is published."
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "powerpoint",
+          "profileId": "umf.visual.powerpoint.network/1",
+          "modelVersion": "1.1.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/id",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/1/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/2/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/3/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/4/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/5/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/6/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/7/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/8/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/9/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/10/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/11/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/12/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/13/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/14/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/15/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/16/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/17/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/18/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/19/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/20/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/21/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/22/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/23/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/id",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+              },
+              {
+                "path": "/umf",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+              }
+            ]
+          },
+          "artifacts": [
+            {
+              "path": "fixtures/renderers/powerpoint/assets/network-16x24-layoutv3-db78cb33ca2f876e.pptx",
+              "sha256": "db78cb33ca2f876e386bf00430096f83af667cc7fc1fa2f2d6588ced9d457029",
+              "mediaType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+              "bytes": 10997
+            },
+            {
+              "path": "integrations/downloads/powerpoint-network-16x24-173579111b985424.pptx",
+              "sha256": "173579111b98542453edb967d49a4518811778fd231870ed71856a734b0fb406",
+              "mediaType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+              "bytes": 10780
+            }
+          ],
+          "preview": {
+            "state": "rendered",
+            "engine": "libreoffice",
+            "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+            "sourceSha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4",
+            "profileId": "umf.visual.powerpoint.network/1",
+            "modelVersion": "1.1.0",
+            "mappingVersion": "1",
+            "inputArtifactSha256": "db78cb33ca2f876e386bf00430096f83af667cc7fc1fa2f2d6588ced9d457029",
+            "stage": "native-only-preview-layout",
+            "nativeOpen": {
+              "application": "Microsoft PowerPoint for Mac",
+              "version": "16.114.3",
+              "observer": "Codex computer-use",
+              "method": "Opened the exact v3 file through PowerPoint native Open dialog; inspected the native rendered slide and absence of a repair prompt.",
+              "reopenObserved": true,
+              "noRepairPrompt": true,
+              "screenshotSha256": "8b020300beb71f0c0bff0ef598343be3e3ec593750b9ac2c9d15d1df7191d466",
+              "screenshotPrivacy": "Private native application screenshot retained; no screenshot path or host identifier is published."
+            },
+            "asset": {
+              "path": "fixtures/renderers/powerpoint/assets/network-16x24-layoutv3-531cf07d9bbc84db.png",
+              "sha256": "531cf07d9bbc84db473ad696c4744cc368bd5100e4890f78b7c70a6269240bc9",
+              "mediaType": "image/png",
+              "width": 1921,
+              "height": 1080
+            }
+          },
+          "previewVariants": [
+            {
+              "state": "rendered",
+              "engine": "libreoffice",
+              "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+              "sourceSha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4",
+              "profileId": "umf.visual.powerpoint.network/1",
+              "modelVersion": "1.1.0",
+              "mappingVersion": "1",
+              "inputArtifactSha256": "173579111b98542453edb967d49a4518811778fd231870ed71856a734b0fb406",
+              "stage": "export",
+              "asset": {
+                "path": "integrations/previews/powerpoint/network-16x24-90781daba3a767c1.png",
+                "sha256": "90781daba3a767c1e6c614a5bd4d18472a72aba032f1f470b360540af543183c",
+                "mediaType": "image/png",
+                "width": 1921,
+                "height": 1080
+              }
+            },
+            {
+              "state": "rendered",
+              "engine": "libreoffice",
+              "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+              "sourceSha256": "dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4",
+              "profileId": "umf.visual.powerpoint.network/1",
+              "modelVersion": "1.1.0",
+              "mappingVersion": "1",
+              "inputArtifactSha256": "db78cb33ca2f876e386bf00430096f83af667cc7fc1fa2f2d6588ced9d457029",
+              "stage": "native-only-preview-layout",
+              "nativeOpen": {
+                "application": "Microsoft PowerPoint for Mac",
+                "version": "16.114.3",
+                "reopenObserved": true,
+                "noRepairPrompt": true
+              },
+              "asset": {
+                "path": "fixtures/renderers/powerpoint/assets/network-16x24-layoutv3-531cf07d9bbc84db.png",
+                "sha256": "531cf07d9bbc84db473ad696c4744cc368bd5100e4890f78b7c70a6269240bc9",
+                "mediaType": "image/png",
+                "width": 1921,
+                "height": 1080
+              }
+            }
+          ]
+        }
+      ],
+      "artifactSourcePath": "fixtures/renderers/powerpoint/assets/network-16x24-layoutv3-db78cb33ca2f876e.pptx"
+    },
+    {
+      "id": "frames-headings-annotations",
+      "title": "Two regions with separate headings and annotations",
+      "modelVersion": "1.0.0",
+      "profile": "umf.visual.powerpoint.network/1",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/frames-headings-annotations.json",
+        "sha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa"
+      },
+      "assetSourcePath": "fixtures/renderers/powerpoint/assets/frames-headings-annotations-4aae2582e7a1b746.png",
+      "artifact": {
+        "path": ".cache/host-live/powerpoint-five-case/frames-headings-annotations/frames-headings-annotations.pptx",
+        "sha256": "afa872ecc6b83cff6bd2a161ff581affa0ba5766831de3d6b5a8f95464dbd913",
+        "bytes": 9777
+      },
+      "adapterReadback": {
+        "exactDocument": true,
+        "changes": 0,
+        "losses": [
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/1/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/2/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          }
+        ]
+      },
+      "preview": {
+        "engine": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+        "pdf": {
+          "path": ".cache/host-live/powerpoint-five-case/frames-headings-annotations/preview/frames-headings-annotations.pdf",
+          "sha256": "60a5b8fe44212e1dce2afcab54263469ab7a474fd8f1ed6d95ae36c7fbe19d16"
+        },
+        "png": {
+          "path": ".cache/host-live/powerpoint-five-case/frames-headings-annotations/preview/frames-headings-annotations.png",
+          "sha256": "4aae2582e7a1b746da47600b7fcf52417bc08c031ce714e90eb6a6a4a2d4b8e6",
+          "width": 1921,
+          "height": 1080
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "powerpoint",
+          "profileId": "umf.visual.powerpoint.network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/id",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/1/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/2/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/id",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+              },
+              {
+                "path": "/umf",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+              }
+            ]
+          },
+          "artifacts": [
+            {
+              "path": "integrations/downloads/powerpoint-frames-headings-annotations-afa872ecc6b83cff.pptx",
+              "sha256": "afa872ecc6b83cff6bd2a161ff581affa0ba5766831de3d6b5a8f95464dbd913",
+              "mediaType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+              "bytes": 9777
+            }
+          ],
+          "preview": {
+            "state": "rendered",
+            "engine": "libreoffice",
+            "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+            "sourceSha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa",
+            "profileId": "umf.visual.powerpoint.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "inputArtifactSha256": "afa872ecc6b83cff6bd2a161ff581affa0ba5766831de3d6b5a8f95464dbd913",
+            "stage": "export",
+            "asset": {
+              "path": "integrations/previews/powerpoint/frames-headings-annotations-4aae2582e7a1b746.png",
+              "sha256": "4aae2582e7a1b746da47600b7fcf52417bc08c031ce714e90eb6a6a4a2d4b8e6",
+              "mediaType": "image/png",
+              "width": 1921,
+              "height": 1080
+            }
+          }
+        }
+      ],
+      "artifactSourcePath": "fixtures/renderers/powerpoint/assets/frames-headings-annotations-afa872ecc6b83cff.pptx"
+    },
+    {
+      "id": "curved-caption-cross-boundary",
+      "title": "Curved captioned connector with endpoint attachments",
+      "modelVersion": "1.0.0",
+      "profile": "umf.visual.powerpoint.network/1",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/curved-caption-cross-boundary.json",
+        "sha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c"
+      },
+      "assetSourcePath": "fixtures/renderers/powerpoint/assets/curved-caption-cross-boundary-5137ddec4b2fd176.png",
+      "artifact": {
+        "path": ".cache/host-live/powerpoint-five-case/curved-caption-cross-boundary/curved-caption-cross-boundary.pptx",
+        "sha256": "a99af4c3391e18056a122d9ecbd99da55e1d368fab1bc87cb535e0bca12215f0",
+        "bytes": 9702
+      },
+      "adapterReadback": {
+        "exactDocument": true,
+        "changes": 0,
+        "losses": [
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+          },
+          {
+            "path": "/extensions/umf.visual/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/0/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/nodes/1/group",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint node cards do not represent this node property."
+          },
+          {
+            "path": "/extensions/umf.visual/edges/0/kind",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "PowerPoint connectors do not represent this edge property."
+          },
+          {
+            "path": "/id",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/umf",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+          },
+          {
+            "path": "/extensions/umf.visual/groups",
+            "code": "RETAINED_ONLY",
+            "family": "semantic",
+            "representation": "retained-only",
+            "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+          }
+        ]
+      },
+      "preview": {
+        "engine": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+        "pdf": {
+          "path": ".cache/host-live/powerpoint-five-case/curved-caption-cross-boundary/preview/curved-caption-cross-boundary.pdf",
+          "sha256": "86782344e93008d4d1291f56bfc4170c996c84090f7efb7105a6f386c18f5c66"
+        },
+        "png": {
+          "path": ".cache/host-live/powerpoint-five-case/curved-caption-cross-boundary/preview/curved-caption-cross-boundary.png",
+          "sha256": "5137ddec4b2fd176c49b31a436730214bacbc21c32b979655a270d413b069917",
+          "width": 1921,
+          "height": 1080
+        }
+      },
+      "rendererTargets": [
+        {
+          "rendererId": "powerpoint",
+          "profileId": "umf.visual.powerpoint.network/1",
+          "modelVersion": "1.0.0",
+          "mappingVersion": "1",
+          "projection": {
+            "state": "emitted",
+            "status": "reported-loss",
+            "diagnostics": [],
+            "losses": [
+              {
+                "path": "/extensions/umf.visual/groups",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint profile does not encode this visual field as editable native meaning."
+              },
+              {
+                "path": "/extensions/umf.visual/id",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Visual identity is kept in the source companion and is not an editable PowerPoint drawing property."
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/0/group",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint node cards do not represent this node property."
+              },
+              {
+                "path": "/extensions/umf.visual/nodes/1/group",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint node cards do not represent this node property."
+              },
+              {
+                "path": "/extensions/umf.visual/edges/0/kind",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "PowerPoint connectors do not represent this edge property."
+              },
+              {
+                "path": "/id",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "UMF document identity remains in the source companion and is not a PowerPoint drawing property."
+              },
+              {
+                "path": "/umf",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "UMF envelope version remains in the source companion and is not a PowerPoint drawing property."
+              },
+              {
+                "path": "/extensions/umf.visual/groups",
+                "code": "RETAINED_ONLY",
+                "family": "semantic",
+                "representation": "retained-only",
+                "message": "Group membership is not encoded as native PowerPoint grouping in this profile."
+              }
+            ]
+          },
+          "artifacts": [
+            {
+              "path": "integrations/downloads/powerpoint-curved-caption-cross-boundary-a99af4c3391e1805.pptx",
+              "sha256": "a99af4c3391e18056a122d9ecbd99da55e1d368fab1bc87cb535e0bca12215f0",
+              "mediaType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+              "bytes": 9702
+            }
+          ],
+          "preview": {
+            "state": "rendered",
+            "engine": "libreoffice",
+            "nativeVersion": "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+            "sourceSha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c",
+            "profileId": "umf.visual.powerpoint.network/1",
+            "modelVersion": "1.0.0",
+            "mappingVersion": "1",
+            "inputArtifactSha256": "a99af4c3391e18056a122d9ecbd99da55e1d368fab1bc87cb535e0bca12215f0",
+            "stage": "export",
+            "asset": {
+              "path": "integrations/previews/powerpoint/curved-caption-cross-boundary-5137ddec4b2fd176.png",
+              "sha256": "5137ddec4b2fd176c49b31a436730214bacbc21c32b979655a270d413b069917",
+              "mediaType": "image/png",
+              "width": 1921,
+              "height": 1080
+            }
+          }
+        }
+      ],
+      "artifactSourcePath": "fixtures/renderers/powerpoint/assets/curved-caption-cross-boundary-a99af4c3391e1805.pptx"
+    }
+  ]
+}

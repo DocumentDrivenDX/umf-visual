@@ -8,7 +8,7 @@ const fixture=(name:string)=>readFileSync(new URL('../../fixtures/interchange/li
 test('Lini flow profile maps native card paths and directed links',()=>{
  const parsed=liniAdapter.parse(fixture('flow-basic.lini'),context);
  expect(parsed.diagnostics.some(d=>d.severity==='error')).toBe(false);
- expect(liniAdapter.version).toBe('0.2.0');
+ expect(liniAdapter.version).toBe('0.3.0');
  expect(parsed.visual).toMatchObject({kind:'flow',form:'network',nodes:[{label:'Ingress',detail:'Receives API requests'},{label:'Store',detail:'Durable storage'}],edges:[{from:'n1',to:'n2',label:'writes'}]});
  expect(parsed.identityMap.some(item=>item.kind==='node'&&item.nativeId==='n_1')).toBe(true);
  expect(parsed.identityMap.some(item=>item.kind==='edge'&&item.path==='/extensions/umf.visual/edges/0/id')).toBe(true);
@@ -18,6 +18,17 @@ test('Lini flow profile maps native card paths and directed links',()=>{
  expect(output.text).toContain('n_0 -> n_1 "writes"');
  const roundtrip=liniAdapter.parse(output.text!,context);
  expect(roundtrip.visual?.nodes?.map(node=>node.detail)).toEqual(['Receives API requests','Durable storage']);
+});
+
+test('native group captions preserve Visual titles without using identity hints',()=>{
+ const visual={id:'title-flow',kind:'flow' as const,form:'network' as const,question:'q',title:'Quoted title · π',nodes:[{id:'real-node-id',label:'Node'}]};
+ const serialized=liniAdapter.serialize(visual,context);
+ expect(serialized.text).toContain('|group#umf_visual| "Quoted title · π" { layout: grid;');
+ expect(serialized.diagnostics.some(item=>item.code==='LINI_TITLE'&&item.loss)).toBe(false);
+ expect(serialized.identityMap.some(item=>item.kind==='node'&&item.nativeId==='umf_visual.n_0'&&item.visualId==='real-node-id')).toBe(true);
+ const parsed=liniAdapter.parse(serialized.text!,context);
+ expect(parsed.visual).toMatchObject({kind:'flow',form:'network',title:'Quoted title · π',nodes:[{id:'n1',label:'Node'}]});
+ expect(parsed.identityMap.some(item=>item.kind==='node'&&item.nativeId==='umf_visual.n_0')).toBe(true);
 });
 
 test('Lini entity profile preserves field display text and field endpoints',()=>{

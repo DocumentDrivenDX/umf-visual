@@ -126,11 +126,10 @@ function parseEr(source:string,context:{id:string;question:string},lines:string[
    const fm=/^([A-Za-z][\w()[\]-]*\??)\s+(\*?[\w()[\]-]+)(?:\s+((?:PK|FK|UK)(?:\s*,\s*(?:PK|FK|UK))*))?(?:\s+"([^"]*)")?$/i.exec(t);
    if(!fm){diagnostics.push(diagnostic('MERMAID_FIELD',ptr(row.index),'ER attribute is outside the supported type/name/key/comment subset.',row.range,'error'));fatal=true;continue;}
    const ent=entityDecls.find(e=>e.node===current);if(!ent)continue;
-   const starred=fm[2].startsWith('*'),rawName=fm[2].replace(/^\*/,'');const keys:('pk'|'fk'|'uk')[]=[...(fm[3]?.match(/PK|FK|UK/gi)??[]).map(key=>key.toLowerCase() as 'pk'|'fk'|'uk')];
+   const rawName=fm[2];const keys:('pk'|'fk'|'uk')[]=[...(fm[3]?.match(/PK|FK|UK/gi)??[]).map(key=>key.toLowerCase() as 'pk'|'fk'|'uk')];
    const fieldIndex=ent.fields.length;
    ent.fields.push({name:rawName,type:fm[1],...(keys.length?{keys:[...new Set(keys)]}:{})});
-   if(fm[1].endsWith('?'))diagnostics.push(diagnostic('MERMAID_OPTIONAL_TYPE',ptr(row.index),'Mermaid optional/nullability marker is retained in the exact type text; Visual nullable is not inferred.',row.range));
-   if(starred)diagnostics.push(diagnostic('MERMAID_PRIMARY_MARKER',ptr(row.index),'A leading asterisk is retained as an ER primary-key marker in source, but this adapter does not infer Visual field keys from it.',row.range));
+   if(fm[1].endsWith('?'))diagnostics.push(advisory('MERMAID_OPTIONAL_TYPE',ptr(row.index),'The optional marker remains part of the exact display type string; Visual nullable is not inferred.',row.range));
    if(fm[4]!==undefined)diagnostics.push(diagnostic('MERMAID_FIELD_COMMENT',ptr(row.index),'ER field comment has no Visual field and is not represented in the projection.',row.range));
    identityMap.push(identityMapping('field',rawName,current,visualPath('/structure/entities/'+(entityDecls.indexOf(ent))+'/fields/'+fieldIndex+'/name'),ptr(row.index)));continue;
   }
@@ -257,7 +256,7 @@ function serializeMermaid(visual:Visual,context:{id:string;question:string}):Ada
    if(['detail','role','status','emphasis','evidence'].some(key=>has(node,key)))diagnostics.push(diagnostic('MERMAID_NODE_FIELDS',visualPath('/nodes/'+i),'Visual node fields beyond its label have no encoding in this Mermaid subset.',undefined));
    for(const [j,field]of entity.fields.entries()){
     if(!field.type){diagnostics.push(diagnostic('MERMAID_FIELD_TYPE',visualPath('/structure/entities/'+entityIndex+'/fields/'+j+'/type'),'Mermaid requires a field type; no type is inferred for this export.',undefined,'error'));continue;}
-    if(!/^[A-Za-z][\w()[\]-]*\??$/.test(field.type)||!/^[\w()[\]-]+$/.test(field.name)){diagnostics.push(diagnostic('MERMAID_FIELD_NAME',visualPath('/structure/entities/'+entityIndex+'/fields/'+j),'Field name or type is outside the Mermaid ER identifier syntax.',undefined,'error'));continue;}
+    if(!/^[A-Za-z][\w()[\]-]*\??$/.test(field.type)||!/^\*?[\w()[\]-]+$/.test(field.name)){diagnostics.push(diagnostic('MERMAID_FIELD_NAME',visualPath('/structure/entities/'+entityIndex+'/fields/'+j),'Field name or type is outside the Mermaid ER identifier syntax.',undefined,'error'));continue;}
     if(has(field,'nullable'))diagnostics.push(diagnostic('MERMAID_NULLABLE',visualPath('/structure/entities/'+entityIndex+'/fields/'+j+'/nullable'),'Visual nullable metadata has no explicit native ER representation in this adapter.',undefined));
     const key=field.keys?.length?' '+field.keys.map(k=>({pk:'PK',fk:'FK',uk:'UK'} as const)[k]).join(', '):'';out.push('    '+field.type+' '+field.name+key);
     identityMap.push(identityMapping('field',field.name,node.id,visualPath('/structure/entities/'+entityIndex+'/fields/'+j+'/name')));

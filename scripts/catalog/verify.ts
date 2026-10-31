@@ -3,7 +3,7 @@
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
-import {buildCatalog, type VisualCatalog, type CatalogTarget} from './build';
+import {buildCatalog, type VisualCatalog, type CatalogTarget, type CatalogProfileVariant} from './build';
 import {exportVisual,importVisual,visualForms} from '../../src';
 import {focusedProfileSource} from './profile-views';
 
@@ -78,7 +78,9 @@ export async function verifyCatalog(catalog?: VisualCatalog,release=false): Prom
   for (const item of value.items) {
     assert(!ids.has(item.id), `Duplicate item id ${item.id}.`); ids.add(item.id);
     assert(!sourcePaths.has(item.sourcePath), `Duplicate source path ${item.sourcePath}.`); sourcePaths.add(item.sourcePath);
-    assert(digest(await readFile(join(root, item.sourcePath))) === item.sourceSha256, `Source SHA-256 mismatch for ${item.sourcePath}.`);
+    const sourceBytes=await readFile(join(root, item.sourcePath));
+    assert(digest(sourceBytes) === item.sourceSha256, `Source SHA-256 mismatch for ${item.sourcePath}.`);
+    assert(canonical(JSON.parse(sourceBytes.toString('utf8')))===canonical(item.document),`Catalogue document differs from its source fixture ${item.id}`);
     for (const format of ['dot', 'mermaid', 'lini'] as const) {
       const target = item.targets[format];
       await validateTarget(item.id, format, target);
@@ -92,6 +94,12 @@ export async function verifyCatalog(catalog?: VisualCatalog,release=false): Prom
       assert(variant.modelVersion===(item.document as any).vocabularies['umf.visual'].version,`Mismatched profile model ${item.id}`);
       await validateTarget(item.id+'/'+variant.profileId,variant.format,variant.result);
       if(variant.result.render?.ok)renders++;
+      if(variant.result.ok){
+        const strict=exportVisual(item.document,{format:variant.format,profile:variant.profileId,mode:'strict'});
+        const expected=strict.ok?strict:exportVisual(item.document,{format:variant.format,profile:variant.profileId,mode:'allow-reported-loss'});
+        assert(expected.ok&&expected.text===variant.result.source,`Profile source differs from a fresh export of its source document ${item.id}/${variant.profileId}`);
+        assert((strict.ok?'supported':'reported-loss')===variant.result.status,`Profile status does not match strict export evidence ${item.id}/${variant.profileId}`);
+      }
       if(variant.result.status==='supported'){
         assert(!variant.result.diagnostics.some(d=>d.loss||d.severity==='error'),`Strict variant has losses ${item.id}`);
         const fresh=exportVisual(item.document,{format:variant.format,profile:variant.profileId});
@@ -101,16 +109,30 @@ export async function verifyCatalog(catalog?: VisualCatalog,release=false): Prom
         assert(variant.diagramRender?.ok&&variant.diagramSourceSha256,`Missing focused native render ${item.id}`);
         assert(digest(focusedProfileSource(variant.result.source!,variant.format))===variant.diagramSourceSha256,`Focused view source differs from the declared projection ${item.id}`);
         await validateTarget(item.id+'/'+variant.profileId+'/diagram',variant.format,{...variant.result,render:variant.diagramRender});renders++;
-      }else assert(variant.diagramRender===undefined,`Unqualified variant advertises focused diagram ${item.id}`);
+      }else if(variant.result.ok){
+        assert(variant.result.status==='reported-loss'&&variant.result.diagnostics.some(d=>d.loss),`Lossy preview lacks an explicit projection loss ${item.id}`);
+        assert(variant.result.render?.ok&&variant.diagramRender?.ok&&variant.diagramSourceSha256,`Reported-loss source lacks complete/focused native preview receipts ${item.id}`);
+        assert(digest(focusedProfileSource(variant.result.source!,variant.format))===variant.diagramSourceSha256,`Reported-loss focused source differs from its declaration ${item.id}`);
+        await validateTarget(item.id+'/'+variant.profileId+'/complete-reported-loss',variant.format,variant.result);
+        await validateTarget(item.id+'/'+variant.profileId+'/focused-reported-loss',variant.format,{...variant.result,render:variant.diagramRender});renders++;
+      }else assert(variant.diagramRender===undefined&&variant.result.render===undefined,`Unsupported variant advertises a native preview ${item.id}`);
     }
     if(item.preferredRelease){
       const selected=item.profileVariants?.find(v=>v.profileId===item.preferredRelease!.profileId&&v.format===item.preferredRelease!.format);
-      assert(selected?.result.status==='supported'&&selected.result.render?.ok&&selected.diagramRender?.ok,`Preferred release lacks complete native-backed profile ${item.id}`);
+      assert(isReleaseQualified(selected),`Preferred release lacks a strict, fully rendered profile with complete coverage ${item.id}`);
       completeExamples++;completeForms.add(item.kind+'/'+item.form);
     }else if(release)throw new Error(`Release blocked: ${item.id} has no suitable complete native-backed target`);
   }
   if(release){assert(value.items.length===53&&completeExamples===53,'Release requires all 53 unchanged examples');assert(completeForms.size===22,'Release requires faithful native previews of all 22 forms');}
   return {items: value.items.length, renders,completeExamples,completeForms:completeForms.size};
+}
+
+/** A loss-bearing preview is useful evidence, but can never count as complete release coverage. */
+export function isReleaseQualified(variant:CatalogProfileVariant|undefined):variant is CatalogProfileVariant {
+  return Boolean(variant&&variant.result.status==='supported'&&variant.result.ok&&typeof variant.result.source==='string'&&
+    !variant.result.diagnostics.some(d=>d.loss||d.severity==='error')&&variant.result.render?.ok&&variant.diagramRender?.ok&&
+    typeof variant.diagramSourceSha256==='string'&&variant.coverage.length>0&&
+    variant.coverage.every(row=>row.path.length>0&&row.native.length>0));
 }
 
 if (import.meta.main) {

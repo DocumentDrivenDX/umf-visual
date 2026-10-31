@@ -6,7 +6,7 @@ import type {ProjectionCoverage} from './annotations';
 export type InterchangeFormat = 'dot' | 'mermaid' | 'lini';
 export type InterchangeMode = 'strict' | 'allow-reported-loss';
 /** Explicit opt-in; omitted profiles retain the released native behavior. */
-export type AnnotatedInterchangeProfile = 'umf.visual.dot.annotated/1'|'umf.visual.lini.annotated/1';
+export type AnnotatedInterchangeProfile = 'umf.visual.dot.annotated/1'|'umf.visual.lini.annotated/1'|'umf.visual.mermaid.annotated/1';
 export interface SourceRange {start:number;end:number;}
 /** Paths are JSON Pointers. Import paths begin /source; export paths address the document. */
 export interface InterchangeDiagnostic {

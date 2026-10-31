@@ -107,6 +107,32 @@ test('native-preserving update patches only owned content and endpoint slots', a
   expect(client.x).toBe(before.x);
 });
 
+test('native reverse, UMF question update, and source restoration preserve endpoint ownership and native layout', async () => {
+  const source = createVisualDocument({id: 'restore-cycle', kind: 'flow', form: 'network', question: 'Which way?',
+    nodes: [{id: 'left', label: 'Left'}, {id: 'right', label: 'Right'}],
+    edges: [{id: 'link', from: 'left', to: 'right', label: 'connects'}]});
+  const board = new FakeMiroBoard(), binding = await exportEditableMiroVisual(board, source, {bindingId: 'restore-cycle'});
+  const left = itemFor(board, binding, 'node', 'left'), right = itemFor(board, binding, 'node', 'right'), edge = itemFor(board, binding, 'edge', 'link');
+  left.content = 'Left — Native edit'; left.x = 480; left.y = 360; left.style = {fillColor: '#00FFFF'};
+  edge.start = {item: right.id, snapTo: 'auto'}; edge.end = {item: left.id, snapTo: 'auto'};
+  await left.sync(); await edge.sync();
+
+  const imported = await importEditableMiroVisual(board, binding, source, 0);
+  expect(getVisual(imported.document).edges![0]).toMatchObject({from: 'right', to: 'left'});
+  const updated = structuredClone(imported.document), updatedVisual = mutableVisual(updated);
+  updatedVisual.question = 'Which way after the update?';
+  const afterUpdate = await updateEditableMiroVisual(board, imported.binding, imported.document, updated, {expectedBindingRevision: 1});
+  expect(afterUpdate.bindingRevision).toBe(2);
+
+  const restored = await updateEditableMiroVisual(board, afterUpdate, updated, source, {expectedBindingRevision: 2});
+  expect(restored.bindingRevision).toBe(3);
+  expect(edge.start).toMatchObject({item: left.id}); expect(edge.end).toMatchObject({item: right.id});
+  expect(edge.captions).toEqual([{content: 'connects', position: 0.5}]);
+  expect(left.content).toBe('Left'); expect(left.x).toBe(480); expect(left.y).toBe(360); expect(left.style).toEqual({fillColor: '#00FFFF'});
+  const readback = await importEditableMiroVisual(board, restored, source, 3);
+  expect(readback.changes).toEqual([]); expect(readback.document).toEqual(source);
+});
+
 test('readback refuses bold rich text instead of silently flattening native formatting', async () => {
   const board = new FakeMiroBoard(), source = flow(), binding = await exportEditableMiroVisual(board, source, {bindingId: 'rich-text-refusal'});
   itemFor(board, binding, 'node', 'client').content = '<p><strong>Bold client</strong></p>';
@@ -214,8 +240,9 @@ test('interrupted create and update receipts retain known identities and avoid r
   const target = itemFor(board2, binding, 'node', 'client'), nextDoc = structuredClone(source2);
   mutableVisual(nextDoc).nodes!.find(node => node.id === 'client')!.label = 'Interrupted label';
   target.failSync = () => true;
-  await expect(updateEditableMiroVisual(board2, binding, source2, nextDoc, {expectedBindingRevision: 0}))
-    .rejects.toMatchObject({code: 'WRITE_INTERRUPTED', receipt: {state: 'interrupted'}});
+  let failure: unknown;
+  try {await updateEditableMiroVisual(board2, binding, source2, nextDoc, {expectedBindingRevision: 0});} catch (error) {failure = error;}
+  expect(failure).toMatchObject({code: 'WRITE_INTERRUPTED', receipt: {state: 'interrupted'}, cause: expect.any(Error)});
   expect(target.content).toBe('Interrupted label');
 });
 

@@ -153,10 +153,10 @@ export async function createCatalogData(): Promise<VisualCatalog> {
     if (!inspection.valid || !inspection.complete) throw new Error(`Invalid or incomplete visual document ${sourcePath}: ${JSON.stringify(inspection.diagnostics)}`);
     const title = typeof visual.title === 'string' && visual.title.trim() ? visual.title : visual.id ?? stem;
     const targets = Object.fromEntries(formats.map(format => [format, targetFrom(document, format)])) as Record<TargetName, CatalogTarget>;
-    const profileVariants:CatalogProfileVariant[]=(['dot','lini'] as const).map(format=>{
+    const profileVariants:CatalogProfileVariant[]=(['dot','mermaid','lini'] as const).map(format=>{
       const profileId=`umf.visual.${format}.annotated/1` as AnnotatedInterchangeProfile;
       const result=targetFrom(document,format,profileId),strict=exportVisual(document,{format,profile:profileId});
-      return {profileId,format,mappingVersion:'0.1.0',modelVersion:document.vocabularies['umf.visual'].version,result,coverage:strict.ok?strict.coverage??[]:[],diagramDescription:'Focused native shape view. The complete annotated view includes supplemental identity, constraint and note tables, plus typed application and provenance annotations. Downloaded native source always contains the complete representation.'};
+      return {profileId,format,mappingVersion:format==='lini'?'0.2.0':'0.1.0',modelVersion:document.vocabularies['umf.visual'].version,result,coverage:strict.ok?strict.coverage??[]:[],diagramDescription:format==='mermaid'?'Focused sequence view removes only the exact typed annotation notes and profile comment. The title and all semantic participants, messages, and loop constructs remain. Downloaded source always contains the complete annotated representation.':'Focused native shape view. The complete annotated view includes supplemental identity, constraint and note tables, plus typed application and provenance annotations. Downloaded native source always contains the complete representation.'};
     });
     items.push({id, title, kind: visual.kind, form: visual.form, question: visual.question,
       origin: sourcePath.startsWith('fixtures/catalog/') ? 'canary' : 'fixture', sourcePath, sourceSha256: sha256(bytes), document, targets,profileVariants});
@@ -330,12 +330,13 @@ export async function renderCatalog(catalog: VisualCatalog, outputDir: string): 
       }
       for(const variant of item.profileVariants??[]){
         const target=variant.result;if(!target.ok||target.source===undefined)continue;
-        const format=variant.format;if(format!=='dot'&&format!=='lini')throw new Error('Unqualified annotation renderer');
+        const format=variant.format;
         const renderOne=async(source:string,label:string):Promise<NativeRender>=>{
           let svg:string,version:string;
           if(format==='dot'){const result=await renderDot(source,graphviz);svg=result.svg;version=result.version;}
+          else if(format==='mermaid'){const result=await renderMermaid(page,source,safeSegment(item.id+'-mermaid-annotated-'+label));svg=result.svg;version=`${result.version} / Chromium ${browserVersion}`;if(externalRequest)throw new Error(`External request during Mermaid profile rendering: ${externalRequest}`);}
           else {validateLiniDiagnostics(lini.compiler.diagnostics(source,{}));svg=lini.compiler.compile(source,{});version=lini.version;}
-          const render:NativeRender={ok:true,engine:format==='dot'?'graphviz':'lini',nativeVersion:version};
+          const render:NativeRender={ok:true,engine:format==='dot'?'graphviz':format==='mermaid'?'mermaid':'lini',nativeVersion:version};
           await saveRender(item,format+'-annotated-'+label,render,svg,outputDir);return render;
         };
         target.render=await renderOne(target.source,'complete');

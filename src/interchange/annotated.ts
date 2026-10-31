@@ -3,6 +3,7 @@ import {copyJson,type Document} from '@umf/core';
 import {getVisual} from '../extensions/visual';
 import {DOT_ANNOTATED_PROFILE,parseAnnotatedDot,serializeAnnotatedDot} from './dot/annotated';
 import {LINI_ANNOTATED_PROFILE,parseAnnotatedLini,serializeAnnotatedLini} from './lini/annotated';
+import {MERMAID_ANNOTATED_PROFILE,parseAnnotatedMermaid,serializeAnnotatedMermaid} from './mermaid/annotated';
 import type {AnnotatedInterchangeProfile,ExportVisualOptions,ExportVisualResult,ImportVisualResult,RetainedVisualSource} from './types';
 
 const MAX_SOURCE_BYTES=262_144;
@@ -13,6 +14,7 @@ function bounded(source:string):boolean{return source.length<=MAX_SOURCE_BYTES&&
 function adapter(format:unknown,profile:unknown){
  if(format==='dot'&&profile===DOT_ANNOTATED_PROFILE)return {format,profile,parse:parseAnnotatedDot,serialize:serializeAnnotatedDot} as const;
  if(format==='lini'&&profile===LINI_ANNOTATED_PROFILE)return {format,profile,parse:parseAnnotatedLini,serialize:serializeAnnotatedLini} as const;
+ if(format==='mermaid'&&profile===MERMAID_ANNOTATED_PROFILE)return {format,profile,parse:parseAnnotatedMermaid,serialize:serializeAnnotatedMermaid} as const;
  throw new Error('Unknown, mismatched or unqualified interchange profile');
 }
 function admittedOptions(value:unknown,keys:string[]):Record<string,any>{
@@ -23,7 +25,7 @@ function admittedOptions(value:unknown,keys:string[]):Record<string,any>{
 function readReceipt(value:unknown):RetainedVisualSource {
  const safe:any=copyJson(value);if(!plain(safe)||Object.keys(safe).some(k=>!['format','text','importOptions','baseline','identityMap'].includes(k))||typeof safe.text!=='string'||!bounded(safe.text)||typeof safe.baseline!=='string'||!Array.isArray(safe.identityMap)||!plain(safe.importOptions))throw new Error('Malformed retained profile source');
  const options=safe.importOptions;if(Object.keys(options).some(k=>!['id','question','profile'].includes(k))||typeof options.id!=='string'||typeof options.question!=='string')throw new Error('Retained profile interpretation is missing or invalid');
- const selected=adapter(safe.format,options.profile),parsed=selected.parse(safe.text);if(!parsed.document||parsed.diagnostics.some(d=>d.severity==='error'||d.loss)||canonical(parsed.document)!==safe.baseline||canonical(parsed.identityMap)!==canonical(safe.identityMap))throw new Error('Retained profile baseline or identity map differs from independent source readback');
+ const selected=adapter(safe.format,options.profile),parsed=selected.parse(safe.text);if(!parsed.document||parsed.diagnostics.some(d=>d.severity==='error')||canonical(parsed.document)!==safe.baseline||canonical(parsed.identityMap)!==canonical(safe.identityMap))throw new Error('Retained profile baseline or identity map differs from independent source readback');
  const visual=getVisual(parsed.document);if(options.id!==visual.id||options.question!==visual.question)throw new Error('Retained interpretation context differs from native meaning');return safe as unknown as RetainedVisualSource;
 }
 
@@ -57,7 +59,8 @@ export function exportAnnotatedVisual(input:unknown,options:unknown):ExportVisua
   if(safe.original===true){
    if(!source)throw new Error('Original profile replay requires its retained source');
    if(canonical(document)!==source.baseline)return {ok:false,source,diagnostics:[error('INTERCHANGE_REPLAY_CHANGED','Document differs from the independently reparsed retained baseline.','/')],identityMap:[]};
-   const parsed=selected.parse(source.text);return {ok:true,text:source.text,source,diagnostics:parsed.diagnostics,identityMap:parsed.identityMap,profile:selected.profile,coverage:parsed.coverage};
+   const parsed=selected.parse(source.text),ok=!parsed.diagnostics.some(d=>d.severity==='error'||(safe.mode!=='allow-reported-loss'&&d.loss));
+   return {ok,...(ok?{text:source.text}:{}),source,diagnostics:parsed.diagnostics,identityMap:ok?parsed.identityMap:[],profile:selected.profile,coverage:ok?parsed.coverage:[]};
   }
   const result=selected.serialize(document);if(result.text&&!bounded(result.text))return {ok:false,source,diagnostics:[error('INTERCHANGE_OUTPUT_SIZE','Native output exceeds 256 KiB UTF-8.','/')],identityMap:[]};
   const ok=Boolean(result.text)&&!result.diagnostics.some(d=>d.severity==='error'||(safe.mode!=='allow-reported-loss'&&d.loss));

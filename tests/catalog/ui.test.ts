@@ -14,7 +14,10 @@ describe('microsite catalogue UI contract',()=>{
     expect(html).toContain('A question is required');
     expect(html).toContain('caps nodes at 15');
     expect(html).toContain('id="detail-dialog"');
-    expect(html).toContain('aria-label="Native baseline target"');
+    expect(html).toContain('id="six-target-section"');
+    expect(html).toContain('id="six-target-case-select"');
+    expect(html).toContain('id="six-target-matrix"');
+    expect(html).toContain('aria-label="Target format"');
     expect(app).toContain("code.textContent = result.source");
     expect(app).toContain("$('umf-source').textContent = safeJson(item.document ?? {})");
     expect(app).toContain('renderLanguageReference');
@@ -26,6 +29,22 @@ describe('microsite catalogue UI contract',()=>{
     expect(app).toContain('url.searchParams.set(\'v\', sha256)');
     expect(app).toContain('function findItemForUrl(id)');
     expect(app).toContain('return legacy.length === 1 ? legacy[0] : undefined');
+    expect(app).toContain("url.searchParams.set('view', ['native', 'diagram', 'complete'].includes(view) ? view : 'native')");
+    expect(app).toContain('showQualifiedUnavailable(item, variants.length)');
+    expect(app).toContain('No qualified annotation profile is recorded');
+    expect(app).toContain("if (state.view === 'native') state.profileId = null");
+    expect(app).toContain('state.lastQualifiedByTarget[key]');
+    expect(app).toContain("initialParams.get('view')");
+    expect(app).toContain('Switch to ${LABELS[state.target]} native baseline');
+    expect(app).toContain("['powerpoint', 'PowerPoint'], ['google-slides', 'Google Slides'], ['miro', 'Miro']");
+    expect(app).toContain('preview.sourceSha256 === integrationCase.commonSha256');
+    expect(app).toContain('preview.profileId === target.profileId && preview.modelVersion === target.modelVersion && preview.mappingVersion === target.mappingVersion');
+    expect(app).toContain('(?:png|svg|jpe?g)');
+    expect(app).toContain("'image/png', 'image/svg+xml', 'image/jpeg'");
+    expect(app).toContain("const isPreview = artifact.path === preview?.asset?.path");
+    expect(app).toContain("extension === 'pptx' ? 'PowerPoint file'");
+    expect(app).toContain('Download ${artifactLabel}');
+    expect(app).toContain("root.append(grid)");
     const miroApp=await Bun.file('examples/miro/editable-app.ts').text();
     const miroHtml=await Bun.file('examples/miro/editable.html').text();
     expect(miroApp).toContain("const panelMode = panelUrl.searchParams.get('panel') === '1'");
@@ -53,6 +72,7 @@ describe('microsite catalogue UI contract',()=>{
     expect(browser).toContain('all ${renderAssets.length} native SVGs load in-browser');
     expect(browser).toContain('Expected all 178 verified baseline and qualified profile SVG assets');
     expect(browser).toContain('previewBounds.image.width>previewBounds.container.width');
+    expect(browser).toContain('Miro preview did not decode as a JPEG with positive image dimensions');
 
     if(!existsSync('dist-site/index.html'))return;
     const [html,servedApp,servedStyles,servedIntegrationCss,servedIntegrationJs]=await Promise.all([

@@ -5,8 +5,10 @@ import {existsSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import type {Document} from '@umf/core';
+import {exportVisual,importVisual} from '../../src';
 import {parseAnnotatedLini,serializeAnnotatedLini} from '../../src/interchange/lini/annotated';
 import {readLiniProfile} from '../../src/interchange/lini/profile-syntax';
+import {liniAdapter} from '../../src/interchange/lini/index';
 
 const examples=[
  ['stat','fixtures/visual/forms/umf-ac-satisfied.json'],['bar','fixtures/visual/forms/umf-ac-status.json'],['line','fixtures/visual/forms/umf-ac-trend.json'],['meter','fixtures/visual/forms/umf-ac-coverage.json'],
@@ -24,6 +26,39 @@ if(existsSync(nativeJs)&&existsSync(nativeWasm)){
  const runtime=await import(pathToFileURL(nativeJs).href) as {default(options:{module_or_path:Uint8Array}):Promise<void>;diagnostics(source:string,options:unknown):string;compile(source:string,options:unknown):string};
  await runtime.default({module_or_path:await readFile(nativeWasm)});native=runtime;
 }
+
+test('signed metric values survive flow-link lexer additions and pinned native readback',async()=>{
+ const document=JSON.parse(await Bun.file(resolve('fixtures/visual/forms/umf-ac-status.json')).text()) as Document;
+ (document.extensions!['umf.visual'] as any).metric.series[0].points[0].value=-5;
+ const exported=exportVisual(document,{format:'lini',profile:'umf.visual.lini.annotated/1'});
+ expect(exported.ok,JSON.stringify(exported.diagnostics)).toBe(true);
+ const imported=importVisual(exported.text!,{format:'lini',profile:'umf.visual.lini.annotated/1',id:document.id,question:(document.extensions!['umf.visual'] as any).question});
+ expect(imported.ok,JSON.stringify(imported.diagnostics)).toBe(true);expect(imported.document).toEqual(document);
+ const tokens=readLiniProfile('|block#negative| { width: -.5; }');
+ expect(tokens[0]!.properties[0]!.value).toEqual([expect.objectContaining({kind:'number',value:'-.5'})]);
+ if(native){
+  expect(JSON.parse(native.diagnostics(exported.text!,{})).diagnostics).toEqual([]);
+  expect(native.compile(exported.text!,{})).toContain('-5');
+ }
+});
+
+test('ordinary titled flows and entities preserve actual nested native endpoint scopes',async()=>{
+ for(const path of ['fixtures/catalog/canary-flow.json','fixtures/catalog/canary-entities.json']){
+  const document=JSON.parse(await Bun.file(resolve(path)).text()) as Document,visual=document.extensions!['umf.visual'] as any;
+  const emitted=liniAdapter.serialize(visual,{id:visual.id,question:visual.question});expect(emitted.text,JSON.stringify(emitted.diagnostics)).toBeDefined();
+  const parsed=liniAdapter.parse(emitted.text!,{id:visual.id,question:visual.question});expect(parsed.visual,JSON.stringify(parsed.diagnostics)).toBeDefined();
+  expect(parsed.visual?.title).toBe(visual.title);
+  const mapped=(rows:typeof parsed.identityMap)=>rows.map(row=>row.kind+':'+row.nativeId).sort();expect(mapped(parsed.identityMap)).toEqual(mapped(emitted.identityMap));
+  for(const mapping of parsed.identityMap){expect(mapping.nativeId).toStartWith('umf_visual.');if(mapping.kind==='edge'||mapping.kind==='reference')expect(mapping.nativeId).toContain('->umf_visual.');}
+  if(native){expect(JSON.parse(native.diagnostics(emitted.text!,{})).diagnostics).toEqual([]);expect(native.compile(emitted.text!,{})).toContain('<svg');}
+ }
+ const escaped='|group#umf_visual| "T" {} [\n|block#a| "A"\n]\n|block#b| "B"\na -> b\n';
+ expect(liniAdapter.parse(escaped,{id:'bounded',question:'Q?'}).visual).toBeUndefined();
+ const before='a -> b\n|group#umf_visual| "T" {} [\n|block#a| "A"\n|block#b| "B"\n]\n';
+ expect(liniAdapter.parse(before,{id:'bounded',question:'Q?'}).visual).toBeUndefined();
+ const legacy=liniAdapter.parse('|block#a| "A"\n|block#b| "B"\na -> b\n',{id:'legacy',question:'Q?'});
+ expect(legacy.visual).toBeDefined();expect(legacy.identityMap.every(row=>!row.nativeId.startsWith('umf_visual.'))).toBe(true);
+});
 
 test('all ten original metric, timeline, and comparison forms survive the annotated Lini wrapper',async()=>{
  for(const[form,file]of examples){
@@ -62,4 +97,38 @@ test('native presentation edits that are outside the profile refuse after the ca
  const document=JSON.parse(await Bun.file(resolve('fixtures/visual/forms/umf-ac-satisfied.json')).text()) as Document,source=serializeAnnotatedLini(document).text!;
  const styled=source.replace('{ layout: grid; columns: repeat(1); gap: 24; padding: 24; }','{ layout: grid; columns: repeat(1); gap: 24; padding: 24; style: red; }');
  expect(styled).not.toBe(source);expect(parseAnnotatedLini(styled).document).toBeUndefined();
+});
+
+test('annotated Lini flow maps native blocks and directed links, with visible IDs for edited-source readback',async()=>{
+ for(const file of ['fixtures/catalog/canary-flow.json','fixtures/visual/inventory/beacon-ci-nightly.json']){
+  const original=JSON.parse(await Bun.file(resolve(file)).text()) as Document,result=serializeAnnotatedLini(original);
+  expect(result.text,file+': '+JSON.stringify(result.diagnostics)).toBeDefined();
+  expect(result.document,file+' canonical readback').toEqual(original);
+  const visual=(original.extensions!['umf.visual'] as any);
+  if(visual.form==='pipeline')expect(result.diagnostics.some(item=>item.code==='LINI_PIPELINE_LAYOUT_LOSS'&&item.loss)).toBe(true);
+  const tree=readLiniProfile(result.text!),root=tree[0]!,graph=root.children.find(node=>node.id==='umf_graph')!;
+  expect(graph.type).toBe('group');expect(graph.children.filter(node=>node.type==='block').length).toBe((original.extensions!['umf.visual'] as any).nodes.length);
+  expect(graph.children.filter(node=>node.type==='link').length).toBe((original.extensions!['umf.visual'] as any).edges.length);
+  const identity=root.children.find(node=>node.id==='umf_identity')!;
+  expect(identity.children.some(node=>node.label?.includes('node:umf_visual.umf_graph.n_0'))).toBe(true);
+  expect(result.coverage.some(item=>item.path.endsWith('/nodes/0/id')&&item.representation==='profile-annotation')).toBe(true);
+  expect(result.identityMap.some(item=>item.kind==='node'&&item.nativeId==='umf_visual.umf_graph.n_0')).toBe(true);
+  const firstNode=graph.children.find(node=>node.type==='block')!;
+  const edited=result.text!.replace('|block#'+firstNode.id+'| '+JSON.stringify(firstNode.label), '|block#'+firstNode.id+'| '+JSON.stringify(firstNode.label+' edited'));
+  const readback=parseAnnotatedLini(edited);
+  expect(readback.document,JSON.stringify(readback.diagnostics)).toBeDefined();
+  expect((readback.document!.extensions!['umf.visual'] as any).nodes[0].label).toBe((original.extensions!['umf.visual'] as any).nodes[0].label+' edited');
+ }
+});
+
+test('pipeline visual form remains explicit loss without native pipeline geometry evidence',async()=>{
+ const document=JSON.parse(await Bun.file(resolve('fixtures/visual/inventory/beacon-ci-nightly.json')).text()) as Document;
+ const strict=exportVisual(document,{format:'lini',profile:'umf.visual.lini.annotated/1'});
+ expect(strict.ok).toBe(false);expect(strict.diagnostics.some(item=>item.code==='LINI_PIPELINE_LAYOUT_LOSS'&&item.loss)).toBe(true);
+ const reported=exportVisual(document,{format:'lini',profile:'umf.visual.lini.annotated/1',mode:'allow-reported-loss'});
+ expect(reported.ok).toBe(true);expect(reported.text).toBeDefined();
+ const strictImport=importVisual(reported.text,{format:'lini',profile:'umf.visual.lini.annotated/1',id:document.id,question:(document.extensions!['umf.visual'] as any).question});
+ expect(strictImport.ok).toBe(false);
+ const readback=importVisual(reported.text,{format:'lini',profile:'umf.visual.lini.annotated/1',id:document.id,question:(document.extensions!['umf.visual'] as any).question,mode:'allow-reported-loss'});
+ expect(readback.ok).toBe(true);expect(readback.document).toEqual(document);expect(readback.diagnostics.some(item=>item.code==='LINI_PIPELINE_LAYOUT_LOSS'&&item.loss)).toBe(true);
 });
