@@ -76,6 +76,10 @@ caption style selected by the implementation. SVG checks now bind plotted
 points, timeline markers, entity field rows and drawn connectors to their actual
 native carriers; matching text elsewhere cannot substitute for those objects.
 
+Generated PowerPoint ZIP entries use a fixed DOS timestamp, making repeated
+exports byte-stable. Part payloads, unknown entries and native XML preservation
+remain unchanged; existing captured host archives are copied byte for byte.
+
 ## Breaking Changes and Required Actions
 
 No existing native or annotation profile is replaced. Library consumers select
@@ -91,6 +95,11 @@ source companion. Existing integrations can retain their current profile and
 v0.3.0 archive. Reverting the Pages deployment does not modify native host files.
 
 ## Known Issues and Support
+
+Dense grouped Lini 1.1 flows can route connections through caption text.
+Lane/zoned primitive routes disclose this visual approximation. Inspect the
+focused preview at useful zoom or choose another qualified target when the
+crossings impede reading; complete source readback remains separate evidence.
 
 Exact retained-source replay requires independent reparsing and an unchanged
 whole document. Preserving updates of retained full-profile presentation are

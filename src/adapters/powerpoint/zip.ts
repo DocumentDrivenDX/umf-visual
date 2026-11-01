@@ -96,7 +96,9 @@ export function inspectZip(bytes:Uint8Array):PartMap {
 }
 export function writeZip(parts:PartMap):Uint8Array {
   const files:Record<string,Uint8Array>={};for(const[path,data]of parts){safePart(path);files[path]=data;}
-  const bytes=zipSync(files,{level:6});requirePpt(bytes.length<=ZIP_LIMITS.compressedBytes,'ZIP_LIMIT','Output package exceeds compressed-size bound');return bytes;
+  // Generated/re-encoded packages use a stable DOS wall-clock timestamp.
+  // This replaces archive metadata only; payload bytes remain unchanged.
+  const bytes=zipSync(files,{level:6,mtime:new Date(1980,0,1,0,0,0)});requirePpt(bytes.length<=ZIP_LIMITS.compressedBytes,'ZIP_LIMIT','Output package exceeds compressed-size bound');return bytes;
 }
 export function partText(parts:PartMap,path:string):string {
   const bytes=parts.get(path);requirePpt(bytes,'PACKAGE_PART','Required package part is missing: '+path);

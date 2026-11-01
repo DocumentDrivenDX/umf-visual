@@ -47,6 +47,7 @@ export function compileFullScene(input:unknown,format:InterchangeFormat):FullSce
    }
    scene.approximations.push({path:ROOT+'/structure/entities',requested:'Entity field tables',renderedAs:'Entity boxes with attached field and type rows',reason:'The common primitive scene uses explicit field connections; types and relationship cardinalities remain visible and editable.'});
   }
+  if(format==='lini'&&(visual.form==='lanes'||visual.form==='zoned'))scene.approximations.push({path:ROOT+'/form',requested:visual.form+' flow layout',renderedAs:'Labelled grid groups with native flow connections',reason:'Group membership and connections are preserved; this Lini 1.1 composition does not guarantee lane-band placement, and dense straight routes can cross caption text. Use another qualified target when those crossings impede reading.'});
  }else if(visual.kind==='metric'&&(visual.form==='bar'||visual.form==='stat'||visual.form==='meter')){
   const metric=visual.metric!,max=Math.max(1,...metric.series.flatMap(series=>series.points.map(point=>Math.abs(point.value))),Math.abs(metric.target??0));
   const unit=note(ROOT+'/metric/unit');

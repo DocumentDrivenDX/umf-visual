@@ -47,7 +47,7 @@ jobs:
       # build:catalog joins durable host preview receipts; test:catalog validates
       # their source, profile, artifact, and image hashes without live host writes.
       - run: bun run test:catalog
-      - run: bun run test:release:catalog
+      - run: bun run test:release:catalog --rebuild
       - name: Require complete exact-source host cycles for the integration corpus
         run: bun scripts/catalog/verify-host-completion.ts
       - run: bun run report:loss

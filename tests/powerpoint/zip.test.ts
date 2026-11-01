@@ -12,6 +12,22 @@ describe('bounded PPTX ZIP handling',()=>{
     expect(Array.from(opened.get('custom/data.bin')!)).toEqual([0,1,2,255]);
   });
 
+  it('writes reproducible archives with the DOS epoch while preserving every part byte',()=>{
+    const parts=new Map([['ppt/slides/slide1.xml',new TextEncoder().encode('<p:sld><a:t>exact payload</a:t></p:sld>')],['custom/data.bin',new Uint8Array([0,1,2,255])]]);
+    const first=writeZip(parts),second=writeZip(parts);
+    expect(second).toEqual(first);
+    const u16=(bytes:Uint8Array,at:number)=>bytes[at]!|(bytes[at+1]!<<8);
+    expect(u16(first,10)).toBe(0); // 00:00:00 DOS time
+    expect(u16(first,12)).toBe(0x21); // 1980-01-01 DOS date
+    let central=-1;
+    for(let at=0;at<first.length-46;at++)if(first[at]===0x50&&first[at+1]===0x4b&&first[at+2]===0x01&&first[at+3]===0x02){central=at;break;}
+    expect(central).toBeGreaterThan(0);
+    expect(u16(first,central+12)).toBe(0);
+    expect(u16(first,central+14)).toBe(0x21);
+    const opened=inspectZip(first);
+    for(const[path,payload]of parts)expect(opened.get(path)).toEqual(payload);
+  });
+
   it('rejects a local filename that disagrees with its central-directory identity',()=>{
     const bytes=zipSync({'ppt/slides/slide1.xml':new TextEncoder().encode('<p:sld/>')});
     const localNameLength=bytes[26]!|(bytes[27]!<<8);expect(localNameLength).toBeGreaterThan(0);

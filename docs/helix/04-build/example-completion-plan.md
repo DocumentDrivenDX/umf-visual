@@ -813,3 +813,18 @@ artifacts. The final package remains a release candidate until the
 catalog reproduction, complete/focused browser review, exact-head Linux CI,
 Pages identity verification and archive publication gates are recorded by the
 release's publication receipt.
+
+The post-visual-review integrated run passed 499 tests across 71 files
+(17,379 assertions), including visible Lini magnitude glyphs and the focused-only
+identity-table omission. Review of all 22 forms in each format identified dense
+Lini lane/zoned caption crossings; those grid/routing approximations remain
+explicit rather than a universal visual-fidelity claim.
+
+Expanding the reproduction gate to integration artifacts exposed changing ZIP
+timestamps in the five generated synthetic PPTX packages. The writer now pins
+local DOS wall fields to 1980-01-01 00:00, retaining every part payload. All 27
+PowerPoint tests pass (144 assertions); Sol independently passed 22 tests and
+133 assertions covering headers, payloads, unknown entries and native XML
+preservation. Captured host archives remain copied bytes. CI now repeats the
+complete catalog/integration build and verifies every source, render and
+evidence asset rather than excluding the unstable hashes.
