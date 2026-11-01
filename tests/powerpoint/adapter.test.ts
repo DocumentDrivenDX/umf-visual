@@ -90,6 +90,17 @@ describe('PowerPoint editable network profile',()=>{
     await expect(importPowerPoint(exported.bytes,{mode:'report',binding:exported.binding,expectedBindingRevision:1,currentDocument:document})).resolves.toMatchObject({changes:[],binding:{bindingRevision:2}});
   });
 
+  it('exports byte-identical PPTX packages on repeated generation without changing slide payloads',async()=>{
+    const document=sample(),first=await exportPowerPoint(document,{mode:'report'}),second=await exportPowerPoint(document,{mode:'report'});
+    expect(second.bytes).toEqual(first.bytes);
+    const firstParts=inspectZip(first.bytes),secondParts=inspectZip(second.bytes);
+    expect([...secondParts.keys()]).toEqual([...firstParts.keys()]);
+    for(const[path,payload]of firstParts)expect(secondParts.get(path)).toEqual(payload);
+    const imported=await importPowerPoint(first.bytes,{mode:'report',binding:first.binding,expectedBindingRevision:1,currentDocument:document});
+    expect(imported.document.extensions!['umf.visual']).toEqual(document.extensions!['umf.visual']);
+    expect(partText(firstParts,'ppt/slides/slide1.xml')).toContain(`name="${nativeName('node','client')}"`);
+  });
+
   it('adopts only native text and attached endpoint changes through the shared reconciliation gate',async()=>{
     const document=sample(),exported=await exportPowerPoint(document,{mode:'report'}),parts=inspectZip(exported.bytes);
     const loaded=loadProfileParts(parts),slide=partText(parts,loaded.slidePath),to=shapeNativeId(slide,nativeName('node','store'));

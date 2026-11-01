@@ -29,7 +29,7 @@ ddx:
 
 # CONTRACT-085: Static visual catalog data
 
-**Type:** build/browser data interface. **Version:** 1.3.0.
+**Type:** build/browser data interface. **Version:** 1.4.0.
 
 ## Purpose
 
@@ -204,6 +204,35 @@ pairs remain open unless the owner explicitly defers them. The opaque-only
 witness retains its refusal and native-only content, not a fabricated graph.
 
 ### Selection and current loss evidence
+
+The owner's subsequent full-format goal makes qualified `/full/1` output the
+canonical presentation for each format once implemented. Ordinary and annotated
+profiles MUST remain explicitly selectable compatibility subsets with their
+actual current diagnostics. Existing exact-profile links and receipts retain
+their meaning. No headline zero-loss claim may be derived by hiding these rows.
+
+Canonical cells MUST expose meaningful native images, complete source/readback
+evidence and any separate visual approximations. The gate is all 53 unchanged
+examples in all three formats, spanning all 22 forms per format: 159 strict
+zero-loss pairs. The earlier one-suitable-target milestone is a separate
+historical success and does not satisfy this stronger requirement.
+
+The five complex common integration documents add 15 portable-format pairs to
+this gate. Integration cases expose additive `fullRendererTargets` for DOT,
+Mermaid and Lini. Their canonical matrix cells use these full routes; original
+`rendererTargets` remain separately inspectable compatibility evidence. Each
+full row identifies the requested and actual source profile/mapping, source
+hash, representation, approximations, complete-source readback and scoped
+native SVG witness. Complete and focused previews have distinct exact input
+artifacts and image hashes. Focused source is a display-only derivative and
+MUST NOT be advertised as complete interchange input. All 15 pairs must pass;
+native compiler warnings cannot qualify as a successful full route.
+
+Host rows, captured assets and host-cycle receipts retain their original
+profile scope. Common-document preservation does not recover meaning already
+lost in the upstream native Miro projection. Those gaps and opaque-only
+witnesses remain separate; portable full routes do not establish universal
+six-host losslessness.
 
 Explicit target links without a profile preserve ordinary/native meaning.
 Exact profile links remain exact. Renderer changes MUST preserve native-versus-

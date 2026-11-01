@@ -22,7 +22,7 @@ ddx:
 
 # CONTRACT-086: Source-preserving native visual interchange
 
-**Type:** library. **Version:** 1.1.0. Exact TypeScript shared fields are owned by
+**Type:** library. **Version:** 1.2.0. Exact TypeScript shared fields are owned by
 `src/interchange/types.ts`. This contract owns behavior and qualified mappings.
 
 ## Purpose
@@ -47,6 +47,32 @@ Native syntax documentation is [DOT](https://graphviz.org/doc/info/lang.html),
 must not claim all syntax of these languages or acceptance by an untested version.
 
 ## Normative Surface
+
+### Canonical full-format direction
+
+The active owner requirement is zero semantic loss for meaningful output in
+each format, not merely zero loss in one selected target. New explicit profiles
+`umf.visual.dot.full/1`, `umf.visual.mermaid.full/1` and
+`umf.visual.lini.full/1` govern this direction. These profiles are required work,
+not implemented capabilities until native/browser/readback evidence qualifies them.
+
+Full output MUST use available native concepts and otherwise draw meaningful
+labelled primitives, relationships, groups or tables. Missing adapter support or
+a missing native diagram template is implementation debt, not proof of format
+impossibility. Exact presentation may differ while complete meaning remains
+visible, typed, editable and independently recoverable under CONTRACT-087.
+
+Visual approximations MUST be reported separately from semantic loss, with their
+source paths, actual rendered substitute and remaining presentation difference.
+They MUST NOT clear an actual omission, invent a role/cardinality or imply native
+typed equivalence. Full output may report zero loss only after complete-document
+readback, native acceptance and meaningful visual inspection pass independently.
+
+The existing ordinary `/1` and readable `/annotated/1` profiles keep their
+released behavior, loss accounting and exact-source receipts. They remain
+accessible compatibility subsets, not whole-format capability ceilings. The
+frozen model defaults are unchanged. Invalid input, unsafe syntax, size failures
+and stale/forged receipts still refuse; no successful partial result is allowed.
 
 ### Public calls and result ownership
 

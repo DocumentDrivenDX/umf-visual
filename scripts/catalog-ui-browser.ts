@@ -1,8 +1,10 @@
 import {chromium} from 'playwright';
+import {createHash} from 'node:crypto';
 import {mkdir} from 'node:fs/promises';
 import {join,resolve,sep,extname} from 'node:path';
 
 const TARGETS=['dot','mermaid','lini'];
+const fullNativeClean=(render:any)=>Boolean(render?.ok&&render.svgPath&&/^[a-f0-9]{64}$/.test(render.svgSha256||'')&&!(render.nativeDiagnostics?.length));
 const siteRoot=resolve('dist-site');
 const baseUrl='https://umf.local/';
 const catalog=await Bun.file(join(siteRoot,'catalog.json')).json() as {schemaVersion:number;items:Array<any>;capabilities:Array<{format:string;profile:string;version:string}>;language:{schema:{sourcePath:string;sourceSha256:string;schema:any};forms:{sourcePath:string;sourceSha256:string;kinds:Array<{kind:string;forms:string[]}>}}};
@@ -17,6 +19,11 @@ const canaryCount=catalog.items.filter(item=>item.origin==='canary').length;
 if(catalog.language.forms.kinds.length!==7||formCount!==22||catalog.items.length!==53)throw new Error('Expected independent totals of 7 kinds, 22 forms, and 53 sample instances.');
 const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg'};
 const browser=await chromium.launch({headless:true});
+const verifiedArtifact=async(artifact:any)=>{
+  if(!artifact||typeof artifact.path!=='string'||!/^integrations\/[A-Za-z0-9._/-]+$/.test(artifact.path)||artifact.path.split('/').some((part:string)=>part==='..')||!/^[a-f0-9]{64}$/i.test(artifact.sha256||''))return false;
+  const file=Bun.file(resolve(siteRoot,`./${artifact.path}`));if(!(await file.exists()))return false;
+  const actual=createHash('sha256').update(Buffer.from(await file.arrayBuffer())).digest('hex');return actual===artifact.sha256;
+};
 const errors:string[]=[];
 const exercised:string[]=[];
 try{
@@ -94,23 +101,51 @@ try{
   }
   for(const target of processCase.rendererTargets||[]){
     const card=page.locator(`#six-target-matrix .six-target-card[data-target="${target.rendererId}"]`);
+    const portable=['dot','mermaid','lini'].includes(target.rendererId);
+    const legacyCard=portable?card.locator('.six-target-compatibility'):card;
+    if(portable)await legacyCard.locator(':scope > summary').click();
     const expectedImage=target.preview?.state==='rendered'&&target.preview.sourceSha256===processCase.commonSha256&&target.preview.profileId===target.profileId&&target.preview.modelVersion===target.modelVersion&&target.preview.mappingVersion===target.mappingVersion&&Boolean(target.preview.inputArtifactSha256||target.preview.captureDigestSha256)&&Boolean(target.preview.asset?.sha256&&target.preview.asset?.mediaType&&target.preview.asset?.width>0&&target.preview.asset?.height>0);
-    if(Boolean(await card.locator('.six-target-preview img').count())!==Boolean(expectedImage))throw new Error(`Six-target UI did not faithfully gate the ${target.rendererId} preview on its receipt`);
+    if(Boolean(await legacyCard.locator('.six-target-preview img').count())!==Boolean(expectedImage))throw new Error(`Six-target UI did not faithfully gate the ${target.rendererId} compatibility preview on its receipt`);
     if(target.preview?.rawAsset?.mediaType==='image/svg+xml'){
-      if(await card.getByRole('link',{name:'Download exact engine SVG'}).count()!==1)throw new Error(`Six-target ${target.rendererId} display image does not expose the exact native SVG separately`);
+      if(await legacyCard.getByRole('link',{name:'Download exact engine SVG'}).count()!==1)throw new Error(`Six-target ${target.rendererId} display image does not expose the exact native SVG separately`);
     }
     const presentation=target.preview?.presentation||target.presentation;
-    if(presentation?.id&&presentation?.version&&!(await card.getByText(`Display presentation · ${presentation.id} / ${presentation.version} · display treatment; source unchanged`).count()))throw new Error(`Six-target ${target.rendererId} presentation identity was hidden or mislabeled`);
+    if(presentation?.id&&presentation?.version&&!(await legacyCard.getByText(`Display presentation · ${presentation.id} / ${presentation.version} · display treatment; source unchanged`).count()))throw new Error(`Six-target ${target.rendererId} presentation identity was hidden or mislabeled`);
     if(expectedImage){
-      const image=card.locator('.six-target-preview img');await image.scrollIntoViewIfNeeded();
+      const image=legacyCard.locator('.six-target-preview img');await image.scrollIntoViewIfNeeded();
       await image.evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Preview image decoded without dimensions');});
     }
+    if(portable)await legacyCard.locator(':scope > summary').click();
   }
+  const canonicalPortable=processCase.fullRendererTargets||[];
+  if(canonicalPortable.length!==3||new Set(canonicalPortable.map((target:any)=>target.rendererId)).size!==3)throw new Error('The shared process/document/store case must show exactly one canonical full-profile row for each portable renderer.');
+  for(const target of canonicalPortable){
+    const card=page.locator(`#six-target-matrix .six-target-card[data-target="${target.rendererId}"]`),preview=target.preview;
+    if(!(await card.getByRole('heading',{name:new RegExp(`${target.rendererId} · full profile`,'i')}).count()))throw new Error(`Canonical ${target.rendererId} full-profile route is not the primary card.`);
+    if(!(await card.locator(':scope > .six-target-compatibility > summary').innerText()).includes('Released native subset baseline'))throw new Error(`The ${target.rendererId} native baseline is not retained under a compatibility disclosure.`);
+    const expectedImage=target.projection?.state==='emitted'&&target.projection?.status==='supported'&&target.wholeDocumentReadback?.state==='passed'&&target.wholeDocumentReadback?.mode==='strict'&&target.wholeDocumentReadback?.changes===0&&target.wholeDocumentReadback?.sourceSha256===target.sourceArtifact?.sha256&&target.wholeDocumentReadback?.documentSha256===target.stableBuild?.documentSha256&&target.sourceDocument?.sha256===processCase.commonSha256&&preview?.state==='rendered'&&preview.sourceSha256===processCase.commonSha256&&preview.profileId===target.profileId&&preview.modelVersion===target.modelVersion&&preview.mappingVersion===target.mappingVersion&&preview.inputArtifactSha256===target.focusedSourceArtifact?.sha256&&preview.asset?.mediaType==='image/svg+xml'&&Boolean(preview.asset?.sha256&&preview.asset?.width>0&&preview.asset?.height>0);
+    if(Boolean(await card.locator(':scope > .full-profile-preview img').count())!==Boolean(expectedImage))throw new Error(`Canonical ${target.rendererId} image was not gated by its strict readback and matching native render evidence.`);
+    if(expectedImage){
+      const image=card.locator(':scope > .full-profile-preview img');await image.scrollIntoViewIfNeeded();
+      await image.evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Canonical full-profile preview did not decode');});
+      const asset=preview.asset;const assetPath=resolve(siteRoot,`./${asset.path}`);if(!(await Bun.file(assetPath).exists()))throw new Error(`Canonical ${target.rendererId} preview asset is missing: ${asset.path}`);
+      for(const artifact of [target.sourceArtifact,target.focusedSourceArtifact,target.native?.complete?.svgArtifact,target.native?.focused?.svgArtifact,target.completePreview?.asset,target.preview?.asset])if(!(await verifiedArtifact(artifact)))throw new Error(`Canonical ${target.rendererId} source/render artifact is missing, unsafe, or does not match its SHA-256 receipt.`);
+      if(await card.getByRole('link',{name:new RegExp(`Download complete ${target.rendererId} source`,'i')}).count()!==1||await card.getByRole('link',{name:'Download focused native SVG'}).count()!==1)throw new Error(`Canonical ${target.rendererId} route does not expose complete source and native render artifacts.`);
+      const completeView=card.locator(':scope > .six-target-complete-render');if(await completeView.count()!==1)throw new Error(`Canonical ${target.rendererId} complete render is not available as a separate full-profile view.`);
+      await completeView.locator(':scope > summary').click();
+      const completeImage=completeView.locator('.full-profile-complete-preview img');await completeImage.scrollIntoViewIfNeeded();
+      await completeImage.evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Complete full-profile render did not decode');});
+      await completeView.locator(':scope > summary').click();
+    }
+    if(!(await card.locator('.six-target-details summary').filter({hasText:'Visual approximations'}).count()))throw new Error(`Canonical ${target.rendererId} route does not distinguish visual approximations from loss.`);
+  }
+  exercised.push('canonical full-profile DOT/Mermaid/Lini previews with strict readback, bound source/render artifacts, and released baselines in compatibility disclosures');
   for(const rendererId of ['dot','mermaid','lini','powerpoint','google-slides','miro']){
     const card=page.locator(`#six-target-matrix .six-target-card[data-target="${rendererId}"]`);
     if(!(await card.getByRole('heading',{level:3}).count()))throw new Error(`Six-target ${rendererId} card has no semantic heading`);
-    if(!(await card.locator('.six-target-badge').textContent())?.trim())throw new Error(`Six-target ${rendererId} projection status is not visible`);
-    if(!(await card.locator('.six-target-preview').textContent())?.trim()&&!(await card.locator('.six-target-preview img').count()))throw new Error(`Six-target ${rendererId} preview state is not exposed`);
+    if(!(await card.locator(':scope > .six-target-card-head > .six-target-badge').textContent())?.trim())throw new Error(`Six-target ${rendererId} projection status is not visible`);
+    const primaryPreview=['dot','mermaid','lini'].includes(rendererId)?card.locator(':scope > .full-profile-preview'):card.locator(':scope > .six-target-preview');
+    if(!(await primaryPreview.textContent())?.trim()&&!(await primaryPreview.locator('img').count()))throw new Error(`Six-target ${rendererId} preview state is not exposed`);
   }
   exercised.push('six-destination coverage matrix and receipt-gated preview slots');
   await page.getByRole('button',{name:'Use dark color theme'}).click();
@@ -126,9 +161,9 @@ try{
   await page.getByRole('button',{name:'Use light color theme'}).click();
   exercised.push('dark-theme captions meet 4.5:1 contrast on the white native image canvas');
   await page.locator('#six-target-section').scrollIntoViewIfNeeded();
-  const viewerTrigger=page.locator('#six-target-matrix .six-target-card[data-target="dot"] .image-enlarge-button');
+  const viewerTrigger=page.locator('#six-target-matrix .six-target-card[data-target="dot"] .full-profile-preview .image-enlarge-button');
   if(await viewerTrigger.count()!==1)throw new Error('Rendered six-target card has no labelled enlarge control');
-  const sourceUrl=await page.locator('#six-target-matrix .six-target-card[data-target="dot"] .six-target-preview img').evaluate(element=>(element as HTMLImageElement).currentSrc);
+  const sourceUrl=await page.locator('#six-target-matrix .six-target-card[data-target="dot"] > .full-profile-preview img').evaluate(element=>(element as HTMLImageElement).currentSrc);
   await viewerTrigger.click();
   const imageViewer=page.locator('.image-viewer-dialog');await imageViewer.waitFor({state:'visible'});
   const viewerImage=imageViewer.locator('.image-viewer-image');await viewerImage.waitFor({state:'visible'});
@@ -141,7 +176,8 @@ try{
   if(!(await imageViewer.locator('.image-viewer-scale').textContent())?.includes('%'))throw new Error('Image viewer zoom controls did not update the scale readout');
   await imageViewer.getByRole('button',{name:'Open image viewer full screen'}).click();
   await page.waitForFunction(()=>document.fullscreenElement?.classList.contains('image-viewer-shell'));
-  if(!(await imageViewer.getByRole('button',{name:'Close image preview'}).isVisible())||!(await imageViewer.getByRole('button',{name:'Exit image viewer full screen'}).isVisible()))throw new Error('Full-screen viewer hid its close or exit controls');
+  const closeInFullscreen=await imageViewer.getByRole('button',{name:'Close image preview'}).isVisible(),exitInFullscreen=await imageViewer.getByRole('button',{name:'Exit image viewer full screen'}).isVisible();
+  if(!closeInFullscreen||!exitInFullscreen)throw new Error(`Full-screen viewer hid its close or exit controls (close=${closeInFullscreen}, exit=${exitInFullscreen}, fullscreen=${await page.evaluate(()=>document.fullscreenElement?.className||'none')})`);
   await imageViewer.getByRole('button',{name:'Exit image viewer full screen'}).click();
   await page.waitForFunction(()=>document.fullscreenElement===null);
   await page.locator('#image-viewer').screenshot({path:'.cache/catalog-ui-image-viewer.png'});
@@ -165,14 +201,14 @@ try{
   if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw new Error('Six-target matrix overflows the 375px mobile viewport');
   const mobileTargetCards=await page.locator('#six-target-matrix .six-target-card').evaluateAll(cards=>cards.map(card=>{const rect=card.getBoundingClientRect();return {width:rect.width,scrollWidth:(card as HTMLElement).scrollWidth,clientWidth:(card as HTMLElement).clientWidth};}));
   if(mobileTargetCards.some(card=>card.width>375||card.scrollWidth>card.clientWidth+1))throw new Error(`Six-target cards overflow their mobile column: ${JSON.stringify(mobileTargetCards)}`);
-  await page.locator('#six-target-matrix .six-target-card[data-target="dot"] .image-enlarge-button').click();
+  await page.locator('#six-target-matrix .six-target-card[data-target="dot"] .full-profile-preview .image-enlarge-button').click();
   await page.locator('.image-viewer-dialog').waitFor({state:'visible'});
   if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw new Error('Image viewer overflows the 375px mobile viewport');
   await page.keyboard.press('Escape');await page.locator('.image-viewer-dialog').waitFor({state:'hidden'});
   const caseSelect=page.getByLabel('Integration example');
   await caseSelect.selectOption('network-16x24');
   if(await caseSelect.inputValue()!=='network-16x24'||await page.locator('#six-target-matrix .six-target-card').count()!==6)throw new Error('Mobile example selector did not retain all six destination cards');
-  for(const image of await page.locator('#six-target-matrix .six-target-preview img').all()){
+  for(const image of await page.locator('#six-target-matrix .six-target-preview img:visible').all()){
     await image.scrollIntoViewIfNeeded();await image.evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Mobile preview image decoded without dimensions');});
   }
   await page.locator('#six-target-section').scrollIntoViewIfNeeded();
@@ -182,17 +218,19 @@ try{
   await page.setViewportSize({width:1440,height:1100});
   const count=await page.locator('.definition-card').count();
   if(count!==formExamples.length)throw new Error(`Expected ${formExamples.length} form example cards, saw ${count}`);
-  if(await page.locator('.coverage-card').count()!==3)throw new Error('Expected coverage for all three targets');
+  if(await page.locator('#coverage-grid .coverage-card').count()!==3)throw new Error('Expected three released native compatibility-profile summaries');
+  await page.locator('.baseline-coverage-details').evaluate((details:any)=>{details.open=true;});
   for(const [index,target]of TARGETS.entries()){
     const results=catalog.items.map(item=>item.targets[target]);
     const rendered=results.filter(result=>result.render?.ok).length;
     const losses=results.filter(result=>result.ok).reduce((sum,result)=>sum+result.diagnostics.filter((diagnostic:any)=>diagnostic.loss).length,0);
-    const expected=`${rendered} native renders · ${losses} remaining loss reports across emitted samples`;
-    if(await page.locator('.native-coverage').nth(index).innerText()!==expected)throw Error('Native progress counters differ from catalog for '+target);
+    const expected=`${rendered} ordinary native renders · ${losses} reported losses in this narrower compatibility profile`;
+    const actual=await page.locator('#coverage-grid .native-coverage').nth(index).innerText();
+    if(actual!==expected)throw Error(`Native progress counters differ from catalog for ${target}: expected ${expected}, saw ${actual}`);
     const ordinaryProfile=`umf.visual.${target}/1`;
     const capability=catalog.capabilities.find(entry=>entry.format===target&&entry.profile===ordinaryProfile);
     if(!capability)throw Error(`Ordinary renderer capability ${ordinaryProfile} is missing from the catalog`);
-    const capabilitySummary=page.locator('.coverage-card').nth(index).locator('.capability-details summary');
+    const capabilitySummary=page.locator('#coverage-grid .coverage-card').nth(index).locator('.capability-details summary');
     const summaryText=(await capabilitySummary.innerText()).trim();
     if(!summaryText.includes(ordinaryProfile)||!summaryText.includes(`v${capability.version}`))throw Error(`Coverage summary for ${target} selected the wrong profile or mapping version: ${summaryText}`);
   }
@@ -215,18 +253,21 @@ try{
   await page.locator('#detail-dialog').waitFor({state:'visible'});
   const firstRelease=first.preferredRelease;
   if(new URL(page.url()).searchParams.get('target')!==(firstRelease?.format||'dot'))throw new Error('Opening a sample did not select its preferred native target');
-  const firstPreferredVariant=firstRelease&&first.profileVariants?.find((variant:any)=>variant.format===firstRelease.format&&variant.profileId===firstRelease.profileId);
+  const firstFullVariant=firstRelease&&first.fullProfileVariants?.find((variant:any)=>variant.format===firstRelease.format&&variant.result?.status==='supported'&&variant.result?.ok&&fullNativeClean(variant.result?.render)&&fullNativeClean(variant.diagramRender)&&!(variant.result?.diagnostics||[]).some((d:any)=>d.loss||d.severity==='error'));
+  const firstPreferredVariant=firstFullVariant||firstRelease&&first.profileVariants?.find((variant:any)=>variant.format===firstRelease.format&&variant.profileId===firstRelease.profileId);
   if(firstPreferredVariant){
-    if(new URL(page.url()).searchParams.get('profile')!==firstPreferredVariant.profileId)throw new Error('Opening a preferred annotation profile did not add its profile deep link');
-    if(await page.locator('#profile-select').inputValue()!==firstPreferredVariant.profileId)throw new Error('Preferred profile was not selected in the annotation control');
+    if(new URL(page.url()).searchParams.get('profile')!==firstPreferredVariant.profileId)throw new Error('Opening the preferred full or annotation profile did not add its profile deep link');
+    if(await page.locator('#profile-select').inputValue()!==firstPreferredVariant.profileId)throw new Error('Preferred canonical profile was not selected in the profile control');
     const diagram=page.locator('#target-panel .render-preview img');await diagram.waitFor({state:'visible'});
     await page.waitForFunction(()=>{const img=document.querySelector('#target-panel .render-preview img') as HTMLImageElement|null;return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0});
-    if(!(await page.locator('#target-panel').getByText('QUALIFIED ANNOTATION PROFILE · PREFERRED RELEASE').count()))throw new Error('Preferred profile was not explicitly distinguished from the baseline');
-    await page.getByRole('tab',{name:'Complete annotated view'}).click();
-    if(!(await page.locator('#target-panel').getByText(/Complete view: all readable native annotations are included/).count()))throw new Error('Complete annotation view was not described');
+    if(firstFullVariant){if(!(await page.locator('#target-panel').getByText('FULL INTERCHANGE PROFILE · STRICT RENDER QUALIFIED').count()))throw new Error('Preferred full-profile route was not explicitly distinguished from the baseline');}
+    else if(!(await page.locator('#target-panel').getByText('QUALIFIED ANNOTATION PROFILE · PREFERRED RELEASE').count()))throw new Error('Preferred annotation profile was not explicitly distinguished from the baseline');
+    await page.getByRole('tab',{name:firstFullVariant?'Complete native view':'Complete annotated view'}).click();
+    if(firstFullVariant){const description=await page.locator('#target-panel .profile-view-note').innerText();const represented=firstFullVariant.representation?.tier==='native-profile'?description.includes('Whole-document readback is verified'):description.includes('readable typed property records');if(!represented)throw new Error('Complete full-profile view description does not match its native-profile or primitive route.');}
+    else if(!(await page.locator('#target-panel').getByText(/Complete view: all readable native annotations are included/).count()))throw new Error('Complete annotation view was not described');
     const complete=page.locator('#target-panel .render-preview img');await page.waitForFunction(()=>{const img=document.querySelector('#target-panel .render-preview img') as HTMLImageElement|null;return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0});
-    if(!(await page.locator('#target-panel .profile-native-source').count()))throw new Error('Complete annotated source was not available');
-    await page.locator('#target-panel .profile-coverage summary').click();
+    if(!(await page.locator('#target-panel .profile-native-source').count()))throw new Error('Complete native interchange source was not available');
+    await page.locator('#target-panel .profile-coverage:not(.profile-approximations) > summary').click();
     if(!(await page.locator('#target-panel .profile-coverage tbody tr').count()))throw new Error('Annotated field coverage was not displayed');
     const completeBounds=await complete.evaluate(element=>{const rect=element.getBoundingClientRect();const parent=element.parentElement!.getBoundingClientRect();return {width:rect.width,height:rect.height,parentWidth:parent.width,parentHeight:parent.height}});
     if(completeBounds.width<=0||completeBounds.height<=0||completeBounds.width>completeBounds.parentWidth||completeBounds.height>completeBounds.parentHeight)throw new Error(`Complete native render is not scaled into its view: ${JSON.stringify(completeBounds)}`);
@@ -234,7 +275,7 @@ try{
     if(new URL(page.url()).searchParams.has('profile'))throw new Error('Native baseline selection retained the annotation profile URL parameter');
     if(new URL(page.url()).searchParams.get('view')!=='native')throw new Error('Explicit native baseline selection did not persist its view mode');
     if(!(await page.locator('#baseline-label').innerText()).includes('NATIVE BASELINE'))throw new Error('Native baseline tab is not distinguished from the annotation profile');
-    exercised.push('preferred focused diagram, complete annotation view, coverage, native source and baseline access');
+    exercised.push('preferred canonical full profile, complete view, coverage, native source and ordinary baseline access');
   }
   if(new URL(page.url()).searchParams.has('profile')&& !firstPreferredVariant)throw new Error('An unqualified target was mislabeled as an annotation profile');
   const sourceText=await page.locator('#umf-source').textContent();
@@ -404,15 +445,17 @@ try{
     await page.route('https://umf.local/integrations.json',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(mockData)}));
     await page.goto(baseUrl,{waitUntil:'networkidle'});await page.waitForFunction(()=>document.querySelectorAll('#six-target-matrix .six-target-card').length===6);
     const dotCard=page.locator('#six-target-matrix .six-target-card[data-target="dot"]');
-    if(await dotCard.locator('.six-target-preview img').count()!==1||!(await dotCard.innerText()).includes('Graphviz test-engine')||!(await dotCard.innerText()).includes('reported-loss')||!(await dotCard.getByRole('link',{name:'Download test source package'}).count())||!(await dotCard.getByRole('link',{name:'Download rendered preview (SVG)'}).count()))throw new Error('Receipt-matched renderer, actual loss, or distinct named artifacts were not shown together');
-    await dotCard.locator('.six-target-details summary').filter({hasText:'Projection losses'}).click();
-    if(!(await dotCard.getByText('/extensions/umf.visual/nodes/0/role').count()))throw new Error('Raw six-target losses were suppressed');
+    const compatibility=dotCard.locator('.six-target-compatibility');await compatibility.locator(':scope > summary').click();
+    if(await compatibility.locator('.six-target-preview img').count()!==1||!(await compatibility.innerText()).includes('Graphviz test-engine')||!(await compatibility.innerText()).includes('reported-loss')||!(await compatibility.getByRole('link',{name:'Download test source package'}).count())||!(await compatibility.getByRole('link',{name:'Download rendered preview (SVG)'}).count()))throw new Error('Compatibility renderer, actual loss, or distinct named artifacts were not shown together');
+    await compatibility.locator('.six-target-details summary').filter({hasText:'Projection losses'}).click();
+    if(!(await compatibility.getByText('/extensions/umf.visual/nodes/0/role').count()))throw new Error('Raw compatibility-target losses were suppressed');
     mockTarget.preview.sourceSha256='0'.repeat(64);
     await page.unroute('https://umf.local/integrations.json');
     await page.route('https://umf.local/integrations.json',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(mockData)}));
     await page.goto(baseUrl,{waitUntil:'networkidle'});await page.waitForFunction(()=>document.querySelectorAll('#six-target-matrix .six-target-card').length===6);
     const mismatchCard=page.locator('#six-target-matrix .six-target-card[data-target="dot"]');
-    if(await mismatchCard.locator('.six-target-preview img').count()!==0||!(await mismatchCard.getByText(/Render withheld: receipt does not match the exact source/).count()))throw new Error('A preview with a mismatched source hash was not withheld');
+    const mismatchCompatibility=mismatchCard.locator('.six-target-compatibility');await mismatchCompatibility.locator(':scope > summary').click();
+    if(await mismatchCompatibility.locator('.six-target-preview img').count()!==0||!(await mismatchCompatibility.getByText(/Render withheld: receipt does not match the exact source/).count()))throw new Error('A compatibility preview with a mismatched source hash was not withheld');
     await page.unroute('https://umf.local/integrations.json');
     exercised.push('exact-source preview verification, raw loss inspection, and artifact link contract');
   }

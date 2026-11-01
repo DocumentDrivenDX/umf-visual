@@ -25,8 +25,8 @@
         <h1 id="page-title">A shared visual model.<br><span>Many native tools.</span></h1>
         <p class="lede">A typed language for semantic producers to author visual meaning, with adapters that interchange bounded subsets with native formats.</p>
         <p class="architecture-line"><span>SEMANTIC PRODUCER</span><b aria-hidden="true">→</b><strong>umf.visual</strong><b aria-hidden="true">→</b><span>NATIVE TARGETS</span></p>
-        <p class="model-note">umf.visual is a typed authoring target for semantic producers and an interchange model for native tools. This catalogue shows initial, bounded DOT, Mermaid, and Lini profiles; reported loss may signal a model gap or an unfinished mapping.</p>
-        <p class="scope-note"><strong>Scope matters.</strong> The initial DOT, Mermaid, and Lini profiles measure export and rendering per sample. Reported loss can expose a model gap or an unfinished mapping.</p>
+        <p class="model-note">Native diagrams and readable typed-property fallbacks preserve authored meaning; visual approximations and round-trip evidence remain inspectable per example.</p>
+        <p class="scope-note"><strong>Read the evidence per example.</strong> Whole-document readback, visual approximations, native render results, and available round-trip receipts are reported separately.</p>
       </div>
       <aside class="intro-aside" aria-label="Language shape">
         <div class="aside-label">LANGUAGE SHAPE</div>
@@ -54,10 +54,15 @@
     </section>
 
     <section class="coverage-section" id="coverage" aria-labelledby="coverage-title">
-      <div class="section-head compact-head"><div><p class="eyebrow">INTERCHANGE EVIDENCE · SAMPLE INSTANCES</p><h2 id="coverage-title">What current profiles emit</h2></div><p class="section-description">Counts summarize these application and form examples; they describe measured adapter outcomes, not support for every language concept.</p></div>
-      <article id="release-coverage" class="release-coverage" aria-live="polite"><div class="release-coverage-head"><div><p class="eyebrow">STRICT PROFILE CHOICE · EXAMPLE/FORM COVERAGE</p><h3>Qualified target by example and form</h3></div><p>Counts track examples and canonical forms with a verified strict annotation-profile choice. They do not imply every target is loss-free; per-target outcomes and losses remain visible below. Native SVG totals are separate render evidence.</p></div><div id="release-coverage-stats" class="release-coverage-stats"></div><div id="release-form-coverage" class="release-form-coverage" role="list" aria-label="Preferred release coverage by form"></div></article>
-      <div class="coverage-grid" id="coverage-grid" aria-live="polite"></div>
-      <p class="coverage-footnote"><span class="legend-dot supported"></span> Supported <span class="legend-dot loss"></span> Reported loss <span class="legend-dot unsupported"></span> Unsupported <span class="legend-dot unevaluated"></span> Not evaluated</p>
+      <div class="section-head compact-head"><div><p class="eyebrow">INTERCHANGE EVIDENCE · SAMPLE INSTANCES</p><h2 id="coverage-title">Measured interchange routes</h2></div><p class="section-description">Each count describes example outcomes under a named profile. Full routes, visual approximations, reported semantic losses, and ordinary baselines stay distinct.</p></div>
+      <article id="full-profile-coverage" class="release-coverage full-profile-coverage" aria-live="polite"><div class="release-coverage-head"><div><p class="eyebrow">FULL INTERCHANGE · STRICT READBACK · NATIVE RENDER</p><h3>Canonical full-profile routes</h3></div><p>A candidate counts as qualified only after strict export, exact whole-document import readback, and complete plus focused native renders. Approximate presentation geometry is listed separately and does not count as semantic loss.</p></div><div id="full-profile-coverage-grid" class="coverage-grid full-profile-coverage-grid"></div></article>
+      <article id="release-coverage" class="release-coverage" aria-live="polite"><div class="release-coverage-head"><div><p class="eyebrow">ANNOTATION PROFILE CHOICES · EXAMPLE/FORM COVERAGE</p><h3>Established annotation-profile choices</h3></div><p>Historical preferred annotation choices remain independently recorded. They do not replace full-profile outcomes or ordinary native defaults.</p></div><div id="release-coverage-stats" class="release-coverage-stats"></div><div id="release-form-coverage" class="release-form-coverage" role="list" aria-label="Preferred annotation-profile coverage by form"></div></article>
+      <details class="baseline-coverage-details">
+        <summary>Released native subsets (compatibility)</summary>
+        <p>These are narrower, frozen native profiles. Their counts are separate from the canonical full-profile routes above.</p>
+        <div class="coverage-grid baseline-coverage-grid" id="coverage-grid" aria-live="polite" aria-label="Released ordinary native subset outcomes"></div>
+        <p class="coverage-footnote"><span class="legend-dot supported"></span> Supported <span class="legend-dot loss"></span> Reported loss <span class="legend-dot unsupported"></span> Unsupported <span class="legend-dot unevaluated"></span> Not evaluated</p>
+      </details>
     </section>
 
     <section class="catalogue-section" id="examples" aria-labelledby="catalogue-title">

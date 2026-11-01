@@ -6,6 +6,7 @@ import {liniAdapter} from './lini';
 import {mermaidAdapter} from './mermaid';
 import {interchangeDiagnostic} from './shared';
 import {exportAnnotatedVisual,hasExplicitProfile,importAnnotatedVisual} from './annotated';
+import {exportFullVisual,hasFullProfile,importFullVisual} from './full';
 import type {ExportVisualOptions,ExportVisualResult,IdentityMapping,ImportVisualOptions,ImportVisualResult,InterchangeDiagnostic,InterchangeFormat,InterchangeMode,RetainedVisualSource,VisualInterchangeAdapter} from './types';
 export * from './types';
 export {dotAdapter} from './dot';
@@ -17,6 +18,7 @@ const MAX_SOURCE_BYTES=262_144;
 const VISUAL_EXTENSION_PATH='/extensions/'+VISUAL_EXTENSION;
 const adapters:Record<InterchangeFormat,VisualInterchangeAdapter>={dot:dotAdapter,mermaid:mermaidAdapter,lini:liniAdapter};
 export const interchangeCapabilities=[
+ ...(['dot','mermaid','lini'] as const).map(format=>({format,profile:'umf.visual.'+format+'.full/1',version:'0.1.0',subset:'Native-first complete-document profile: reuses strict qualified intrinsic source when it recovers the entire document; otherwise uses explicit labelled primitive compositions. The actual source profile, mapping version and coverage model are returned separately. Shape, layout and calibrated-axis approximations remain explicit; exact-source native renders qualify each catalogue example. Released native and annotated behavior remains independent.',directions:['import','export'] as ('import'|'export')[]})),
  {format:'mermaid' as const,profile:'umf.visual.mermaid.annotated/1',version:'0.1.0',subset:'Explicit opt-in visual 1.0.0 sequence lifelines with visible typed annotations and native participant/message readback; ladder layout remains reported loss.',directions:['import','export'] as ('import'|'export')[]},
  ...Object.values(adapters).map(({format,version,subset})=>({format,profile:format==='lini'?'umf.visual.lini/1':'umf.visual.'+format+'/1',version,subset,directions:['import','export'] as ('import'|'export')[]})),
  {format:'dot' as const,profile:'umf.visual.dot.annotated/1',version:'0.1.0',subset:'Explicit opt-in visual 1.0.0 profile: directed flows, entity/containment structures, sequence rails/rungs and state views, with visible typed application/provenance annotations; full-document and canonical native AST readback. Other families refuse until independently qualified.',directions:['import','export'] as ('import'|'export')[]},
@@ -35,6 +37,7 @@ function canonicalDoc(doc:Document):string{return canonical(doc);}
 
 /** Safe facade over bounded native adapters. All caller JSON is admitted before traversal. */
 export function importVisual(source:unknown,options:unknown):ImportVisualResult{
+ if(hasFullProfile(options))return importFullVisual(source,options);
  if(hasExplicitProfile(options))return importAnnotatedVisual(source,options);
  let safeOptions:ImportVisualOptions|undefined,text='';const diagnostics:InterchangeDiagnostic[]=[],empty:RetainedVisualSource={format:'dot',text:'',importOptions:{id:'',question:''},baseline:'',identityMap:[]};
  try{safeOptions=admitted<ImportVisualOptions>(options);}catch{return{ok:false,source:{...empty,text:typeof source==='string'?source:''},diagnostics:[error('INTERCHANGE_OPTIONS','/options','Options are not safe JSON data.')],identityMap:[]};}
@@ -134,6 +137,7 @@ function replay(document:Document,receipt:RetainedVisualSource,requested:Interch
 }
 /** Export an admitted public core document to a bounded native profile. */
 export function exportVisual(input:unknown,optionsInput:unknown):ExportVisualResult{
+ if(hasFullProfile(optionsInput))return exportFullVisual(input,optionsInput);
  if(hasExplicitProfile(optionsInput))return exportAnnotatedVisual(input,optionsInput);
  let document:Document,options:ExportVisualOptions;
  try{document=admitted<Document>(input);options=admitted<ExportVisualOptions>(optionsInput);}catch{return{ok:false,diagnostics:[error('INTERCHANGE_INPUT','/','Document and export options must be safe JSON data.')],identityMap:[]};}

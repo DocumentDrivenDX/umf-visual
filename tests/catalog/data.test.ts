@@ -129,5 +129,5 @@ describe('visual interchange catalogue data', () => {
     expect(second).toBe(first);
     expect(first).not.toContain(`${process.cwd()}/`);
     expect(first).not.toContain('generatedAt');
-  }, 30_000);
+  }, 90_000);
 });

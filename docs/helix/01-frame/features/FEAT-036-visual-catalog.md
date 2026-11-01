@@ -85,6 +85,15 @@ reported loss, or failed in its native renderer.
 - CAT-14: Every preview must identify its actual renderer and exact input artifact
   or host capture, with immutable image identity. Stale or unrelated images must
   not qualify another export. Host images must contain approved synthetic content.
+- CAT-15: The active full-format goal requires all 53 current examples and all
+  22 forms in each DOT/Mermaid/Lini canonical full profile, with meaningful
+  native-rendered output, zero semantic loss and complete edited readback.
+  Visual approximations remain explicit; compatibility subsets keep their actual
+  losses. CAT-10 records the earlier suitable-target milestone, not this gate.
+
+Under CAT-15, native-rendered primitive compositions are qualified full-profile
+output, not substitute images under CAT-05. A drawing from another renderer or
+an opaque document dump still cannot qualify an unsupported pair.
 
 ## User Stories
 

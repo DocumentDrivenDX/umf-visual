@@ -24,10 +24,11 @@ ddx:
 
 ## Purpose
 
-Version 1.1.0 design for explicitly selected profiles; implementation qualification
-is recorded separately. Reconciled against merged main 3139590.
-The owner requests complete meaning in at least one suitable target
-for each of the 53 unchanged examples, with faithful previews of all 22 forms.
+Version 1.2.0 design for explicitly selected profiles; implementation qualification
+is recorded separately. The original suitable-target design was reconciled
+against merged main 3139590. The owner's subsequent active requirement is complete
+meaning and meaningful previews for every current example in all three formats.
+The earlier one-suitable-target milestone remains separately qualified history.
 Readable annotations carry additional application/provenance meaning. Actual
 native constructs still carry graph, state, timeline and chart meaning.
 
@@ -64,6 +65,46 @@ rules; it does not amend released defaults or authorize an
 implicit model migration. New profile versions require explicit selection.
 
 ## Normative Surface
+
+### Full-format rendering and editable preservation
+
+The owner's later zero-loss requirement supersedes narrow native-template
+eligibility as the completion ceiling for the new `/full/1` profiles. Existing
+`/annotated/1` registries, source grammars and geometry-loss rules remain frozen.
+The full profiles MUST draw all 53 current examples across all 22 forms in
+each DOT, Mermaid and Lini format, preserving the unchanged source corpus.
+
+A shared portable scene projection SHOULD reuse the existing intrinsic
+serializers and typed-entry/coverage helpers. It MUST identify each semantic
+owner and exact JSON Pointer separately from its visible native item identity.
+Format owners may select a native family or a labelled primitive composition;
+their choice MUST preserve connectivity, ordering, nesting and quantitative
+meaning rather than replacing the diagram with a document dump.
+
+Residual fields MUST use owner-associated editable typed rows, with independently
+addressable scalar and container entries. Null/empty/absent, false/zero, array
+order and exact property names MUST survive. Full-profile registries may carry
+additional valid JSON/envelope content explicitly; they MUST NOT broaden the
+released annotation registry implicitly. Unknown content retains its structure
+and values without claiming an interpretation the library does not understand.
+
+No hidden authoritative document, whole-document JSON string or source companion
+can establish zero loss. Native path/type descriptors identify visible values;
+they do not replace those values. Duplicate/conflicting entries, missing owners,
+unsupported edits and residual native AST content MUST refuse or retain actual
+loss. Source replay keeps its independent reparse and stale-baseline fences.
+
+The proposed shared seam consists of scene elements, typed residual entries,
+coverage and a separate approximation inventory. Each approximation names
+`path`, `code`, `substitute` and `difference`. Coverage remains per pointer and
+aspect; it is granted only after native source readback. Approximation entries
+are not loss suppressions and MUST remain visible in the catalog.
+
+At least one native label/endpoint/value edit and one typed-row edit per family
+must reconstruct the exact expected document after JSON/YAML persistence. Native
+rendering and geometry checks must establish recognizable form-specific output.
+The full-format strict gate is 159 successful zero-loss pairs, not merely 53
+selected successes. No new support is established by this contract amendment alone.
 
 Additions are owned by root; portable source types own their exact implemented
 shape. Luna helpers and native adapters use this seam:
