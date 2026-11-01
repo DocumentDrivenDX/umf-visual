@@ -74,6 +74,9 @@ jobs:
             .cache/lini-visual-layout/*.json
             .cache/browser.json
             .cache/catalog-ui-browser.json
+            .cache/catalog-ui-image-viewer.png
+            .cache/catalog-ui-six-targets.png
+            .cache/catalog-ui-six-targets-mobile.png
             dist-site/integrations.json
             .cache/host-completion.json
             .cache/loss-ledger.json

@@ -106,7 +106,9 @@ The reader-facing [editable host integration guide](../editable-integrations.md)
 documents the current package APIs and example flows; it does not replace this
 contract or its host-specific evidence.
 
-[v0.3.0 candidate release notes](05-deploy/release-notes-v0.3.0.md) and the
-[publication checklist](05-deploy/deployment-checklist-v0.3.0.md) record the local
-fifteen-pair host pass and retain final CI and artifact-verification gates. They are not a
-published release claim.
+[v0.3.0 release notes](05-deploy/release-notes-v0.3.0.md) and the
+[publication checklist](05-deploy/deployment-checklist-v0.3.0.md) retain the candidate's
+review and qualification history. [v0.3.0 is published](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.3.0);
+its [publication receipt](https://github.com/DocumentDrivenDX/umf-visual/releases/download/v0.3.0/publication-receipt.json)
+binds the successful main CI/Pages run and verified release/served artifacts.
+The current preview-presentation polish remains a separate pending delivery.

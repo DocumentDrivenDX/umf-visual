@@ -12,6 +12,7 @@ import type {Document} from '@umf/core';
 import type {IntegrationCase} from './integrations.js';
 import type {RendererTargetEvidence} from './renderer-types.js';
 import {liniDirectory, verifyLiniRuntime} from '../interchange-runtime.js';
+import {nativePreviewPresentation, normalizeSvgIntrinsicDimensions, previewPresentationReceipt} from './native-preview-presentation.js';
 
 const root = resolve(import.meta.dir, '../..');
 const sha256 = (value: Uint8Array | string) => createHash('sha256').update(value).digest('hex');
@@ -78,7 +79,7 @@ async function preflight(): Promise<RuntimeSet> {
 }
 
 async function renderDot(source: string): Promise<string> {
-  const process = Bun.spawn(['dot', '-Tsvg'], {stdin: 'pipe', stdout: 'pipe', stderr: 'pipe'});
+  const process = Bun.spawn(['dot', ...nativePreviewPresentation.graphviz.args, '-Tsvg'], {stdin: 'pipe', stdout: 'pipe', stderr: 'pipe'});
   process.stdin.write(source); process.stdin.end();
   const [svg, stderr, exit] = await Promise.all([new Response(process.stdout).text(), new Response(process.stderr).text(), process.exited]);
   if (exit !== 0 || !svg.includes('<svg')) throw new Error(stderr.trim() || `Graphviz exited ${exit} without SVG output.`);
@@ -96,10 +97,10 @@ async function renderMermaid(page: Page, source: string, id: string, mermaidVers
   await page.route('**/*', route);
   try {
     await page.addScriptTag({path: resolve(root, 'node_modules/mermaid/dist/mermaid.min.js')});
-    const rendered = await page.evaluate(async ({source, id}) => {
+    const rendered = await page.evaluate(async ({source, id, style}) => {
       const api = (window as any).mermaid;
       if (!api) throw new Error('Mermaid bundle did not expose window.mermaid.');
-      api.initialize({startOnLoad: false, securityLevel: 'strict', theme: 'neutral', look: 'classic', fontFamily: 'Arial', deterministicIds: true, deterministicIDSeed: id});
+      api.initialize({startOnLoad: false, securityLevel: 'strict', ...style, deterministicIds: true, deterministicIDSeed: id});
       let state = 2166136261;
       for (const character of id) state = Math.imul(state ^ character.charCodeAt(0), 16777619) >>> 0;
       const originalRandom = Math.random;
@@ -111,7 +112,7 @@ async function renderMermaid(page: Page, source: string, id: string, mermaidVers
       };
       try {const result = await api.render(`renderer-${id}`, source); await document.fonts.ready; return {svg: result.svg, version: api.version ?? 'unknown'};}
       finally {Math.random = originalRandom;}
-    }, {source, id});
+    }, {source, id, style: {...nativePreviewPresentation.mermaid, themeVariables: {...nativePreviewPresentation.mermaid.themeVariables}}});
     if (externalRequest) throw new Error(`Mermaid attempted an external request: ${externalRequest}`);
     if (!rendered.svg.includes('<svg')) throw new Error('Mermaid returned no SVG.');
     return {svg: rendered.svg, nativeVersion: `${rendered.version === 'unknown' ? mermaidVersion : rendered.version} / Chromium ${chromiumVersion}`};
@@ -138,6 +139,7 @@ function svgDimensions(svg: string): {width: number; height: number} {
     return Math.max(1, Math.round(px));
   };
   const box = attr('viewBox')?.trim().split(/[ ,]+/).map(Number);
+  if (box?.length === 4 && box.every(Number.isFinite) && box[2]! > 0 && box[3]! > 0) return {width: box[2]!, height: box[3]!};
   return {width: measure(attr('width'), box?.[2] ?? 0), height: measure(attr('height'), box?.[3] ?? 0)};
 }
 
@@ -350,20 +352,28 @@ async function writeNativeTargets(item: IntegrationCase, rawSource: Uint8Array, 
         if (!svg.includes('<svg')) throw new Error('Pinned Lini compiler returned no SVG.');
       }
     } catch (error) {
-      base.preview = {state: 'failed', engine: format === 'dot' ? 'graphviz' : format, nativeVersion: format === 'dot' ? runtime.graphviz : format === 'mermaid' ? `${runtime.mermaid} / Chromium ${runtime.chromium.version()}` : runtime.lini.version,
-        sourceSha256: sha256(rawSource), profileId: base.profileId, modelVersion: version, mappingVersion: base.mappingVersion, stage: 'export', error: errorText(error)};
+      const engine = format === 'dot' ? 'graphviz' : format;
+      base.preview = {state: 'failed', engine, nativeVersion: format === 'dot' ? runtime.graphviz : format === 'mermaid' ? `${runtime.mermaid} / Chromium ${runtime.chromium.version()}` : runtime.lini.version,
+        sourceSha256: sha256(rawSource), profileId: base.profileId, modelVersion: version, mappingVersion: base.mappingVersion, stage: 'export',
+        presentation: previewPresentationReceipt(engine), error: errorText(error)};
       if (projection.status === 'supported') throw new Error(`Strict ${format} source for ${item.id} failed its actual native render: ${errorText(error)}`);
       result.push(base); continue;
     }
     const sourceBytes = new TextEncoder().encode(projection.source);
     const sourceArtifact = await writeArtifact(outputDir, `integrations/downloads/${nativeId}-${format}-${sha256(sourceBytes).slice(0, 16)}.${extension}`, sourceBytes);
-    const svgBytes = new TextEncoder().encode(svg), svgSha = sha256(svgBytes), dimensions = svgDimensions(svg);
-    const svgArtifact = await writeArtifact(outputDir, `integrations/previews/${format}/${nativeId}-${svgSha.slice(0, 16)}.svg`, svgBytes);
-    if (!(dimensions.width > 0 && dimensions.height > 0)) throw new Error(`${format} renderer produced invalid SVG dimensions for ${item.id}.`);
-    base.artifacts = [sourceArtifact, svgArtifact];
-    base.preview = {state: 'rendered', engine: format === 'dot' ? 'graphviz' : format, nativeVersion, sourceSha256: sha256(rawSource), profileId: base.profileId,
+    const rawSvgBytes = new TextEncoder().encode(svg), rawDimensions = svgDimensions(svg), rawSvgSha = sha256(rawSvgBytes);
+    const rawSvgArtifact = await writeArtifact(outputDir, `integrations/downloads/${nativeId}-${format}-raw-${rawSvgSha.slice(0, 16)}.svg`, rawSvgBytes);
+    const normalized = normalizeSvgIntrinsicDimensions(svg), displaySvgBytes = new TextEncoder().encode(normalized.svg), displaySvgSha = sha256(displaySvgBytes);
+    const displayDimensions = {width: normalized.width, height: normalized.height};
+    const svgArtifact = await writeArtifact(outputDir, `integrations/previews/${format}/${nativeId}-${displaySvgSha.slice(0, 16)}.svg`, displaySvgBytes);
+    if (!(rawDimensions.width > 0 && rawDimensions.height > 0 && displayDimensions.width > 0 && displayDimensions.height > 0)) throw new Error(`${format} renderer produced invalid SVG dimensions for ${item.id}.`);
+    const engine = format === 'dot' ? 'graphviz' : format;
+    base.artifacts = [sourceArtifact, rawSvgArtifact, svgArtifact];
+    base.preview = {state: 'rendered', engine, nativeVersion, sourceSha256: sha256(rawSource), profileId: base.profileId,
       modelVersion: version, mappingVersion: base.mappingVersion, inputArtifactSha256: sourceArtifact.sha256, stage: 'export',
-      asset: {path: svgArtifact.path, sha256: svgArtifact.sha256, mediaType: 'image/svg+xml', width: dimensions.width, height: dimensions.height}};
+      presentation: previewPresentationReceipt(engine),
+      rawAsset: {path: rawSvgArtifact.path, sha256: rawSvgArtifact.sha256, mediaType: 'image/svg+xml', width: rawDimensions.width, height: rawDimensions.height},
+      asset: {path: svgArtifact.path, sha256: svgArtifact.sha256, mediaType: 'image/svg+xml', width: displayDimensions.width, height: displayDimensions.height}};
     result.push(base);
   }
   return result;

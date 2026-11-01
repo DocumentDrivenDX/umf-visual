@@ -83,7 +83,7 @@ try{
   if(fitBounds.width<=0||fitBounds.height<=0||fitBounds.width>fitBounds.containerWidth||fitBounds.height>fitBounds.containerHeight)throw new Error(`Focused preview did not fit its available panel: ${JSON.stringify(fitBounds)}`);
   if(fitBounds.containerWidth<900||fitBounds.containerHeight<400)throw new Error(`Native preview is not given a dominant readable canvas: ${JSON.stringify(fitBounds)}`);
   for(const label of ['Zoom in','Zoom out','Fit to view','100%'])if(!(await page.getByRole('button',{name:label}).count()))throw new Error(`Missing native preview control: ${label}`);
-  if(!(await page.getByRole('link',{name:/Open focused diagram SVG in a new tab/}).count()))throw new Error('Missing focused SVG link with a clear accessible name.');
+  if(!(await page.getByRole('link',{name:/Open focused diagram display SVG in a new tab/}).count()))throw new Error('Missing focused display SVG link with a clear accessible name.');
   const zoomBefore=await focused.evaluate(img=>(img as HTMLImageElement).getBoundingClientRect().width);
   await page.getByRole('button',{name:'Zoom in'}).click();
   const zoomAfter=await focused.evaluate(img=>(img as HTMLImageElement).getBoundingClientRect().width);

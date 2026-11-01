@@ -104,12 +104,18 @@ separately from semantic support. Native input is bounded to 256 KiB UTF-8.
 
 ## Complete examples through explicit profiles
 
-The candidate evaluates all 53 unchanged examples across all 22 forms. Each has
-a selected strict, complete projection through one suitable target: 43 DOT and
-ten Lini profiles. Preview review and Linux CI pass for all 22 forms, and v0.2.0
-is published. Native acceptance, exact text and semantic readback
+The released catalog evaluates all 53 unchanged examples across all 22 forms. Each has
+a selected strict, complete projection through one suitable target: 31 DOT,
+18 Lini and four Mermaid profiles. Preview review and Linux CI pass for all 22 forms.
+The [v0.3.0 release](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.3.0)
+adds qualified renderer/host evidence; its [publication receipt](https://github.com/DocumentDrivenDX/umf-visual/releases/download/v0.3.0/publication-receipt.json)
+binds the passing main workflow and verified artifacts. Native acceptance, exact text and semantic readback
 are checked separately from faithful geometry and readable previews.
 See [milestone evidence and release gates](docs/helix/04-build/example-completion-evidence.md).
+
+The catalog provides larger previews and an image viewer with fit, actual-size,
+zoom and full-screen controls. Versioned display styling preserves model semantics,
+exported native source, reported losses and captured host images.
 
 Select a readable annotation profile explicitly:
 

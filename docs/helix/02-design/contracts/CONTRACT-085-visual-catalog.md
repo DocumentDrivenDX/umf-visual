@@ -29,7 +29,7 @@ ddx:
 
 # CONTRACT-085: Static visual catalog data
 
-**Type:** build/browser data interface. **Version:** 1.2.0.
+**Type:** build/browser data interface. **Version:** 1.3.0.
 
 ## Purpose
 
@@ -247,6 +247,51 @@ items/targets recover to a safe explicit selection or useful error state.
 The site MUST retain keyboard-operable labelled controls and visible focus.
 Long code and large drawings MAY scroll inside their own panels; the whole page
 MUST fit a 375 CSS-pixel viewport without horizontal overflow.
+
+### Preview presentation and image inspection
+
+Preview cards SHOULD provide enough space to recognize diagram structure and
+read their source/profile/render captions. Every successful portable SVG or
+host image MUST offer the same isolated-image inspection surface. That surface
+MUST provide fit, actual-size and bounded zoom controls without changing the
+selected target, profile or complete-versus-focused view.
+
+The viewer MUST have labelled keyboard-operable controls, visible focus, an
+accessible name, Escape dismissal and focus restoration to its opener. Fullscreen
+MAY use the browser API when available, with an in-page expanded fallback.
+Missing images MUST show an error and preserve close/open/download actions.
+The viewer MUST keep SVG isolated as an image; source markup remains inert.
+
+Build-time DOT/Mermaid preview themes MAY adjust palette, typography and spacing.
+They MUST preserve text, endpoint direction, ports, grouping and all visible
+annotation meaning. A theme MUST NOT override a semantic style encoding or
+imply a source/model change, reduced loss or newly qualified native capability.
+The build MUST identify the presentation policy separately from adapter mapping
+and native runtime versions. Existing native-source downloads remain exact exports.
+
+Portable render records MAY add `presentation:{id,version,rendererOptions,
+svgNormalization}`. The current policy is `umf.visual.preview` version `1`;
+renderer options identify actual Graphviz defaults, Mermaid configuration or
+unchanged Lini compiler defaults. `rawSvgPath/rawSvgSha256` identify exact engine
+output under those options; `svgPath/svgSha256` identify its display derivative.
+Raw does not mean an earlier unthemed render.
+
+Portable integration previews use the same `presentation` record and optional
+`rawAsset:{path,sha256,mediaType,width,height}`. Their existing `asset` remains
+the displayed image. Both assets MUST be hashed and downloadable. Verification
+MUST establish that display bytes equal the declared normalization of raw bytes,
+not merely that each file has a valid independent hash.
+
+SVG dimension normalization MUST preserve the full native drawing, including
+labels, connectors and legends. If post-processing changes native SVG bytes,
+the original native image MUST remain separately downloadable and hashed.
+Host screenshots and thumbnails MUST remain byte-identical to their captured
+receipts; card layout and viewer magnification do not create new host evidence.
+
+Presentation changes require browser checks for clipping, desktop/mobile layout,
+image loading failures, keyboard/focus and fit/actual-size/zoom behavior. Existing
+source, loss, native-meaning, receipt-provenance and repeated-build gates remain
+in force. A visual polish pass does not reopen or silently replace host cycles.
 
 ## Precedence and Compatibility
 
