@@ -12,6 +12,7 @@ import {focusedProfileSource} from './profile-views';
 import {buildIntegrationCatalog} from './integrations';
 import {liniDirectory, verifyLiniRuntime} from '../interchange-runtime';
 import {nativePreviewPresentation, normalizeSvgIntrinsicDimensions, previewPresentationReceipt, type NativePreviewEngine} from './native-preview-presentation';
+import {buildFullProfileVariants, focusedFullProfilePreviewSource, type FullCatalogProfileVariant, type FullProfileTarget} from './full-profiles';
 
 export type TargetName = InterchangeFormat;
 export interface NativeRender {
@@ -23,6 +24,8 @@ export interface NativeRender {
   rawSvgPath?: string;
   rawSvgSha256?: string;
   presentation?: ReturnType<typeof previewPresentationReceipt>;
+  /** Exact diagnostics returned by the native Lini compiler for full-profile qualification. */
+  nativeDiagnostics?: unknown[];
   error?: string;
 }
 export interface CatalogTarget {
@@ -45,6 +48,12 @@ export interface CatalogProfileVariant {
   diagramSourceSha256?:string;
   diagramDescription:string;
 }
+export type CatalogFullProfileVariant = FullCatalogProfileVariant & {
+  result: FullProfileTarget & {render?: NativeRender};
+  diagramRender?: NativeRender;
+  diagramSourceSha256?: string;
+  diagramDescription: string;
+};
 export interface CatalogItem {
   id: string;
   title: string;
@@ -57,6 +66,8 @@ export interface CatalogItem {
   document: unknown;
   targets: Record<TargetName, CatalogTarget>;
   profileVariants?:CatalogProfileVariant[];
+  /** Full interchange profiles remain separate from released and annotated records. */
+  fullProfileVariants?:CatalogFullProfileVariant[];
   preferredRelease?:{format:TargetName;profileId:AnnotatedInterchangeProfile};
 }
 export interface VisualCatalog {
@@ -162,8 +173,18 @@ export async function createCatalogData(): Promise<VisualCatalog> {
       const result=targetFrom(document,format,profileId),strict=exportVisual(document,{format,profile:profileId});
       return {profileId,format,mappingVersion:format==='lini'?'0.2.0':'0.1.0',modelVersion:document.vocabularies['umf.visual'].version,result,coverage:strict.ok?strict.coverage??[]:[],diagramDescription:format==='mermaid'?'Focused sequence view removes only the exact typed annotation notes and profile comment. The title and all semantic participants, messages, and loop constructs remain. Downloaded source always contains the complete annotated representation.':'Focused native shape view. The complete annotated view includes supplemental identity, constraint and note tables, plus typed application and provenance annotations. Downloaded native source always contains the complete representation.'};
     });
+    const fullProfileVariants:CatalogFullProfileVariant[]=buildFullProfileVariants(document).map(variant=>({
+      ...variant,
+      diagramDescription:variant.representation.tier==='native-profile'
+        ? `This full-interchange request uses the independently verified ${variant.representation.sourceProfile} mapping (v${variant.representation.sourceMappingVersion}). The exact native annotated source is both displayed and imported; the full-profile facade confirms the whole document was reconstructed without loss.`
+        : variant.format==='lini'
+        ? 'Focused Lini display omits the generated Additional properties, edge identity, and visual approximation appendices so source-authored semantic diagram labels remain prominent. Their data stays in the complete source and separate details; this display is not an interchange source.'
+        : variant.format==='dot'
+          ? 'Focused DOT display omits the visible Additional properties appendix and generated field-name xlabels while retaining authored labels. Those field records remain in the complete interchange source; this display is not an interchange source.'
+          : 'Focused native display omits only the visible Additional properties appendix. It is not an interchange source; the complete full-profile source and native render remain available.',
+    }));
     items.push({id, title, kind: visual.kind, form: visual.form, question: visual.question,
-      origin: sourcePath.startsWith('fixtures/catalog/') ? 'canary' : 'fixture', sourcePath, sourceSha256: sha256(bytes), document, targets,profileVariants});
+      origin: sourcePath.startsWith('fixtures/catalog/') ? 'canary' : 'fixture', sourcePath, sourceSha256: sha256(bytes), document, targets,profileVariants,fullProfileVariants});
   }
   return {schemaVersion: 1, capabilities: structuredClone(interchangeCapabilities), language, items};
 }
@@ -191,7 +212,7 @@ async function graphvizVersion(): Promise<string> {
   return match[1]!;
 }
 
-async function renderMermaid(page: Page, source: string, itemId: string): Promise<{svg: string; version: string}> {
+async function renderMermaid(page: Page, source: string, itemId: string, fullProfile = false): Promise<{svg: string; version: string}> {
   await page.setContent('<!doctype html><html><meta charset="utf-8"><body><main id="output"></main></body></html>', {waitUntil: 'domcontentloaded'});
   await page.addScriptTag({path: resolve(root, 'node_modules/mermaid/dist/mermaid.min.js')});
   const result = await page.evaluate(async ({source, itemId, style}) => {
@@ -215,7 +236,11 @@ async function renderMermaid(page: Page, source: string, itemId: string): Promis
     } finally {
       Math.random = originalRandom;
     }
-  }, {source, itemId, style: {...nativePreviewPresentation.mermaid, themeVariables: {...nativePreviewPresentation.mermaid.themeVariables}}});
+  }, {source, itemId, style: {
+    ...nativePreviewPresentation.mermaid,
+    ...(fullProfile ? {maxTextSize: 262_144, maxEdges: 10_000} : {}),
+    themeVariables: {...nativePreviewPresentation.mermaid.themeVariables},
+  }});
   const version = result.version === 'unknown' ? mermaidPackage.version : result.version;
   if (!result.svg.includes('<svg') || typeof version !== 'string') throw new Error('Mermaid returned no SVG or version');
   return {svg: result.svg, version};
@@ -239,11 +264,19 @@ async function loadLini(): Promise<{compiler: LiniCompiler; version: string}> {
   return {compiler, version};
 }
 
-function validateLiniDiagnostics(reportText: string): void {
+function parseLiniDiagnostics(reportText: string): unknown[] {
   let report: any;
   try { report = JSON.parse(reportText); } catch { throw new Error('Lini returned malformed diagnostics JSON'); }
   const diagnostics = Array.isArray(report) ? report : report?.diagnostics;
-  if (!Array.isArray(diagnostics) || diagnostics.some((item: any) => item?.severity === 'error')) {
+  if (!Array.isArray(diagnostics)) {
+    throw new Error(`Lini returned malformed diagnostics JSON: ${reportText}`);
+  }
+  return diagnostics;
+}
+
+function validateLiniDiagnostics(reportText: string): void {
+  const diagnostics = parseLiniDiagnostics(reportText);
+  if (diagnostics.some((item: any) => item?.severity === 'error')) {
     throw new Error(`Lini refused generated source: ${reportText}`);
   }
 }
@@ -351,6 +384,36 @@ export async function renderCatalog(catalog: VisualCatalog, outputDir: string): 
         const focused=focusedProfileSource(target.source,format);variant.diagramSourceSha256=sha256(focused);
         variant.diagramRender=await renderOne(focused,'diagram');
         if(target.status==='supported'&&target.render.ok&&variant.diagramRender.ok)item.preferredRelease={format,profileId:variant.profileId};
+      }
+      for (const variant of item.fullProfileVariants ?? []) {
+        const target = variant.result;
+        if (!target.ok || target.source === undefined) continue;
+        const renderOne = async (source: string, label: string): Promise<NativeRender> => {
+          let svg: string, version: string, nativeDiagnostics: unknown[] | undefined;
+          if (variant.format === 'dot') {
+            const result = await renderDot(source, graphviz); svg = result.svg; version = result.version;
+          } else if (variant.format === 'mermaid') {
+            const result = await renderMermaid(page, source, safeSegment(item.id + '-mermaid-full-' + label), true);
+            svg = result.svg; version = `${result.version} / Chromium ${browserVersion}`;
+            if (externalRequest) throw new Error(`External request during Mermaid full-profile rendering: ${externalRequest}`);
+          } else {
+            nativeDiagnostics = parseLiniDiagnostics(lini.compiler.diagnostics(source, {}));
+            if (nativeDiagnostics.some((item: any) => item?.severity === 'error')) throw new Error(`Lini refused full-profile source: ${JSON.stringify(nativeDiagnostics)}`);
+            svg = lini.compiler.compile(source, {}); version = lini.version;
+          }
+          const engine = variant.format === 'dot' ? 'graphviz' : variant.format;
+          const render: NativeRender = {ok: true, engine, nativeVersion: version, presentation: previewPresentationReceipt(engine), ...(nativeDiagnostics ? {nativeDiagnostics} : {})};
+          await saveRender(item, `full-${variant.format}-${label}`, render, svg, outputDir);
+          return render;
+        };
+        try {
+          target.render = await renderOne(target.source, 'complete');
+        const focused = focusedFullProfilePreviewSource(target.source, variant.format, variant.representation);
+          variant.diagramSourceSha256 = sha256(focused);
+          variant.diagramRender = await renderOne(focused, 'diagram');
+        } catch (error) {
+          throw new Error(`Native ${variant.format} full-profile rendering failed for ${item.id}: ${runtimeError(error)}`);
+        }
       }
     }
   } finally {

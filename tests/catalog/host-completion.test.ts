@@ -80,7 +80,16 @@ describe('host completion gate', () => {
       expect(report.renderedTargets).toBe(18);
       expect(report.issues).toEqual([]);
     } finally {await rm(fixture.site, {recursive: true, force: true});}
-  });
+  },30_000);
+
+  test('release-mode verification requires three canonical full-profile targets per common case',async()=>{
+    const fixture=await readyFixture();
+    try{
+      const report=await verifyHostCompletion(fixture.catalog,fixture.site,true);
+      expect(report.complete).toBe(false);
+      expect(report.issues.some(entry=>entry.message.includes('fullRendererTargets'))).toBe(true);
+    }finally{await rm(fixture.site,{recursive:true,force:true});}
+  },30_000);
 
   test('keeps the release gate open for missing rows, stale provenance, and incomplete or dishonest loss evidence', async () => {
     const fixture = await readyFixture();
@@ -117,7 +126,7 @@ describe('host completion gate', () => {
       expect(erroredReport.complete).toBe(false);
       expect(erroredReport.issues.some(row => row.caseId === erroredProjectionCatalog.cases[0].id && row.message.includes('error-severity'))).toBe(true);
     } finally {await rm(fixture.site, {recursive: true, force: true});}
-  });
+  },30_000);
 
   test('does not substitute a reported-loss image for exact-cycle evidence or an opaque stencil projection', async () => {
     const fixture = await readyFixture();
@@ -133,7 +142,7 @@ describe('host completion gate', () => {
       expect(report.issues.some(issue => issue.caseId === 'process-documents-store' && issue.message.includes('round trip'))).toBe(true);
       expect(report.issues.some(issue => issue.caseId === opaque.id && issue.message.includes('Opaque witness'))).toBe(true);
     } finally {await rm(fixture.site, {recursive: true, force: true});}
-  });
+  },30_000);
 
   test('keeps Miro recovery evidence separate from its interrupted write and hides unqualified drift',async()=>{
     const fixture=await readyFixture();
@@ -149,7 +158,7 @@ describe('host completion gate', () => {
       expect(report.complete).toBe(false);
       expect(report.issues.some(item=>item.caseId===catalog.cases[0].id&&item.message.includes('preserve its interrupted operation'))).toBe(true);
     }finally{await rm(fixture.site,{recursive:true,force:true});}
-  });
+  },30_000);
 
   test('requires repair-free PowerPoint reopen evidence for native-only layout previews',async()=>{
     const fixture=await readyFixture();
@@ -162,7 +171,7 @@ describe('host completion gate', () => {
       expect(report.complete).toBe(false);
       expect(report.issues.some(item=>item.caseId===catalog.cases[0].id&&item.message.includes('repair-free native reopen'))).toBe(true);
     }finally{await rm(fixture.site,{recursive:true,force:true});}
-  });
+  },30_000);
 
   test('requires native renderer raw SVG, exact presentation policy, and geometry-preserving display normalization',async()=>{
     const fixture=await readyFixture();
@@ -187,7 +196,7 @@ describe('host completion gate', () => {
       wrongRow.preview.presentation.svgNormalization='shape-rewrite/1';
       expect((await verifyHostCompletion(wrongPresentation,fixture.site)).issues.some((entry:any)=>entry.target==='lini'&&entry.message.includes('presentation options'))).toBe(true);
     }finally{await rm(fixture.site,{recursive:true,force:true});}
-  });
+  },30_000);
 
   test('allows exact fractional SVG viewBox dimensions but keeps captured raster dimensions finite integers',async()=>{
     const fixture=await readyFixture();
@@ -202,5 +211,5 @@ describe('host completion gate', () => {
         expect(report.issues.some((entry:any)=>entry.target==='powerpoint'&&entry.message.includes('valid image metadata and dimensions'))).toBe(true);
       }
     }finally{await rm(fixture.site,{recursive:true,force:true});}
-  });
+  },30_000);
 });

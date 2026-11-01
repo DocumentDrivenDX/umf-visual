@@ -3,6 +3,7 @@ import {readVisualDocument,writeVisualDocument,inspectVisual,editVisual,getVisua
 import {runInterchangeBrowserChecks} from './interchange/browser-checks';
 import {runAnnotatedBrowserChecks} from './interchange/annotated-browser-checks';
 import {runPortableAdaptersBrowserChecks} from './portable-adapters-browser';
+import {runFullBrowserChecks} from './interchange/full-browser-checks';
 declare global {interface Window {visualResult?:unknown;}}
 try{
  const fixtures=await fetch('/fixtures').then(r=>r.json()) as unknown[];
@@ -55,5 +56,5 @@ try{
  }
  if(wave2.length!==16)throw Error('Expected 11 grouped flows and 5 sequences in browser');
  const interchange=await runInterchangeBrowserChecks();
- window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true},wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),miro:await exerciseMiroBrowser(),portableAdapters:await runPortableAdaptersBrowserChecks()};
+ window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true},wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),full:runFullBrowserChecks(fixtures),miro:await exerciseMiroBrowser(),portableAdapters:await runPortableAdaptersBrowserChecks()};
 }catch(error){window.visualResult={ok:false,error:String(error)};}

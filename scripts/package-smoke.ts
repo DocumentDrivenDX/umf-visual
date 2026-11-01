@@ -1,9 +1,17 @@
-import {mkdir,mkdtemp} from 'node:fs/promises';
+import {cp,mkdir,mkdtemp} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 await mkdir('.cache',{recursive:true});
-const pack=Bun.spawn([process.execPath,'pm','pack','--destination','.cache'],{stdout:'inherit',stderr:'inherit'});
-if(await pack.exited)throw Error('Packing failed');
 const metadata=await Bun.file('package.json').json();
+// Isolate the declared distributable files from accumulated installed-consumer
+// trees. This also makes accidental undeclared workspace files impossible to ship.
+const staging=await mkdtemp(resolve('.cache/package-stage-'));
+await cp('package.json',join(staging,'package.json'));
+for(const file of metadata.files){
+ if(typeof file!=='string'||file.startsWith('/')||file.split('/').includes('..'))throw Error('Unsafe package file');
+ await cp(file,join(staging,file),{recursive:true});
+}
+const pack=Bun.spawn([process.execPath,'pm','pack','--destination',resolve('.cache')],{cwd:staging,stdout:'inherit',stderr:'inherit'});
+if(await pack.exited)throw Error('Packing failed');
 const archive=resolve('.cache/documentdrivendx-umf-visual-'+metadata.version+'.tgz');
 const consumer=await mkdtemp(resolve('.cache/consumer-'));
 await Bun.write(join(consumer,'package.json'),JSON.stringify({private:true,type:'module',dependencies:{'@documentdrivendx/umf-visual':'file:'+archive}}));
@@ -12,6 +20,7 @@ if(await install.exited)throw Error('Packed consumer installation failed');
 const mermaidSequence=JSON.parse(await Bun.file('fixtures/visual/inventory/helix-request.json').text());
 const liniFlow=JSON.parse(await Bun.file('fixtures/catalog/canary-flow.json').text());
 const liniMetric=JSON.parse(await Bun.file('fixtures/visual/forms/umf-ac-coverage.json').text());
+const fullEntity=JSON.parse(await Bun.file('fixtures/catalog/canary-entities.json').text());
 await Bun.write(join(consumer,'consumer.mjs'),`import {createVisualDocument,getVisual,editVisual,inspectVisual,importVisual,exportVisual,upgradeVisualDocument,latestVisualPackage} from '@documentdrivendx/umf-visual';
 import legacySchema from '@documentdrivendx/umf-visual/schema' with {type:'json'};
 import modernSchema from '@documentdrivendx/umf-visual/schema/1.1.0' with {type:'json'};
@@ -44,6 +53,18 @@ const profileCases=[
 ];
 /** @param {unknown} value */
 const canonical=value=>JSON.stringify(value,(_,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
+const fullCases=['dot','mermaid','lini'].flatMap(format=>[
+ JSON.parse(${JSON.stringify(JSON.stringify(liniFlow))}),
+ JSON.parse(${JSON.stringify(JSON.stringify(fullEntity))}),
+ JSON.parse(${JSON.stringify(JSON.stringify(liniMetric))}),
+].map(document=>({format,profile:'umf.visual.'+format+'.full/1',document})));
+for(const entry of fullCases){
+ const output=exportVisual(entry.document,{format:entry.format,profile:entry.profile});if(!output.ok)throw Error('Installed full export failed '+JSON.stringify(output.diagnostics));
+ const imported=importVisual(output.text,{format:entry.format,profile:entry.profile,id:'installed',question:'What survives?'});
+ if(!imported.ok||canonical(imported.document)!==canonical(entry.document)||!imported.coverage?.length)throw Error('Installed full readback differs');
+ const replay=exportVisual(imported.document,{format:entry.format,profile:entry.profile,source:imported.source,original:true});
+ if(!replay.ok||replay.text!==output.text)throw Error('Installed full native replay differs');
+}
 for(const entry of profileCases){
  const output=exportVisual(entry.document,{format:entry.format,profile:entry.profile});if(!output.ok)throw Error('Installed strict profile export failed '+JSON.stringify(output.diagnostics));
  const imported=importVisual(output.text,{format:entry.format,profile:entry.profile,id:'context',question:'Context'});if(!imported.ok||canonical(imported.document)!==canonical(entry.document))throw Error('Installed complete profile readback differs');
@@ -57,7 +78,7 @@ for(const entry of profileCases.filter(p=>p.format==='mermaid'||p.document.exten
 }
 let unknownProfileRefused=false;try{unknownProfileRefused=!exportVisual(profileCases[2].document,{format:'mermaid',profile:'umf.visual.mermaid.unknown/999'}).ok;}catch{unknownProfileRefused=true;}
 if(!unknownProfileRefused)throw Error('Unknown packed-consumer profile was accepted');
-console.log(JSON.stringify({installed:true,valid:report.valid,complete:report.complete,interchange:['dot','mermaid','lini'],portableAdapters:['powerpoint','google-slides','reconciliation','miro/editable'],annotatedProfiles:profileCases.map(p=>p.profile),annotatedSources:['helix-request','catalog-canary-flow'],unknownProfileRefused:true}));`);
+console.log(JSON.stringify({installed:true,valid:report.valid,complete:report.complete,interchange:['dot','mermaid','lini'],portableAdapters:['powerpoint','google-slides','reconciliation','miro/editable'],fullProfileCases:fullCases.length,annotatedProfiles:profileCases.map(p=>p.profile),annotatedSources:['helix-request','catalog-canary-flow'],unknownProfileRefused:true}));`);
 const types=Bun.spawn([resolve('node_modules/.bin/tsc'),'--ignoreConfig','--allowJs','--checkJs','--noEmit','--module','ESNext','--moduleResolution','Bundler','--target','ES2022','--skipLibCheck','consumer.mjs'],{cwd:consumer,stdout:'inherit',stderr:'inherit'});
 if(await types.exited)throw Error('Installed consumer declarations failed');
 for(const runtime of [process.execPath,'node']){

@@ -66,6 +66,19 @@ presentation. A valid neutral payload alone does not establish native equivalenc
   current examples through at least one suitable strict, complete target profile,
   with native readback and a faithful preview across all 22 represented forms.
   Other target limitations remain visible; annotations follow CONTRACT-087.
+- INT-10: The owner's subsequent zero-loss direction requires a canonical full
+  profile for each DOT, Mermaid and Lini format. Every current example must have
+  a meaningful drawing and complete editable semantic readback in all three.
+  Native constructs take precedence; labelled primitives, groups and tables may
+  approximate presentation when complete meaning remains visible and recoverable.
+- INT-11: An implementation gap or missing native diagram template must not be
+  classified as an unavoidable format loss. Actual omitted meaning remains loss;
+  reversible visual approximations are reported separately. A genuine rendering
+  impossibility needs bounded evidence after testing meaningful fallbacks.
+
+INT-09 records the earlier suitable-target milestone. INT-10/11 supersede that
+milestone as the active completion goal without reinterpreting released profiles
+or their diagnostics. No opaque embedded document may establish lossless output.
 
 ### Non-Functional Requirements
 

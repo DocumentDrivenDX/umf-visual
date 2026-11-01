@@ -667,3 +667,149 @@ scope or publication gates. The earlier 53-example/22-form suitable-target gate
 is met separately; neither that milestone nor this probe establishes all-format
 or whole-language completeness. Final follow-up CI, served-artifact identity and
 release archive verification remain required.
+
+## Active zero-loss full-format execution — owner direction, 2026-10-31
+
+The owner now requires zero loss unless the target cannot render anything
+meaningfully resembling the requested diagram. This direction supersedes the
+earlier suitable-target ceiling and the P10-D negative-eligibility closure as
+the active completion criterion. Those observations remain history: ordinary
+DOT/Mermaid/Lini still report 629/792/530 emitted loss incidences. No earlier
+closure is retroactively presented as meeting this stronger request.
+
+The immediate gate is all 53 unchanged examples in each of three formats:
+**159 strict, zero-loss, meaningfully rendered and independently readable pairs**,
+covering all 22 forms per format. A missing adapter or native diagram template
+is debt to implement. Labelled primitives, groups, tables and explanatory text
+are valid fallbacks when the whole meaning remains visible and editable.
+Presentation approximations stay explicit and separate from semantic omissions.
+
+### Shared seam and bounded ownership
+
+Root owns `src/interchange/full/` shared projection/facade/types and public
+routing. It projects document meaning into owner/path-addressed scene elements
+and typed residual entries. Scene elements carry actual drawing meaning;
+residual entries preserve remaining properties using the existing scalar and
+container grammar. Format-local readers independently recover both, with full
+document and native-AST audits. No embedded document string is authoritative.
+
+Existing `annotations/index.ts` excludes intrinsic and unknown-extension paths
+from its released registry; it must not be broadened silently. A separate full
+registry must explicitly account for every document path, including envelope
+and unknown valid JSON structure. Existing 256-KiB admission, safe JSON copying,
+duplicate identities, native AST audit and source-reparse fences remain binding.
+Any new full-profile resource limits need explicit declarations and refusal tests.
+
+| Package | Owner and isolated paths | Required exit evidence |
+| --- | --- | --- |
+| F0 shared foundation | Root: `src/interchange/full/`, public types/facade and shared tests | Explicit `umf.visual.<format>.full/1` selection; scene/typed-entry/coverage/approximation seam; compatibility profiles unchanged; no hidden authoritative document |
+| F1 vertical slice | Luna format owners below; root integrates | Shared flow, entity and quantitative examples in all three formats; native constructs or meaningful primitive compositions; exact whole-document readback; native label/endpoint/value plus typed-row edits; no semantic loss |
+| F2-D full DOT | Luna DOT: `src/interchange/dot/full.ts`, DOT full tests/native runner | All 53/22 using existing intrinsic profiles where suitable and qualified graph/table/primitive fallback elsewhere; readable shapes and ports/labels; complete edited readback |
+| F2-M full Mermaid | Luna Mermaid: `src/interchange/mermaid/full.ts`, Mermaid full tests/native runner | All 53/22 using appropriate native families or labelled graph/sequence/table composition; no ladder/field-reference abandonment merely because the native template is narrower |
+| F2-L full Lini | Luna Lini: `src/interchange/lini/full.ts`, Lini full tests/native runner | All 53/22 reusing native charts/tables/timelines and graph primitives; explicit owner identity, numeric/order fidelity and complete edited readback |
+| F3 canonical catalog | Root/site owner: catalog join, microsite and selection tests | Full profiles are the format-level canonical view; compatibility losses remain accessible; approximations distinct from omissions; exact profile/view links and raw downloads |
+| F4 integrated completion | Root CI/native/browser/package; Sol independent review | 159 strict zero-loss outputs and full-document readbacks, all 22 form previews per format, native engines plus real Chromium and packed consumers, hostile/forged/stale/unknown-content tests, deterministic artifacts and actual served hashes |
+
+F1 starts before full-corpus expansion so a shared projection error is corrected
+once. F2-D/M/L then run in parallel with nonoverlapping format modules. Sol
+reviews the seam and slice first, then each completed format and final matrix.
+No new live host writes or vocabulary redesign are required by this wave.
+
+### Completion and exceptions
+
+Zero loss is earned by represented meaning, not diagnostic filtering or changing
+`loss:true` into an approximation label. Readback must recover all original
+values, structural presence and ordering from actual editable native output.
+Native rendering must resemble the requested form; a metadata table alone is
+insufficient for a graph, chart, sequence or timeline.
+
+A genuine exception requires an exact fixture/path and native-version bound,
+attempted intrinsic and meaningful primitive fallback, and independent review
+of the failure. An unimplemented reader, narrow released profile, unavailable
+test runtime or unresolved layout bug is not that exception. Remaining gaps
+stay open; no planned profile or prior selected success can close a missing pair.
+
+### Execution checkpoint — 2026-10-31
+
+F0 and the F1 source/readback seam are implemented on
+`codex/complete-format-projections`. Explicit full-profile routing leaves the
+released native and annotation profiles unchanged. Whole-document typed records
+include the root, empty containers, envelope metadata and unknown extension
+content. Native primary labels and connector endpoints supply their own values;
+there is no authoritative hidden source document. Import also recomputes the
+required primary scene, so property rows alone cannot qualify a missing drawing.
+Original-source replay reparses its receipt; preserving updates remain an
+explicit refusal rather than discarding unrepresented native presentation.
+
+The first nine flow/entity/quantitative witnesses passed native rendering in
+Graphviz, Mermaid 12.2 and pinned Lini 1.1.0, exact whole-document readback, and
+real Chromium 153 consumer checks with unknown extension content. The full unit
+suite at that checkpoint passed 462 tests. Subsequent source expansion provides
+strict, exact readback candidates for all 53 examples in each format (159 pairs,
+22 forms). These are candidates, not completion evidence for F2–F4.
+
+Independent review rejected a metadata-only admission loophole, logical IDs used
+as native locators, duplicated authoritative endpoint metadata, unqualified
+profile headers and discarded native appendix properties. Regression checks now
+cover those cases. Further native testing found Lini auto-created endpoints,
+unroutable connections and unreadable horizontal preview layouts despite SVG
+generation. The native full-profile gate must reject those failures; successful
+SVG compilation alone is insufficient. The catalog is being updated to retain
+frozen-profile diagnostics under compatibility details and report canonical
+full-profile coverage, visual approximations and actual omissions separately.
+
+Open F2–F4 gates: final readable previews for every form; all-159 warning-free
+native rendering; scoped SVG carrier and connection witnesses; exact original
+fixture/native-source/render hashes; final browser/packed-consumer checks;
+independent Sol review, CI and served-site verification. No all-159 completion,
+new release or published zero-loss claim is recorded at this checkpoint.
+
+### Integration-portable scope refinement — 2026-11-01
+
+The canonical six-target matrix also contains five complex common integration
+documents. The portable DOT/Mermaid/Lini cells must use the same complete routes,
+adding 15 strict readback/native-witness pairs to F4 (174 total). Additive
+`fullRendererTargets` preserve the existing portable compatibility rows and
+host evidence. Complete and focused images must bind their respective exact
+input artifacts; focused source remains display-only. Upstream native Miro
+projection gaps and opaque-only witnesses remain separate from common-document
+interchange. This refinement does not promote existing bounded host profiles
+or their retained-only coverage into a universal six-target zero-loss claim.
+
+### Local qualification — 2026-11-01
+
+The frozen implementation passed 495 Bun tests across 71 files (17,223
+assertions), source generation/boundary checks, TypeScript checks, the ESM build,
+fresh packed Bun/Node consumers and real Chromium 153 consumer checks. The
+package smoke tests exercise nine full-profile cases; browser checks include
+unknown extension content, whole-document readback, exact replay, stale replay
+refusal and the three native-first receipt routes.
+
+The final native gate passed all 174 pairs: 53 catalog examples and five complex
+integration documents in DOT, Mermaid and Lini, spanning 22 forms. Actual local
+engines were Graphviz 16.1.0, Mermaid 12.2.0 in Chromium 153.0.8010.12 and pinned
+Lini 1.1.0. Every source passed strict independent whole-document import; every
+native render passed its scoped SVG witness with no native diagnostics. The
+routes comprise 67 unchanged native-profile sources and 107 primitive
+compositions. Approximation details remain separate: 11 DOT, 54 Mermaid and
+28 Lini entries across the 58 documents in each format.
+
+The SVG witnesses bind primary carriers, field name/type rows, chart points and
+timeline markers to their actual native objects. Primitive connections and
+mapped native-first flow/sequence connections check drawn attachment; native
+entity-port endpoint geometry is explicitly outside that helper's claim.
+Existing native annotation/state and layout oracles remain separate CI gates.
+Negative controls remove or alter a plotted point, marker, field type, primary
+label or connector path while leaving matching text or endpoint attributes
+elsewhere; those controls refuse. Internal generated captions select supported
+rectangles directly, while authored document-role shape and form-geometry
+approximations remain reported.
+
+Sol approved the bounded source/proof seam after the primitive Lini geometry
+and focused-source provenance fixes. Independent targeted checks passed 22 tests
+and 1,558 assertions. The installed HELIX validator reports no blocking findings
+for the eight changed feature, contract, test-plan, execution-plan and release
+artifacts. The final package remains a release candidate until the
+catalog reproduction, complete/focused browser review, exact-head Linux CI,
+Pages identity verification and archive publication gates are recorded by the
+release's publication receipt.

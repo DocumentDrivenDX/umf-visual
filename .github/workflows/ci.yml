@@ -21,6 +21,7 @@ jobs:
       - run: bun run typecheck
       - run: sudo apt-get update && sudo apt-get install -y graphviz
       - run: bun run fetch:lini
+      - run: bunx playwright install --with-deps chromium
       - run: bun test
       - run: bun run build
       - run: bun run test:package
@@ -31,7 +32,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
       - run: bun run test:native
-      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:native:full
       - run: bun run test:browser
       - run: bun run test:native:wave2
       - run: bun run test:native:annotated
@@ -61,6 +62,8 @@ jobs:
           name: umf-visual-profile-evidence
           path: |
             .cache/native-annotated.json
+            .cache/full-native/receipt.json
+            .cache/full-native/*.svg
             .cache/native-lini-annotated.json
             .cache/native-lini-entities-cohort.json
             .cache/native-lini-model-version-boundary.json

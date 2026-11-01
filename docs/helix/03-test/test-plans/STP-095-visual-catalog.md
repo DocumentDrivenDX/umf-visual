@@ -52,6 +52,26 @@ covering test must cite its AC using the indicated `@covers` annotation.
 
 ## Executable Proof
 
+### Active full-format gate
+
+INT-10/11 and CAT-15 supersede the earlier suitable-target completion ceiling.
+Qualify all 159 unchanged example/format pairs through explicit `/full/1`
+profiles: strict export with no loss, actual named-engine rendering, complete
+document readback and meaningful previews of all 22 forms in each format.
+Approximation evidence is separate and cannot clear an omitted path.
+Apply the same gate to the five common integration documents in each portable
+format: 15 additional pairs, 174 total. Verify canonical full-route selection
+in the six-target matrix, explicit compatibility access, exact complete/focused
+input provenance and byte-identical existing host captures/receipts.
+
+For each family, independently edit a native label/endpoint/value and an
+owner-associated typed field, then import after JSON/YAML persistence. Test
+empty/null/absent/order, unknown-content structure, conflicting/duplicate native
+identities, hostile text, forged coverage/baselines and stale exact-source replay.
+Check native AST completeness and actual SVG meaning separately from portable
+self-roundtrips. Packed consumers and real Chromium must use the public API.
+Compatibility profile sources, receipts and diagnostics must remain unchanged.
+
 ### Primary Commands
 
 ```sh

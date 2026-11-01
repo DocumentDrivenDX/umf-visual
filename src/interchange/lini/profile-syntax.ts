@@ -11,7 +11,7 @@ export function quoteLiniProfile(value:string):string {
  if(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(value)||/[\ud800-\udfff]/u.test(value))throw new LiniProfileSyntaxError('Unsupported control or unpaired surrogate',0);
  return '"'+value.replaceAll('\\','\\\\').replaceAll('"','\\"').replaceAll('\n','\\n').replaceAll('\t','\\t')+'"';
 }
-export function readLiniProfile(source:string):LiniProfileNode[] {
+export function readLiniProfile(source:string,options:{allowDeepEndpoints?:boolean}={}):LiniProfileNode[] {
  const fail=(message:string,offset:number):never=>{throw new LiniProfileSyntaxError(message,offset);};
  if(new TextEncoder().encode(source).length>262_144)fail('Source exceeds 256 KiB',0);
  const tokens:LiniProfileToken[]=[];let at=0;
@@ -48,7 +48,7 @@ export function readLiniProfile(source:string):LiniProfileNode[] {
    if(peek().value===';'&&peek().kind==='symbol'){take();continue;}
    if(++count>20_000)fail('Node limit exceeded',peek().offset);
    if(peek()?.kind==='word'){
-    const endpoint=()=>{const first=take();if(first.kind!=='word')fail('Expected link endpoint',first.offset);let value=first.value;if(peek()?.kind==='symbol'&&peek()?.value==='.') {take();const field=take();if(field.kind!=='word')fail('Expected qualified endpoint',field.offset);value+='.'+field.value;}return value;};
+    const endpoint=()=>{const first=take();if(first.kind!=='word')fail('Expected link endpoint',first.offset);let value=first.value;while(peek()?.kind==='symbol'&&peek()?.value==='.') {if(!options.allowDeepEndpoints&&value.includes('.'))fail('Deep endpoint qualification is outside this profile',peek()!.offset);take();const field=take();if(field.kind!=='word')fail('Expected qualified endpoint',field.offset);value+='.'+field.value;}return value;};
     const from=endpoint(),operator=take();if(operator.kind!=='symbol'||!['->','-'].includes(operator.value))fail('Expected a supported link operator',operator.offset);const to=endpoint(),label=peek()?.kind==='string'?take().value:undefined;
     let className:string|undefined;if(peek()?.kind==='symbol'&&peek()?.value==='.') {take();const classToken=take();if(classToken.kind!=='word')fail('Expected link class',classToken.offset);className=classToken.value;}
     const properties:LiniProfileProperty[]=[{name:'from',value:[{kind:'word',value:from,offset:operator.offset}]},{name:'operator',value:[operator]},{name:'to',value:[{kind:'word',value:to,offset:operator.offset}]}];

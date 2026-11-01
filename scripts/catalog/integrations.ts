@@ -9,7 +9,7 @@ import {observeGoogleSlides, planGoogleSlidesExport} from '../../src/adapters/go
 import type {GoogleSlidesBox, GoogleSlidesPlacement} from '../../src/adapters/google-slides/types.js';
 import {planEditableMiroExport} from '../../src/adapters/miro/editable/index.js';
 import type {EditablePlan} from '../../src/adapters/miro/editable/types.js';
-import type {RendererTargetEvidence} from './renderer-types.js';
+import type {FullRendererTargetEvidence, RendererTargetEvidence} from './renderer-types.js';
 import {buildRendererEvidence} from './renderer-evidence.js';
 
 const root = resolve(import.meta.dir, '../..');
@@ -30,6 +30,8 @@ export type IntegrationTarget = {
 };
 export type IntegrationCase = {
   rendererTargets?: RendererTargetEvidence[];
+  /** Canonical opt-in full/1 source and native render rows, separate from compatibility previews. */
+  fullRendererTargets?: FullRendererTargetEvidence[];
   id: string;
   title: string;
   commonProjection: 'complete-topology-projection' | 'partial-explicit-projection' | 'no-common-projection';

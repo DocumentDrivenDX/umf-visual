@@ -7,6 +7,9 @@ export type InterchangeFormat = 'dot' | 'mermaid' | 'lini';
 export type InterchangeMode = 'strict' | 'allow-reported-loss';
 /** Explicit opt-in; omitted profiles retain the released native behavior. */
 export type AnnotatedInterchangeProfile = 'umf.visual.dot.annotated/1'|'umf.visual.lini.annotated/1'|'umf.visual.mermaid.annotated/1';
+export type FullInterchangeProfile = 'umf.visual.dot.full/1'|'umf.visual.mermaid.full/1'|'umf.visual.lini.full/1';
+export type InterchangeProfile = AnnotatedInterchangeProfile|FullInterchangeProfile;
+export type {VisualApproximation,FullProjectionRepresentation} from './full/types';
 export interface SourceRange {start:number;end:number;}
 /** Paths are JSON Pointers. Import paths begin /source; export paths address the document. */
 export interface InterchangeDiagnostic {
@@ -29,7 +32,7 @@ export interface IdentityMapping {
  path:string;
  sourcePath?:string;
 }
-export interface AdapterContext {id:string;question:string;profile?:AnnotatedInterchangeProfile;}
+export interface AdapterContext {id:string;question:string;profile?:InterchangeProfile;}
 export interface AdapterParseResult {
  visual?:Visual;
  diagnostics:InterchangeDiagnostic[];
@@ -63,7 +66,7 @@ export interface RetainedVisualSource {
 }
 export interface ExportVisualOptions {
  format:InterchangeFormat;
- profile?:AnnotatedInterchangeProfile;
+ profile?:InterchangeProfile;
  mode?:InterchangeMode;
  source?:RetainedVisualSource;
  /** Request exact retained source. Requires matching format and an unchanged, reparsed document. */
@@ -76,7 +79,9 @@ export interface ImportVisualResult {
  source:RetainedVisualSource;
  diagnostics:InterchangeDiagnostic[];
  identityMap:IdentityMapping[];
- profile?:AnnotatedInterchangeProfile;
+ profile?:InterchangeProfile;
+ approximations?:import('./full/types').VisualApproximation[];
+ representation?:import('./full/types').FullProjectionRepresentation;
  coverage?:ProjectionCoverage[];
 }
 export interface ExportVisualResult {
@@ -85,7 +90,9 @@ export interface ExportVisualResult {
  source?:RetainedVisualSource;
  diagnostics:InterchangeDiagnostic[];
  identityMap:IdentityMapping[];
- profile?:AnnotatedInterchangeProfile;
+ profile?:InterchangeProfile;
+ approximations?:import('./full/types').VisualApproximation[];
+ representation?:import('./full/types').FullProjectionRepresentation;
  coverage?:ProjectionCoverage[];
 }
 

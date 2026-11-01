@@ -1,6 +1,6 @@
 {
   "name": "@documentdrivendx/umf-visual",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "UMF visual vocabulary and format interchange library",
   "license": "MIT OR Apache-2.0",
@@ -58,6 +58,7 @@
     "test:package": "bun scripts/package-smoke.ts",
     "fetch:lini": "bun scripts/fetch-lini.ts",
     "test:native": "bun scripts/native-interchange.ts",
+    "test:native:full": "bun scripts/native-full.ts",
     "build:catalog": "bun scripts/catalog/build.ts",
     "build:site": "bun microsite/build.ts",
     "test:site": "bun scripts/catalog-ui-browser.ts",

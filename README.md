@@ -41,6 +41,7 @@ bun run fetch:lini
 bunx playwright install chromium
 bun run test:native       # requires Graphviz dot and Python 3 on PATH
 bun run test:native:annotated
+bun run test:native:full
 bun run test:browser
 bun run build:catalog     # actual DOT, Mermaid and Lini native SVG generation
 bun run test:catalog     # validate exact source and SVG hashes
@@ -104,13 +105,61 @@ separately from semantic support. Native input is bounded to 256 KiB UTF-8.
 
 ## Complete examples through explicit profiles
 
-The released catalog evaluates all 53 unchanged examples across all 22 forms. Each has
-a selected strict, complete projection through one suitable target: 31 DOT,
-18 Lini and four Mermaid profiles. Preview review and Linux CI pass for all 22 forms.
-The [v0.3.0 release](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.3.0)
-adds qualified renderer/host evidence; its [publication receipt](https://github.com/DocumentDrivenDX/umf-visual/releases/download/v0.3.0/publication-receipt.json)
-binds the passing main workflow and verified artifacts. Native acceptance, exact text and semantic readback
-are checked separately from faithful geometry and readable previews.
+The full profiles prefer qualified native diagrams and provide complete-document
+interchange with visible primitive fallbacks where needed:
+
+```ts
+const profile = 'umf.visual.dot.full/1' as const;
+const output = exportVisual(document, {format: 'dot', profile});
+if (output.ok) {
+  console.log(output.text, output.representation, output.approximations);
+  const imported = importVisual(output.text!, {
+    format: 'dot', profile, id: 'context', question: 'What survives?',
+  });
+  // The native source supplies the recovered document and interpretation context.
+}
+```
+
+`umf.visual.dot.full/1`, `umf.visual.mermaid.full/1` and
+`umf.visual.lini.full/1` use mapping version `0.1.0`. They reuse an existing
+strict native annotation profile byte-for-byte only when independent import
+recovers the entire document. `representation` names that underlying profile,
+mapping version and coverage model. Other documents use visible primitive
+compositions with exhaustive typed records. The compositions cover
+the vocabulary's graph, containment, state, ordered sequence, timeline,
+comparison and metric forms. Layout and shape approximations are explicit in
+`approximations`; they are separate from omitted meaning. For example, a line
+chart can use connected, dated value points with magnitude indicators instead
+of calibrated axes. Entity field rows remain associated with their owner.
+The catalog qualifies each example with complete and focused native renders.
+
+Full import accepts the declared native or primitive grammar, independently reads
+visible values and connections, and checks that the primary drawing realizes
+the recovered document. It preserves unknown document content as typed visible
+rows without claiming to interpret that content. The limits are 256 KiB UTF-8
+native source, 10,000 scalar/container records and 64 source nesting levels;
+native grammar and renderer limits can be stricter. Unknown native constructs
+refuse rather than disappear. Exact retained-source replay requires an unchanged,
+independently reparsed document. Updating retained native presentation is not
+qualified: regenerate explicitly without the companion, or request exact replay.
+
+The omitted-profile native defaults and the following annotation profiles keep
+their released behavior. They remain useful when their native diagram family
+provides a more specific visual presentation.
+
+The full-profile qualification corpus contains 53 unchanged catalog examples
+across all 22 forms, plus five complex integration documents. Each is evaluated
+in all three portable formats: 174 strict whole-document readbacks and native
+renders. Integration matrix cells use additive full routes with their own
+complete/focused source and preview receipts. Existing host captures and
+upstream Miro projection gaps retain their original scope.
+
+The earlier [v0.3.0 release](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.3.0)
+qualified one preferred annotation route per catalog example (31 DOT, 18 Lini,
+four Mermaid). Those choices and its [publication receipt](https://github.com/DocumentDrivenDX/umf-visual/releases/download/v0.3.0/publication-receipt.json)
+remain independently recorded compatibility evidence. Native acceptance, exact
+text and semantic readback are checked separately from faithful geometry and
+readable previews.
 See [milestone evidence and release gates](docs/helix/04-build/example-completion-evidence.md).
 
 The catalog provides larger previews and an image viewer with fit, actual-size,
