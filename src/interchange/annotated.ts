@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {copyJson,type Document} from '@umf/core';
 import {getVisual} from '../extensions/visual';
+import {requireQualifiedInterchangeModel} from './model-version';
 import {DOT_ANNOTATED_PROFILE,parseAnnotatedDot,serializeAnnotatedDot} from './dot/annotated';
 import {LINI_ANNOTATED_PROFILE,parseAnnotatedLini,serializeAnnotatedLini} from './lini/annotated';
 import {MERMAID_ANNOTATED_PROFILE,parseAnnotatedMermaid,serializeAnnotatedMermaid} from './mermaid/annotated';
@@ -54,6 +55,7 @@ export function exportAnnotatedVisual(input:unknown,options:unknown):ExportVisua
   const safe=admittedOptions(options,['format','profile','mode','source','original']) as unknown as ExportVisualOptions,selected=adapter(safe.format,safe.profile);
   if(safe.original!==undefined&&typeof safe.original!=='boolean')throw new Error('Original source selector must be boolean');
   const document=copyJson(input) as Document,source=safe.source===undefined?undefined:readReceipt(safe.source);
+  requireQualifiedInterchangeModel(document);
   retained=source??retained;
   if(source&&(source.format!==selected.format||source.importOptions.profile!==selected.profile))throw new Error('Retained source profile does not match the requested interpretation');
   if(safe.original===true){

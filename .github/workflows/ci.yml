@@ -22,6 +22,8 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y graphviz
       - run: bun run fetch:lini
       - run: bunx playwright install --with-deps chromium
+      - run: bun run build:showcase
+      - run: bun run test:showcase
       - run: bun test
       - run: bun run build
       - run: bun run test:package
@@ -53,8 +55,6 @@ jobs:
       - run: bun run report:loss
       - run: bun run report:loss:wave2
       - run: bun run report:loss:ledger --release
-      - run: bun run build:showcase
-      - run: bun run test:showcase
       - run: bun run build:site
       - run: bun run test:site
       - run: bun run test:site:showcase

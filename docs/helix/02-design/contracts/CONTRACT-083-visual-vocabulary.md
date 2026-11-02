@@ -17,7 +17,7 @@ ddx:
 
 # CONTRACT-083: Visual vocabulary
 
-**Profile:** `umf.visual` 1.1.0 (the visuals PRD's `umf.visual/1`). **Native representation:** UMF
+**Profiles:** frozen `umf.visual` 1.0.0/1.1.0, plus additive 1.2.0 below. **Native representation:** UMF
 JSON/YAML with the visual package registered. No renderer, layout or Mermaid output is claimed.
 
 ## Purpose
@@ -253,9 +253,9 @@ Native adapter subset limits and loss policies are independent of vocabulary siz
 |---|---|
 | `visualRegistry()` | Registry with structural and semantic validation |
 | `inspectVisual(document)` | `{valid, complete, diagnostics, advice}` |
-| `readVisualDocument(text, format)` | Requires declared vocabulary 1.0.0 or 1.1.0 and a payload (`VISUAL_PROFILE`); rejects invalid visuals (`VISUAL_DOCUMENT`) |
+| `readVisualDocument(text, format)` | Requires declared vocabulary 1.0.0, 1.1.0 or 1.2.0 and a payload (`VISUAL_PROFILE`); rejects invalid visuals (`VISUAL_DOCUMENT`) |
 | `writeVisualDocument(document, format)` | Same checks, then serializes |
-| `createVisualDocument(visual, id?, version?)` | Wraps a payload in a document (`id` defaults to `visual:<visual id>`); version defaults to frozen 1.0.0, with explicit 1.1.0 opt-in; rejects an invalid result |
+| `createVisualDocument(visual, id?, version?)` | Wraps a payload in a document (`id` defaults to `visual:<visual id>`); version defaults to frozen 1.0.0, with explicit 1.1.0/1.2.0 opt-in; rejects an invalid result |
 | `getVisual(document)` | A copy of the payload |
 | `editVisual(document, update)` | Requires complete interpretation before and after (`UNSAFE_EDIT`, `INVALID_EDIT`); input unchanged |
 | `visualForms` | The kind-to-forms table |
@@ -267,6 +267,45 @@ and `index.json` gives every inventory row a disposition: its documents, the row
 `table`/`reference` when no visual is drawn. `fixtures/visual/forms/` adds one document for each
 form the inventory does not exercise, so the two sets cover all 22 forms. Every document records
 the source and digest it was read from, and every one is valid and complete.
+
+### Additive visual 1.2.0 concepts
+
+The model is an expansive shared authoring target. A target's current rendering
+limitations MUST NOT constrain which common concepts the model can express.
+Version 1.2.0 adds the concepts below; 1.0.0 and 1.1.0 keep their exact schemas
+and interpretation. Renderer-specific syntax and theme mechanics remain outside
+the payload.
+
+| Element | Type | Meaning |
+|---|---|---|
+| `node.shape`, `participant.shape` | geometric enum | `rectangle`, `rounded-rectangle`, `ellipse`, `diamond`, `hexagon`, `cylinder`, `folded-corner`; independent of semantic role |
+| `layout`, `group.layout` | discriminated object | `kind: flow` or `stack` with optional `direction: LR | TB`; or `kind: grid` with positive integer `columns`; each may declare `order: Id[]` |
+| `node.ports` | `{id,label?,side?}[]` | Stable node-local connection anchors; side is `north`, `east`, `south` or `west`; no transport protocol is inferred |
+| `edge.fromPort`, `edge.toPort` | port id | An anchor on the corresponding endpoint node |
+| reference endpoint `portId` | port id | A generic anchor, mutually exclusive with `field` and `fieldId` |
+| reference `identification` | enum | Explicit `identifying` or `non-identifying`; absence is unspecified |
+
+Layout describes visual composition, not execution order or dependency meaning.
+Root layout is admitted for flow, structure and state node-based views. An explicit `order` MUST
+be an exact permutation of direct children; stack layer order MUST remain
+consistent with the authored layers. Group nesting reuses `group.parent`.
+State root order includes only top-level states, excluding `node.parent`
+children, and MUST NOT change transition or execution semantics.
+Ports MUST be unique within their owning node and references MUST resolve there.
+An identification classification MUST NOT be inferred from key absence,
+nullability, line style or a renderer's default convention.
+
+Interpreters MUST realize each authored concept, report a located faithful
+approximation, or refuse the affected mapping. A metadata appendix or retained
+source alone MUST NOT qualify it as interpreted. Released interchange profiles
+retain their declared model-version scope until their mappings are qualified.
+
+The authored latest schema and generated shapes describe 1.2.0. Explicit
+`./schema/1.1.0` and `./manifest/1.1.0` exports point to frozen snapshots;
+1.2.0 has its own exports. Default authoring and unversioned schema/manifest
+exports remain 1.0.0. `upgradeVisualDocument(document)` still selects 1.1.0;
+`upgradeVisualDocument(document, '1.2.0')` explicitly selects the new model.
+Downgrading through that operation MUST refuse.
 
 ## Non-Normative Notes
 

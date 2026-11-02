@@ -40,6 +40,25 @@ types/manifest, exact multiplicities and stable field IDs. Both versions registe
 default aliases and original examples remain 1.0.0. See
 [versioned integration](../04-build/visual-1-1-integration.md).
 
+## Shared-model expansion — 2026-11-02
+
+Explicit 1.2.0 adds geometric node/participant shapes, flow/grid/stack container
+layout intent, node-local named ports and explicit E/R identification. The latest
+schema has 22 reusable definitions and 20 root properties. Root composition also
+applies to state graphs; this does not claim presentation support for state
+diagrams. Colors, typography and native engine parameters remain renderer-owned.
+Frozen 1.0.0/1.1.0 interpretation and default authoring remain unchanged.
+
+These additions supersede the common-properties-absent finding below for this
+bounded set of concepts. Native interpreter limits are not model ceilings.
+Each target must realize, approximate explicitly or refuse requested meaning.
+Remaining native-specific symbols and richer presentation capabilities still
+require their own shared semantic design.
+
+Evidence: `spec/extensions/visual/schema.json`, frozen version snapshots,
+`tests/visual/model-1-2.test.ts`, CONTRACT-083/089 and the sourced named-interface
+example. The following observations retain the original survey's scope.
+
 ## Evidence Grades
 
 **Evidenced** means the cited checked-in definition or implementation directly

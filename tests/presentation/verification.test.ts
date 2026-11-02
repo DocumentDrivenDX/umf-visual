@@ -10,6 +10,7 @@ import {compilePresentation} from '../../src/presentation';
 import {verifyPresentationQuality} from '../../scripts/presentation/quality';
 import {screenshotSvg} from '../../scripts/presentation/build';
 import {verifyShowcaseData} from '../../scripts/presentation/verify';
+import {renderPresentationLini} from '../../scripts/presentation/lini-runtime';
 
 const hash=(data:string|Uint8Array)=>createHash('sha256').update(data).digest('hex');
 let manifest:any,receipt:any,assets:Map<string,Uint8Array>,browser:Browser;
@@ -37,12 +38,19 @@ beforeAll(async()=>{
  await screenshotSvg(browser,svgResult.out,pngPath);const png=await readFile(pngPath);
  const row={backend:'graphviz',engine:'graphviz',nativeVersion:/version\s+(\S+)/.exec(version.err+version.out)![1],nativeSourcePath:'showcase/proof-example/graphviz/source.dot',nativeSourceSha256:hash(plan.source),svgPath:'showcase/proof-example/graphviz/diagram.svg',svgSha256:hash(svgResult.out),pngPath:'showcase/proof-example/graphviz/diagram.png',pngSha256:hash(png),width:1600,height:900,elementMap:plan.elementMap,omissions:plan.omissions,approximations:plan.approximations,status:'qualified',quality:{evidence:checks}};
  assets=new Map([['fixtures/proof.json',definition],['fixtures/source.txt',snapshot],[row.nativeSourcePath,Buffer.from(plan.source)],[row.svgPath,Buffer.from(svgResult.out)],[row.pngPath,png]]);
- manifest={schemaVersion:1,examples:[example]};receipt={schemaVersion:1,examples:[{...example,definition:document,renders:[row,{backend:'mermaid',engine:'mermaid',nativeVersion:'12.2.0',status:'unsupported',diagnostics:unsupported.diagnostics,nativeSourcePath:'',svgPath:'',pngPath:'',quality:{evidence:[]}}]}]};
+ const liniPlan=compilePresentation(document,{backend:'lini'});if(!liniPlan.ok)throw Error('Expected native Lini E/R plan');
+ const lini=await renderPresentationLini(liniPlan.source),liniPage=await browser.newPage();
+ const liniChecks=await verifyPresentationQuality(liniPage,{svg:lini.svg,document,plan:liniPlan,nativeAst:lini.nativeAst});await liniPage.close();
+ if(liniChecks.some(check=>check.result!=='pass'))throw Error(JSON.stringify(liniChecks));
+ const liniPng=join(directory,'lini.png');await screenshotSvg(browser,lini.svg,liniPng);const pngBytes=await readFile(liniPng);
+ const liniRow={...row,backend:'lini',engine:'lini',nativeVersion:lini.version,nativeSourcePath:'showcase/proof-example/lini/source.lini',nativeSourceSha256:hash(liniPlan.source),svgPath:'showcase/proof-example/lini/diagram.svg',svgSha256:hash(lini.svg),pngPath:'showcase/proof-example/lini/diagram.png',pngSha256:hash(pngBytes),elementMap:liniPlan.elementMap,omissions:liniPlan.omissions,approximations:liniPlan.approximations,quality:{evidence:liniChecks}};
+ assets.set(liniRow.nativeSourcePath,Buffer.from(liniPlan.source));assets.set(liniRow.svgPath,Buffer.from(lini.svg));assets.set(liniRow.pngPath,pngBytes);
+ manifest={schemaVersion:1,examples:[example]};receipt={schemaVersion:1,examples:[{...example,definition:document,renders:[row,{backend:'mermaid',engine:'mermaid',nativeVersion:'12.2.0',status:'unsupported',diagnostics:unsupported.diagnostics,nativeSourcePath:'',svgPath:'',pngPath:'',quality:{evidence:[]}},liniRow]}]};
 },30000);
 afterAll(async()=>{await browser?.close();});
 
 test('admits exact native-rendered assets and complete current proof obligations',async()=>{
- expect(await verifyShowcaseData(manifest,receipt,load)).toEqual({examples:1,qualified:1,unsupported:1,assets:3});
+ expect(await verifyShowcaseData(manifest,receipt,load)).toEqual({examples:1,qualified:2,unsupported:1,assets:6});
 });
 test('rejects fake, missing and duplicate native quality checks',async()=>{
  for(const mutation of ['fake','missing','duplicate']){

@@ -8,6 +8,7 @@ import {readVisualDocument,type Visual} from '../../src/extensions/visual';
 import {chromium} from 'playwright';
 import {verifyPresentationQuality} from './quality';
 import {screenshotSvg} from './build';
+import {renderPresentationLini} from './lini-runtime';
 
 const root=resolve(import.meta.dir,'../..');
 const sha=(data:string|Uint8Array)=>createHash('sha256').update(data).digest('hex');
@@ -20,7 +21,9 @@ export type ArtifactReader=(path:string)=>Promise<Uint8Array>;
 export function requiredPresentationChecks(backend:PresentationBackend,visual:Visual):string[]{
  const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
  if(backend==='graphviz')checks.push('graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order');
+ else if(backend==='lini')checks.push('lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows');
  else checks.push('mermaid-native-node-carriers',...(visual.form==='entities'?['mermaid-er-fields-and-relations']:[...(visual.kind==='flow'?['mermaid-flow-paths']:[]),'mermaid-containment-and-order']));
+ if(backend!=='lini'&&visual.nodes?.some(node=>node.ports?.length))checks.push(backend==='graphviz'?'graphviz-node-port-rows':'mermaid-labeled-port-fallbacks');
  return checks.sort();
 }
 
@@ -45,8 +48,8 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
   const visual=document.extensions!['umf.visual'] as unknown as Visual;
   if(visual.kind!==example.kind||visual.form!==example.form||visual.id!==example.id)throw Error(`${example.id} classification differs from its definition.`);
   if(!Array.isArray(output.renders))throw Error(`${example.id} has no render rows.`);
-  const rows=new Map<string,any>();for(const row of output.renders){if(!row||!['graphviz','mermaid'].includes(row.backend)||rows.has(row.backend))throw Error(`${example.id} has a malformed or duplicate backend row.`);rows.set(row.backend,row);}
-  for(const backend of ['graphviz','mermaid'] as const){
+  const rows=new Map<string,any>();for(const row of output.renders){if(!row||!['graphviz','mermaid','lini'].includes(row.backend)||rows.has(row.backend))throw Error(`${example.id} has a malformed or duplicate backend row.`);rows.set(row.backend,row);}
+  for(const backend of ['graphviz','mermaid','lini'] as const){
    const row=rows.get(backend);if(!row)throw Error(`${example.id} is missing ${backend} render evidence.`);
    if(row.engine!==backend||typeof row.nativeVersion!=='string'||!row.nativeVersion.trim()||row.nativeVersion.includes('unknown'))throw Error(`${example.id}/${backend} has no exact native engine version.`);
    const plan=compilePresentation(document,{backend,theme:'presentation/1'});
@@ -69,10 +72,10 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
     if(label==='PNG'&&(bytes.length<24||!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))||bytes.readUInt32BE(16)!==row.width||bytes.readUInt32BE(20)!==row.height))throw Error(`${example.id}/${backend} PNG artifact or dimensions are malformed.`);
     if(label==='SVG'&&!bytes.toString('utf8').includes('<svg'))throw Error(`${example.id}/${backend} SVG artifact is malformed.`);
    }
-   const suffix=backend==='graphviz'?'.dot':'.mmd';if(!row.nativeSourcePath.endsWith(suffix))throw Error(`${example.id}/${backend} native source has the wrong extension.`);
+   const suffix=backend==='graphviz'?'.dot':backend==='lini'?'.lini':'.mmd';if(!row.nativeSourcePath.endsWith(suffix))throw Error(`${example.id}/${backend} native source has the wrong extension.`);
    qualified++;
   }
-  if(!['graphviz','mermaid'].some(backend=>rows.get(backend)?.status==='qualified'))throw Error(`${example.id} has no qualified presentation backend.`);
+  if(!['graphviz','mermaid','lini'].some(backend=>rows.get(backend)?.status==='qualified'))throw Error(`${example.id} has no qualified presentation backend.`);
  }
  if(rendered.size!==expectedIds.size||[...rendered.keys()].some(id=>!expectedIds.has(id)))throw Error('Rendered showcase has unexpected or missing examples.');
  return {examples:expectedIds.size,qualified,unsupported,assets};
@@ -98,6 +101,9 @@ export async function verifyShowcase():Promise<ShowcaseVerification>{
      const [output,error,code]=await Promise.all([new Response(child.stdout).text(),new Response(child.stderr).text(),child.exited]);
      if(code!==0||error.trim())throw Error(`Graphviz replay failed: ${error}`);
      nativeAst=JSON.parse(output);
+    }else if(row.backend==='lini'){
+     const rendered=await renderPresentationLini(plan.source);nativeAst=rendered.nativeAst;
+     if(rendered.version!==row.nativeVersion||sha(rendered.svg)!==row.svgSha256)throw Error(`${example.id}/lini SVG is not the current pinned compiler output.`);
     }
     const svg=new TextDecoder('utf-8',{fatal:true}).decode(await readArtifact(row.svgPath));
     const page=await browser.newPage();

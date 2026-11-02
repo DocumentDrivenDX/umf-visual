@@ -15,7 +15,7 @@ const hash=(bytes:Uint8Array)=>createHash('sha256').update(bytes).digest('hex');
 test('UMF visual 1.1 network 16x24 is valid but both frozen Lini profiles refuse it explicitly',async()=>{
  const bytes=await readFile(path);expect(hash(bytes)).toBe(expectedHash);
  const document=JSON.parse(bytes.toString()) as Document,visual=document.extensions!['umf.visual'] as any;
- expect(VISUAL_VERSION).toBe('1.0.0');expect(LATEST_VISUAL_VERSION).toBe('1.1.0');
+ expect(VISUAL_VERSION).toBe('1.0.0');expect(LATEST_VISUAL_VERSION).toBe('1.2.0');
  expect(document.vocabularies['umf.visual']?.version).toBe('1.1.0');expect(visual.nodes).toHaveLength(16);expect(visual.edges).toHaveLength(24);
  const inspected=inspectVisual(document);expect(inspected.valid).toBe(true);expect(inspected.complete).toBe(true);
  expect(liniAdapter.version).toBe('0.3.0');

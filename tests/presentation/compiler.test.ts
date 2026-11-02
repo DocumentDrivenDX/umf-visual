@@ -20,6 +20,7 @@ describe('presentation compiler',()=>{
   const plan=compilePresentation(d,{backend:'graphviz'});expect(plan.ok).toBe(true);if(!plan.ok)return;
   expect(plan.source).toContain('rankdir="TB"');expect(plan.source).toContain('cluster_l1');expect(plan.source).toContain('Public interface');expect(plan.source).toContain('style=invis, weight=100');expect(plan.source).not.toContain('n1 -> n2 [');
   expect(plan.approximations.some(a=>a.requested==='Layer order')).toBe(true);
+  const mermaid=compilePresentation(d,{backend:'mermaid'});expect(mermaid.ok).toBe(true);if(mermaid.ok){expect(mermaid.source).toContain('flowchart LR');expect(mermaid.source).toContain('l1_order(( ))');expect(mermaid.source).toContain('l1_order ~~~ l2_order');}
  });
 
  it('renders E/R field identities and exact multiplicity on Graphviz field ports',()=>{
@@ -31,7 +32,7 @@ describe('presentation compiler',()=>{
 
  it('refuses Mermaid ER relationships when identifying semantics are undeclared',()=>{
   const d=document({id:'er-mermaid',kind:'structure',form:'entities',question:'How are entities related?',nodes:[{id:'person',label:'Person'},{id:'team',label:'Team'}],structure:{entities:[{node:'person',fields:[{name:'id',type:'Id',keys:['pk']},{name:'teamId',type:'Id',keys:['fk']}]},{node:'team',fields:[{name:'id',type:'Id',keys:['pk']}]}],references:[{id:'membership',from:{node:'person',field:'teamId'},to:{node:'team',field:'id'},label:'member of',fromCardinality:'zero-or-many',toCardinality:'exactly-one'}]}});
-  expect(compilePresentation(d,{backend:'mermaid'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_MERMAID_RELATIONSHIP'}]});
+  expect(compilePresentation(d,{backend:'mermaid'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_MERMAID_RELATIONSHIP',message:'These references leave identification unspecified; Mermaid requires an explicit identifying or non-identifying choice. Graphviz preserves the relationship without inventing it.'}]});
  });
 
  it('refuses unsupported forms and unrepresentable Mermaid field identifiers',()=>{

@@ -9,6 +9,8 @@ const ui = {
   enlarge: $('enlarge-diagram'), viewer: $('diagram-viewer'), viewerImage: $('viewer-image'), viewerTitle: $('viewer-title'),
   viewerCaption: $('viewer-caption'), viewerSvg: $('viewer-svg-download'),
   caveat: $('render-caveat'), renderNotes: $('rendering-notes'), renderNotesList: $('rendering-notes-list'),
+  payload: $('visual-payload'), visualVersion: $('visual-version'), programmaticCode: $('programmatic-code'),
+  compileTargetNote: $('compile-target-note'),
 };
 const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, objectUrls: new Set(), currentVariant: null, currentImageUrl: null};
 const HASH = /^[a-f0-9]{64}$/i;
@@ -32,7 +34,7 @@ function variantQualified(variant) {
   return status === 'qualified' && (variant.status === undefined || variant.status === 'qualified') &&
     HASH.test(variant.svgSha256 || '') && HASH.test(variant.pngSha256 || '') &&
     safeAssetPath(variant.svgPath, '.svg') && safeAssetPath(variant.pngPath, '.png') &&
-    safeAssetPath(variant.nativeSourcePath, variant.backend === 'mermaid' ? '.mmd' : '.dot') &&
+    safeAssetPath(variant.nativeSourcePath, variant.backend === 'mermaid' ? '.mmd' : variant.backend === 'lini' ? '.lini' : '.dot') &&
     HASH.test(variant.nativeSourceSha256 || '') && Number.isFinite(variant.width) && variant.width > 0 &&
     Number.isFinite(variant.height) && variant.height > 0 && typeof variant.nativeVersion === 'string' && variant.nativeVersion.length > 0;
 }
@@ -153,6 +155,38 @@ function renderSource(example, variant, nativeSource = '') {
   renderCitations(example);
 }
 
+function renderAuthoredPayload(example) {
+  const visual = example?.definition?.extensions?.['umf.visual'];
+  ui.payload.textContent = visual && typeof visual === 'object' ? JSON.stringify(visual, null, 2) : 'No umf.visual payload is present in this UMF envelope.';
+  const version = example?.definition?.vocabularies?.['umf.visual']?.version;
+  ui.visualVersion.textContent = typeof version === 'string' ? version : 'version not recorded';
+  const variant = getVariant(example, state.backend);
+  const backend = state.backend;
+  const renderer = backend === 'lini' ? 'Lini' : backend === 'graphviz' ? 'Graphviz' : 'Mermaid';
+  const nativeVersion = variant?.nativeVersion;
+  ui.compileTargetNote.textContent = variantQualified(variant)
+    ? `Selected source target: ${renderer} ${nativeVersion}. This compiles native diagram text; the preview above is the separately verified render.`
+    : `${renderer} has no qualified render for this example. The compile call below requests that backend and may return diagnostics.`;
+  const modelVersion = typeof version === 'string' ? version : '1.0.0';
+  ui.programmaticCode.textContent = `import { createVisualDocument, getVisual, editVisual, type Visual, type VisualVersion } from '@documentdrivendx/umf-visual';
+import { compilePresentation } from '@documentdrivendx/umf-visual/presentation';
+
+// Pass the exact umf.visual payload shown above.
+const modelVersion: VisualVersion = '${modelVersion}';
+
+export function editAndCompile(payload: Visual) {
+  const document = createVisualDocument(payload, undefined, modelVersion);
+  const visual = getVisual(document);
+  const edited = editVisual(document, current => ({
+    ...current,
+    title: \`\u0024{current.title ?? current.question} — reviewed\`,
+  }));
+  const output = compilePresentation(edited, { backend: '${backend}' });
+  if (!output.ok) return output.diagnostics;
+  return { visual, format: output.nativeFormat, source: output.source };
+}`;
+}
+
 async function loadVerifiedAsset(path, expectedHash) {
   const response = await fetch(`./${path}`, {cache: 'no-store'});
   if (!response.ok) throw new Error(`Asset request failed (${response.status})`);
@@ -190,6 +224,7 @@ async function renderSelected() {
   ui.title.textContent = safeText(example.title, 'Untitled visual');
   ui.description.textContent = safeText(example.description);
   ui.kicker.textContent = `${safeText(example.kind).toUpperCase()} / ${safeText(example.form).toUpperCase()}`;
+  renderAuthoredPayload(example);
   const visualVersion = example.definition?.vocabularies?.['umf.visual']?.version;
   ui.sourceNote.textContent = typeof visualVersion === 'string'
     ? `umf.visual ${visualVersion} · sourced definition`
@@ -282,7 +317,7 @@ async function initialize() {
     const response = await fetch('./showcase.json', {cache: 'no-store'});
     if (!response.ok) throw new Error(`Showcase catalogue request failed (${response.status})`);
     const data = await response.json();
-    if (data.schemaVersion !== 1 || !Array.isArray(data.examples) || data.examples.length < 4) throw new Error('Showcase catalogue does not contain the curated authored examples.');
+    if (data.schemaVersion !== 1 || !Array.isArray(data.examples) || data.examples.length < 5) throw new Error('Showcase catalogue does not contain the curated authored examples.');
     state.examples = data.examples;
     if (state.examples.some(example => !example || typeof example.id !== 'string' || !example.id || typeof example.title !== 'string' ||
       !example.definition || typeof example.definitionPath !== 'string' || !HASH.test(example.definitionSha256 || '') || !Array.isArray(example.renders))) {
@@ -290,9 +325,10 @@ async function initialize() {
     }
     createScenarioList();
     state.selectedId = state.examples[0].id;
+    const liniAvailable = qualifiedVariant(state.examples[0], 'lini');
     const graphvizAvailable = qualifiedVariant(state.examples[0], 'graphviz');
     const mermaidAvailable = qualifiedVariant(state.examples[0], 'mermaid');
-    state.backend = graphvizAvailable ? 'graphviz' : mermaidAvailable ? 'mermaid' : 'graphviz';
+    state.backend = liniAvailable ? 'lini' : graphvizAvailable ? 'graphviz' : mermaidAvailable ? 'mermaid' : 'graphviz';
     document.querySelectorAll('[data-backend]').forEach(button => button.addEventListener('click', () => {
       if (button.disabled) return;
       state.backend = button.dataset.backend;
@@ -312,12 +348,21 @@ ui.viewer.addEventListener('click', event => { if (event.target === ui.viewer) u
 ui.downloadDefinition.addEventListener('click', () => {
   const example = getExample(ui.downloadDefinition.dataset.definition);
   if (!example) return;
-  const url = URL.createObjectURL(new Blob([JSON.stringify(example.definition, null, 2)], {type: 'application/json'}));
+  downloadJson(example.definition, pathLabel(example.definitionPath).replace(/\.json$/u, '') + '.json');
+});
+function downloadJson(value, filename) {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2) + '\n'], {type: 'application/json'}));
   const link = document.createElement('a');
   link.href = url;
-  link.download = pathLabel(example.definitionPath).replace(/\.json$/u, '') + '.json';
+  link.download = filename;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+$('copy-payload').addEventListener('click', () => copyText(ui.payload.textContent || ''));
+$('copy-programmatic-example').addEventListener('click', () => copyText(ui.programmaticCode.textContent || ''));
+$('download-full-umf').addEventListener('click', () => {
+  const example = getExample(state.selectedId);
+  if (example) downloadJson(example.definition, pathLabel(example.definitionPath).replace(/\.json$/u, '') + '.umf.json');
 });
 window.addEventListener('beforeunload', () => { for (const url of state.objectUrls) URL.revokeObjectURL(url); });
 initialize();

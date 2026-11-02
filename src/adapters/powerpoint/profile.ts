@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import type {Document} from '@umf/core';
 import type {HostResource} from '../reconciliation/types.js';
-import {getVisual, writeVisualDocument, VISUAL_EXTENSION, LATEST_VISUAL_VERSION, VISUAL_VERSION, inspectVisual, type Visual, type VisualVersion} from '../../extensions/visual/index.js';
+import {getVisual, writeVisualDocument, VISUAL_EXTENSION, VISUAL_VERSION, inspectVisual, type Visual, type VisualVersion} from '../../extensions/visual/index.js';
 import {PowerPointError, requirePpt} from './errors.js';
 import {escapeXmlAttribute, escapeXmlText, parseXml, children, child, attribute, textContent, type ParsedXml, type XmlElement} from './xml.js';
 import {OPC_TEMPLATE_PARTS} from './opc-template.js';
@@ -117,7 +117,7 @@ function lossesFor(document:Document,v:Visual):PowerPointLoss[] {
 export function powerpointLosses(document:Document,v:Visual):PowerPointLoss[]{return lossesFor(document,v);}
 function ensureSupported(document:Document,v:Visual):VisualVersion {
   const version=document.vocabularies[VISUAL_EXTENSION]?.version;
-  requirePpt(version===VISUAL_VERSION||version===LATEST_VISUAL_VERSION,'MODEL_VERSION','Expected umf.visual model version 1.0.0 or 1.1.0');
+  requirePpt(version===VISUAL_VERSION||version==='1.1.0','MODEL_VERSION','Expected umf.visual model version 1.0.0 or 1.1.0');
   requirePpt(v.kind==='flow'&&v.form==='network','PROFILE_SCOPE','PowerPoint profile supports only flow/network.');
   requirePpt((v.nodes?.length??0)<=(version===VISUAL_VERSION?MODEL_LIMITS.nodes10:MODEL_LIMITS.nodes11),'RESOURCE_LIMIT','Node count exceeds the selected model-version profile limit.');
   requirePpt((v.edges?.length??0)<=MODEL_LIMITS.edges,'RESOURCE_LIMIT','Edge count exceeds the PowerPoint profile limit.');
@@ -226,7 +226,7 @@ function preflightRelationships(parts:Map<string,Uint8Array>):void {
 }
 function loadSlide(parts:Map<string,Uint8Array>,slidePath:string,customPath:string,custom:ParsedXml,payload:any):ReadProfile {
   requirePpt(sha256SyncUnavailable(payload.sourceSha256),'SOURCE_SIDECAR','Bad source digest');
-  requirePpt(payload.modelVersion===VISUAL_VERSION||payload.modelVersion===LATEST_VISUAL_VERSION,'MODEL_VERSION','Unsupported PowerPoint companion model version');
+  requirePpt(payload.modelVersion===VISUAL_VERSION||payload.modelVersion==='1.1.0','MODEL_VERSION','Unsupported PowerPoint companion model version');
   requirePpt(Number.isSafeInteger(payload.bindingRevision)&&payload.bindingRevision>=1,'BINDING_REVISION','Invalid PowerPoint binding revision');
   const originalSource=payload.source;const slide=parseXml(textPart(parts,slidePath),slidePath);
   requirePpt(slide.root.uri===PRESENTATION_NS&&slide.root.local==='sld','SLIDE','Invalid slide root');

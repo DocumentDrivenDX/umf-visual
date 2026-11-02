@@ -1,12 +1,12 @@
 {
   "id": "umf.visual",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "coreVersion": "0.10.0",
-  "description": "Renderer-neutral visual declarations: one kind and form, roles, references and walkthroughs, with no styling",
+  "description": "Renderer-neutral visual declarations: shared geometric shapes, named ports, relationships, walkthroughs and container layout intent; rendering themes remain separate",
   "schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "urn:umf:visual:1.1.0",
-    "title": "UMF visual vocabulary 1.1.0",
+    "$id": "urn:umf:visual:1.2.0",
+    "title": "UMF visual vocabulary 1.2.0",
     "type": "object",
     "required": [
       "id",
@@ -132,6 +132,9 @@
       },
       "metric": {
         "$ref": "#/$defs/metric"
+      },
+      "layout": {
+        "$ref": "#/$defs/layout"
       }
     },
     "$defs": {
@@ -233,6 +236,9 @@
           },
           "emphasis": {
             "$ref": "#/$defs/emphasis"
+          },
+          "layout": {
+            "$ref": "#/$defs/layout"
           }
         }
       },
@@ -281,6 +287,24 @@
           },
           "evidence": {
             "$ref": "#/$defs/evidence"
+          },
+          "shape": {
+            "enum": [
+              "rectangle",
+              "rounded-rectangle",
+              "ellipse",
+              "diamond",
+              "hexagon",
+              "cylinder",
+              "folded-corner"
+            ]
+          },
+          "ports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/port"
+            },
+            "minItems": 1
           }
         }
       },
@@ -320,6 +344,17 @@
           },
           "evidence": {
             "$ref": "#/$defs/evidence"
+          },
+          "shape": {
+            "enum": [
+              "rectangle",
+              "rounded-rectangle",
+              "ellipse",
+              "diamond",
+              "hexagon",
+              "cylinder",
+              "folded-corner"
+            ]
           }
         }
       },
@@ -364,6 +399,12 @@
           },
           "evidence": {
             "$ref": "#/$defs/evidence"
+          },
+          "fromPort": {
+            "$ref": "#/$defs/id"
+          },
+          "toPort": {
+            "$ref": "#/$defs/id"
           }
         }
       },
@@ -539,6 +580,9 @@
           },
           "fieldId": {
             "$ref": "#/$defs/id"
+          },
+          "portId": {
+            "$ref": "#/$defs/id"
           }
         }
       },
@@ -639,6 +683,12 @@
                 },
                 "toMultiplicity": {
                   "$ref": "#/$defs/multiplicity"
+                },
+                "identification": {
+                  "enum": [
+                    "identifying",
+                    "non-identifying"
+                  ]
                 }
               }
             },
@@ -1169,10 +1219,87 @@
             }
           }
         }
+      },
+      "port": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "side": {
+            "enum": [
+              "north",
+              "east",
+              "south",
+              "west"
+            ]
+          }
+        }
+      },
+      "layout": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "flow",
+                  "stack"
+                ]
+              },
+              "direction": {
+                "enum": [
+                  "LR",
+                  "TB"
+                ]
+              },
+              "order": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "uniqueItems": true
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "kind",
+              "columns"
+            ],
+            "properties": {
+              "kind": {
+                "const": "grid"
+              },
+              "columns": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "order": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "uniqueItems": true
+              }
+            }
+          }
+        ]
       }
     }
   },
-  "semantics": "CONTRACT-083. One visual per document at document scope: a closed kind and form, the reader's question, graph content or one kind block, roles and statuses, and optional walkthrough steps. Ids share one namespace and every reference resolves. No colors, fonts, sizes or coordinates; rendering, layout and evidence checking are not described. Unknown fields remain incomplete interpretation. No renderer or Mermaid output is claimed.",
+  "semantics": "CONTRACT-083 plus explicit renderer-neutral 1.2 shape, port, identification, and layout vocabulary. Layout order is declarative; it is validated against direct children and does not add coordinates, colors, or renderer styles. Port identifiers are node-local and are not inferred from entity field keys.",
   "scopes": [
     "document"
   ],
@@ -1184,8 +1311,8 @@
     ],
     "native": {
       "system": "UMF-authored visual vocabulary",
-      "version": "1.1.0",
-      "subset": "Versioned declarations in UMF JSON/YAML; no renderer, layout engine or Mermaid compatibility claimed"
+      "version": "1.2.0",
+      "subset": "Versioned declarations in UMF JSON/YAML with optional renderer-neutral shape, ports, relationship identification, and declarative layout; no renderer or coordinate semantics."
     },
     "evidence": [
       "tests/visual/vocabulary.test.ts"

@@ -7,7 +7,7 @@ const siteRoot=resolve('dist-site');
 const showcase=await Bun.file(join(siteRoot,'showcase.json')).json() as {schemaVersion:number;examples:Array<any>};
 const expectedIds=['umf-engine-target-architecture','umf-native-interchange-architecture','umf-architecture-stack','umf-logical-metamodel','beacon-relational-core'];
 if(showcase.schemaVersion!==1||showcase.examples.length<expectedIds.length||expectedIds.some(id=>!showcase.examples.some(example=>example.id===id)))throw new Error('Build the curated authored showcase examples before running the homepage browser gate.');
-const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8'};
+const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
 const browser=await chromium.launch({headless:true});
 const errors:string[]=[];const checks:string[]=[];
 await mkdir('.cache',{recursive:true});
@@ -30,8 +30,18 @@ try{
   await page.locator('#diagram-image').evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<100||image.naturalHeight<80)throw new Error('The hero render has implausible intrinsic dimensions.');});
   if(await page.locator('#engine-caption').innerText()==='NATIVE ENGINE · SELECT A VARIANT')throw new Error('The initial render has no actual engine/version caption.');
   if(await page.locator('#quality-caption').innerText()!=='Native SVG')throw new Error('The qualified preview does not identify the native SVG presentation.');
+  const initialLini=showcase.examples[0].renders.find((render:any)=>render.backend==='lini'&&render.status==='qualified');
+  const preferredBackend=initialLini?'lini':showcase.examples[0].renders.find((render:any)=>render.backend==='graphviz'&&render.status==='qualified')?'graphviz':'mermaid';
+  if(await page.locator(`#backend-options [data-backend="${preferredBackend}"]`).getAttribute('aria-pressed')!=='true')throw new Error(`The initial selection did not prefer the available ${preferredBackend} renderer.`);
   const initialVersion=showcase.examples[0].definition?.vocabularies?.['umf.visual']?.version;
   if(await page.locator('#scenario-provenance').innerText()!==`umf.visual ${initialVersion} · sourced definition`)throw new Error('The scenario rail does not show the source definition vocabulary version.');
+  const initialPayload=JSON.parse(await page.locator('#visual-payload').innerText());
+  if(JSON.stringify(initialPayload)!==JSON.stringify(showcase.examples[0].definition.extensions?.['umf.visual']))throw new Error('The visible umf.visual payload is not the exact extension value from the selected envelope.');
+  if(await page.locator('#visual-version').innerText()!==String(initialVersion))throw new Error('The visible payload version does not match the selected UMF envelope.');
+  await page.context().grantPermissions(['clipboard-read','clipboard-write'],{origin:'https://umf.local'});
+  await page.locator('#copy-payload').click();
+  if(await page.evaluate(()=>navigator.clipboard.readText())!==await page.locator('#visual-payload').innerText())throw new Error('Copy payload did not copy the exact visible JSON.');
+  checks.push('the visible versioned umf.visual payload matches the envelope and copies exactly');
   if(await page.locator('#showcase-error').isVisible())throw new Error('The showcase load error is visible despite a successful page load.');
   const adjacency=await page.locator('#diagram-frame').evaluate(frame=>({previous:frame.previousElementSibling?.className,scenarioBefore:!!(document.querySelector('#scenario-list')!.compareDocumentPosition(frame)&Node.DOCUMENT_POSITION_FOLLOWING)}));
   if(!String(adjacency.previous).includes('diagram-toolbar')||!adjacency.scenarioBefore)throw new Error('Scenario and renderer controls are separated from the primary diagram preview.');
@@ -43,7 +53,7 @@ try{
     if(!qualified.length)throw new Error(`No qualified native render is available for curated example ${example.id}.`);
     qualifiedByExample.set(example.id,qualified.map((render:any)=>render.backend));
     for(const render of qualified){
-      for(const [key,extension,hash] of [['svgPath','.svg','svgSha256'],['pngPath','.png','pngSha256'],['nativeSourcePath',render.backend==='mermaid'?'.mmd':'.dot','nativeSourceSha256']] as const){
+      for(const [key,extension,hash] of [['svgPath','.svg','svgSha256'],['pngPath','.png','pngSha256'],['nativeSourcePath',render.backend==='mermaid'?'.mmd':render.backend==='lini'?'.lini':'.dot','nativeSourceSha256']] as const){
         const assetPath=render[key];if(typeof assetPath!=='string'||!assetPath.startsWith('showcase/')||assetPath.includes('..')||!assetPath.endsWith(extension))throw new Error(`${example.id}/${render.backend} has an unsafe or unexpected ${key}.`);
         const bytes=await Bun.file(join(siteRoot,assetPath)).arrayBuffer();
         if(createHash('sha256').update(Buffer.from(bytes)).digest('hex')!==render[hash])throw new Error(`${example.id}/${render.backend} ${key} bytes do not match the showcase receipt.`);
@@ -61,25 +71,48 @@ try{
 
   const selected=page.locator('#scenario-list .scenario-button');
   for(let index=0;index<showcase.examples.length;index++){
-    const button=selected.nth(index);await button.click();
+    await selected.nth(index).click();
     const example=showcase.examples[index];
-    const availableBackend=qualifiedByExample.get(example.id)!.includes('graphviz')?'graphviz':'mermaid';
-    await page.locator(`[data-backend="${availableBackend}"]`).click();
-    const expectedRender=example.renders.find((render:any)=>render.backend===availableBackend&&render.status==='qualified');
-    if(!expectedRender)throw new Error(`Scenario ${example.id} has no qualified ${availableBackend} native render.`);
-    await page.waitForFunction(({title,filename})=>document.querySelector('#diagram-title')?.textContent===title&&document.querySelector('#download-svg')?.getAttribute('download')===filename&&document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false,{title:example.title,filename:expectedRender.svgPath.split('/').pop()});
-    await page.locator('#diagram-image').evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Scenario image did not decode.');});
-    const hasNotes=(expectedRender.omissions?.length||0)+(expectedRender.approximations?.length||0)>0;
-    if(await page.locator('#rendering-notes').evaluate(element=>(element as HTMLElement).hidden)===hasNotes)throw new Error(`Scenario ${example.id} hides or fabricates rendering notes relative to its receipt.`);
-    await page.locator('#diagram-image').evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Scenario image did not decode.');});
-    if(await page.locator('#download-svg').getAttribute('aria-disabled')!=='false'||await page.locator('#download-png').getAttribute('aria-disabled')!=='false')throw new Error(`Scenario ${example.id} did not expose the actual qualified render downloads.`);
-    if(index===0){
-      const [download]=await Promise.all([page.waitForEvent('download'),page.locator('#download-svg').click()]);
-      const downloadPath=`.cache/${example.id}.svg`;await download.saveAs(downloadPath);
-      if(createHash('sha256').update(Buffer.from(await Bun.file(downloadPath).arrayBuffer())).digest('hex')!==expectedRender.svgSha256)throw new Error('The SVG download differs from the hash-verified preview bytes.');
+    const visiblePayload=JSON.parse(await page.locator('#visual-payload').innerText());
+    if(JSON.stringify(visiblePayload)!==JSON.stringify(example.definition.extensions?.['umf.visual']))throw new Error(`Scenario ${example.id} does not show its exact umf.visual payload.`);
+    if(await page.locator('#visual-version').innerText()!==String(example.definition.vocabularies?.['umf.visual']?.version))throw new Error(`Scenario ${example.id} shows the wrong umf.visual version.`);
+    for(const backend of ['lini','graphviz','mermaid']){
+      const button=page.locator(`[data-backend="${backend}"]`);
+      await button.click();
+      const apiExample=await page.locator('#programmatic-code').innerText();
+      const modelVersion=example.definition.vocabularies?.['umf.visual']?.version;
+      if(!apiExample.includes('editAndCompile(payload: Visual)')||!apiExample.includes('Pass the exact umf.visual payload shown above.')||!apiExample.includes('createVisualDocument(payload, undefined, modelVersion)')||!apiExample.includes(`const modelVersion: VisualVersion = '${modelVersion}';`)||!apiExample.includes("getVisual, editVisual")||!apiExample.includes('compilePresentation')||!apiExample.includes(`backend: '${backend}'`))throw new Error(`The public API example does not carry the selected ${modelVersion} payload through to the selected ${backend} renderer.`);
+      const expectedRender=example.renders.find((render:any)=>render.backend===backend&&render.status==='qualified');
+      const versionNote=await page.locator('#compile-target-note').innerText();
+      if(expectedRender&&!versionNote.toLowerCase().includes(`${expectedRender.engine} ${expectedRender.nativeVersion}`.toLowerCase()))throw new Error(`${example.id}/${backend} API example omits its native renderer version.`);
+      if(!expectedRender){
+        await page.waitForFunction(()=>document.querySelector('#diagram-status')?.classList.contains('error')&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===true);
+        if(await page.locator('#download-svg').getAttribute('aria-disabled')!=='true'||await page.locator('#download-png').getAttribute('aria-disabled')!=='true'||await page.locator('#download-native-source').getAttribute('aria-disabled')!=='true')throw new Error(`Unavailable ${backend} selection for ${example.id} retained a stale download.`);
+        continue;
+      }
+      await page.waitForFunction(({title,filename,backend})=>document.querySelector('#diagram-title')?.textContent===title&&document.querySelector('#download-svg')?.getAttribute('download')===filename&&document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false&&document.querySelector(`#backend-options [data-backend="${backend}"]`)?.getAttribute('aria-pressed')==='true',{title:example.title,filename:expectedRender.svgPath.split('/').pop(),backend});
+      await page.locator('#diagram-image').evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Scenario image did not decode.');});
+      if(!(await page.locator('#engine-caption').innerText()).toLowerCase().includes(backend))throw new Error(`${example.id}/${backend} preview did not identify its actual renderer and version.`);
+      const hasNotes=(expectedRender.omissions?.length||0)+(expectedRender.approximations?.length||0)>0;
+      if(await page.locator('#rendering-notes').evaluate(element=>(element as HTMLElement).hidden)===hasNotes)throw new Error(`Scenario ${example.id}/${backend} hides or fabricates rendering notes relative to its receipt.`);
+      if(await page.locator('#download-png').getAttribute('aria-disabled')!=='false'||await page.locator('#download-native-source').getAttribute('aria-disabled')!=='false')throw new Error(`Scenario ${example.id}/${backend} did not expose the actual qualified render downloads.`);
+      if(!(await page.locator('#source-details').evaluate(element=>(element as HTMLDetailsElement).open)))await page.locator('#source-details > summary').click();
+      if(!(await page.locator('#native-source').innerText()).trim())throw new Error(`${example.id}/${backend} has no exact native source in the inspector.`);
+      const [svgDownload]=await Promise.all([page.waitForEvent('download'),page.locator('#download-svg').click()]);
+      const svgDownloadPath=`.cache/showcase-${example.id}-${backend}-SVG`;await svgDownload.saveAs(svgDownloadPath);
+      if(svgDownload.suggestedFilename()!==expectedRender.svgPath.split('/').pop()||createHash('sha256').update(Buffer.from(await Bun.file(svgDownloadPath).arrayBuffer())).digest('hex')!==expectedRender.svgSha256)throw new Error(`${example.id}/${backend} SVG download differs from its verified receipt.`);
+      for(const [selector,path,hash,label] of [['#download-png',expectedRender.pngPath,expectedRender.pngSha256,'PNG'],['#download-native-source',expectedRender.nativeSourcePath,expectedRender.nativeSourceSha256,'native source']] as const){
+        const link=page.locator(selector);
+        if(await link.getAttribute('download')!==path.split('/').pop()||await link.getAttribute('aria-disabled')!=='false')throw new Error(`${example.id}/${backend} ${label} link is missing its source-bound download filename.`);
+        const href=await link.getAttribute('href');
+        if(!href)throw new Error(`${example.id}/${backend} ${label} download has no target URL.`);
+        const actualHash=await page.evaluate(async url=>{const response=await fetch(url);const bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');},href);
+        if(actualHash!==hash)throw new Error(`${example.id}/${backend} ${label} download link bytes differ from its verified receipt.`);
+      }
     }
   }
-  checks.push('scenario selection switches among all source-bound definitions and real previews');
+  checks.push('all available native renderers are selected per scenario; unavailable choices clear stale previews and downloads');
+  checks.push('every qualified renderer exposes hash-matching SVG, PNG, and native-source downloads');
 
   for(let index=0;index<showcase.examples.length;index++){
     const example=showcase.examples[index];
@@ -108,33 +141,36 @@ try{
   checks.push('visual caveats describe stack reading order and Mermaid entity-level connections');
 
   await selected.nth(0).click();
-  for(const backend of ['graphviz','mermaid']){
+  for(const backend of ['lini','graphviz','mermaid']){
     const button=page.locator(`[data-backend="${backend}"]`);await button.click();
     const available=qualifiedByExample.get(showcase.examples[0].id)?.includes(backend);
     if(available){
       const expected=showcase.examples[0].renders.find((render:any)=>render.backend===backend&&render.status==='qualified');
       await page.waitForFunction(filename=>document.querySelector('#download-svg')?.getAttribute('download')===filename&&document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false,expected.svgPath.split('/').pop());
       await page.locator('#diagram-image').evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0)throw new Error('Selected backend image failed to decode.');});
-      if(!(await page.locator('#engine-caption').innerText()).toLowerCase().includes(backend==='graphviz'?'graphviz':'mermaid'))throw new Error(`The ${backend} toggle did not identify the actual rendering engine.`);
+      if(!(await page.locator('#engine-caption').innerText()).toLowerCase().includes(backend))throw new Error(`The ${backend} toggle did not identify the actual rendering engine.`);
     }else if(!(await page.locator('#diagram-status').innerText()).toLowerCase().includes('qualified')||await page.locator('#diagram-image').isVisible())throw new Error(`The unavailable ${backend} path was not explicitly described or hid the prior render.`);
   }
   checks.push('backend selection shows qualified renders or an explicit unavailable state');
 
   const firstQualified=qualifiedByExample.get(showcase.examples[0].id)!;
-  const sourceBackend=firstQualified.includes('graphviz')?'graphviz':'mermaid';
+  const sourceBackend=firstQualified.includes('lini')?'lini':firstQualified.includes('graphviz')?'graphviz':'mermaid';
   await page.locator(`[data-backend="${sourceBackend}"]`).click();
   await page.waitForFunction(()=>document.querySelector('#download-native-source')?.getAttribute('aria-disabled')==='false');
   await page.locator('#diagram-image').evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();});
-  await page.locator('#source-details > summary').click();
+  if(!(await page.locator('#source-details').evaluate(element=>(element as HTMLDetailsElement).open)))await page.locator('#source-details > summary').click();
   if(!(await page.locator('#definition-source').innerText()).includes('"kind"'))throw new Error('The authored definition is not available for inspection.');
   if(!(await page.locator('#native-source').innerText()).trim())throw new Error('The exact emitted native source is not available for inspection.');
   const selectedReceipt=showcase.examples[0].renders.find((render:any)=>render.backend===sourceBackend&&render.status==='qualified');
   if((selectedReceipt.omissions||[]).length+(selectedReceipt.approximations||[]).length)await page.locator('#rendering-notes > summary').click();
   const notesText=await page.locator('#rendering-notes-list').innerText();
   for(const note of [...(selectedReceipt.omissions||[]),...(selectedReceipt.approximations||[])])if(!notesText.includes(note.sourcePath))throw new Error(`Rendering note for ${note.sourcePath} is not visible in the source inspection disclosure.`);
-  const [definitionDownload]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download JSON'}).click()]);
-  if(!definitionDownload.suggestedFilename().endsWith('.json'))throw new Error('The source definition download has no JSON filename.');
-  checks.push('collapsed source inspection exposes authored UMF and exact native source downloads');
+  const [definitionDownload]=await Promise.all([page.waitForEvent('download'),page.locator('#download-full-umf').click()]);
+  if(!definitionDownload.suggestedFilename().endsWith('.umf.json'))throw new Error('The full UMF envelope download is not clearly distinguished from the visual payload.');
+  const fullUmfPath='.cache/showcase-full-umf.json';await definitionDownload.saveAs(fullUmfPath);
+  const downloadedUmf=JSON.parse(await Bun.file(fullUmfPath).text());
+  if(JSON.stringify(downloadedUmf)!==JSON.stringify(showcase.examples[0].definition))throw new Error('The full UMF envelope download differs from the selected definition.');
+  checks.push('collapsed source inspection exposes exact native source; separate download contains the complete UMF envelope');
 
   await page.locator('#enlarge-diagram').click();
   if(!(await page.locator('#diagram-viewer').isVisible()))throw new Error('The accessible image viewer did not open.');

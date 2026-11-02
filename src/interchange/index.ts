@@ -7,6 +7,7 @@ import {mermaidAdapter} from './mermaid';
 import {interchangeDiagnostic} from './shared';
 import {exportAnnotatedVisual,hasExplicitProfile,importAnnotatedVisual} from './annotated';
 import {exportFullVisual,hasFullProfile,importFullVisual} from './full';
+import {requireQualifiedInterchangeModel} from './model-version';
 import type {ExportVisualOptions,ExportVisualResult,IdentityMapping,ImportVisualOptions,ImportVisualResult,InterchangeDiagnostic,InterchangeFormat,InterchangeMode,RetainedVisualSource,VisualInterchangeAdapter} from './types';
 export * from './types';
 export {dotAdapter} from './dot';
@@ -148,6 +149,7 @@ export function exportVisual(input:unknown,optionsInput:unknown):ExportVisualRes
  const mode=modeOf(options),source=options.source===undefined?undefined:copyReceipt(options.source);
  if(options.source!==undefined&&!source)return{ok:false,diagnostics:[error('INTERCHANGE_RECEIPT','/options/source','Source companion is not safe JSON data.')],identityMap:[]};
  if(source&&(source.text.length>MAX_SOURCE_BYTES||new TextEncoder().encode(source.text).byteLength>MAX_SOURCE_BYTES))return{ok:false,source,diagnostics:[error('INTERCHANGE_SOURCE_SIZE','/options/source/text','Retained source exceeds the 256 KiB UTF-8 limit.')],identityMap:[]};
+ try{requireQualifiedInterchangeModel(document);}catch(reason){return{ok:false,source,diagnostics:[error('INTERCHANGE_MODEL_VERSION','/vocabularies/umf.visual/version',reason instanceof Error?reason.message:String(reason))],identityMap:[]};}
  if(options.original===true){if(!source)return{ok:false,diagnostics:[error('INTERCHANGE_REPLAY_SOURCE','/options/source','Original replay requires a retained source companion.')],identityMap:[]};return replay(document,source,adapter.format)??{ok:false,source,diagnostics:[error('INTERCHANGE_REPLAY_REFUSED','/options/source','Retained source cannot be safely replayed for this format and document.')],identityMap:[]};}
  let visual;try{const checked=inspectVisual(document);if(!checked.valid||!checked.complete)return{ok:false,diagnostics:checked.diagnostics.map(item=>({code:item.code,path:item.path,message:item.message,severity:item.severity,loss:false})),identityMap:[]};visual=getVisual(document);}catch{return{ok:false,diagnostics:[error('INTERCHANGE_DOCUMENT','/','Document does not contain a valid Visual payload.')],identityMap:[]};}
  const diagnostics:InterchangeDiagnostic[]=[];addDocumentLosses(document,visual,diagnostics);

@@ -19,9 +19,9 @@ test('showcase examples are isolated from the frozen 53-example interchange inve
  expect(manifest.schemaVersion).toBe(1);
  expect(manifest.examples.map(example=>example.id)).toEqual([
   'umf-engine-target-architecture',
-  'umf-native-interchange-architecture','umf-architecture-stack','umf-logical-metamodel','beacon-relational-core'
+  'umf-native-interchange-architecture','umf-architecture-stack','umf-logical-metamodel','beacon-relational-core','umf-logical-interface-architecture'
  ]);
- expect(new Set(manifest.examples.map(example=>example.id)).size).toBe(5);
+ expect(new Set(manifest.examples.map(example=>example.id)).size).toBe(6);
  expect(manifest.examples.every(example=>example.definitionPath.startsWith('fixtures/showcase/definitions/'))).toBe(true);
 });
 

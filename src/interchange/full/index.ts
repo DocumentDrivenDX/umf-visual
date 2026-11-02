@@ -10,6 +10,7 @@ import type {FullScene,FullProjectionRepresentation,VisualApproximation} from '.
 import {compileFullRecords,recoverFullRecords} from './records';
 import {compileFullScene} from './scene';
 import {readNativeFirstSource,tryNativeFirstExport} from './native-first';
+import {requireQualifiedInterchangeModel} from '../model-version';
 
 const adapters={dot:dotFullAdapter,mermaid:mermaidFullAdapter,lini:liniFullAdapter};
 const MAX_BYTES=262_144;
@@ -26,6 +27,7 @@ function options(input:unknown,allowed:string[]):Record<string,any>{
 function documentFrom(scene:FullScene):Document {
  if(scene.version!=='1'||scene.profile!=='umf.visual.'+scene.format+'.full/1')throw new TypeError('Unqualified native full profile or version');
  const document=copyJson(recoverFullRecords(scene.records)) as unknown as Document;
+ requireQualifiedInterchangeModel(document);
  if(!inspectVisual(document).valid)throw new TypeError('Native slots no longer describe a valid visual');
  const visual=getVisual(document);
  if(scene.kind!==visual.kind||scene.form!==visual.form)throw new TypeError('Native scene family differs from visible source records');
@@ -70,7 +72,7 @@ interface FullReadback {
 }
 function readFullSource(text:string,format:InterchangeFormat):FullReadback {
  const native=readNativeFirstSource(text,format);
- if(native)return {document:native.document,identityMap:native.identityMap,coverage:native.coverage,approximations:[],representation:native.representation};
+ if(native){requireQualifiedInterchangeModel(native.document);return {document:native.document,identityMap:native.identityMap,coverage:native.coverage,approximations:[],representation:native.representation};}
  const scene=adapters[format].read(text),document=documentFrom(scene);
  return {document,...evidence(scene),approximations:scene.approximations,representation:{tier:'primitive-fallback',sourceProfile:scene.profile,sourceMappingVersion:'0.1.0',coverageModel:'visible-record-tree',wholeDocumentReadback:true}};
 }
@@ -108,6 +110,7 @@ export function exportFullVisual(input:unknown,requested:unknown):ExportVisualRe
  }catch{/* Invalid companions are not trusted. */}
  try{
   const safe=options(requested,['format','profile','mode','source','original']),document=copyJson(input) as unknown as Document;
+  requireQualifiedInterchangeModel(document);
   if(safe.original!==undefined&&typeof safe.original!=='boolean')throw new TypeError('Original selector must be boolean');
   const prior=safe.source===undefined?undefined:retained(safe.source);source=prior?.source??source;
   if(prior&&(prior.source.format!==safe.format||prior.source.importOptions.profile!==safe.profile))throw new TypeError('Retained native profile does not match requested format');

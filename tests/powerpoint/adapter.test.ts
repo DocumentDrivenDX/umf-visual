@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {describe,expect,it} from 'bun:test';
 import {zipSync} from 'fflate';
-import {createVisualDocument,editVisual,LATEST_VISUAL_VERSION,type Visual} from '../../src/extensions/visual/index.js';
+import {createVisualDocument,editVisual,type Visual} from '../../src/extensions/visual/index.js';
 import {exportPowerPoint,importPowerPoint,updatePowerPoint,PowerPointError,ZIP_LIMITS,POWERPOINT_PROFILE} from '../../src/adapters/powerpoint/index.js';
 import {inspectZip,partText,putText,writeZip} from '../../src/adapters/powerpoint/zip.js';
 import {loadProfileParts,DRAWING_NS,PRESENTATION_NS,nativeName} from '../../src/adapters/powerpoint/profile.js';
@@ -211,7 +211,7 @@ describe('PowerPoint editable network profile',()=>{
     const nodes=Array.from({length:16},(_,i)=>({id:'n'+i,label:'Node '+i})),edges=[{id:'e0',from:'n0',to:'n1',label:'next'}];
     const v={id:'large',kind:'flow' as const,form:'network' as const,question:'Q',nodes,edges};
     expect(()=>createVisualDocument(v,'visual:large','1.0.0')).toThrow();
-    const optedIn=createVisualDocument(v,'visual:large','1.1.0'),exported=await exportPowerPoint(optedIn,{mode:'report'});expect(exported.modelVersion).toBe(LATEST_VISUAL_VERSION);
+    const optedIn=createVisualDocument(v,'visual:large','1.1.0'),exported=await exportPowerPoint(optedIn,{mode:'report'});expect(exported.modelVersion).toBe('1.1.0');
     const tooLarge=createVisualDocument({...v,nodes:Array.from({length:65},(_,i)=>({id:'n'+i,label:'Node '+i}))},'visual:large','1.1.0');
     await expect(exportPowerPoint(tooLarge,{mode:'report'})).rejects.toMatchObject({code:'RESOURCE_LIMIT'});
   });

@@ -101,6 +101,11 @@ an opaque document dump still cannot qualify an unsupported pair.
   set of large diagrams, including sourced UMF architecture, stack composition
   and entity/relationship examples. The underlying shared DSL definition and
   downloadable output MUST be inspectable without a wall of conformance data.
+- CAT-19: Each showcased diagram MUST expose its exact versioned `umf.visual`
+  payload by default, with copy/download access and a small executable public-API
+  example of reading, editing and compiling that definition. Native source and
+  technical inventories MAY remain in disclosures. The preview and source MUST
+  remain bound to the same authored definition.
 - CAT-17: Presentation quality MUST be qualified separately from whole-document
   interchange. A presentation backend must show readable labels, meaningful
   boundaries, accurate connections and E/R field endpoints/cardinalities within

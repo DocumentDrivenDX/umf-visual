@@ -1,0 +1,130 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:umf-logical-interface-architecture",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.2.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "umf-logical-interface-architecture",
+      "kind": "flow",
+      "form": "network",
+      "title": "Named interfaces, shared composition",
+      "question": "How does the catalog client reach an Ashlar pinned read?",
+      "source": {
+        "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
+        "view": "Domain Model and Solution Approaches",
+        "digest": "sha256:f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021"
+      },
+      "layout": {
+        "kind": "grid",
+        "columns": 2,
+        "order": [
+          "sdk",
+          "ashlar"
+        ]
+      },
+      "groups": [
+        {
+          "id": "sdk",
+          "label": "UMF access SDK",
+          "role": "boundary",
+          "layout": {
+            "kind": "stack",
+            "direction": "TB",
+            "order": [
+              "catalog"
+            ]
+          }
+        },
+        {
+          "id": "ashlar",
+          "label": "Ashlar",
+          "role": "boundary",
+          "layout": {
+            "kind": "stack",
+            "direction": "TB",
+            "order": [
+              "resolver",
+              "pinned-read"
+            ]
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "catalog",
+          "label": "Catalog function",
+          "role": "own",
+          "shape": "ellipse",
+          "group": "sdk",
+          "ports": [
+            {
+              "id": "read",
+              "label": "read",
+              "side": "east"
+            }
+          ]
+        },
+        {
+          "id": "resolver",
+          "label": "Publication resolver",
+          "role": "external",
+          "shape": "hexagon",
+          "group": "ashlar",
+          "ports": [
+            {
+              "id": "read",
+              "label": "read",
+              "side": "west"
+            },
+            {
+              "id": "resolve",
+              "label": "resolve",
+              "side": "south"
+            }
+          ]
+        },
+        {
+          "id": "pinned-read",
+          "label": "Pinned read",
+          "role": "external",
+          "shape": "rounded-rectangle",
+          "group": "ashlar",
+          "ports": [
+            {
+              "id": "publication",
+              "label": "publication",
+              "side": "north"
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "id": "catalog-resolver",
+          "from": "catalog",
+          "to": "resolver",
+          "fromPort": "read",
+          "toPort": "read",
+          "label": "read"
+        },
+        {
+          "id": "resolve-publication",
+          "from": "resolver",
+          "to": "pinned-read",
+          "fromPort": "resolve",
+          "toPort": "publication",
+          "label": "resolve publication"
+        }
+      ],
+      "omissions": [
+        "Selected connections from the documented design; not a deployment or implementation-completeness claim.",
+        "Shapes, composition and named anchors are authored visual intent. Port labels are logical connection anchors, not network transport ports."
+      ]
+    }
+  },
+  "modules": []
+}

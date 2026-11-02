@@ -96,12 +96,80 @@ Sol independently passed 33 tests with 306 assertions and reviewed the compact
 desktop/mobile homepage. No blocking finding remains in that bounded review;
 exact-head CI and served Pages identity remain publication gates.
 
+## Lini and semantic-model continuation — 2026-11-02
+
+The owner requests Lini presentation quality comparable to its native example
+library, common concepts threaded into an expansive shared model, and visible
+source that demonstrates programmatic authoring. GPT-6.1 Sol owns planning and
+independent review; GPT-6 Luna packages own model/compiler/native-proof/source-UI
+implementation. Root owns shared integration and publication verification.
+
+The bounded 1.2.0 model slice introduces geometric shape, generic flow/grid/stack
+composition, named node-local ports and explicit E/R identification. Freeze 1.1.0
+schema/manifest/semantics beside 1.0.0; keep existing authoring defaults and the
+no-argument 1.1 upgrade. New target versions and downgrades have runtime guards.
+Old editable profiles remain version-qualified and cannot promote a record-only
+copy of new concepts into interpreted meaning.
+
+Add Lini to the six sourced showcase examples: five unchanged definitions plus a
+1.2.0 named-interface view of the documented Q → AR → AP path. Shapes, anchor names
+and composition in that view are authored visual intent, not inferred runtime
+capabilities or transport ports. Keep the 53-example corpus unchanged.
+
+The Lini mapping uses native nested layouts, themed glyphs, entity cells,
+field-attached cardinality connectors and actual named anchors. Selected nested
+north/south connections required scoped native straight routing to reach their
+declared cells; this is an interpreter choice, not a semantic-model restriction.
+Typed source remains visible by default; the compact example creates a document
+from that payload and selected model version, then reads, edits and compiles it.
+Native source and detailed inventories remain secondary disclosures.
+
+Completion gates: actual source-bound native SVG and PNG replay for each qualified
+cell; negative geometry/cardinality/glyph/order controls; source-copy and installed
+API evidence; full regression and existing catalog/native checks; independent
+Sol review; exact-head CI and deployed-file identity checks. Local artifacts are
+not deployment or release evidence.
+
+Local qualification passed 573 tests across 80 files (18,281 assertions),
+type/source-generation checks, the browser-compatible build, fresh installed
+Bun/Node consumers and Chromium 153 consumer checks. The six source-bound
+showcase examples have 16 qualified native variants, 48 source/SVG/PNG assets,
+16 exact native replays and 16 PNG replays. Two Mermaid E/R variants remain
+unavailable because their unchanged sources do not declare relationship
+identification. Lini renders all six. Native catalog verification still passes
+53 examples, 532 render assets and all 159 qualified full-profile pairs with
+zero losses; that older-profile result does not qualify 1.2 editable interchange.
+
+Desktop/mobile homepage, exact payload copy, installed API workflow, all-renderer
+selection and source/SVG/PNG downloads passed real Chromium checks. Existing
+evidence/profile pages also passed, including all 532 native assets. GPT-6.1 Sol
+approved the bounded model/compiler/native-proof/source-UI changes after Luna
+corrected contradictory style receipts; its final independent Lini check passed
+14 tests and 216 assertions. The eight changed HELIX artifacts have no blocking
+validator findings. Exact-head CI and deployed-file verification remain the
+publication gates; no new package release is claimed.
+
+Final native image inspection found touching captions between stack layers.
+The Lini interpreter increases native root spacing, and the qualification gate
+now measures each caption against the preceding layer boundary using its own
+mapped layer identity. Negative caption movement and repeated root/layer labels
+are covered. The revised native quality suite passes eight tests (72 assertions)
+and Sol's independent spacing review has no remaining findings.
+
+The first Linux showcase gate rejected overlapping entity field/type text under
+Lini's platform-dependent default font stack. The interpreter now emits native
+Arial styling for text; compiled layout remains Lini's bundled proportional
+metrics. Qualification requires actual text bounds to pass on each tested host,
+without claiming identical font bytes across operating systems. CI runs native
+showcase qualification immediately after renderer setup for early feedback;
+all existing compatibility and reproducibility gates remain required.
+
 ## Shared Constraints
 
 - Preserve the released visual 1.0.0 schema, manifest and interpretation.
-  The merged foundation registers frozen 1.0.0 and explicit 1.1.0 together.
+  The library registers frozen 1.0.0/1.1.0 and explicit 1.2.0 together.
   Default authoring/import/schema/manifest aliases remain 1.0.0. The latest
-  schema generates 1.1.0 types/manifest; freshness is checked by check:source.
+  schema generates 1.2.0 types/manifest; freshness is checked by check:source.
   Field identity and multiplicity require declared 1.1.0 support; other model
   additions need their own versioned design, not changes to generated files.
 - Preserve the exact 53 fixture source hashes. Add migrated/projection/native

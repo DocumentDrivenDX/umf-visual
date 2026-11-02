@@ -27,6 +27,13 @@ are a renderer (`@ux-builder/visuals`), producers (HELIX documentor) and authori
 
 ## Overview
 
+The shared semantic model is an expansive authoring target. Common geometric
+shapes, container composition, named connection anchors and authored E/R
+identification belong in the versioned language, even when an interpreter must
+approximate them. Explicit 1.2.0 introduces these concepts without changing
+released 1.0.0/1.1.0 interpretation. Colors, typography and native engine
+attributes remain renderer concerns.
+
 Describe one picture as data: a system's parts and what moves between them, a call sequence, a
 layered or nested structure, a lifecycle, a timeline, a comparison of options or a metric. The
 document names a closed kind and form, the reader's question, roles and statuses, and an
