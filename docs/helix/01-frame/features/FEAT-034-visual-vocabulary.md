@@ -176,3 +176,12 @@ in authored native witness routes. Unspecified routing stays unspecified. Exact
 native coordinates and control points remain preservation content; interpreters
 must realize, explicitly approximate or refuse authored intent rather than
 silently selecting one global route policy for mixed requests.
+
+
+## Explicit document stencil identity
+
+Draft 1.4.0 adds `document` and `multiple-documents` shape notations for explicitly
+authored native stencil identity. They remain independent of semantic document
+role and numeric cardinality. A sheet-stack glyph does not establish an exact
+count or business minimum, and neither addition reinterprets folded-corner.
+Interpreters expose actual shape realization or a located approximation/refusal.

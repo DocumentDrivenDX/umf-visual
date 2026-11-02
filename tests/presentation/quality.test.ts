@@ -73,13 +73,42 @@ describe('presentation native quality verifier',()=>{
   }finally{await mermaid.page.close();}
  },{timeout:45_000});
 
+ it('keeps Mermaid straight routed links direct when they already carry adjacent authored order',async()=>{
+  const d=createVisualDocument({id:'mermaid-straight-order',kind:'flow',form:'network',question:'Which order is drawn?',layout:{kind:'flow',direction:'LR',order:['left','right']},nodes:[{id:'left',label:'Left'},{id:'right',label:'Right'}],edges:[{id:'connection',from:'left',to:'right',label:'connects',routing:{kind:'straight'}}]},'quality:mermaid-straight-order','1.4.0');
+  const good=await check(d,'mermaid');
+  try{
+   expect(good.plan.source).not.toContain('n1 ~~~ n2');
+   expect(good.plan.source).toContain('e1@{ curve: linear }');
+   expect(result(good.checks,'mermaid-flow-paths')).toBe('pass');
+   const path=good.page.locator('#frame svg path[data-edge="true"]');
+   const deviation=await path.evaluate(item=>{const line=item as SVGPathElement,length=line.getTotalLength(),a=line.getPointAtLength(0),b=line.getPointAtLength(length),dx=b.x-a.x,dy=b.y-a.y,span=Math.hypot(dx,dy)||1;let max=0;for(let index=1;index<12;index++){const p=line.getPointAtLength(length*index/12);max=Math.max(max,Math.abs(dy*p.x-dx*p.y+b.x*a.y-b.y*a.x)/span);}return max;});
+   expect(deviation).toBeLessThan(1.5);
+   const bent=await path.evaluate(item=>{const line=item as SVGPathElement,length=line.getTotalLength(),a=line.getPointAtLength(0),b=line.getPointAtLength(length);line.setAttribute('d',`M ${a.x} ${a.y} L ${(a.x+b.x)/2} ${(a.y+b.y)/2+30} L ${b.x} ${b.y}`);return(line.ownerSVGElement as SVGSVGElement).outerHTML;});
+   const fallback=await verifyPresentationQuality(good.page,{svg:bent,document:d,plan:good.plan});
+   expect(result(fallback,'mermaid-flow-paths')).toBe('pass');expect(fallback.find(item=>item.check==='mermaid-flow-paths')?.details).toContain('bent polyline');
+   const curved=await path.evaluate(item=>{const line=item as SVGPathElement,length=line.getTotalLength(),a=line.getPointAtLength(0),b=line.getPointAtLength(length);line.setAttribute('d',`M ${a.x} ${a.y} Q ${(a.x+b.x)/2} ${(a.y+b.y)/2+30} ${b.x} ${b.y}`);return(line.ownerSVGElement as SVGSVGElement).outerHTML;});
+   expect(result(await verifyPresentationQuality(good.page,{svg:curved,document:d,plan:good.plan}),'mermaid-flow-paths')).toBe('fail');
+  }finally{await good.page.close();}
+ },{timeout:30_000});
+
  it('binds the process role caption to the exact Graphviz and Mermaid node carrier',async()=>{
-  const d=createVisualDocument({id:'process-role-native-carrier',kind:'flow',form:'network',question:'Which depicted activity is shown?',nodes:[{id:'activity',label:'Reconcile records',detail:'Apply authored rules',role:'process',shape:'rectangle'},{id:'output',label:'Output'}],edges:[{id:'writes',from:'activity',to:'output',label:'writes'}]},'quality:process-role-native-carrier','1.4.0');
+  const d=createVisualDocument({id:'process-role-native-carrier',kind:'flow',form:'network',question:'Which depicted activity is shown?',nodes:[{id:'activity',label:'Reconcile records',detail:'Apply authored rules',role:'process',shape:'rectangle'},{id:'output',label:'Output'},{id:'literal-process',label:'Process',role:'process'}],edges:[{id:'writes',from:'activity',to:'output',label:'writes'}]},'quality:process-role-native-carrier','1.4.0');
   for(const backend of ['graphviz','mermaid'] as const){
    const good=await check(d,backend);
    try{
     const name=backend==='graphviz'?'graphviz-native-carriers':'mermaid-native-node-carriers';
     expect(result(good.checks,name)).toBe('pass');
+    const literalProcessId=good.plan.elementMap.find(item=>item.kind==='node'&&item.logicalId==='literal-process')?.nativeId;if(!literalProcessId)throw Error('Missing exact-label process identity map.');
+    const unownedRole=backend==='graphviz'?undefined:await good.page.locator('#frame svg').evaluate((root,nativeId)=>{
+     const node=[...root.querySelectorAll('g.node')].find(element=>element.id.includes(`flowchart-${nativeId}-`));
+     if(!node)throw Error('Missing exact-label process node carrier.');node.classList.remove('role_process');return(root as SVGSVGElement).outerHTML;
+    },literalProcessId);
+    if(backend==='mermaid')expect(result(await verifyPresentationQuality(good.page,{svg:unownedRole!,document:d,plan:good.plan}),name)).toBe('fail');
+    else{
+     const ast=JSON.parse(await dot(good.plan,'json')) as {objects:Array<{name:string;fillcolor?:string}>};
+     const changed={...ast,objects:ast.objects.map(object=>object.name===literalProcessId?{...object,fillcolor:'#ffffff'}:object)};
+     expect(result(await verifyPresentationQuality(good.page,{svg:good.svg,document:d,plan:good.plan,nativeAst:changed}),name)).toBe('fail');
+    }
     const mutated=await good.page.locator('#frame svg').evaluate((root,backend)=>{
      const nativeId='n1',node=backend==='graphviz'
       ?[...root.querySelectorAll('g.node')].find(element=>element.querySelector(':scope > title')?.textContent?.trim()===nativeId)
@@ -100,6 +129,78 @@ describe('presentation native quality verifier',()=>{
    }finally{await good.page.close();}
   }
  },{timeout:30_000});
+
+ it('keeps single and multiple document shapes distinct and proves native ownership',async()=>{
+  const d=createVisualDocument({id:'document-shape-native-carriers',kind:'flow',form:'network',question:'Which document shapes are shown?',nodes:[
+   {id:'single',label:'Document',role:'document',shape:'document'},
+   {id:'multiple',label:'Multiple documents',shape:'multiple-documents'},
+   {id:'activity',label:'Process',role:'process',shape:'rectangle'},
+  ],edges:[{id:'stores',from:'activity',to:'multiple',label:'stores'}]},'quality:document-shape-native-carriers','1.4.0');
+  for(const backend of ['graphviz','mermaid'] as const){
+   const good=await check(d,backend),name=backend==='graphviz'?'graphviz-native-carriers':'mermaid-native-node-carriers';
+   try{
+    if(result(good.checks,name)!=='pass')throw Error(JSON.stringify(good.checks.filter(check=>check.result==='fail')));
+    const multiNativeId=good.plan.elementMap.find(item=>item.kind==='node'&&item.logicalId==='multiple')?.nativeId;if(!multiNativeId)throw Error('Missing multiple-documents identity map.');
+    if(backend==='graphviz'){
+     expect(good.plan.source).toContain('shape=plain');
+     expect(good.plan.source).toContain('SIDES="TR"');
+     const mutated=await good.page.locator('#frame svg').evaluate((root,nativeId)=>{
+      const node=[...root.querySelectorAll('g.node')].find(element=>element.querySelector(':scope > title')?.textContent?.trim()===nativeId);
+      if(!node)throw Error('Missing mapped multiple-document carrier.');
+      const nodeBox=(node as SVGGElement).getBBox(),sheet=[...node.querySelectorAll('polygon')].find(element=>{const box=(element as SVGPolygonElement).getBBox();return box.width<=nodeBox.width*.1&&box.height>=nodeBox.height*.7;});
+      if(!sheet)throw Error('Missing a native sheet outline in the mapped Graphviz carrier.');sheet.remove();
+      return(root as SVGSVGElement).outerHTML;
+     },multiNativeId);
+     const nativeAst=JSON.parse(await dot(good.plan,'json'));
+     expect(result(await verifyPresentationQuality(good.page,{svg:mutated,document:d,plan:good.plan,nativeAst}),name)).toBe('fail');
+    }else{
+     expect(good.plan.source).toContain('shape: docs');
+     const singleNativeId=good.plan.elementMap.find(item=>item.kind==='node'&&item.logicalId==='single')?.nativeId;if(!singleNativeId)throw Error('Missing single-document identity map.');
+     const mutated=await good.page.locator('#frame svg').evaluate((root,nativeId)=>{
+      const node=[...root.querySelectorAll('g.node')].find(element=>element.id.includes(`flowchart-${nativeId}-`));
+      if(!node)throw Error('Missing mapped multiple-document carrier.');
+      const paths=[...node.querySelectorAll('path')];if(paths.length<4)throw Error('Missing Mermaid stacked-document geometry.');paths.slice(-2).forEach(path=>path.remove());
+      return(root as SVGSVGElement).outerHTML;
+     },multiNativeId);
+     expect(result(await verifyPresentationQuality(good.page,{svg:mutated,document:d,plan:good.plan}),name)).toBe('fail');
+     await good.page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},good.svg);
+     const concentricResult=await good.page.locator('#frame svg').evaluate((root,{multiId,singleId})=>{
+      const node=[...root.querySelectorAll('g.node')].find(element=>element.id.includes(`flowchart-${multiId}-`)),single=[...root.querySelectorAll('g.node')].find(element=>element.id.includes(`flowchart-${singleId}-`)),singlePath=single?.querySelector('path');
+      const paths=node?[...node.querySelectorAll('path')]:[];if(!node||!singlePath||paths.length<4)throw Error('Expected owned Mermaid single- and multiple-document native paths.');
+      paths.forEach(path=>path.setAttribute('d',singlePath.getAttribute('d')??''));for(const group of node.querySelectorAll('g:not(.label)'))if(group.hasAttribute('transform'))group.setAttribute('transform','translate(0,0)');
+      return{svg:(root as SVGSVGElement).outerHTML};
+     },{multiId:multiNativeId,singleId:singleNativeId});
+     expect(result(await verifyPresentationQuality(good.page,{svg:concentricResult.svg,document:d,plan:good.plan}),name)).toBe('fail');
+    }
+    expect(good.plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/nodes/1/shape'&&/one logical node/i.test(item.representation))).toBe(backend==='graphviz');
+   }finally{await good.page.close();}
+  }
+ },{timeout:45_000});
+
+ it('preserves the multiple-document stencil in native stack profiles',async()=>{
+  const d=createVisualDocument({id:'stack-multiple-documents',kind:'structure',form:'stack',question:'Which sheet stack is shown?',nodes:[{id:'documents',label:'Multiple documents',shape:'multiple-documents',layer:'records'},{id:'other',label:'Other component',layer:'system'}],structure:{layers:[{id:'records',label:'Records'},{id:'system',label:'System'}]}},'quality:stack-multiple-documents','1.4.0');
+  for(const backend of ['graphviz','mermaid'] as const){
+   const good=await check(d,backend),name=backend==='graphviz'?'graphviz-native-carriers':'mermaid-native-node-carriers';
+   try{
+    if(result(good.checks,name)!=='pass')throw Error(`${backend}: ${JSON.stringify(good.checks)}`);
+    const nativeId=good.plan.elementMap.find(item=>item.kind==='node'&&item.logicalId==='documents')?.nativeId;if(!nativeId)throw Error('Missing stack multiple-document identity map.');
+    expect(good.plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/nodes/0/shape'&&/one logical node/i.test(item.representation))).toBe(backend==='graphviz');
+    const missingSheet=await good.page.locator('#frame svg').evaluate((root,{id,backend})=>{
+     const node=backend==='graphviz'?[...root.querySelectorAll('g.node')].find(element=>element.querySelector(':scope > title')?.textContent?.trim()===id):[...root.querySelectorAll('g.node')].find(element=>element.id.includes(`flowchart-${id}-`));
+     if(!node)throw Error('Missing mapped stack sheet owner.');
+     if(backend==='graphviz'){
+      const nodeBox=(node as SVGGElement).getBBox(),side=[...node.querySelectorAll('polygon')].find(element=>{const box=(element as SVGPolygonElement).getBBox();return box.width<=nodeBox.width*.1&&box.height>=nodeBox.height*.7;});
+      if(!side)throw Error('Missing the Graphviz backing-sheet edge.');side.remove();
+     }else{
+      const paths=[...node.querySelectorAll('path')];if(paths.length<4)throw Error('Missing the Mermaid docs sheet paths.');paths.splice(-2).forEach(path=>path.remove());
+     }
+     return(root as SVGSVGElement).outerHTML;
+    },{id:nativeId,backend});
+    const nativeAst=backend==='graphviz'?JSON.parse(await dot(good.plan,'json')):undefined;
+    expect(result(await verifyPresentationQuality(good.page,{svg:missingSheet,document:d,plan:good.plan,nativeAst}),name)).toBe('fail');
+   }finally{await good.page.close();}
+  }
+ },{timeout:45_000});
 
  it('checks headless associations and rejects an invented native arrowhead',async()=>{
   const d=createVisualDocument({id:'headless-quality',kind:'flow',form:'network',question:'Which records are associated?',nodes:[{id:'a',label:'Record A'},{id:'b',label:'Record B'}],edges:[{id:'association',from:'a',to:'b',label:'associated',directed:false}]},undefined,'1.3.0');

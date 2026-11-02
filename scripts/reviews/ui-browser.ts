@@ -33,6 +33,15 @@ async function openHistoricalDisclosure(page:Page):Promise<void>{
  await summary.focus();await page.keyboard.press('Enter');
  if(!(await details.evaluate(element=>(element as HTMLDetailsElement).open)))throw Error('Original host evidence disclosure did not reopen with Enter.');
 }
+async function assertHistoricalImageFits(page:Page,caseId:string):Promise<void>{
+ await page.waitForFunction(id=>{const image=document.querySelector('#historical-capture') as HTMLImageElement|null,frame=image?.parentElement,box=image?.getBoundingClientRect();return !!image&&!image.hidden&&image.alt.endsWith(id)&&image.naturalWidth>0&&!!frame&&box!.width>0&&box!.height>0&&box!.width<=frame.clientWidth+1;},caseId,{timeout:10000});
+ const layout=await page.locator('#historical-capture').evaluate(element=>{const image=element as HTMLImageElement,box=image.getBoundingClientRect(),frame=image.parentElement!.getBoundingClientRect(),frameWidth=image.parentElement!.clientWidth;return{naturalRatio:image.naturalWidth/image.naturalHeight,ratio:box.width/box.height,width:box.width,height:box.height,frameWidth,inside:box.left>=frame.left-1&&box.right<=frame.right+1};});
+ if(!layout.inside||layout.width>layout.frameWidth+1||layout.height<1||Math.abs(layout.ratio-layout.naturalRatio)>.02)throw Error(`${caseId} historical capture does not fit responsively with its source aspect ratio: ${JSON.stringify(layout)}.`);
+}
+async function assertWidePreviewFits(page:Page,reviewId:string,backend:string):Promise<void>{
+ const layout=await page.locator('#diagram-image').evaluate(element=>{const image=element as HTMLImageElement,frame=image.parentElement!,box=frame.getBoundingClientRect(),style=getComputedStyle(image),paddingTop=parseFloat(style.paddingTop),paddingBottom=parseFloat(style.paddingBottom),paddingLeft=parseFloat(style.paddingLeft),paddingRight=parseFloat(style.paddingRight);return{ratio:image.naturalWidth/image.naturalHeight,frameHeight:box.height,frameWidth:box.width,expectedHeight:(box.width-2-paddingLeft-paddingRight)/(image.naturalWidth/image.naturalHeight)+paddingTop+paddingBottom+2};});
+ if(layout.ratio>3&&layout.frameHeight>layout.expectedHeight+8)throw Error(`${reviewId}/${backend} wide diagram is letterboxed in an unnecessarily tall preview frame: ${JSON.stringify(layout)}.`);
+}
 const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
 let corruptPath:string|undefined;
 let delayedCapturePath:string|undefined,delayedCaptureCount=0,signalDelayedRequest!:()=>void;
@@ -91,9 +100,16 @@ try{
   if(yaml!==review.visualPayloadYaml||JSON.stringify(parsed)!==JSON.stringify(review.definition.extensions['umf.visual']))throw Error(`${review.id} visible YAML differs from its exact UMF payload.`);
   await page.locator('#copy-payload').click();if(await page.evaluate(()=>navigator.clipboard.readText())!==yaml)throw Error(`${review.id} payload copy differs from its exact visible YAML.`);
   const evidence=review.originalEvidence;
+  if(Array.isArray(review.sources)&&review.sources.some((source:any)=>source.label)){
+   await page.locator('#source-details').evaluate(element=>{(element as HTMLDetailsElement).open=true;});
+   const citations=await page.locator('#source-citations').innerText();
+   for(const source of review.sources as Array<{label?:string;path?:string}>){
+    if(source.label&&(!citations.includes(source.label)||!citations.includes(source.path?.split('/').pop()??'')))throw Error(`${review.id} source details do not expose its labeled source citation ${source.label}.`);
+   }
+  }
   if(evidence){
    await openHistoricalDisclosure(page);
-   await page.waitForFunction(()=>(document.querySelector('#historical-capture') as HTMLImageElement|null)?.hidden===false);
+   await assertHistoricalImageFits(page,evidence.integrationCaseId);
    const identity=await page.locator('#historical-identity').innerText();
    for(const value of [evidence.rendererId,evidence.rendererProfileId,evidence.modelVersion,evidence.mappingVersion,evidence.nativeVersion,evidence.stage])if(!identity.includes(value))throw Error(`${review.id} historical identity omits ${value}.`);
    if(!(await page.locator('#historical-scope').innerText()).includes(evidence.scope))throw Error(`${review.id} historical scope differs from its manifest.`);
@@ -103,7 +119,14 @@ try{
    const capture=await downloadBytes(page,'#historical-capture-download',`.cache/review-${review.id}-original${extname(evidence.capturePath)}`);
    if(capture.filename!==evidence.capturePath.split('/').pop())throw Error(`${review.id} original capture download has an unexpected filename.`);
    if(sha(capture.bytes)!==evidence.captureSha256)throw Error(`${review.id} original host capture differs from its verified receipt hash.`);
-   if(review.id===first.id)await page.locator('#review-evidence').screenshot({path:'.cache/reviews-ui-historical.png'});
+   for(const width of [375,1440]){
+    await page.setViewportSize({width,height:width===375?812:1000});
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    await assertHistoricalImageFits(page,evidence.integrationCaseId);
+   }
+   checks.push(`${review.id} historical capture resizes from desktop to 375px and back without clipping or aspect-ratio distortion`);
+   const historicalScreenshot=review.id===first.id?'.cache/reviews-ui-historical.png':`.cache/reviews-ui-${review.id}-historical.png`;
+   await page.locator('#review-evidence').screenshot({path:historicalScreenshot});
   }else if(await page.locator('#review-evidence').isVisible())throw Error(`${review.id} shows original-host evidence that is not declared.`);
 
   for(const backend of ['graphviz','mermaid','lini'] as const){
@@ -111,6 +134,7 @@ try{
    await page.locator(`[data-backend="${backend}"]`).click();
    if(row.status==='qualified'){
     await page.waitForFunction(()=>(document.querySelector('#download-native-source')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false),undefined,{timeout:30000});
+    await assertWidePreviewFits(page,review.id,backend);
     if(!(await page.locator('#engine-caption').innerText()).toLowerCase().includes(backend))throw Error(`${review.id}/${backend} selection does not show its target identity.`);
     for(const [selector,path,hash] of [['#download-svg',row.svgPath,row.svgSha256],['#download-png',row.pngPath,row.pngSha256],['#download-native-source',row.nativeSourcePath,row.nativeSourceSha256]] as const){
      if(selector==='#download-native-source')await page.locator('#source-details').evaluate(element=>{(element as HTMLDetailsElement).open=true;});
@@ -124,11 +148,12 @@ try{
     if(await page.locator('#diagram-image').isVisible())throw Error(`${review.id}/${backend} unavailable state left an old render visible.`);
    }
   }
-  if(review.id===first.id&&review.renders.find((item:any)=>item.backend==='lini')?.status==='qualified'){
+  if(review.renders.find((item:any)=>item.backend==='lini')?.status==='qualified'){
    const disclosure=page.locator('#review-evidence-disclosure');
    if(await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))await disclosure.locator(':scope > summary').click();
    if(await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))throw Error('Desktop review screenshot must keep historical evidence collapsed by default.');
-   await page.screenshot({path:'.cache/reviews-ui-desktop.png',fullPage:true});
+   const desktopScreenshot=review.id===first.id?'.cache/reviews-ui-desktop.png':`.cache/reviews-ui-${review.id}-desktop.png`;
+   await page.screenshot({path:desktopScreenshot,fullPage:true});
   }
  }
  checks.push('every review selection exposes exact parsed/copyable YAML, original-host provenance where declared, and hash-verified SVG, PNG and native-source outcomes for all three backends');

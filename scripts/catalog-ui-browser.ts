@@ -176,6 +176,7 @@ try{
   if(!(await imageViewer.locator('.image-viewer-scale').textContent())?.includes('%'))throw new Error('Image viewer zoom controls did not update the scale readout');
   await imageViewer.getByRole('button',{name:'Open image viewer full screen'}).click();
   await page.waitForFunction(()=>document.fullscreenElement?.classList.contains('image-viewer-shell'));
+  await imageViewer.getByRole('button',{name:'Exit image viewer full screen'}).waitFor({state:'visible'});
   const closeInFullscreen=await imageViewer.getByRole('button',{name:'Close image preview'}).isVisible(),exitInFullscreen=await imageViewer.getByRole('button',{name:'Exit image viewer full screen'}).isVisible();
   if(!closeInFullscreen||!exitInFullscreen)throw new Error(`Full-screen viewer hid its close or exit controls (close=${closeInFullscreen}, exit=${exitInFullscreen}, fullscreen=${await page.evaluate(()=>document.fullscreenElement?.className||'none')})`);
   await imageViewer.getByRole('button',{name:'Exit image viewer full screen'}).click();

@@ -9,13 +9,14 @@ import type {PresentationQualityCheck} from './quality';
 import {verifyLiniRichPresentationQuality} from './lini-rich-quality';
 
 type Box={x:number;y:number;width:number;height:number};
-type Carrier={id:string;classes:string[];texts:string[];title:string;bounds:Box;containerBounds:Box;rectRadii:number[];groups:string[];parentId:string|null;cells:Array<{id:string|null;text:string;bounds:Box}>};
+type Carrier={id:string;classes:string[];texts:string[];title:string;style:string;bounds:Box;containerBounds:Box;rectRadii:number[];sheetPaths:number;sheetGeometry:Array<{bounds:Box;signature:string}>;groups:string[];parentId:string|null;cells:Array<{id:string|null;text:string;bounds:Box}>};
 type Vector={x:number;y:number};
 type Link={classes:string[];from:string|null;to:string|null;labels:string[];bounds:Box;line:{start:Vector;end:Vector;startTangent:Vector;endTangent:Vector;d:string;curveDeviation:number}|null;markers:Array<{classes:string[];tag:string;d:string;length:number;center:Vector;orientation:Vector|null;points:Vector[];bounds:Box}>;arrows:number};
 type EndpointProof={path:string;carrier:Carrier;host:Carrier;side?:string};
 type NativeDom={svg:boolean;carriers:Carrier[];links:Link[];fontFamilies:Array<{text:string;inline:string;computed:string}>};
 const sha=(value:string)=>createHash('sha256').update(Buffer.from(value,'utf8')).digest('hex');
 const norm=(value:string)=>value.replace(/\s+/gu,' ').trim();
+const hasOffsetSheetPair=(sheets:Array<{bounds:Box;signature:string}>)=>{for(let i=0;i<sheets.length;i++)for(let j=i+1;j<sheets.length;j++){const {bounds:a,signature:sa}=sheets[i]!,{bounds:b,signature:sb}=sheets[j]!,offset=Math.hypot(a.x+a.width/2-b.x-b.width/2,a.y+a.height/2-b.y-b.height/2),overlapWidth=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)),overlapHeight=Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)),smaller=Math.min(a.width*a.height,b.width*b.height);if(sa===sb&&offset>1&&overlapWidth*overlapHeight>=smaller*.45)return true;}return false;};
 const pass=(check:string,sourceSha256:string,ok:boolean,details:string):PresentationQualityCheck=>({check,sourceSha256,result:ok?'pass':'fail',details});
 const at=(part:string)=>'/extensions/umf.visual'+(part.startsWith('/')?part:'/'+part);
 const inside=(point:{x:number;y:number},box:Box,tolerance=20)=>point.x>=box.x-tolerance&&point.x<=box.x+box.width+tolerance&&point.y>=box.y-tolerance&&point.y<=box.y+box.height+tolerance;
@@ -58,7 +59,7 @@ function fieldExpectedText(field:{name:string;keys?:string[];nullable?:boolean})
  return field.name+(badges.length?' · '+badges.join(' · '):'');
 }
 type ExplicitNodeShape=NonNullable<NonNullable<Visual['nodes']>[number]['shape']>;
-const nativeShapeClass:Record<ExplicitNodeShape,string>={rectangle:'lini-box','rounded-rectangle':'lini-box',ellipse:'lini-oval',diamond:'lini-diamond',hexagon:'lini-hex',cylinder:'lini-cyl','folded-corner':'lini-note',parallelogram:'lini-slant'};
+const nativeShapeClass:Record<ExplicitNodeShape,string>={rectangle:'lini-box','rounded-rectangle':'lini-box',ellipse:'lini-oval',diamond:'lini-diamond',hexagon:'lini-hex',cylinder:'lini-cyl','folded-corner':'lini-note',parallelogram:'lini-slant',document:'lini-note','multiple-documents':'lini-note'};
 
 /** The caller inserts the exact returned Lini SVG into `#frame` before invoking this check. */
 export async function verifyLiniPresentationQuality(
@@ -106,7 +107,8 @@ export async function verifyLiniPresentationQuality(
     const directCells=[...group.querySelectorAll(':scope > g.lini-node.lini-cell')].map(cell=>({id:cell.getAttribute('data-id'),text:ownTexts(cell).join(' '),bounds:box(cell)}));
     const ownShapes=[...group.querySelectorAll(':scope > rect,:scope > polygon,:scope > ellipse,:scope > path,:scope > circle')],shapeBoxes=ownShapes.map(box),containerBounds=shapeBoxes.length?{x:Math.min(...shapeBoxes.map(b=>b.x)),y:Math.min(...shapeBoxes.map(b=>b.y)),width:Math.max(...shapeBoxes.map(b=>b.x+b.width))-Math.min(...shapeBoxes.map(b=>b.x)),height:Math.max(...shapeBoxes.map(b=>b.y+b.height))-Math.min(...shapeBoxes.map(b=>b.y))}:box(group);
     const rectRadii=[...group.querySelectorAll(':scope > rect')].map(rect=>Number(rect.getAttribute('rx')??0));
-    return{id,classes:[...group.classList],texts:ownTexts(group),title:group.querySelector(':scope > title')?.textContent?.trim()??'',bounds:box(group),containerBounds,rectRadii,groups:ancestorGroups,parentId:group.parentElement?.closest('g.lini-node[data-id]')?.getAttribute('data-id')??null,cells:directCells};
+    const sheetElements=[...group.querySelectorAll(':scope > path,:scope > g:not(.lini-node) > path')],sheetGeometry=sheetElements.map(element=>({bounds:box(element),signature:(element.getAttribute('d')??'').replace(/\s+/gu,' ').trim()})),sheetPaths=sheetElements.length;
+    return{id,classes:[...group.classList],texts:ownTexts(group),title:group.querySelector(':scope > title')?.textContent?.trim()??'',style:group.getAttribute('style')??'',bounds:box(group),containerBounds,rectRadii,sheetPaths,sheetGeometry,groups:ancestorGroups,parentId:group.parentElement?.closest('g.lini-node[data-id]')?.getAttribute('data-id')??null,cells:directCells};
    });
    const point=(path:SVGPathElement,at:number)=>{try{const local=path.getPointAtLength(at),screen=new DOMPoint(local.x,local.y).matrixTransform(path.getScreenCTM()!);return{x:screen.x-origin.x,y:screen.y-origin.y};}catch{return null;}};
    const curveDeviation=(path:SVGPathElement)=>{const length=path.getTotalLength();if(length<=0)return 0;const point=(at:number)=>{const p=path.getPointAtLength(at),matrix=path.getScreenCTM();return matrix?new DOMPoint(p.x,p.y).matrixTransform(matrix):p;},a=point(0),b=point(length),dx=b.x-a.x,dy=b.y-a.y,span=Math.hypot(dx,dy)||1;let deviation=0;for(let index=1;index<12;index++){const p=point(length*index/12);deviation=Math.max(deviation,Math.abs(dy*p.x-dx*p.y+b.x*a.y-b.y*a.x)/span);}return deviation;};
@@ -155,7 +157,9 @@ export async function verifyLiniPresentationQuality(
   if(item.kind==='node'&&explicitNode?.role==='process'){
    const roleCell=found.cells.find(cell=>cell.id==='role'&&norm(cell.text)==='Process');
    const authoredDetail=explicitNode.detail==='Process'&&found.cells.some(cell=>cell.id==='detail'&&norm(cell.text)==='Process');
-   if(!roleCell&&!authoredDetail){carriersOk=false;missing.push(`node ${item.logicalId} process role caption is not owned by its native carrier`);}
+   const authoredLabel=explicitNode.label==='Process'&&found.texts.includes('Process');
+   const processPalette=found.style.includes('--lini-rose-wash')&&found.style.includes('--lini-rose-deep');
+   if((!roleCell&&!authoredDetail&&!authoredLabel)||!processPalette){carriersOk=false;missing.push(`node ${item.logicalId} process role caption/palette is not owned by its native carrier`);}
   }
   if(explicitNode?.shape){
    const nodeIndex=visual.nodes!.indexOf(explicitNode),shapePath=sourcePointer('nodes',nodeIndex,'shape');
@@ -163,7 +167,7 @@ export async function verifyLiniPresentationQuality(
     const shapeCell=found.cells.find(cell=>cell.id==='shape'),approximation=plan.approximations.find(candidate=>candidate.sourcePath===shapePath&&candidate.representation.includes('fixed table silhouette'));
     if(!shapeCell||norm(shapeCell.text)!==norm(`(requested shape: ${explicitNode.shape})`)||!approximation){carriersOk=false;missing.push(`entity ${item.logicalId} requested shape is not visibly captioned with its located silhouette approximation`);}
    }else if(item.kind==='node'){
-    const expectedClass=nativeShapeClass[explicitNode.shape],radius=found.rectRadii[0],geometryOk=explicitNode.shape==='rectangle'?radius!==undefined&&radius<=0.5:explicitNode.shape==='rounded-rectangle'?radius!==undefined&&radius>0.5:true;
+    const expectedClass=nativeShapeClass[explicitNode.shape],radius=found.rectRadii[0],geometryOk=explicitNode.shape==='rectangle'?radius!==undefined&&radius<=0.5:explicitNode.shape==='rounded-rectangle'?radius!==undefined&&radius>0.5:explicitNode.shape==='document'?found.sheetPaths===1:explicitNode.shape==='multiple-documents'?found.sheetPaths>=2&&hasOffsetSheetPair(found.sheetGeometry):true;
     if(!found.classes.includes(expectedClass)||!geometryOk){carriersOk=false;missing.push(`node ${item.logicalId} does not use its declared native ${explicitNode.shape} geometry`);}
    }
   }

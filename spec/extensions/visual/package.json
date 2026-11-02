@@ -298,7 +298,9 @@
               "hexagon",
               "cylinder",
               "folded-corner",
-              "parallelogram"
+              "parallelogram",
+              "document",
+              "multiple-documents"
             ]
           },
           "ports": {
@@ -362,7 +364,9 @@
               "hexagon",
               "cylinder",
               "folded-corner",
-              "parallelogram"
+              "parallelogram",
+              "document",
+              "multiple-documents"
             ]
           },
           "icon": {
@@ -1390,7 +1394,7 @@
       }
     }
   },
-  "semantics": "CONTRACT-083 plus explicit renderer-neutral 1.2 shape, port, identification, and layout vocabulary and the 1.4 process role. Process names a depicted process/activity in a diagram; it does not assert an operating-system process or executable behavior. Geometry and renderer styling remain independent. Layout order is declarative; it is validated against direct children and does not add coordinates, colors, or renderer styles. Port identifiers are node-local and are not inferred from entity field keys.",
+  "semantics": "CONTRACT-083 plus explicit renderer-neutral 1.2 shape, port, identification, and layout vocabulary and the 1.4 process role and document/multiple-documents shapes. Process names a depicted process/activity in a diagram; it does not assert an operating-system process or executable behavior. Document shapes identify diagram notation; multiple-documents does not assert quantity, cardinality, or a minimum count. Shapes and roles are independent; geometry and renderer styling remain independent. Layout order is declarative; it is validated against direct children and does not add coordinates, colors, or renderer styles. Port identifiers are node-local and are not inferred from entity field keys.",
   "scopes": [
     "document"
   ],

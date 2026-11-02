@@ -113,6 +113,17 @@ describe('pinned Lini presentation quality',()=>{
   }finally{await nested.page.close();}
  });
 
+ it('centers unique straight-route captions clear of their owned arrowheads',async()=>{
+  const root=resolve(import.meta.dir,'../..'),sourceDoc=readVisualDocument(readFileSync(resolve(root,'fixtures/reviews/definitions/miro-process-documents-store.json'),'utf8'),'json'),good=await renderDocument(sourceDoc);
+  const measure=async(page:Page,plan:PresentationPlan)=>page.evaluate(maps=>maps.map(({nativeId})=>{const link=document.querySelector(`g.lini-link.lini-style-${nativeId}`),label=link?.querySelector('text.lini-link-label'),arrow=link?.querySelector('.lini-marker-arrow');if(!label||!arrow)return null;const a=label.getBoundingClientRect(),b=arrow.getBoundingClientRect();return{label:{left:a.left,right:a.right,top:a.top,bottom:a.bottom},arrow:{left:b.left,right:b.right,top:b.top,bottom:b.bottom}};}),plan.elementMap.filter(item=>item.kind==='edge').map(item=>({nativeId:item.nativeId})));
+  try{
+   expect(good.plan.source.match(/along: 0\.45;/gu)).toHaveLength(3);
+   const clearances=await measure(good.page,good.plan);expect(clearances).toHaveLength(3);for(const item of clearances){expect(item).not.toBeNull();if(item){const horizontal=Math.max(item.arrow.left-item.label.right,item.label.left-item.arrow.right,0),vertical=Math.max(item.arrow.top-item.label.bottom,item.label.top-item.arrow.bottom,0),gap=Math.hypot(horizontal,vertical);expect(gap,JSON.stringify(item)).toBeGreaterThan(3);}}
+   const shifted=await renderPresentationLini(good.plan.source.replaceAll('along: 0.45;','along: 0.65;')),page=await browser.newPage({viewport:{width:1600,height:900}});
+   try{await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>');await page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},shifted.svg);const moved=await measure(page,good.plan);expect(moved.some(item=>item===null||(()=>{const horizontal=Math.max(item.arrow.left-item.label.right,item.label.left-item.arrow.right,0),vertical=Math.max(item.arrow.top-item.label.bottom,item.label.top-item.arrow.bottom,0);return Math.hypot(horizontal,vertical)<=3;})())).toBe(true);}finally{await page.close();}
+  }finally{await good.page.close();}
+ },{timeout:45_000});
+
  it('binds native identities, visible labels, nested group membership and directed network links',async()=>{
   const good=await render({id:'nested-flow',kind:'flow',form:'network',question:'Where does a record travel?',title:'Record route',groups:[{id:'platform',label:'Platform',detail:'Owned API boundary',role:'boundary'},{id:'storage',label:'Storage',parent:'platform',role:'zone'}],nodes:[{id:'api',label:'Public API',detail:'Stable client surface',group:'platform'},{id:'store',label:'Record store',group:'storage'}],edges:[{id:'write',from:'api',to:'store',label:'Write record'}]});
   try{
@@ -265,8 +276,10 @@ describe('pinned Lini presentation quality',()=>{
    {id:'ellipse',label:'Ellipse',shape:'ellipse'},{id:'diamond',label:'Diamond',shape:'diamond'},
    {id:'hexagon',label:'Hexagon',shape:'hexagon'},{id:'cylinder',label:'Cylinder',shape:'cylinder'},
    {id:'note',label:'Folded corner',shape:'folded-corner'},
+   {id:'document',label:'Document',role:'document',shape:'document'},
+   {id:'documents',label:'Multiple documents',shape:'multiple-documents'},
   ]};
-  const standalone=await renderDocument(createVisualDocument(visual,'test:native-shapes','1.2.0'));
+  const standalone=await renderDocument(createVisualDocument(visual,'test:native-shapes','1.4.0'));
   try{
    expectAll(standalone.checks);
    const hex=standalone.page.locator('g.lini-node[data-id="n5"]'),label=await hex.locator(':scope > text.lini-text').first().textContent();
@@ -276,6 +289,14 @@ describe('pinned Lini presentation quality',()=>{
    await hex.evaluate(element=>{element.classList.remove('lini-diamond');element.classList.add('lini-hex');});
    const rect=standalone.page.locator('g.lini-node[data-id="n1"] > rect');
    await rect.evaluate(element=>element.setAttribute('rx','8'));
+   expect(result(await recheck(standalone.page,standalone.document,standalone.plan,standalone.nativeAst),'lini-native-carriers')).toBe('fail');
+   const multiple=standalone.page.locator('g.lini-node[data-id="n9"]');
+   expect(await multiple.locator(':scope > g:not(.lini-node) > path').count()).toBeGreaterThan(0);
+   const backing=multiple.locator(':scope > g:not(.lini-node)').first();
+   await backing.evaluate(group=>group.setAttribute('transform','translate(0,0)'));
+   expect(result(await recheck(standalone.page,standalone.document,standalone.plan,standalone.nativeAst),'lini-native-carriers')).toBe('fail');
+   await backing.evaluate(group=>group.setAttribute('transform','translate(2,-2)'));
+   await multiple.locator(':scope > g:not(.lini-node)').first().evaluate(element=>element.remove());
    expect(result(await recheck(standalone.page,standalone.document,standalone.plan,standalone.nativeAst),'lini-native-carriers')).toBe('fail');
   }finally{await standalone.page.close();}
 

@@ -62,6 +62,126 @@
         ],
         "scope": "The witnesses are synthetic and do not establish deployment semantics. The JPEG is actual output from Miro for the synthetic document, not a capture of an original private board."
       }
+    },
+    {
+      "id": "miro-process-documents-store",
+      "title": "Process, document, multiple documents, data store",
+      "description": "A source-derived review of synthetic process and document stencil identities connected to a data store.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/reviews/definitions/miro-process-documents-store.json",
+      "definitionSha256": "d071d9d490d39dfd8904beb15b7f572f9f738f00d2c536ed14244e5e26758712",
+      "sources": [
+        {
+          "path": "fixtures/integrations/complex-miro/common/process-documents-store.json",
+          "sha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520",
+          "pointer": "/extensions/umf.visual",
+          "label": "Common source model",
+          "description": "Synthetic common source with the authored process/document labels, data roles, directed captions, and topology."
+        },
+        {
+          "path": "fixtures/integrations/complex-miro/native/process-documents-store.json",
+          "sha256": "cfa2f86be9138887791db2562b7999a0b5833e62c1cee1863521844ca32dce52",
+          "pointer": "/items and /notes",
+          "label": "Synthetic native stencil witness",
+          "description": "Synthetic native witness with explicit process, document, multiple-document, and data-store stencil identities; it does not assert quantity or cardinality."
+        },
+        {
+          "path": "fixtures/renderers/miro/preview-receipt.json",
+          "sha256": "db234c735ca203de0fb75a9f8e709a40050794a8f1a8065efdb79dce95b13109",
+          "pointer": "/cases/1/rendererTargets/0/preview",
+          "label": "Miro capture receipt",
+          "description": "Receipt for actual Miro output from the qualified synthetic document; Miro service 1.105564.0 / Web SDK v2 (unpinned), restored-original, 1040x510."
+        },
+        {
+          "path": "fixtures/renderers/google-slides/preview-receipt.json",
+          "sha256": "d1ddaec6368f5f66ba86b8a2930e224fc6e096772853221b7b407cea48263fd2",
+          "pointer": "/cases/1/rendererTargets/0/preview",
+          "label": "Google Slides API capture receipt",
+          "description": "Receipt for Google Slides API v1 (service unpinned), restored-original; capture revision b-qR7ONnrETXYw and digest 734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af, 1600x900. Receipt records live transport verification and uiClaim false."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/preview-receipt.json",
+          "sha256": "60da64410d8da8c55749b0324f2abd147808ad174911516cf380b72808809cf6",
+          "pointer": "/cases/1/preview",
+          "label": "PowerPoint native-open and conversion receipt",
+          "description": "Receipt for layout-v3 PPTX artifact SHA-256 4642c5421babd29de9a9deda2d3bc21b08a1cce19875e6e2c0176a993ead08db. The PNG is a LibreOfficeDev 26.8.0.0.alpha0 render; a separate PowerPoint for Mac 16.114.3 open attestation reports no repair prompt."
+        },
+        {
+          "path": "fixtures/renderers/miro/assets/process-documents-store-adb758a15dcdbf2b.jpg",
+          "sha256": "adb758a15dcdbf2b160cedcc39bc18281a893e69bc297e0bf95ae81362fbc14d",
+          "pointer": "published JPEG asset bytes",
+          "label": "Miro historical preview image",
+          "description": "Actual Miro renderer output from the qualified synthetic document."
+        },
+        {
+          "path": "fixtures/renderers/google-slides/assets/process-documents-store-cd46b632516df1eb.png",
+          "sha256": "cd46b632516df1eb505a3314b1cae42c93e1ce35cd75b988866560aff05f2b40",
+          "pointer": "published PNG asset bytes",
+          "label": "Google Slides API capture image",
+          "description": "Google Slides API v1 renderer output for the synthetic document, not a browser UI screenshot."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/assets/process-documents-store-layoutv3-d3e166e4c483d4da.png",
+          "sha256": "d3e166e4c483d4da34768b15d7b4e3228e6bde026b02e51e1993b2c752bea739",
+          "pointer": "published PNG asset bytes",
+          "label": "LibreOffice PPTX conversion (not a PowerPoint screenshot)",
+          "description": "LibreOfficeDev rendering of the exact PPTX separately opened in PowerPoint for Mac 16.114.3."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/renderers/miro/assets/process-documents-store-adb758a15dcdbf2b.jpg",
+          "sha256": "adb758a15dcdbf2b160cedcc39bc18281a893e69bc297e0bf95ae81362fbc14d",
+          "outputPath": "reviews/miro-process-documents-store/original-capture.jpg",
+          "mediaType": "image/jpeg",
+          "description": "Actual Miro renderer output from the qualified synthetic document; not a private original-board capture."
+        },
+        {
+          "path": "fixtures/renderers/google-slides/assets/process-documents-store-cd46b632516df1eb.png",
+          "sha256": "cd46b632516df1eb505a3314b1cae42c93e1ce35cd75b988866560aff05f2b40",
+          "outputPath": "reviews/miro-process-documents-store/google-slides-capture.png",
+          "mediaType": "image/png",
+          "description": "Google Slides API v1 renderer output for the synthetic document."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/assets/process-documents-store-layoutv3-d3e166e4c483d4da.png",
+          "sha256": "d3e166e4c483d4da34768b15d7b4e3228e6bde026b02e51e1993b2c752bea739",
+          "outputPath": "reviews/miro-process-documents-store/powerpoint-libreoffice-render.png",
+          "mediaType": "image/png",
+          "description": "LibreOfficeDev render of the exact layout-v3 PPTX that was separately opened in PowerPoint; it is not a PowerPoint UI screenshot."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "synthetic-integration-witness",
+        "integrationManifestPath": "fixtures/integrations/complex-miro/manifest.json",
+        "integrationManifestSha256": "8f27e9b47b74bc1c638f39f1dc105fc641f3bda2b91c89e39e998ab3e30e5a58",
+        "integrationCaseId": "process-documents-store",
+        "classification": "synthetic-witness",
+        "commonDocumentPath": "fixtures/integrations/complex-miro/common/process-documents-store.json",
+        "commonDocumentSha256": "5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520",
+        "nativeWitnessPath": "fixtures/integrations/complex-miro/native/process-documents-store.json",
+        "nativeWitnessSha256": "cfa2f86be9138887791db2562b7999a0b5833e62c1cee1863521844ca32dce52",
+        "previewReceiptPath": "fixtures/renderers/miro/preview-receipt.json",
+        "previewReceiptSha256": "db234c735ca203de0fb75a9f8e709a40050794a8f1a8065efdb79dce95b13109",
+        "rendererId": "miro",
+        "rendererProfileId": "umf.visual.miro.editable-network/1",
+        "modelVersion": "1.0.0",
+        "mappingVersion": "1",
+        "nativeVersion": "Miro observed service 1.105564.0 / Web SDK v2 (unpinned)",
+        "stage": "restored-original",
+        "captureDigestSha256": "10519e3d86649191707257e2c3eabce999251f670c06658b60b5b76b0697ca8b",
+        "capturePath": "reviews/miro-process-documents-store/original-capture.jpg",
+        "captureSourcePath": "fixtures/renderers/miro/assets/process-documents-store-adb758a15dcdbf2b.jpg",
+        "captureSha256": "adb758a15dcdbf2b160cedcc39bc18281a893e69bc297e0bf95ae81362fbc14d",
+        "captureMediaType": "image/jpeg",
+        "knownOmissions": [
+          "The original synthetic native witness records stencil identities; role and shape labels in the source-derived review are not claims about a private authored Miro board.",
+          "The native multiple-documents stencil does not assert quantity, cardinality, or a minimum count.",
+          "Native coordinates and exact connector control points remain native-only evidence. The published Miro image is actual output from the synthetic document, not a semantic source."
+        ],
+        "scope": "These are synthetic witnesses and qualified outputs, not evidence of deployed behavior or a private original board. Secondary Google Slides and PowerPoint assets are historical model-1.0 outputs, not model-1.4 support evidence."
+      }
     }
   ]
 }

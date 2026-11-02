@@ -38,6 +38,10 @@ describe('visual interchange catalogue data', () => {
     expect(schemaDefinition.$defs.layout).toBeDefined();
     expect(schemaDefinition.$defs.port).toBeDefined();
     expect(schemaDefinition.$defs.node.properties.shape).toBeDefined();
+    expect(schemaDefinition.$defs.node.properties.shape.enum).toContain('document');
+    expect(schemaDefinition.$defs.node.properties.shape.enum).toContain('multiple-documents');
+    expect(schemaDefinition.$defs.participant.properties.shape.enum).toContain('document');
+    expect(schemaDefinition.$defs.participant.properties.shape.enum).toContain('multiple-documents');
     for (const source of [catalog.language.schema, catalog.language.forms]) {
       const bytes = await readFile(source.sourcePath);
       expect(source.sourceSha256).toBe(createHash('sha256').update(bytes).digest('hex'));

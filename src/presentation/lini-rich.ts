@@ -2,6 +2,7 @@
 /** Lini's native tree/mindmap and sequence layouts. */
 import type {Visual,VisualNode} from '../extensions/visual';
 import {quoteLiniProfile} from '../interchange/lini/profile-syntax';
+import {liniShapeDefinition} from './lini-shapes';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
 
 const base='/extensions/umf.visual';
@@ -76,17 +77,19 @@ export function compileLiniSequence(visual:Visual):PresentationPlan|Presentation
  const noteIds=new Map(notes.map((note,index)=>[note.id,'n'+(index+1)]));
  const participantLines=participants.map((participant,index)=>{
   const nativeId=participantIds.get(participant.id)!;add(participant.id,path('/sequence/participants/'+index+'/id'),nativeId,'participant');
-  const shape=participant.shape==='parallelogram'?'slant':participant.shape==='cylinder'?'cyl':participant.shape==='ellipse'?'oval':participant.shape==='hexagon'?'hex':participant.shape==='diamond'?'diamond':participant.shape==='folded-corner'?'note':participant.shape==='rounded-rectangle'?'box':participant.shape==='rectangle'?'box':'box';
+  const shape=liniShapeDefinition(participant.shape,'sequence');
   const requestedIcon=participant.icon??(participant.role==='actor'?'user':undefined),icon=requestedIcon?iconToken(requestedIcon):undefined;
+  if(shape?.approximation)approximations.push({sourcePath:path('/sequence/participants/'+index+'/shape'),requested:'Participant shape '+participant.shape,representation:shape.approximation});
   if(requestedIcon&&!icon)approximations.push({sourcePath:path('/sequence/participants/'+index+'/icon'),requested:'Icon '+requestedIcon,representation:'The icon name is retained visibly as a text caption because it is outside the pinned Lini Phosphor symbol subset.'});
   if(participant.role==='process')approximations.push({sourcePath:path('/sequence/participants/'+index+'/role'),requested:'Participant role process',representation:'The native participant owns a visible “Process” caption; this denotes a depicted process/activity and does not change the authored shape.'});
   const props:string[]=[];
   if(icon)props.push('symbol: '+icon+';');
+  if(shape)props.push(...shape.properties);
   const style=participant.role==='actor'?'--rose-deep':participant.role==='own'?'--teal-deep':participant.role==='platform'?'--sky-deep':participant.role==='external'?'--gray-deep':participant.role==='store'?'--blue-deep':participant.role==='document'?'--purple-deep':participant.role==='process'?'--rose-deep':'--blue-deep';
   props.push('stroke: '+style+';');
-  const children=[participant.role==='process'?`|cell#role| ${quoteText('Process',path('/sequence/participants/'+index+'/role'))}`:undefined,icon?`|icon| { symbol: ${icon}; width: 18; height: 18; fill: none; stroke: ${style}; }`:undefined].filter((item):item is string=>!!item);
+  const children=[shape?.caption?`|cell#shape| ${quoteText(shape.caption,path('/sequence/participants/'+index+'/shape'))}`:undefined,participant.role==='process'&&participant.label!=='Process'?`|cell#role| ${quoteText('Process',path('/sequence/participants/'+index+'/role'))}`:undefined,icon?`|icon| { symbol: ${icon}; width: 18; height: 18; fill: none; stroke: ${style}; }`:undefined].filter((item):item is string=>!!item);
   const childSource=children.length?' [\n    '+children.join('\n    ')+'\n  ]':'';
-  const line=`|${shape}#${nativeId}| ${quoteText(participant.label+(requestedIcon&&!icon?' (icon: '+requestedIcon+')':''),path('/sequence/participants/'+index+'/label'))} { ${props.filter(value=>!value.startsWith('symbol:')).join(' ')} }${childSource}`;
+  const line=`|${shape?.type??'box'}#${nativeId}| ${quoteText(participant.label+(requestedIcon&&!icon?' (icon: '+requestedIcon+')':''),path('/sequence/participants/'+index+'/label'))} { ${props.filter(value=>!value.startsWith('symbol:')).join(' ')} }${childSource}`;
   for(const field of ['detail','evidence','status','emphasis'] as const)if(participant[field]!==undefined)omissions.push({sourcePath:path('/sequence/participants/'+index+'/'+field),reason:'Retained in UMF; this Lini sequence profile does not render the participant field.'});
   return line;
  });

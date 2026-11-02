@@ -293,7 +293,9 @@
             "hexagon",
             "cylinder",
             "folded-corner",
-            "parallelogram"
+            "parallelogram",
+            "document",
+            "multiple-documents"
           ]
         },
         "ports": {
@@ -357,7 +359,9 @@
             "hexagon",
             "cylinder",
             "folded-corner",
-            "parallelogram"
+            "parallelogram",
+            "document",
+            "multiple-documents"
           ]
         },
         "icon": {

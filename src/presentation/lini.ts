@@ -2,6 +2,7 @@
 /** Browser-pure projection to the pinned Lini 1.1 layout and entity grammar. */
 import type {Visual,VisualCardinality,VisualEntity,VisualGroup,VisualNode,VisualMultiplicity,VisualLayout} from '../extensions/visual';
 import {quoteLiniProfile} from '../interchange/lini/profile-syntax';
+import {liniShapeDefinition} from './lini-shapes';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
 import {compileLiniSequence,compileLiniTree} from './lini-rich';
 
@@ -59,13 +60,12 @@ function nodeStyle(node:VisualNode):{type:string;properties:string[];approximati
  const color=palette?.color??stroke;
  const portLabels=(node.ports??[]).map(port=>portCaption(port).length);
  const portWidth=portLabels.length?Math.max(320,Math.max(...portLabels)*8+190):240;
- const props=[fill?property('fill',fill):undefined,stroke?property('stroke',stroke):undefined,color?property('color',color):undefined,node.emphasis==='focus'?property('stroke-width',3):node.emphasis==='muted'?property('opacity',0.55):undefined,node.shape==='rectangle'?property('radius',0):undefined,property('width',portWidth)];
+ const shape=liniShapeDefinition(node.shape),props=[fill?property('fill',fill):undefined,stroke?property('stroke',stroke):undefined,color?property('color',color):undefined,node.emphasis==='focus'?property('stroke-width',3):node.emphasis==='muted'?property('opacity',0.55):undefined,...(shape?.properties??[]),property('width',portWidth)];
  const approximations:Array<[string,string,string]>=[];
  if(node.role)approximations.push(['role',`Node role ${node.role}`,node.role==='process'?'Lini shows the “Process” role caption and process palette while preserving the authored shape; this denotes a depicted process/activity.':node.shape?`Lini role ${node.role} palette color is shown independently from the authored native ${node.shape} shape.`:`Lini node shape/color convention (${palette?.shape??'box'} with palette ${node.role}).`]);
  if(node.status)approximations.push(['status',`Node status ${node.status}`,'Lini fill/stroke color convention.']);
  if(node.emphasis)approximations.push(['emphasis',`Node emphasis ${node.emphasis}`,node.emphasis==='focus'?'Lini uses a heavier native stroke.':'Lini uses reduced native opacity.']);
- const nativeShape:Record<NonNullable<VisualNode['shape']>,string>={rectangle:'box','rounded-rectangle':'box',ellipse:'oval',diamond:'diamond',hexagon:'hex',cylinder:'cyl','folded-corner':'note',parallelogram:'slant'};
- const type=node.shape?nativeShape[node.shape]:palette?.shape??'box';
+ const type=shape?.type??palette?.shape??'box';
  return{type,properties:props.filter((item):item is string=>!!item),approximations};
 }
 function layoutProperties(layout:VisualLayout|undefined,fallback:'flow'|'grid',defaultColumns=1,defaultDirection:'LR'|'TB'='LR'):string[]{
@@ -95,7 +95,7 @@ function nodeDeclaration(node:VisualNode,nativeId:string):string{
  const style=nodeStyle(node);
  const caption=node.label;
  const symbol=node.icon?liniIcon(node.icon):undefined;
- const children=[node.detail?`|cell#detail| ${q(node.detail)}`:undefined,node.role==='process'&&node.detail!=='Process'?`|cell#role| ${q('Process')}`:undefined,symbol?`|icon| { symbol: ${symbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:node.icon?`|cell#icon| ${q('Icon: '+node.icon)}`:undefined,...(node.ports??[]).map((port,index)=>`|cell#p${index+1}| ${q(portCaption(port))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`)].filter((item):item is string=>!!item);
+ const children=[node.detail?`|cell#detail| ${q(node.detail)}`:undefined,node.role==='process'&&node.label!=='Process'&&node.detail!=='Process'?`|cell#role| ${q('Process')}`:undefined,symbol?`|icon| { symbol: ${symbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:node.icon?`|cell#icon| ${q('Icon: '+node.icon)}`:undefined,...(node.ports??[]).map((port,index)=>`|cell#p${index+1}| ${q(portCaption(port))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`)].filter((item):item is string=>!!item);
  const properties=style.properties;
  return `|${style.type}#${nativeId}| ${q(caption)}${properties.length?` { ${properties.join(' ')} }`:''}${children.length?` [\n${children.map(item=>'  '+item).join('\n')}\n]`:''}`;
 }
@@ -205,7 +205,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     if(edge.status)style.push(property('stroke',statuses[edge.status]??'--gray-deep'));
     if(edge.emphasis==='focus')style.push(property('stroke-width',3));else if(edge.emphasis==='muted')style.push(property('opacity',0.55));
     styleRules.push(`.${className} { ${style.length?style.join(' '):'stroke: --teal-deep;'} }`);
-    const fromGroupPath=groupChain(fromNode?.group).map(group=>group.id),toGroupPath=groupChain(toNode?.group).map(group=>group.id),isPrefix=(outer:string[],inner:string[])=>outer.length<inner.length&&outer.every((id,index)=>id===inner[index]),crossingCaptionAlong=isPrefix(fromGroupPath,toGroupPath)?0.1:isPrefix(toGroupPath,fromGroupPath)?0.9:undefined,along=crossingCaptionAlong??[0.35,0.5,0.65][i%3]!;
+    const fromGroupPath=groupChain(fromNode?.group).map(group=>group.id),toGroupPath=groupChain(toNode?.group).map(group=>group.id),isPrefix=(outer:string[],inner:string[])=>outer.length<inner.length&&outer.every((id,index)=>id===inner[index]),crossingCaptionAlong=isPrefix(fromGroupPath,toGroupPath)?0.1:isPrefix(toGroupPath,fromGroupPath)?0.9:undefined,uniquePair=edges.filter(candidate=>candidate.from===edge.from&&candidate.to===edge.to).length===1,along=crossingCaptionAlong??(edge.routing?.kind==='straight'&&uniquePair?0.45:[0.35,0.5,0.65][i%3]!);
     const rows=edgeRowsByScope.get(scope)??[],operator=edge.directed===false?'---':'->';rows.push(`${source} ${operator} ${target}${label?' '+quoteChecked(label,path('/edges/'+i+'/label')):''} .${className} { along: ${along}; }`);edgeRowsByScope.set(scope,rows);
     for(const field of ['why','evidence'] as const)if(edge[field]!==undefined)omit(path('/edges/'+i+'/'+field),field==='why'?'Lini link hints do not appear on the native link SVG; rationale remains in the source document.':'Evidence locators remain in UMF and are not drawn.');
     if(edge.kind)approx(path('/edges/'+i+'/kind'),'Connection kind '+edge.kind,edge.kind==='data'?'Dashed Lini line style.':edge.kind==='control'?'Dotted Lini line style.':'Double Lini line style.');

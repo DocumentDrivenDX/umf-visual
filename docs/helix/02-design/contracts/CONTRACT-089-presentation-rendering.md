@@ -197,8 +197,8 @@ A `PresentationApproximation` MAY include optional stable `code` alongside its
 existing source path, requested meaning and representation text. This is renderer
 result metadata, not a field in the authored visual vocabulary. Routing uses
 `ROUTING_SCOPE_CONFLICT` when incompatible per-edge requests share a native
-routing scope, and `ROUTING_NATIVE_INTERPOLATION` when a native curve request
-cannot guarantee curved geometry for its layout points. Free prose MUST NOT
+routing scope, and `ROUTING_NATIVE_INTERPOLATION` when native route interpolation
+cannot guarantee the authored route geometry for its layout/attachment points. Free prose MUST NOT
 control qualification.
 
 Quality verification MUST validate an allowed code against the exact edge source
@@ -211,3 +211,39 @@ segments plus non-collinear geometry, or direct straight geometry, are mandatory
 With a valid fallback, evidence MUST report observed geometry and the remaining
 approximation. Native carrier ownership, labels, endpoint attachment, direction
 and identity checks remain mandatory in every case.
+
+
+## Document stencil presentation qualification
+
+Draft 1.4.0 `document` and `multiple-documents` are independent authored shapes.
+Interpreters MUST realize their distinct notations, report located approximations,
+or refuse. A view qualifying multiple-document stencil realization MUST display an actual
+legible multi-sheet glyph or composition owned by that node; concentric borders
+or matching text alone MUST NOT qualify as a document stack. It MUST remain one authored logical node,
+with one owned label and its actual incident connector endpoints. Decorative
+sheets MUST NOT invent logical nodes, document identities or numeric cardinality.
+
+Native qualification MUST bind the single/stacked notation to its mapped node,
+check readable silhouette/label and drawn attachment, and reject removal or
+replacement of the stack while retaining its text elsewhere. Backend shape
+limitations MUST remain explicit; native `doc`/`docs` syntax or successful SVG
+load alone does not qualify another backend or exact source-native fidelity.
+Existing folded-corner behavior and frozen model profiles remain unchanged.
+Fixed E/R field-table views retain their existing scoped shape-annotation
+approximation: they MAY show requested shape in the owned table header and report
+a located shape approximation without drawing sheets. Such qualification concerns
+the field-table view and MUST NOT claim multi-sheet glyph realization. Mermaid's
+existing folded-corner-to-wavy-document mapping MUST also remain an explicit
+located approximation rather than redefining the authored folded-corner shape.
+
+
+For pinned Mermaid straight requests, `ROUTING_NATIVE_INTERPOLATION` MAY qualify
+an explicitly approximate native linear polyline that bends around layout or
+attachment points. Admission requires authored `routing.kind: straight`, the
+actual owned edge's `curve: linear` configuration, exactly one matching located
+code and no native curved segments. Evidence and UI MUST describe observed bent
+polyline geometry and deviation rather than claiming an exact straight route.
+This exception MUST NOT broaden curved-request fallback: its interpolation
+fallback remains collinear only; an angular polyline does not realize a curve.
+Carrier, label, direction and endpoint checks remain mandatory. Other backends
+retain their separately qualified routing conditions.

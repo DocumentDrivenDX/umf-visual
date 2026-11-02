@@ -12,7 +12,7 @@ const ui = {
   payload: $('visual-payload'), visualVersion: $('visual-version'), programmaticCode: $('programmatic-code'),
   compileTargetNote: $('compile-target-note'),
 };
-const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, historicalToken: 0, historicalUrl: null, objectUrls: new Set(), currentVariant: null, currentImageUrl: null};
+const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, historicalToken: 0, historicalUrl: null, historicalResizeObserver: null, objectUrls: new Set(), currentVariant: null, currentImageUrl: null};
 const HASH = /^[a-f0-9]{64}$/i;
 const pageConfig = {manifest: document.body.dataset.manifest || 'showcase.json', assetPrefix: document.body.dataset.assetPrefix || 'showcase', legacyRedirect: document.body.dataset.legacyRedirect !== 'false', selectionParam: document.body.dataset.selectionParam || 'id'};
 const LEGACY_HASHES = new Set(['#coverage', '#six-target-section', '#integrations', '#examples', '#language', '#kind-reference-grid']);
@@ -138,6 +138,8 @@ async function renderOriginalEvidence(example) {
   const status = $('historical-identity');
   const omissions = $('historical-omissions');
   const download = $('historical-capture-download');
+  state.historicalResizeObserver?.disconnect();
+  state.historicalResizeObserver = null;
   if (state.historicalUrl) { URL.revokeObjectURL(state.historicalUrl); state.objectUrls.delete(state.historicalUrl); state.historicalUrl = null; }
   image.hidden = true; image.removeAttribute('src');
   download.href = '#'; download.removeAttribute('download'); download.setAttribute('aria-disabled', 'true');
@@ -164,7 +166,20 @@ async function renderOriginalEvidence(example) {
     image.alt = `Historical ${safeText(evidence.rendererId)} capture for ${safeText(evidence.integrationCaseId)}`;
     await image.decode();
     if (token !== state.historicalToken || state.selectedId !== example.id) { URL.revokeObjectURL(captureUrl); state.objectUrls.delete(captureUrl); state.historicalUrl = null; return; }
+    image.width = image.naturalWidth;
+    image.height = image.naturalHeight;
     image.hidden = false;
+    const fitCapture = () => {
+      const frameWidth = image.parentElement?.clientWidth || 0;
+      if (!frameWidth || !image.naturalWidth || !image.naturalHeight) return;
+      const maxHeight = Number.parseFloat(getComputedStyle(image).maxHeight) || image.naturalHeight;
+      const scale = Math.min(1, frameWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+      image.style.width = `${image.naturalWidth * scale}px`;
+      image.style.height = `${image.naturalHeight * scale}px`;
+    };
+    fitCapture();
+    state.historicalResizeObserver = new ResizeObserver(fitCapture);
+    if (image.parentElement) state.historicalResizeObserver.observe(image.parentElement);
     download.href = captureUrl;
     download.download = pathLabel(evidence.capturePath);
     download.setAttribute('aria-disabled', 'false');
@@ -431,5 +446,5 @@ $('download-full-umf').addEventListener('click', () => {
   const example = getExample(state.selectedId);
   if (example) downloadJson(example.definition, pathLabel(example.definitionPath).replace(/\.json$/u, '') + '.umf.json');
 });
-window.addEventListener('beforeunload', () => { for (const url of state.objectUrls) URL.revokeObjectURL(url); });
+window.addEventListener('beforeunload', () => { state.historicalResizeObserver?.disconnect(); for (const url of state.objectUrls) URL.revokeObjectURL(url); });
 initialize();

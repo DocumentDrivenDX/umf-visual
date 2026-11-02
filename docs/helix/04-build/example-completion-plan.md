@@ -1070,11 +1070,83 @@ and desktop/mobile views. Historical Miro, PowerPoint (LibreOffice-converted)
 and Slides images were also inspected: their missing boundary/store conventions
 remain explicit old 1.0.0 qualifications, not new 1.4.0 host support.
 
+### Second-cycle scope — process, documents and store
+
+Cycle 1 is committed; cycle 2 implementation and verification are complete.
+Review the unchanged synthetic
+common document and native witness for `process-documents-store`, with hashes
+`5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520` and
+`cfa2f86be9138887791db2562b7999a0b5833e62c1cee1863521844ca32dce52`.
+The actual historical Miro image shows plain node rectangles and three connector
+captions; its edited process fill does not author a new semantic property.
+Original 1.0.0 source, capture and receipts remain unchanged qualifications.
+
+The approved bounded shared-model addition introduces `document` and `multiple-documents` shape
+notations to unreleased 1.4.0, independently of document role and numeric
+cardinality. Preserve existing folded-corner meaning. Reuse explicit process role,
+store role/cylinder and straight routing; do not infer a multiple-document role
+or business minimum/count from stencil identity. Exact geometry remains native.
+[Mermaid's primary flowchart reference](https://mermaid.js.org/syntax/flowchart.html)
+documents native `doc`/`docs`; pinned execution must qualify them.
+[Graphviz's documented shape catalog](https://graphviz.org/doc/info/shapes.html)
+provides note
+but no corresponding document-stack primitive; Lini/Graphviz capability probes
+must qualify actual visible multi-sheet glyph/composition or report located shape
+approximations; concentric borders and text alone do not establish stacked sheets.
+
+Implement and review generic shape mapping and owned native glyph/connection
+proof, source-derived review manifest/YAML and all output views. Inspect all
+original host targets separately from the new portable presentations. Run public
+model/version/package/browser checks for the new enum and focused native/source
+provenance regressions, broadening checks only when the change warrants them.
+Keep source node/edge identities unchanged. Review rejects concentric Graphviz
+note peripheries as a sheet stack; use a generic owned offset-sheet composition.
+Mermaid's native linear routing may bend around the new shape attachments: keep
+the straight source directive, report measured bent-polyline interpolation with
+a located code and visible caveat, and preserve exact straight proof where other
+backends realize it. Curved-request angular-polyline fallback remains forbidden.
+The cycle 2 commit follows in this change and MUST precede cycle 3. Draft 1.4.0
+remains unreleased; no new host capability or publication is claimed.
+
+### Second-cycle closeout — ready for commit
+
+Sol approves the bounded source/model and generic renderer interfaces. Independent
+checks pass 42 tests with 496 assertions across five files: native document/stack
+ownership, offset-sheet and concentric-substitution controls, Graphviz stack reuse,
+straight Mermaid ordered connections, Lini caption/arrowhead clearance and sequence
+fallbacks, cycle 1 geometry regressions, source provenance, JSON/YAML editing and
+frozen 1.3.0 rejection of the new stencil shapes. There is no example-ID renderer
+dispatch, inferred multiple-document business role/count, or new host qualification.
+Fixed entity-table shape annotations remain explicitly scoped approximations;
+Mermaid folded-corner-to-wavy-document mapping is disclosed without redefining
+folded-corner.
+
+Root reports focused/integrated, native, browser, packed-consumer, catalog and
+site checks passing, including both reviews and their three portable variants.
+Final UI changes are generic presentation sizing only: native-aspect previews
+avoid an empty fixed stage; historical captures fit their containing frame with
+aspect ratio preserved across desktop, 375px and back. Sol's source audit confirms
+selection guards and resize-observer cleanup remain in place, source/native image
+bytes are unchanged, and the catalog fullscreen test waits for the real visible
+exit control after the asynchronous fullscreen event.
+
+The quiet final suite passes 632 tests, zero failures and 19,176 assertions across
+90 files in 350.87 seconds (`.cache/cycle02-full-tests.log`). Source checks,
+TypeScript, build, runtime fetch/native checks, catalog/showcase/review verification,
+public browser checks, fresh packed Bun/Node consumers and all three site-browser
+gates pass. Root approves the final native outputs and desktop/mobile review CSS.
+The two review definitions have six qualified portable variants and 18 native
+source/SVG/PNG assets. Model 1.4.0 remains draft and unreleased; historical host
+receipts retain their original model/profile scope. Cycle 2 implementation and
+verification are complete. Its commit follows in this change; source control
+supplies that identity. Cycle 3 has not started and MUST wait for the commit.
+
 ### Ordered cycle inventory
 
-Cycle 1 implementation and verification are complete; its commit follows in this
-change. Cycles 2–68 remain pending. Source control supplies commit identity; no
-self-referential commit hash is embedded here.
+Cycle 1 is committed as `284974f`. Cycle 2 is verified and ready for the commit
+that follows in this change; cycles 3–68 remain pending.
+Source control supplies commit identity; no self-referential commit hash is
+embedded here.
 
 | Cycle | Identity | Source population |
 | --- | --- | --- |

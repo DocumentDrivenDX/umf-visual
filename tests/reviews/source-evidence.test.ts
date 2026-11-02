@@ -6,7 +6,7 @@ import {verifyReviewSourceEvidence} from '../../scripts/reviews/source-evidence'
 const sourceManifest='fixtures/reviews/review-sources.json';
 
 test('review evidence joins exact checked-in definitions, integration witnesses, renderer receipt and capture bytes',async()=>{
- expect(await verifyReviewSourceEvidence()).toEqual({examples:1,captures:1});
+ expect(await verifyReviewSourceEvidence()).toEqual({examples:2,captures:2});
 });
 
 test('stale or forged common/native/capture bindings fail before a review can be published',async()=>{

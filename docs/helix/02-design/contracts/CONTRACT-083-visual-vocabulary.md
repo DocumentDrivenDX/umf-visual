@@ -364,6 +364,22 @@ contradictory intent. Native path evidence MUST distinguish an actual curve from
 a nominal curve command whose points are collinear. Exact native geometry remains
 preserved separately; shared intent does not qualify pixel-identical reproduction.
 
+### Draft 1.4.0 document stencil shapes
+
+The shared `node.shape` and sequence `participant.shape` enums add `document` and
+`multiple-documents`. These identify a single-document notation and a visible
+stack-of-document-sheets notation respectively. They express authored visual
+stencil intent, independently of `role`, business type, ownership and geometric
+coordinates. `multiple-documents` MUST NOT imply an exact document count,
+business cardinality or numeric minimum; decorative sheet count is an interpreter
+choice, not source data. Neither shape causes inference of a document role.
+
+The existing `folded-corner` remains its distinct geometric shape; interpreters
+MUST NOT silently redefine it as either new notation. Map explicit native stencil
+identity only with source-bound evidence. Unknown extensions and exact native
+geometry remain preserved under the existing rules. Version 1.4.0 is unreleased;
+this addition does not mutate frozen 1.3.0 or older interpretation/defaults.
+
 ## Non-Normative Notes
 
 The renderer, layout engines, theme mapping and checks of the drawing (clipped text, crossings,

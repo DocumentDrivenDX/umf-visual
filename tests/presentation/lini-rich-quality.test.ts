@@ -42,6 +42,28 @@ describe('pinned Lini rich layouts',()=>{
   }finally{await page.close();}
  },{timeout:30_000});
 
+ it('keeps sequence document stencils visible when the note selector is reserved for annotations',async()=>{
+  const document=createVisualDocument({id:'sequence-document-shapes',kind:'sequence',form:'lifelines',question:'Which documents are shown?',sequence:{participants:[
+   {id:'activity',label:'Process',role:'process'},
+   {id:'document',label:'Document',role:'document',shape:'document'},
+   {id:'documents',label:'Multiple documents',shape:'multiple-documents'},
+   {id:'folded',label:'Folded corner',shape:'folded-corner'},
+  ],messages:[{id:'read',from:'activity',to:'document',label:'reads',kind:'call'},{id:'store',from:'activity',to:'documents',label:'stores',kind:'call'},{id:'open',from:'activity',to:'folded',label:'opens',kind:'call'}]}},'test:sequence-document-shapes','1.4.0');
+  const plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+  expect(plan.source).toContain('|box#p2| "Document"');expect(plan.source).toContain('|box#p3| "Multiple documents"');expect(plan.source).toContain('|box#p4| "Folded corner"');expect(plan.source).toContain('multiple: 2;');expect(plan.source).toContain('(requested shape: document)');expect(plan.source).toContain('(requested shape: multiple-documents)');expect(plan.source).toContain('(requested shape: folded-corner)');
+  const processLine=plan.source.split('\n').find(line=>line.includes('|box#p1|'))??'';expect(processLine.match(/\bProcess\b/gu)).toHaveLength(1);expect(processLine).not.toContain('|cell#role|');
+  expect(plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/sequence/participants/2/shape'&&/does not assert document count/i.test(item.representation))).toBe(true);
+  const native=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900}});
+  await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden;background:#fff}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>');
+  await page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},native.svg);
+  try{
+   const checks=await verifyLiniPresentationQuality(page,{document,plan,nativeAst:native.nativeAst});expectPass(checks);
+   const multi=page.locator('g.lini-node[data-id="p3"]'),backing=multi.locator(':scope > g:not(.lini-node)').first();expect(await backing.locator('rect').count()).toBeGreaterThan(0);
+   await backing.evaluate(group=>group.setAttribute('transform','translate(0,0)'));
+   expect(status(await verifyLiniPresentationQuality(page,{document,plan,nativeAst:native.nativeAst}),'lini-rich-svg-ownership-geometry')).toBe('fail');
+  }finally{await page.close();}
+ },{timeout:30_000});
+
  it('proves the 4-participant, 8-message checkout sequence in native syntax and SVG geometry',async()=>{
   const good=await render('lini-gallery-checkout-sequence');
   try{

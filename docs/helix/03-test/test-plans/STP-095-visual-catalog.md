@@ -273,3 +273,26 @@ route to its own connector and endpoints, distinguish non-collinear curves from
 straight paths, and reject straightened-curve mutations. Include mixed-intent
 inputs so global renderer settings cannot silently flatten edge distinctions.
 Exact control points are preserved native evidence, not common-model equality.
+
+
+## Second-cycle document stencil checks
+
+Verify explicit draft 1.4.0 single-document and multiple-document shapes, role/count
+independence, unknown-content preservation, exact JSON/YAML editing and frozen
+1.3.0 behavior. Qualified native output must own distinct readable stencil
+geometry, labels and attached connectors. Negative controls remove the multi-sheet
+geometry or substitute concentric borders while leaving matching text; those
+controls must fail the stack claim. Verify no invented sheet nodes or cardinality.
+Pinned Mermaid 12.2 `doc`/`docs`, Graphviz and Lini mappings each require their own
+execution proof and located approximations. Recheck generic shape consumers,
+cycle 1 receipts and public browser/package boundaries when touched. Preserve
+original host source/profile/capture identity; no new host capability follows
+from improved portable presentation.
+
+
+For Mermaid document-stencil connections, test actual native linear routes whose
+shape attachments yield bent polylines. Admit only source-straight, owned-linear,
+single-code, no-curve interpolation approximations; require measured geometry and
+visible caveat. Curved-request angular-polyline negative controls MUST still fail.
+Graphviz document stacks must have genuinely offset sheet geometry; concentric
+peripheries fail the stack claim even when text and outlines remain present.

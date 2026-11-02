@@ -15,11 +15,13 @@ export interface PresentationQualityCheck {
 }
 
 type NativeAst={objects?:Record<string,unknown>[];edges?:Record<string,unknown>[]};
+type QualityBox={x:number;y:number;width:number;height:number};
 const sha=(s:string)=>createHash('sha256').update(Buffer.from(s,'utf8')).digest('hex');
 const pass=(check:string,sourceSha256:string,ok:boolean,details:string):PresentationQualityCheck=>({check,sourceSha256,result:ok?'pass':'fail',details});
 const text=(v:unknown)=>typeof v==='string'?v:'';
 const norm=(s:string)=>s.replace(/\s+/g,' ').trim();
 const normLabel=(s:string)=>norm(s).replace(/\s*\/\s*/g,'/');
+const hasOffsetSheetPair=(boxes:QualityBox[])=>{const unique=boxes.filter((box,index)=>!boxes.slice(0,index).some(other=>Math.abs(box.x-other.x)<1&&Math.abs(box.y-other.y)<1&&Math.abs(box.width-other.width)<1&&Math.abs(box.height-other.height)<1));for(let i=0;i<unique.length;i++)for(let j=i+1;j<unique.length;j++){const a=unique[i]!,b=unique[j]!,offset=Math.hypot(a.x+a.width/2-b.x-b.width/2,a.y+a.height/2-b.y-b.height/2),overlapWidth=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)),overlapHeight=Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)),smaller=Math.min(a.width*a.height,b.width*b.height);if(offset>2&&overlapWidth*overlapHeight>=smaller*.45)return true;}return false;};
 const decodeDotLabel=(s:string)=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&#(\d+);/g,(_,n:string)=>String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi,(_,n:string)=>String.fromCodePoint(parseInt(n,16)));
 const escRe=(s:string)=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const exactFieldText=(candidate:string,name:string,type:string|undefined)=>{
@@ -87,22 +89,22 @@ export async function verifyPresentationQuality(
   const box=(el:Element)=>{const r=el.getBoundingClientRect();return{x:r.x-rootRect.x,y:r.y-rootRect.y,width:r.width,height:r.height};};
   const curveDeviation=(path:SVGPathElement)=>{const length=path.getTotalLength();if(length<=0)return 0;const point=(at:number)=>{const p=path.getPointAtLength(at),matrix=path.getScreenCTM();return matrix?new DOMPoint(p.x,p.y).matrixTransform(matrix):p;},a=point(0),b=point(length),dx=b.x-a.x,dy=b.y-a.y,span=Math.hypot(dx,dy)||1;let deviation=0;for(let index=1;index<12;index++){const p=point(length*index/12);deviation=Math.max(deviation,Math.abs(dy*p.x-dx*p.y+b.x*a.y-b.y*a.x)/span);}return deviation;};
   const titleOf=(g:Element)=>normalize(g.querySelector(':scope > title')?.textContent??'');
-  const carriers=[...s.querySelectorAll('g.node,g.cluster,g.edge')].map(g=>({
+  const carriers=[...s.querySelectorAll('g.node,g.cluster,g.edge')].map(g=>{const nativePolygons=[...g.querySelectorAll(':scope > polygon')].map(box),primaryPolygon=[...nativePolygons].sort((a,b)=>b.width*b.height-a.width*a.height)[0];return({
    cls:g.getAttribute('class')??'',title:titleOf(g),id:g.getAttribute('id')??'',
    ancestorClusters:(()=>{const ids:string[]=[];let p=g.parentElement;while(p&&p.tagName.toLowerCase()!=='svg'){if(p.matches('g.cluster'))ids.push(p.getAttribute('id')??'');p=p.parentElement;}return ids;})(),
    ownText:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge')===g).map(visibleText).filter(Boolean),
    ownTextDetails:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge')===g).map(el=>({value:visibleText(el),bounds:box(el)})).filter(x=>x.value),
    bounds:box(g),
-   polygon:g.querySelector(':scope > polygon')?box(g.querySelector(':scope > polygon')!):null,
-   polygons:[...g.querySelectorAll(':scope > polygon')].map(box),
-   paths:[...g.querySelectorAll(':scope > path')].map(p=>{
+   polygon:primaryPolygon??null,
+   polygons:nativePolygons,
+   paths:[...g.querySelectorAll(':scope path')].map(p=>{
     const path=p as SVGPathElement,point=(at:number)=>{try{const q=path.getPointAtLength(at),screen=new DOMPoint(q.x,q.y).matrixTransform(path.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};}catch{return null;}};
     const length=path.getTotalLength();return{d:path.getAttribute('d')??'',markerEnd:path.getAttribute('marker-end'),bounds:box(p),start:point(0),end:point(length),curveDeviation:curveDeviation(path)};
    }),
    arrow:g.querySelector(':scope > polygon')!==null,
    arrowPoints:(()=>{const polygon=g.querySelector(':scope > polygon') as SVGPolygonElement|null;if(!polygon||polygon.points.numberOfItems<3)return[];return[...polygon.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(polygon.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};});})(),
    fontSizes:[...g.querySelectorAll('text')].map(t=>{const v=parseFloat(getComputedStyle(t).fontSize);return Number.isFinite(v)?v:0;}).filter(v=>v>0),
-  }));
+  });});
   const allText=[...s.querySelectorAll('text,foreignObject')].map(el=>({value:visibleText(el),bounds:box(el),size:el instanceof SVGTextElement?parseFloat(getComputedStyle(el).fontSize):parseFloat(getComputedStyle(el).fontSize),owner:(el.closest('g.node,g.cluster,g.edge')?.querySelector(':scope > title')?.textContent??'').trim()})).filter(x=>x.value);
   const paths=[...s.querySelectorAll('path[data-edge="true"]')].map(p=>{
    const path=p as SVGPathElement,point=(at:number)=>{try{const q=path.getPointAtLength(at),screen=new DOMPoint(q.x,q.y).matrixTransform(path.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};}catch{return null;}};
@@ -150,15 +152,20 @@ export async function verifyPresentationQuality(
     const id=nativeIdForNode(plan,node.id),nodeSvg=id?carrier('node',id):undefined;
     if(!nodeSvg||!norm(nodeSvg.ownText.join(' ')).includes(norm(node.label)))missing.push(`node label ${node.id}`);
     if(node.role==='process'){
-     const expected=norm([node.label,node.detail,node.detail==='Process'?undefined:'Process'].filter(Boolean).join(' '));
+     const expected=norm([node.label,node.detail,node.label==='Process'||node.detail==='Process'?undefined:'Process'].filter(Boolean).join(' '));
      if(!nodeSvg||!norm(nodeSvg.ownText.join(' ')).includes(expected))missing.push(`node ${node.id} process caption is not owned by its native carrier`);
+     const object=id?byName.get(id):undefined,processFill=node.status==='built'?'#e8f2ec':node.status==='placeholder'?'#fff5e4':node.status==='decided'?'#edf2f8':node.status==='unknown'?'#f2f3f3':'#f4eef4';
+     if(!object||text(object.fillcolor).toLowerCase()!==processFill)missing.push(`node ${node.id} process role palette is not applied to its native carrier`);
     }
+   if(node.shape==='document'||node.shape==='folded-corner'||(!node.shape&&node.role==='document')){const object=id?byName.get(id):undefined;if(text(object?.shape)!=='note')missing.push(`node ${node.id} single-document shape is not a native Graphviz note`);}
+    if(node.shape==='multiple-documents'){const object=id?byName.get(id):undefined,topSheet=nodeSvg?.polygons.find(box=>box.width>=(nodeSvg.bounds.width*.8)&&box.height<box.width*.1),sideSheet=nodeSvg?.polygons.find(box=>box.width<=(nodeSvg.bounds.width*.1)&&box.height>=(nodeSvg.bounds.height*.7));if(text(object?.shape)!=='plain'||!topSheet||!sideSheet||!nodeSvg?.ownText.join(' ').includes(node.label))missing.push(`node ${node.id} multiple-document sheet composition is not owned by one native Graphviz node`);}
    }
    if(visual.kind==='flow')for(const group of visual.groups??[]){
     const id=plan.elementMap.find(e=>e.kind==='group'&&e.logicalId===group.id)?.nativeId;
     const cluster=id?carrier('cluster','cluster_'+id):undefined;
     if(!cluster||!cluster.ownText.join(' ').includes(group.label)||(group.detail&&!cluster.ownText.join(' ').includes(group.detail)))missing.push(`group label ${group.id}`);
    }
+   if(visual.form==='stack')for(const node of visual.nodes??[]){if(node.shape!=='document'&&node.shape!=='folded-corner'&&node.shape!=='multiple-documents')continue;const id=nativeIdForNode(plan,node.id),nodeSvg=id?carrier('node',id):undefined,object=id?byName.get(id):undefined;if(node.shape==='multiple-documents'){const topSheet=nodeSvg?.polygons.some(box=>box.width>=nodeSvg.bounds.width*.8&&box.height<box.width*.1),sideSheet=nodeSvg?.polygons.some(box=>box.width<=nodeSvg.bounds.width*.1&&box.height>=nodeSvg.bounds.height*.7);if(text(object?.shape)!=='plain'||!topSheet||!sideSheet||!nodeSvg?.ownText.join(' ').includes(node.label))missing.push(`stack node ${node.id} multiple-document offset sheets are not owned by its one Graphviz node`);}else if(text(object?.shape)!=='note')missing.push(`stack node ${node.id} document stencil is not a Graphviz note`);}
    if(visual.form==='stack')for(const layer of visual.structure?.layers??[]){
     const id=plan.elementMap.find(e=>e.kind==='layer'&&e.logicalId===layer.id)?.nativeId;
     const cluster=id?carrier('cluster','cluster_'+id):undefined;
@@ -328,15 +335,21 @@ export async function verifyPresentationQuality(
    const label=e.kind==='entity'?visual.structure?.entities?.[index]?visual.nodes?.find(n=>n.id===visual.structure!.entities![index]!.node)?.label:undefined:visual.nodes?.[index]?.label;
    const nodeId=e.kind==='entity'?visual.structure?.entities?.[index]?.node:e.logicalId;
    const node=visual.nodes?.find(n=>n.id===nodeId);
-   const requiredText=node?.role==='process'?norm([label,node.detail,node.detail==='Process'?undefined:'Process'].filter(Boolean).join(' ')):label??'';
+   const requiredText=node?.role==='process'?norm([label,node.detail,label==='Process'||node.detail==='Process'?undefined:'Process'].filter(Boolean).join(' ')):label??'';
    return{nativeId:e.nativeId,label:label??'',requiredText,processRole:node?.role==='process'};
   });
+  const shapeFailures=visual.kind==='flow'||visual.form==='stack'?(visual.nodes??[]).flatMap(node=>{
+   if(node.shape!=='document'&&node.shape!=='folded-corner'&&node.shape!=='multiple-documents')return[];
+   const nativeId=nativeIdForNode(plan,node.id),owner=nativeId?dom.carriers.find(c=>c.id.includes(`flowchart-${nativeId}-`)):undefined,requiredPaths=node.shape==='multiple-documents'?4:2,declaration=node.shape==='multiple-documents'?'docs':'doc',hasDeclaredShape=!!nativeId&&plan.source.split('\n').some(line=>line.includes(`${nativeId}@{ shape: ${declaration},`)),hasOffsetStack=node.shape!=='multiple-documents'||!!owner&&hasOffsetSheetPair(owner.paths.map(path=>path.bounds));
+   return owner&&owner.paths.length>=requiredPaths&&hasOffsetStack&&hasDeclaredShape?[]:[`${node.id} ${node.shape} native path composition${node.shape==='multiple-documents'?' with offset sheet geometry':''}`];
+  }):[];
   const ownLabelsMissing=expectedNodeLabels.filter(({nativeId,label,requiredText,processRole})=>{
    const expectedCarrier=dom.carriers.find(c=>c.id.includes(`flowchart-${nativeId}-`)||c.id.includes(`entity-${nativeId}-`)||c.title===nativeId);
    const owned=expectedCarrier?normLabel(expectedCarrier.ownText.join(' ')):'';
    return !label||!expectedCarrier||!owned.includes(normLabel(label))||(processRole&&!owned.includes(normLabel(requiredText)));
   }).map(x=>`${x.nativeId}:${x.processRole?'process role caption / ':''}${x.label}`);
-  checks.push(pass('mermaid-native-node-carriers',sourceSha256,missing.length===0&&ownLabelsMissing.length===0,missing.length||ownLabelsMissing.length?`Missing native node carriers: ${[...missing,...ownLabelsMissing.map(x=>'label '+x)].join(', ')}.`:`${expectedNodeLabels.length} source labels appear in their exact ID-mapped Mermaid node/entity carriers.`));
+  const processRoleMissing=expectedNodeLabels.filter(({nativeId,processRole})=>{if(!processRole)return false;const owner=dom.carriers.find(c=>c.id.includes(`flowchart-${nativeId}-`)||c.id.includes(`entity-${nativeId}-`)||c.title===nativeId);return!owner?.cls.split(/\s+/u).includes('role_process');}).map(item=>`${item.nativeId}:role_process carrier class`);
+  checks.push(pass('mermaid-native-node-carriers',sourceSha256,missing.length===0&&ownLabelsMissing.length===0&&shapeFailures.length===0&&processRoleMissing.length===0,missing.length||ownLabelsMissing.length||shapeFailures.length||processRoleMissing.length?`Missing native node carriers: ${[...missing,...ownLabelsMissing.map(x=>'label '+x),...shapeFailures,...processRoleMissing].join(', ')}.`:`${expectedNodeLabels.length} source labels and all requested document shapes appear in their exact ID-mapped Mermaid node/entity carriers.`));
   if(visual.form==='entities'){
    // Mermaid ER has entity-level relationship endpoints, never field-port attachment.
    const nodesWithFields=dom.carriers.filter(c=>c.cls.includes('node')&&c.ownText.length>0);
@@ -384,7 +397,10 @@ export async function verifyPresentationQuality(
       if(path.curveDeviation<1.5&&routePolicy.length===1&&routePolicy[0]?.code==='ROUTING_NATIVE_INTERPOLATION')routeFallbacks.push(`${edge.id} native layout is collinear; the located natural-curve approximation is retained (${path.curveDeviation.toFixed(1)}px deviation)`);
       else failures.push(`${edge.id} requested curved routing but its owned Mermaid path lacks a native curved segment or visible non-collinearity (${path.curveDeviation.toFixed(1)}px deviation)`);
      }
-     if(edge.routing.kind==='straight'&&(hasNativeCurve||path.curveDeviation>1.5))failures.push(`${edge.id} requested straight routing but its owned Mermaid path is curved or deviates ${path.curveDeviation.toFixed(1)}px from a straight chord`);
+     if(edge.routing.kind==='straight'&&(hasNativeCurve||path.curveDeviation>1.5)){
+      if(!hasNativeCurve&&path.curveDeviation>1.5&&routePolicy.length===1&&routePolicy[0]?.code==='ROUTING_NATIVE_INTERPOLATION')routeFallbacks.push(`${edge.id} requested straight routing; native linear interpolation produced a bent polyline with ${path.curveDeviation.toFixed(1)}px chord deviation, retained as a located approximation`);
+      else failures.push(`${edge.id} requested straight routing but its owned Mermaid path is curved or deviates ${path.curveDeviation.toFixed(1)}px from a straight chord`);
+     }
     }
     if(edge.directed!==false&&!path.markerEnd)failures.push(`${edge.id} has no directed target marker`);
     if(edge.directed===false&&(path.markerStart||path.markerEnd))failures.push(`${edge.id} is undirected but has a native arrow marker`);
