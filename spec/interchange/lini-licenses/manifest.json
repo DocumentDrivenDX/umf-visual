@@ -1,0 +1,22 @@
+{
+  "upstreamRepository": "monfa-red/lini",
+  "upstreamVersion": "1.1.0",
+  "upstreamCommit": "0502d381dbd779d72b2ac4329a19b64201422a21",
+  "files": [
+    {
+      "name": "google-sans.txt",
+      "sha256": "76efb90a3bf8d7d91a3498d15fb409ee59ff43b0bf614b4afa0a947b6d7c75d3",
+      "originUrl": "https://github.com/monfa-red/lini/blob/0502d381dbd779d72b2ac4329a19b64201422a21/LICENSES/google-sans"
+    },
+    {
+      "name": "google-sans-code.txt",
+      "sha256": "781f3121e09c1f4e8234901b180ed865cb57b259ce7a1edc9a65c4f956a0cd5e",
+      "originUrl": "https://github.com/monfa-red/lini/blob/0502d381dbd779d72b2ac4329a19b64201422a21/LICENSES/google-sans-code"
+    },
+    {
+      "name": "phosphor.txt",
+      "sha256": "40a3ac5bc7a96a292f3a50062a29353a09d4a689131374f8c2037fe32c59d1bf",
+      "originUrl": "https://github.com/monfa-red/lini/blob/0502d381dbd779d72b2ac4329a19b64201422a21/LICENSES/phosphor"
+    }
+  ]
+}

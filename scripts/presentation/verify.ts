@@ -9,6 +9,7 @@ import {chromium} from 'playwright';
 import {verifyPresentationQuality} from './quality';
 import {screenshotSvg} from './build';
 import {renderPresentationLini} from './lini-runtime';
+import {visualPayloadYaml} from './payload-source';
 
 const root=resolve(import.meta.dir,'../..');
 const sha=(data:string|Uint8Array)=>createHash('sha256').update(data).digest('hex');
@@ -21,7 +22,9 @@ export type ArtifactReader=(path:string)=>Promise<Uint8Array>;
 export function requiredPresentationChecks(backend:PresentationBackend,visual:Visual):string[]{
  const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
  if(backend==='graphviz')checks.push('graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order');
- else if(backend==='lini')checks.push('lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows');
+ else if(backend==='lini')checks.push(...(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
+  ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']
+  :['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows']));
  else checks.push('mermaid-native-node-carriers',...(visual.form==='entities'?['mermaid-er-fields-and-relations']:[...(visual.kind==='flow'?['mermaid-flow-paths']:[]),'mermaid-containment-and-order']));
  if(backend!=='lini'&&visual.nodes?.some(node=>node.ports?.length))checks.push(backend==='graphviz'?'graphviz-node-port-rows':'mermaid-labeled-port-fallbacks');
  return checks.sort();
@@ -45,6 +48,7 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
   }
   const raw=new TextDecoder('utf-8',{fatal:true}).decode(definitionBytes),document=readVisualDocument(raw,'json');
   if(!same(output.definition,JSON.parse(raw)))throw Error(`${example.id} rendered definition differs from its hashed definition artifact.`);
+  if(output.visualPayloadYaml!==visualPayloadYaml(document))throw Error(`${example.id} visible YAML differs from its exact authored visual payload.`);
   const visual=document.extensions!['umf.visual'] as unknown as Visual;
   if(visual.kind!==example.kind||visual.form!==example.form||visual.id!==example.id)throw Error(`${example.id} classification differs from its definition.`);
   if(!Array.isArray(output.renders))throw Error(`${example.id} has no render rows.`);

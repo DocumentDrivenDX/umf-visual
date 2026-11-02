@@ -17,6 +17,16 @@ const consumer=await mkdtemp(resolve('.cache/consumer-'));
 await Bun.write(join(consumer,'package.json'),JSON.stringify({private:true,type:'module',dependencies:{'@documentdrivendx/umf-visual':'file:'+archive}}));
 const install=Bun.spawn([process.execPath,'install','--ignore-scripts'],{cwd:consumer,stdout:'inherit',stderr:'inherit'});
 if(await install.exited)throw Error('Packed consumer installation failed');
+const runtimePin=await Bun.file('spec/interchange/lini-runtime.json').json();
+const packedRuntime=join(consumer,'node_modules/@documentdrivendx/umf-visual/dist/lini-runtime');
+for(const asset of runtimePin.assets){
+ const bytes=await Bun.file(join(packedRuntime,asset.name)).bytes();
+ if(Bun.CryptoHasher.hash('sha256',bytes,'hex')!==asset.sha256)throw Error('Installed Lini runtime asset hash mismatch: '+asset.name);
+}
+if(JSON.stringify(await Bun.file(join(packedRuntime,'runtime-manifest.json')).json())!==JSON.stringify(runtimePin)||!(await Bun.file(join(packedRuntime,'LICENSE')).text()).includes('MIT'))throw Error('Installed runtime provenance or license missing');
+const licensePin=await Bun.file('spec/interchange/lini-licenses/manifest.json').json();
+if(JSON.stringify(await Bun.file(join(packedRuntime,'licenses/manifest.json')).json())!==JSON.stringify(licensePin))throw Error('Installed runtime license provenance changed');
+for(const license of licensePin.files)if(Bun.CryptoHasher.hash('sha256',await Bun.file(join(packedRuntime,'licenses',license.name)).bytes(),'hex')!==license.sha256)throw Error('Installed runtime third-party notice missing');
 const mermaidSequence=JSON.parse(await Bun.file('fixtures/visual/inventory/helix-request.json').text());
 const liniFlow=JSON.parse(await Bun.file('fixtures/catalog/canary-flow.json').text());
 const liniMetric=JSON.parse(await Bun.file('fixtures/visual/forms/umf-ac-coverage.json').text());
@@ -25,12 +35,15 @@ await Bun.write(join(consumer,'consumer.mjs'),`import {createVisualDocument,getV
 import legacySchema from '@documentdrivendx/umf-visual/schema' with {type:'json'};
 import modernSchema from '@documentdrivendx/umf-visual/schema/1.1.0' with {type:'json'};
 import expressiveSchema from '@documentdrivendx/umf-visual/schema/1.2.0' with {type:'json'};
+import gallerySchema from '@documentdrivendx/umf-visual/schema/1.3.0' with {type:'json'};
 import {planMiroExport} from '@documentdrivendx/umf-visual/miro';
 import {exportPowerPoint,importPowerPoint} from '@documentdrivendx/umf-visual/powerpoint';
 import {observeGoogleSlides,planGoogleSlidesExport} from '@documentdrivendx/umf-visual/google-slides';
 import {hostDigest,admitHostObservation} from '@documentdrivendx/umf-visual/reconciliation';
 import {planEditableMiroExport} from '@documentdrivendx/umf-visual/miro/editable';
 import {compilePresentation} from '@documentdrivendx/umf-visual/presentation';
+import {renderLiniPresentation} from '@documentdrivendx/umf-visual/renderers/lini';
+if(typeof renderLiniPresentation!=='function')throw Error('Installed public Lini renderer is missing');
 const doc=createVisualDocument({id:'consumer',kind:'flow',form:'network',question:'Does installation work?',nodes:[{id:'n',label:'Installed consumer'}]});
 const presentationPlans=[compilePresentation(doc,{backend:'graphviz'}),compilePresentation(doc,{backend:'mermaid'}),compilePresentation(doc,{backend:'lini'})];
 for(const plan of presentationPlans){if(!plan.ok||plan.profileId!=='umf.visual.presentation/1'||!plan.source||!plan.elementMap.length)throw Error('Installed presentation compiler failed');}
@@ -41,10 +54,13 @@ const ppt=await exportPowerPoint(doc,{mode:'report'});const pptBack=await import
 const snapshot={presentationId:'consumer-presentation',revisionId:'consumer-rev-1',pageSize:{width:{magnitude:720,unit:'PT'},height:{magnitude:405,unit:'PT'}},slides:[{objectId:'consumer-slide',pageElements:[]}]};
 const observed=await observeGoogleSlides(snapshot);await admitHostObservation({resource:{host:'google-slides',documentId:'consumer-presentation'},revision:{kind:'host-revision',value:'consumer-rev-1'},captureDigestSha256:observed.captureDigestSha256,payload:snapshot});
 const slides=await planGoogleSlidesExport(doc,observed,{question:{x:20,y:20,width:400,height:50},nodes:{n:{x:100,y:120,width:180,height:80}}},{namespace:'consumer'});if(slides.batch.writeControl.requiredRevisionId!=='consumer-rev-1')throw Error('Installed Google Slides entrypoint failed');
-if(legacySchema.$id!=='urn:umf:visual:1.0.0'||modernSchema.$id!=='urn:umf:visual:1.1.0'||latestVisualPackage.version!=='1.2.0'||expressiveSchema.$id!=='urn:umf:visual:1.2.0')throw Error('Versioned package assets failed');
+if(legacySchema.$id!=='urn:umf:visual:1.0.0'||modernSchema.$id!=='urn:umf:visual:1.1.0'||latestVisualPackage.version!=='1.3.0'||expressiveSchema.$id!=='urn:umf:visual:1.2.0'||gallerySchema.$id!=='urn:umf:visual:1.3.0'||'icon' in expressiveSchema.$defs.node.properties||!gallerySchema.$defs.node.properties.icon)throw Error('Versioned package assets failed');
 if(!inspectVisual(upgradeVisualDocument(doc)).complete||doc.vocabularies['umf.visual'].version!=='1.0.0')throw Error('Installed upgrade failed');
 const rich=createVisualDocument({id:'rich',kind:'flow',form:'network',question:'Which ports?',layout:{kind:'flow',direction:'LR',order:['client','api']},nodes:[{id:'client',label:'Client',shape:'ellipse',ports:[{id:'out',side:'east'}]},{id:'api',label:'API',shape:'hexagon',ports:[{id:'in',side:'west'}]}],edges:[{id:'request',from:'client',to:'api',fromPort:'out',toPort:'in'}]},'visual:rich','1.2.0');
 if(!inspectVisual(rich).complete||!compilePresentation(editVisual(rich,v=>({...v,title:'Reviewed ports'})),{backend:'lini'}).ok)throw Error('Installed expressive model authoring failed');
+const tree=createVisualDocument({id:'installed-tree',kind:'structure',form:'tree',question:'Which parts?',layout:{kind:'tree',direction:'bilateral',order:['root']},nodes:[{id:'root',label:'Root'},{id:'child',label:'Child',parent:'root',icon:'rocket'}]},undefined,'1.3.0');
+const sequence=createVisualDocument({id:'installed-sequence',kind:'sequence',form:'lifelines',question:'What happens?',sequence:{participants:[{id:'a',label:'A'},{id:'b',label:'B',shape:'parallelogram'}],messages:[{id:'m',from:'a',to:'b',label:'call'}],notes:[{id:'note',text:'before call',participants:['a'],before:'m'}]}},undefined,'1.3.0');
+for(const value of [tree,sequence])if(!inspectVisual(value).complete||!compilePresentation(value,{backend:'lini'}).ok)throw Error('Installed gallery model authoring failed');
 const report=inspectVisual(doc);if(!report.valid||!report.complete)throw Error('Installed package rejected valid data');
 for(const format of ['dot','mermaid','lini']){
  const output=exportVisual(doc,{format});if(!output.ok)throw Error('Installed export failed '+format);

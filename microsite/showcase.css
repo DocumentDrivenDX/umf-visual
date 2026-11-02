@@ -38,10 +38,10 @@
 .payload-heading p:not(.eyebrow),.programmatic-example header p:not(.eyebrow){font-size:10px;line-height:1.45;color:#bdcbc3;margin:0}
 .payload-actions{display:flex;align-items:center;gap:16px;flex:0 0 auto}
 .payload-actions button,.programmatic-example button{padding:7px 0}
-.payload-json,.programmatic-example pre{max-height:min(48vh,460px);overflow:auto;margin:15px 0 0;padding:16px 18px;border:1px solid #ffffff24;border-radius:5px;background:#0d3028;color:#e1e9e3;font:11px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2;white-space:pre;overflow-wrap:normal}
-.payload-json code,.programmatic-example pre code{font:inherit}
+.payload-yaml,.programmatic-example pre{max-height:min(48vh,460px);overflow:auto;margin:15px 0 0;padding:16px 18px;border:1px solid #ffffff24;border-radius:5px;background:#0d3028;color:#e1e9e3;font:11px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2;white-space:pre;overflow-wrap:normal}
+.payload-yaml code,.programmatic-example pre code{font:inherit}
 .programmatic-example{margin-top:14px;padding:14px 16px 16px;border:1px solid #ffffff24;border-radius:5px;background:#ffffff08}
 .programmatic-example>header{align-items:center}
 .programmatic-example h5{font-size:14px}
 .programmatic-example pre{max-height:320px;margin-top:12px;padding:13px 14px;font-size:10px}
-@media(max-width:720px){.payload-heading,.programmatic-example>header{align-items:flex-start;flex-direction:column;gap:12px}.payload-actions{flex-wrap:wrap;gap:14px}.payload-json{max-height:55vh;padding:12px;font-size:10px}.programmatic-example{padding:12px}.programmatic-example pre{font-size:9px}}
+@media(max-width:720px){.payload-heading,.programmatic-example>header{align-items:flex-start;flex-direction:column;gap:12px}.payload-actions{flex-wrap:wrap;gap:14px}.payload-yaml{max-height:55vh;padding:12px;font-size:10px}.programmatic-example{padding:12px}.programmatic-example pre{font-size:9px}}

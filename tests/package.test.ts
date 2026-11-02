@@ -1,5 +1,13 @@
 import {test,expect} from 'bun:test';
 import {boundaryIssues} from '../scripts/check-source';
+
+test('only the native renderer entry may import its pinned runtime manifest',()=>{
+ const source="import pin from '../../spec/interchange/lini-runtime.json';";
+ expect(boundaryIssues(source,'src/renderers/lini.ts')).toEqual([]);
+ expect(boundaryIssues(source,'src/extensions/index.ts')).toHaveLength(1);
+ expect(boundaryIssues("import {SaxesParser} from 'saxes';",'src/renderers/lini.ts')).toEqual([]);
+ expect(boundaryIssues("import {SaxesParser} from 'saxes';",'src/presentation/index.ts')).toHaveLength(1);
+});
 test('boundary rejects private SDK and sibling source imports',()=>{
  expect(boundaryIssues("import {Registry} from '@umf/core';")).toEqual([]);
  expect(boundaryIssues("import x from '@umf/core/src/registry';")).toHaveLength(1);

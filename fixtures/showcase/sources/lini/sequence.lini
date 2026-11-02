@@ -1,0 +1,32 @@
+// A sequence diagram (SPEC §10): `layout: sequence` reads the wires as time —
+// participants across the top, messages top-to-bottom in source order. Calls open
+// activation bars, a loop repeats a span, a self-message is internal work, a note
+// annotates. A participant's own paint flows onto its lifeline + bars. Source for
+// assets/sequence.png.
+{
+  layout: sequence;
+}
+
+|icon#user| "user" { width: 62; stroke: --rose-deep; fill: --rose-wash; }
+|box#shop| "Storefront" { fill: --sky-wash; stroke: --sky-deep; padding: 18; }
+|box#pay| "Payments" { fill: --green-wash; stroke: --green-deep; padding: 18; }
+|slant#db| "Orders" { fill: --orange-wash; stroke: --orange-deep; padding: 18; }
+
+|note| "starts checkout" {
+  place: over user; fill: --rose-soft; stroke: --rose-deep;
+}
+
+user -> shop "place order"
+shop -> pay "charge $42"
+pay -> pay "verify card"
+pay --> shop "receipt"
+
+|loop| "each item" {
+  fill: --purple-wash; stroke: --purple-ink; color: --gray-deep;
+} [
+  shop -> db "reserve stock"
+  db --> shop "in stock"
+]
+
+shop --> user "order #1024"
+user ~> shop "track parcel"

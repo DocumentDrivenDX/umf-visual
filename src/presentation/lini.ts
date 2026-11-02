@@ -3,6 +3,7 @@
 import type {Visual,VisualCardinality,VisualEntity,VisualGroup,VisualNode,VisualMultiplicity,VisualLayout} from '../extensions/visual';
 import {quoteLiniProfile} from '../interchange/lini/profile-syntax';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
+import {compileLiniSequence,compileLiniTree} from './lini-rich';
 
 const BASE='/extensions/umf.visual';
 const pointer=(value:string)=>value.replace(/~/g,'~0').replace(/\//g,'~1');
@@ -17,6 +18,8 @@ const q=(value:string)=>quoteLiniProfile(value);
 const labelGroup=(group:VisualGroup)=>group.label;
 const findPort=(node:VisualNode|undefined,id:string|undefined)=>id===undefined?undefined:node?.ports?.find(port=>port.id===id);
 const property=(name:string,value:string|number)=>`${name}: ${typeof value==='string'?value:String(value)};`;
+const liniIcons=new Set(['user','rocket','seal','presentation','heart','gear','cloud','house','database','folder-simple','cpu','bell','star','ghost','video-camera','wall','check','warning','globe','lock','key','lightning','magnifying-glass','arrow-right']);
+const liniIcon=(value:string)=>liniIcons.has(value)?value:undefined;
 const portCaption=(port:NonNullable<VisualNode['ports']>[number])=>port.label===undefined?port.id:port.label===port.id?port.id:port.label+' · '+port.id;
 const joined=(items:Array<string|undefined>)=>items.filter((item):item is string=>!!item).join(' ');
 
@@ -53,7 +56,7 @@ function nodeStyle(node:VisualNode):{type:string;properties:string[];approximati
  if(node.role)approximations.push(['role',`Node role ${node.role}`,node.shape?`Lini role ${node.role} palette color is shown independently from the authored native ${node.shape} shape.`:`Lini node shape/color convention (${palette?.shape??'box'} with palette ${node.role}).`]);
  if(node.status)approximations.push(['status',`Node status ${node.status}`,'Lini fill/stroke color convention.']);
  if(node.emphasis)approximations.push(['emphasis',`Node emphasis ${node.emphasis}`,node.emphasis==='focus'?'Lini uses a heavier native stroke.':'Lini uses reduced native opacity.']);
- const nativeShape:Record<NonNullable<VisualNode['shape']>,string>={rectangle:'box','rounded-rectangle':'box',ellipse:'oval',diamond:'diamond',hexagon:'hex',cylinder:'cyl','folded-corner':'note'};
+ const nativeShape:Record<NonNullable<VisualNode['shape']>,string>={rectangle:'box','rounded-rectangle':'box',ellipse:'oval',diamond:'diamond',hexagon:'hex',cylinder:'cyl','folded-corner':'note',parallelogram:'slant'};
  const type=node.shape?nativeShape[node.shape]:palette?.shape??'box';
  return{type,properties:props.filter((item):item is string=>!!item),approximations};
 }
@@ -83,7 +86,8 @@ function groupProperties(group:VisualGroup|undefined,layout:VisualLayout|undefin
 function nodeDeclaration(node:VisualNode,nativeId:string):string{
  const style=nodeStyle(node);
  const caption=node.label;
- const children=[node.detail?`|cell#detail| ${q(node.detail)}`:undefined,...(node.ports??[]).map((port,index)=>`|cell#p${index+1}| ${q(portCaption(port))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`)].filter((item):item is string=>!!item);
+ const symbol=node.icon?liniIcon(node.icon):undefined;
+ const children=[node.detail?`|cell#detail| ${q(node.detail)}`:undefined,symbol?`|icon| { symbol: ${symbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:node.icon?`|cell#icon| ${q('Icon: '+node.icon)}`:undefined,...(node.ports??[]).map((port,index)=>`|cell#p${index+1}| ${q(portCaption(port))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`)].filter((item):item is string=>!!item);
  const properties=style.properties;
  return `|${style.type}#${nativeId}| ${q(caption)}${properties.length?` { ${properties.join(' ')} }`:''}${children.length?` [\n${children.map(item=>'  '+item).join('\n')}\n]`:''}`;
 }
@@ -117,8 +121,12 @@ function fieldReference(nodeId:string,fieldName:string|undefined,fieldId:string|
 
 /** Emit a deterministic, readable Lini source view; renderer effects stay in Lini. */
 export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):PresentationPlan|PresentationFailure{
+ if(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'){
+  try{return visual.kind==='sequence'?compileLiniSequence(visual):compileLiniTree(visual,direction);}
+  catch(reason){const path=reason&&typeof reason==='object'&&'sourcePath'in reason&&typeof reason.sourcePath==='string'?reason.sourcePath:'/extensions/umf.visual';return failure('PRESENTATION_LINI_TEXT',path,reason instanceof Error?reason.message:'Lini could not encode the authored presentation text.');}
+ }
  const map:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];
- const styleRules:string[]=['.lini-block { font-family: Arial; }','.lini-caption { translate: 0 -30; font-scale: 14 16; }'];
+ const styleRules:string[]=['--lini-font-family: Arial;','.lini-block { font-family: Arial; }','.lini-caption { translate: 0 -30; font-scale: 14 16; }'];
  const add=(logicalId:string,sourcePath:string,nativeId:string,kind:PresentationElement['kind'])=>map.push({logicalId,sourcePath,nativeId,kind});
  const mapPorts=(node:VisualNode,index:number,nativeId:string)=>node.ports?.forEach((port,portIndex)=>add(port.id,path('/nodes/'+index+'/ports/'+portIndex),nativeId+'.p'+(portIndex+1),'port'));
  const omit=(sourcePath:string,reason:string)=>omissions.push({sourcePath,reason});
@@ -135,6 +143,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
   if(visual.audience)omit(path('/audience'),'Audience metadata remains in UMF and is not drawn.');
 
   const nodes=visual.nodes??[],groups=visual.groups??[],edges=visual.edges??[];
+  for(const[index,node]of nodes.entries())if(node.icon){const symbol=liniIcon(node.icon);approx(path('/nodes/'+index+'/icon'),'Icon '+node.icon,symbol?'Lini displays the exact native Phosphor icon; presentation/1 applies a generic blue outline.':'Lini Phosphor does not include this symbol; its name is shown in a visible native caption cell.');}
   const nodeIds=new Map(nodes.map((node,index)=>[node.id,safeId('n',index)]));
   const groupIds=new Map(groups.map((group,index)=>[group.id,safeId('g',index)]));
   const layerIds=new Map((visual.structure?.layers??[]).map((layer,index)=>[layer.id,safeId('l',index)]));
@@ -171,7 +180,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     if(edge.emphasis==='focus')style.push(property('stroke-width',3));else if(edge.emphasis==='muted')style.push(property('opacity',0.55));
     styleRules.push(`.${className} { ${style.length?style.join(' '):'stroke: --teal-deep;'} }`);
     const along=[0.35,0.5,0.65][i%3]!;
-    const rows=edgeRowsByScope.get(scope)??[];rows.push(`${source} -> ${target}${label?' '+quoteChecked(label,path('/edges/'+i+'/label')):''} .${className} { along: ${along}; }`);edgeRowsByScope.set(scope,rows);
+    const rows=edgeRowsByScope.get(scope)??[],operator=edge.directed===false?'---':'->';rows.push(`${source} ${operator} ${target}${label?' '+quoteChecked(label,path('/edges/'+i+'/label')):''} .${className} { along: ${along}; }`);edgeRowsByScope.set(scope,rows);
     for(const field of ['why','evidence'] as const)if(edge[field]!==undefined)omit(path('/edges/'+i+'/'+field),field==='why'?'Lini link hints do not appear on the native link SVG; rationale remains in the source document.':'Evidence locators remain in UMF and are not drawn.');
     if(edge.kind)approx(path('/edges/'+i+'/kind'),'Connection kind '+edge.kind,edge.kind==='data'?'Dashed Lini line style.':edge.kind==='control'?'Dotted Lini line style.':'Double Lini line style.');
     if(edge.status)approx(path('/edges/'+i+'/status'),'Connection status '+edge.status,'Lini stroke palette convention.');
@@ -248,7 +257,9 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     const customPorts=(node.ports??[]).map((port,j)=>`|cell#p${j+1}| ${quoteChecked(portCaption(port),path('/nodes/'+nodes.indexOf(node)+'/ports/'+j+'/label'))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`);
     const visibleEntityTitle=node.label;
     const props=nodeStyle(node).properties;
-    const secondary=[node.detail?`|cell#detail| ${quoteChecked(node.detail,path('/nodes/'+nodes.indexOf(node)+'/detail'))}`:undefined,node.shape?`|cell#shape| ${quoteChecked('(requested shape: '+node.shape+')',path('/nodes/'+nodes.indexOf(node)+'/shape'))}`:undefined,...fields,...customPorts].filter((line):line is string=>!!line);
+    const iconSymbol=node.icon?liniIcon(node.icon):undefined;
+    const iconChild=iconSymbol?`|icon| { symbol: ${iconSymbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:node.icon?`|cell#icon| ${quoteChecked('Icon: '+node.icon,path('/nodes/'+nodes.indexOf(node)+'/icon'))}`:undefined;
+    const secondary=[node.detail?`|cell#detail| ${quoteChecked(node.detail,path('/nodes/'+nodes.indexOf(node)+'/detail'))}`:undefined,node.shape?`|cell#shape| ${quoteChecked('(requested shape: '+node.shape+')',path('/nodes/'+nodes.indexOf(node)+'/shape'))}`:undefined,iconChild,...fields,...customPorts].filter((line):line is string=>!!line);
     entityRows.set(node.id,`|entity#${id}| ${quoteChecked(visibleEntityTitle,path('/nodes/'+nodes.indexOf(node)+'/label'))}${props.length?' { '+props.join(' ')+' }':''} [\n${secondary.map(line=>'  '+line).join('\n')}\n]`);
     for(const [field,requested,representation] of nodeStyle(node).approximations){
      const entityRepresentation=field==='role'?'Lini applies the role palette convention to the entity card fill, stroke, and text; entity cards keep a fixed table silhouette, so role-derived node glyphs do not apply.':representation;

@@ -18,7 +18,7 @@ ddx:
 
 The extraction owns the visual package, schema/types/semantics and behavioral
 corpus from #62. The user authorized independent repository ownership. Native interchange is governed by FEAT-035 and CONTRACT-086. The latest authored schema
-generates 1.2.0 types and manifest. Versions 1.0.0/1.1.0 retain frozen
+generates 1.3.0 types and manifest. Versions 1.0.0/1.1.0/1.2.0 retain frozen
 interpretation. UMF-authored metamodel authority remains a subsequent governed
 change. The desired model is a typed
 authoring target for common native visual concepts as well as an interchange
@@ -52,6 +52,7 @@ There is no hosted service or database. The library runs inside its consumer.
 | src/adapters/miro | Network projection, native preservation, atomic reconciliation and injected Web SDK I/O | CONTRACT-084; ./miro | Public core/visual APIs and local helpers | Host APIs, global SDK, vocabulary dependencies on adapters |
 | src/interchange | Portable native parsing, mapping, source companions and export | CONTRACT-086 | Local visual API, public @umf/core, local shared helpers | Native engines, renderer APIs, host APIs, sibling source |
 | src/presentation | Native drawing-source compilation and visible-view mapping | CONTRACT-089; ./presentation | Public visual/core types, portable local helpers | Native engines, filesystem, Node/Bun APIs, interchange behavior changes |
+| src/renderers/lini | Optional browser execution of the pinned Lini runtime | CONTRACT-089; ./renderers/lini | Portable compiler, browser Fetch/Web Crypto/Blob/WASM, inert XML parser | Node/Bun APIs, eager native initialization, editable interchange claims |
 | src/index.ts | Package export boundary | Visual and interchange APIs | Local visual and interchange modules | Broad core re-exports |
 | scripts | Build, catalog generation and verification | Package scripts; CONTRACT-085 data | Bun, Node tooling, TypeScript API, Playwright, native engines | Import into portable source |
 | microsite/ | Static catalog discovery and comparison | CONTRACT-085 consumer | Generated JSON and relative native SVG assets | Native runtimes, server secrets, portable core internals |

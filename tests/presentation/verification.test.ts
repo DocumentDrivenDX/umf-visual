@@ -11,6 +11,7 @@ import {verifyPresentationQuality} from '../../scripts/presentation/quality';
 import {screenshotSvg} from '../../scripts/presentation/build';
 import {verifyShowcaseData} from '../../scripts/presentation/verify';
 import {renderPresentationLini} from '../../scripts/presentation/lini-runtime';
+import {visualPayloadYaml} from '../../scripts/presentation/payload-source';
 
 const hash=(data:string|Uint8Array)=>createHash('sha256').update(data).digest('hex');
 let manifest:any,receipt:any,assets:Map<string,Uint8Array>,browser:Browser;
@@ -45,7 +46,7 @@ beforeAll(async()=>{
  const liniPng=join(directory,'lini.png');await screenshotSvg(browser,lini.svg,liniPng);const pngBytes=await readFile(liniPng);
  const liniRow={...row,backend:'lini',engine:'lini',nativeVersion:lini.version,nativeSourcePath:'showcase/proof-example/lini/source.lini',nativeSourceSha256:hash(liniPlan.source),svgPath:'showcase/proof-example/lini/diagram.svg',svgSha256:hash(lini.svg),pngPath:'showcase/proof-example/lini/diagram.png',pngSha256:hash(pngBytes),elementMap:liniPlan.elementMap,omissions:liniPlan.omissions,approximations:liniPlan.approximations,quality:{evidence:liniChecks}};
  assets.set(liniRow.nativeSourcePath,Buffer.from(liniPlan.source));assets.set(liniRow.svgPath,Buffer.from(lini.svg));assets.set(liniRow.pngPath,pngBytes);
- manifest={schemaVersion:1,examples:[example]};receipt={schemaVersion:1,examples:[{...example,definition:document,renders:[row,{backend:'mermaid',engine:'mermaid',nativeVersion:'12.2.0',status:'unsupported',diagnostics:unsupported.diagnostics,nativeSourcePath:'',svgPath:'',pngPath:'',quality:{evidence:[]}},liniRow]}]};
+ manifest={schemaVersion:1,examples:[example]};receipt={schemaVersion:1,examples:[{...example,definition:document,visualPayloadYaml:visualPayloadYaml(document),renders:[row,{backend:'mermaid',engine:'mermaid',nativeVersion:'12.2.0',status:'unsupported',diagnostics:unsupported.diagnostics,nativeSourcePath:'',svgPath:'',pngPath:'',quality:{evidence:[]}},liniRow]}]};
 },30000);
 afterAll(async()=>{await browser?.close();});
 
@@ -59,6 +60,12 @@ test('rejects fake, missing and duplicate native quality checks',async()=>{
   if(mutation==='missing')row.quality.evidence.pop();
   if(mutation==='duplicate')row.quality.evidence.push(row.quality.evidence[0]);
   await expect(verifyShowcaseData(manifest,changed,load)).rejects.toThrow('required native quality checks');
+ }
+});
+test('rejects missing or changed visible YAML even when the definition is unchanged',async()=>{
+ for(const yaml of [undefined,'id: unrelated\n']){
+  const changed=copy();changed.examples[0].visualPayloadYaml=yaml;
+  await expect(verifyShowcaseData(manifest,changed,load)).rejects.toThrow('visible YAML');
  }
 });
 test('rejects stale native source even when its artifact and all check hashes are updated',async()=>{

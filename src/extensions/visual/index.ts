@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {inspectVisual as inspectLegacy} from './legacy-1-0.js';
 import {visualRegistry as visualRegistry11, inspectVisual as inspectVisual11} from './legacy-1-1.js';
+import {visualRegistry as visualRegistry12, inspectVisual as inspectVisual12} from './legacy-1-2.js';
 import legacyManifest from '../../../spec/extensions/visual/1.0.0/package.json';
 import manifest from '../../../spec/extensions/visual/package.json';
 import {Registry,validateDocument,copyJson,readDocument,writeDocument,UmfError,pointer,type Document,type Json,type Diagnostic,type ExtensionPackage,type Validation} from '@umf/core';
@@ -8,8 +9,8 @@ import type {VisualDefs,VisualShape} from './generated';
 export const VISUAL_EXTENSION='umf.visual';
 // Preserve released authoring defaults; 1.1.0 is an explicit opt-in.
 export const VISUAL_VERSION='1.0.0';
-export const LATEST_VISUAL_VERSION='1.2.0';
-export type VisualVersion=typeof VISUAL_VERSION|'1.1.0'|typeof LATEST_VISUAL_VERSION;
+export const LATEST_VISUAL_VERSION='1.3.0';
+export type VisualVersion=typeof VISUAL_VERSION|'1.1.0'|'1.2.0'|typeof LATEST_VISUAL_VERSION;
 export const visualPackage=legacyManifest as unknown as ExtensionPackage;
 export const latestVisualPackage=manifest as unknown as ExtensionPackage;
 export type {VisualDefs,VisualShape} from './generated';
@@ -18,6 +19,7 @@ export type Visual=VisualShape;
 export type VisualKind=VisualShape['kind'];
 export type VisualForm=VisualShape['form'];
 export type VisualShapeKind=NonNullable<VisualDefs['node']['shape']>;
+export type VisualIcon=NonNullable<VisualDefs['node']['icon']>;
 export type VisualParticipantShape=NonNullable<VisualDefs['participant']['shape']>;
 export type VisualLayout=VisualDefs['layout'];
 export type VisualPort=VisualDefs['port'];
@@ -45,6 +47,7 @@ export type VisualEdge=VisualDefs['edge'];
 export type VisualStepWhen=NonNullable<VisualDefs['step']['when']>;
 export type VisualStep=VisualDefs['step'];
 export type VisualMessage=VisualDefs['sequence']['messages'][number];
+export type VisualSequenceNote=NonNullable<VisualDefs['sequence']['notes']>[number];
 export type VisualCardinality=VisualDefs['cardinality'];
 /** Exact bounds at one end of a reference: max absent is unbounded; text is the source's own notation. */
 export type VisualMultiplicity=VisualDefs['multiplicity'];
@@ -135,7 +138,7 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
  const s=v.sequence,st=v.structure,sm=v.state,t=v.timeline,c=v.comparison,m=v.metric;
  const declarations:[{id:string}[]|undefined,string,string][]=[
   [v.groups,'group','/groups'],[v.nodes,'node','/nodes'],[v.edges,'edge','/edges'],[v.steps,'step','/steps'],
-  [s?.participants,'participant','/sequence/participants'],[s?.messages,'message','/sequence/messages'],
+  [s?.participants,'participant','/sequence/participants'],[s?.messages,'message','/sequence/messages'],[s?.notes,'sequence note','/sequence/notes'],
   [st?.layers,'layer','/structure/layers'],[st?.references,'reference','/structure/references'],
   [sm?.transitions,'transition','/state/transitions'],
   [t?.scale.kind==='period'?t.scale.periods:undefined,'period','/timeline/scale/periods'],
@@ -163,6 +166,11 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
   if(step.tag!==undefined&&step.when===undefined)add('VISUAL_STEPS',path+'/when','A tag marks an unnumbered step; give the step a when');
  });
  each(s?.messages,'/sequence/messages',(message,path)=>{resolve(message.from,['participant'],path+'/from');resolve(message.to,['participant'],path+'/to');resolve(message.group,['group'],path+'/group');});
+ each(s?.notes,'/sequence/notes',(note,path)=>{
+  if((note.before===undefined)===(note.after===undefined))add('VISUAL_SEQUENCE_NOTE',path,'A note has exactly one before or after message anchor');
+  resolve(note.before,['message'],path+'/before');resolve(note.after,['message'],path+'/after');
+  each(note.participants,path+'/participants',(id,at)=>resolve(id,['participant'],at));
+ });
  // Each entity's fields by displayed name and by stable id; field ids are scoped to their entity.
  const entities=new Map<string,{names:Map<string,VisualField>;ids:Map<string,VisualField>}>();
  each(st?.entities,'/structure/entities',(entity,path)=>{
@@ -255,8 +263,16 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
  const validateLayout=(layout:VisualLayout|undefined,path:string,groupId?:string)=>{
   if(!layout)return;
   if(groupId===undefined){
-   if(!graphKinds.includes(v.kind))add('VISUAL_LAYOUT',path,'Root layout is available for flow, structure and state node-based visuals');
-  }else if(v.kind!=='flow'&&v.kind!=='structure')add('VISUAL_LAYOUT',path,'Group layout is available only for flow and structure visuals');
+   const treeLayout=layout.kind==='tree';
+   if(treeLayout&&(v.kind!=='structure'||v.form!=='tree'))add('VISUAL_LAYOUT',path,'Tree layout is available only on a structure/tree visual');
+   else if(!treeLayout&&!graphKinds.includes(v.kind))add('VISUAL_LAYOUT',path,'Root layout is available for flow, structure and state node-based visuals');
+   if(treeLayout&&layout.order!==undefined){
+    const roots=(v.nodes??[]).filter(node=>node.parent===undefined).map(node=>node.id),given=layout.order;
+    if(given.length!==roots.length||new Set(given).size!==given.length||roots.some(id=>!given.includes(id)))add('VISUAL_LAYOUT',path+'/order','Tree order must be an exact permutation of root nodes');
+    return;
+   }
+  }else if(layout.kind==='tree')add('VISUAL_LAYOUT',path,'Tree layout is available only at the root of a structure/tree visual');
+  else if(v.kind!=='flow'&&v.kind!=='structure')add('VISUAL_LAYOUT',path,'Group layout is available only for flow and structure visuals');
   if(layout.order!==undefined){
    const expected=directLayoutMembers(groupId),given=layout.order;
    if(given.length!==expected.length||new Set(given).size!==given.length||expected.some(id=>!given.includes(id)))add('VISUAL_LAYOUT',path+'/order','Order must be an exact permutation of this container’s direct nodes and subgroups');
@@ -353,18 +369,18 @@ function advise(payload:unknown):Diagnostic[]{
  if(Array.isArray(participants)&&participants.length>ADVISED_PARTICIPANTS)out.push({code:'VISUAL_DENSITY',path:at+'/sequence/participants',message:participants.length+' participants; a sequence reads best with eight or fewer',severity:'warning'});
  return out;
 }
-export function visualRegistry():Registry{return visualRegistry11().register(latestVisualPackage,semantics);}
+export function visualRegistry():Registry{return visualRegistry12().register(latestVisualPackage,semantics);}
 // Registration compiles the payload schema; the API reuses one registry, which nothing mutates after registration.
 let shared:Registry|undefined;
 const registry=()=>shared??=visualRegistry();
 export function inspectVisual(document:Document):VisualInspection {
  const version=document.vocabularies[VISUAL_EXTENSION]?.version;
- const advice=version==='1.0.0'?inspectLegacy(document).advice:version==='1.1.0'?inspectVisual11(document).advice:advise(document.extensions?.[VISUAL_EXTENSION]);
+ const advice=version==='1.0.0'?inspectLegacy(document).advice:version==='1.1.0'?inspectVisual11(document).advice:version==='1.2.0'?inspectVisual12(document).advice:advise(document.extensions?.[VISUAL_EXTENSION]);
  return {...validateDocument(document,registry()),advice};
 }
 function requireProfile(doc:Document):void {
  const payload=doc.extensions?.[VISUAL_EXTENSION];
- if(![VISUAL_VERSION,'1.1.0',LATEST_VISUAL_VERSION].includes(doc.vocabularies[VISUAL_EXTENSION]?.version??'')||!payload||typeof payload!=='object'||Array.isArray(payload))throw new UmfError('VISUAL_PROFILE','Expected umf.visual 1.0.0, 1.1.0 or 1.2.0 and a document-level visual');
+ if(![VISUAL_VERSION,'1.1.0','1.2.0',LATEST_VISUAL_VERSION].includes(doc.vocabularies[VISUAL_EXTENSION]?.version??'')||!payload||typeof payload!=='object'||Array.isArray(payload))throw new UmfError('VISUAL_PROFILE','Expected umf.visual 1.0.0, 1.1.0, 1.2.0 or 1.3.0 and a document-level visual');
 }
 function requireValid(doc:Document):void {const result=inspectVisual(doc);if(!result.valid)throw new UmfError('VISUAL_DOCUMENT',JSON.stringify(result.diagnostics));}
 export function readVisualDocument(text:string,format:'json'|'yaml'='yaml'):Document{const doc=readDocument(text,format);requireProfile(doc);requireValid(doc);return doc;}
@@ -386,11 +402,11 @@ export function editVisual(doc:Document,update:(visual:Visual)=>Visual):Document
 }
 
 /** Explicit opt-in to corrected 1.1 semantics or the additive 1.2 vocabulary; never rewrites native companions. */
-export function upgradeVisualDocument(document:Document,targetVersion:'1.1.0'|'1.2.0'='1.1.0'):Document {
- if(targetVersion!=='1.1.0'&&targetVersion!=='1.2.0')throw new UmfError('VISUAL_UPGRADE_TARGET','Choose upgrade target 1.1.0 or 1.2.0');
+export function upgradeVisualDocument(document:Document,targetVersion:'1.1.0'|'1.2.0'|'1.3.0'='1.1.0'):Document {
+ if(targetVersion!=='1.1.0'&&targetVersion!=='1.2.0'&&targetVersion!=='1.3.0')throw new UmfError('VISUAL_UPGRADE_TARGET','Choose upgrade target 1.1.0, 1.2.0 or 1.3.0');
  requireProfile(document);
  const currentVersion=document.vocabularies[VISUAL_EXTENSION]?.version;
- if(currentVersion==='1.2.0'&&targetVersion!=='1.2.0')throw new UmfError('VISUAL_DOWNGRADE','A 1.2.0 visual document cannot be downgraded by upgradeVisualDocument');
+ if((currentVersion==='1.2.0'&&targetVersion==='1.1.0')||(currentVersion==='1.3.0'&&targetVersion!=='1.3.0'))throw new UmfError('VISUAL_DOWNGRADE','A visual document cannot be downgraded by upgradeVisualDocument');
  const result=copyJson(document) as unknown as Document;
  result.vocabularies[VISUAL_EXTENSION]={...result.vocabularies[VISUAL_EXTENSION],version:targetVersion};
  requireValid(result);return result;

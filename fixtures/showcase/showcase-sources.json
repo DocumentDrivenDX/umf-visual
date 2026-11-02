@@ -125,6 +125,111 @@
           "description": "The exact documented Q → AR → AP connection subset; geometric shapes, composition order and logical anchor names are additional authored visual intent."
         }
       ]
+    },
+    {
+      "id": "lini-gallery-checkout-sequence",
+      "title": "A checkout, from order to tracking",
+      "description": "The pinned Lini sequence example becomes a renderer-neutral lifeline model. Its source declares four participants, eight ordered messages, a repeated stock reservation pair, one self-call, one async tracking request, and a note before checkout begins. Native colors and exact positions remain presentation choices.",
+      "kind": "sequence",
+      "form": "lifelines",
+      "definitionPath": "fixtures/showcase/definitions/lini-gallery-checkout-sequence.json",
+      "definitionSha256": "66896c5cf431d0f5931437e43da4eba7f161ebb853efe75fd310d137e4fbcb1f",
+      "sources": [
+        {
+          "path": "fixtures/showcase/sources/lini/sequence.lini",
+          "sha256": "8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c",
+          "originRepository": "monfa-red/lini",
+          "originPath": "samples/sequence.lini",
+          "originSha256": "8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c",
+          "originCommit": "0502d381dbd779d72b2ac4329a19b64201422a21",
+          "originTag": "v1.1.0",
+          "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
+          "pointer": "Complete sequence sample",
+          "description": "Exact upstream sample bytes from monfa-red/lini v1.1.0 at 0502d381dbd779d72b2ac4329a19b64201422a21."
+        },
+        {
+          "path": "fixtures/showcase/sources/lini/LICENSE",
+          "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "originRepository": "monfa-red/lini",
+          "originPath": "LICENSE",
+          "originSha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "originCommit": "0502d381dbd779d72b2ac4329a19b64201422a21",
+          "originTag": "v1.1.0",
+          "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
+          "pointer": "MIT License",
+          "description": "Exact upstream MIT license text accompanying the pinned Lini v1.1.0 source samples."
+        }
+      ]
+    },
+    {
+      "id": "lini-gallery-product-mindmap",
+      "title": "Product Vision",
+      "description": "The exact pinned Lini mindmap sample represented as a single-root tree: 6 authored branches and 12 child topics. Four source glyphs are retained as generic icon names; palette ramps, wrapping, and native pixel geometry are renderer styling and are not represented as semantics.",
+      "kind": "structure",
+      "form": "tree",
+      "definitionPath": "fixtures/showcase/definitions/lini-gallery-product-mindmap.json",
+      "definitionSha256": "1635b9fc5556daa96f7a70eb0aa1810d86b503da4e3e04d53a52bf8a6152c8b4",
+      "sources": [
+        {
+          "path": "fixtures/showcase/sources/lini/mindmap.lini",
+          "sha256": "fd4b2c771b78d49b65b0674bcdd335859b4ffbdd8a90a478c0c0ccdd26ce03b7",
+          "originRepository": "monfa-red/lini",
+          "originPath": "samples/mindmap.lini",
+          "originSha256": "fd4b2c771b78d49b65b0674bcdd335859b4ffbdd8a90a478c0c0ccdd26ce03b7",
+          "originCommit": "0502d381dbd779d72b2ac4329a19b64201422a21",
+          "originTag": "v1.1.0",
+          "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
+          "pointer": "Complete mindmap sample",
+          "description": "Exact upstream sample bytes from monfa-red/lini v1.1.0 at 0502d381dbd779d72b2ac4329a19b64201422a21."
+        },
+        {
+          "path": "fixtures/showcase/sources/lini/LICENSE",
+          "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "originRepository": "monfa-red/lini",
+          "originPath": "LICENSE",
+          "originSha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "originCommit": "0502d381dbd779d72b2ac4329a19b64201422a21",
+          "originTag": "v1.1.0",
+          "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
+          "pointer": "MIT License",
+          "description": "Exact upstream MIT license text accompanying the pinned Lini v1.1.0 source samples."
+        }
+      ]
+    },
+    {
+      "id": "lini-gallery-commerce-entities",
+      "title": "A small commerce schema",
+      "description": "Six entities and five relationships from the pinned Lini entity sample. Field names, type labels, and declared PK/FK markers are retained. Relationship cardinality is authored only where the source places its marker: at each target end. The source's order-to-LineItem `:right` marker is a native routing hint, not an order_id field relationship; UMF records the entity-level reference and target cardinality and documents the unavailable wall-side anchor. Native positions and palette are styling; the authored UMF layout uses a three-column grid.",
+      "kind": "structure",
+      "form": "entities",
+      "definitionPath": "fixtures/showcase/definitions/lini-gallery-commerce-entities.json",
+      "definitionSha256": "6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090",
+      "sources": [
+        {
+          "path": "fixtures/showcase/sources/lini/entity_hero.lini",
+          "sha256": "74d843915dda51be10a31294007d5a78f0491780375df55b1c056f507bd244e6",
+          "originRepository": "monfa-red/lini",
+          "originPath": "samples/entity_hero.lini",
+          "originSha256": "74d843915dda51be10a31294007d5a78f0491780375df55b1c056f507bd244e6",
+          "originCommit": "0502d381dbd779d72b2ac4329a19b64201422a21",
+          "originTag": "v1.1.0",
+          "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
+          "pointer": "Complete entity sample",
+          "description": "Exact upstream sample bytes from monfa-red/lini v1.1.0 at 0502d381dbd779d72b2ac4329a19b64201422a21."
+        },
+        {
+          "path": "fixtures/showcase/sources/lini/LICENSE",
+          "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "originRepository": "monfa-red/lini",
+          "originPath": "LICENSE",
+          "originSha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "originCommit": "0502d381dbd779d72b2ac4329a19b64201422a21",
+          "originTag": "v1.1.0",
+          "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
+          "pointer": "MIT License",
+          "description": "Exact upstream MIT license text accompanying the pinned Lini v1.1.0 source samples."
+        }
+      ]
     }
   ]
 }

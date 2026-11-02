@@ -35,6 +35,27 @@ async function check(d:ReturnType<typeof doc>,backend:'graphviz'|'mermaid'='grap
 const result=(checks:Awaited<ReturnType<typeof verifyPresentationQuality>>,name:string)=>checks.find(x=>x.check===name)?.result;
 
 describe('presentation native quality verifier',()=>{
+ it('checks headless associations and rejects an invented native arrowhead',async()=>{
+  const d=createVisualDocument({id:'headless-quality',kind:'flow',form:'network',question:'Which records are associated?',nodes:[{id:'a',label:'Record A'},{id:'b',label:'Record B'}],edges:[{id:'association',from:'a',to:'b',label:'associated',directed:false}]},undefined,'1.3.0');
+  for(const backend of ['graphviz','mermaid'] as const){
+   const good=await check(d,backend),name=backend==='graphviz'?'graphviz-edge-endpoints-and-paths':'mermaid-flow-paths';
+   try{
+    expect(result(good.checks,name)).toBe('pass');
+    const mutated=await good.page.locator('#frame svg').evaluate((svg,backend)=>{
+     if(backend==='graphviz'){
+      const edge=svg.querySelector('g.edge');if(!edge)throw Error('Missing native association');
+      const arrow=document.createElementNS('http://www.w3.org/2000/svg','polygon');arrow.setAttribute('points','0,0 10,0 5,10');edge.appendChild(arrow);
+     }else{
+      const edge=svg.querySelector('path[data-edge="true"]'),marker=[...svg.querySelectorAll('marker')].find(item=>item.id.includes('pointEnd'));
+      if(!edge||!marker)throw Error('Missing native Mermaid path/arrow definition');edge.setAttribute('marker-end',`url(#${marker.id})`);
+     }
+     return svg.outerHTML;
+    },backend);
+    const nativeAst=backend==='graphviz'?JSON.parse(await dot(good.plan,'json')):undefined;
+    expect(result(await verifyPresentationQuality(good.page,{svg:mutated,document:d,plan:good.plan,nativeAst}),name)).toBe('fail');
+   }finally{await good.page.close();}
+  }
+ });
  it('binds graph labels and endpoints to their own native carriers and drawn geometry',async()=>{
   const d=doc({id:'flow-quality',kind:'flow',form:'network',question:'How do records move?',title:'Record path',nodes:[{id:'api',label:'Client API'},{id:'store',label:'Record store'}],edges:[{id:'request',from:'api',to:'store',label:'Submit record'}]});
   const good=await check(d);try{

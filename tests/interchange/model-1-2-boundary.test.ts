@@ -28,3 +28,11 @@ test('forged full record sources cannot promote 1.2 metadata retention to interp
 test('PowerPoint profile qualification is independent of the latest visual model constant',async()=>{
  await expect(exportPowerPoint(document(),{mode:'report'})).rejects.toThrow('Expected umf.visual model version 1.0.0 or 1.1.0');
 });
+test('1.3 rendering features do not expand released editable interchange profiles',()=>{
+ const latest=createVisualDocument({id:'new-headless',kind:'flow',form:'network',question:'Which records are associated?',nodes:[{id:'a',label:'A',icon:'rocket'},{id:'b',label:'B'}],edges:[{id:'association',from:'a',to:'b',directed:false}]},undefined,'1.3.0');
+ for(const format of ['dot','mermaid','lini'] as const)for(const profile of [undefined,`umf.visual.${format}.annotated/1`,`umf.visual.${format}.full/1`]){
+  const result=exportVisual(latest,{format,mode:'allow-reported-loss',...(profile?{profile}:{})});
+  expect(result.ok).toBe(false);expect(result.text).toBeUndefined();
+  expect(result.diagnostics.some(item=>item.severity==='error'&&item.message.includes('1.3.0'))).toBe(true);
+ }
+});

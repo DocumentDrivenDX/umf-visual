@@ -96,6 +96,52 @@ Sol independently passed 33 tests with 306 assertions and reviewed the compact
 desktop/mobile homepage. No blocking finding remains in that bounded review;
 exact-head CI and served Pages identity remain publication gates.
 
+## Gallery, YAML and public-renderer release — 2026-11-02
+
+The owner authorizes reproducing complex Lini gallery examples through the shared
+model, visible YAML, integration with main and release publication. The owner
+also authorizes coordination with the UMF schema-browser consumer and inclusion
+of its browser-runtime, identity-map and undirected-edge needs. GPT-6.1 Sol plans
+and reviews; parallel GPT-6 Luna packages implement the model, compiler, native
+proof, fixtures/source UI and public renderer.
+
+The selected gallery scope is checkout sequence, product-vision mindmap and
+commerce entities from upstream Lini v1.1.0 at commit
+`0502d381dbd779d72b2ac4329a19b64201422a21`. Preserve exact source/license bytes and
+all six existing showcase definitions. Author new concepts in explicit 1.3.0 and
+freeze 1.2.0 as well as earlier versions. Semantic group membership remains broad;
+native interval limitations belong in the interpreter. Source pixel positions
+and palette do not become application-specific vocabulary definitions.
+
+Completion requires exact YAML payload readback/copy, native source/SVG/PNG replay,
+source-bound tree/sequence/ER geometry with negative controls, all public runtime
+assets and declarations in a fresh installed archive, actual browser self/parallel/
+headless and 100-record evidence, and the separately qualified strict-parent
+worker policy boundary. Continue existing native/catalog compatibility and
+reproduction gates. Sol approval, main CI, served artifact identity and verified
+public release archive downloads precede a completion claim. Version 0.5.0 remains
+a candidate until its publication receipt records these results.
+
+Local qualification passed 599 tests across 85 files (18,765 assertions), followed
+by the final rich/legacy Lini focused checks: 12 tests and 137 assertions. Source
+generation, TypeScript, ESM/declaration build, fresh installed Bun/Node consumers
+and real Chromium library checks pass. The package checks verify the public
+renderer export, executable asset hashes and all bundled upstream notices.
+
+The nine-example showcase has 20 qualified variants, 60 native-source/SVG/PNG
+assets and 20 independent native/PNG replays. All 40 SVG/PNG previews and exact
+YAML copies pass desktop/mobile browser checks. The original 53-example catalog
+still verifies 532 render assets and 159 complete full-profile pairs with zero
+losses. Those older-profile results do not qualify editable 1.3 interchange.
+
+The public renderer's two Chromium tests pass 100 assertions, including actual
+100-record/100-field ownership, a 99-reference chain, distinct parallel/self
+connections, headless flow markers, runtime tamper refusal and the trusted-worker
+policy boundary. Sol independently passed 25 focused tests (344 assertions), then
+approved the final anonymous-frame correction after its uniqueness/native-guard
+controls. Changed HELIX artifacts have no blocking validator findings. Main CI,
+served-file identity and public release archive verification remain open gates.
+
 ## Lini and semantic-model continuation — 2026-11-02
 
 The owner requests Lini presentation quality comparable to its native example

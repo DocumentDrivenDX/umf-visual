@@ -21,30 +21,29 @@ read/write/inspect/create/edit APIs were extracted from
 [UMF #62](https://github.com/DocumentDrivenDX/umf/pull/62), commit
 `351c4802caf34eb7f4174e7b730f86f4befcf909`; see [provenance](UPSTREAM.json).
 
-The released package is `@documentdrivendx/umf-visual` 0.4.0, distributed as a
-[GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.4.0).
+Version 0.5.0 is packaged as `@documentdrivendx/umf-visual`, distributed through a
+[GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.5.0).
+The release publication receipt records the actual archive and deployment checks.
 It is not published to npm.
 
 Browse the [umf.visuals catalog](https://documentdrivendx.github.io/umf-visual/).
 Default authoring remains `umf.visual` 1.0.0 and the core envelope 0.10.0. The
-released package is 0.4.0; its publication receipt records Linux CI and deployed
-preview verification. It includes opt-in vocabulary 1.1.0, readable annotation
-profiles and complete portable routes. The working 0.5.0 package adds explicit
-model 1.2.0 and Graphviz/Mermaid/Lini presentation compilers; their source and visual qualification remain independent
-of the v0.4.0 release evidence.
+0.5.0 release adds explicit models 1.2.0/1.3.0, Graphviz/Mermaid/Lini presentation
+compilers, and a separate browser Lini runtime with distributable assets. Earlier
+editable interchange profiles retain their qualified model versions.
 Core comes from the pinned released SDK `umf-v0.5.7`; only its public APIs are used.
-The authored latest schema generates the 1.2.0 manifest and TypeScript shapes;
-released 1.0.0 and 1.1.0 assets and interpretation remain frozen. The unversioned
-schema/manifest and authoring defaults remain 1.0.0; 1.2.0 requires explicit opt-in.
+The authored latest schema generates the 1.3.0 manifest and TypeScript shapes;
+1.0.0, 1.1.0 and 1.2.0 assets and interpretation remain frozen. Unversioned
+schema/manifest and authoring defaults remain 1.0.0; new versions require opt-in.
 
 ```sh
 bun install --frozen-lockfile --ignore-scripts
 bun run check:source
 bun run typecheck
 bun test
+bun run fetch:lini
 bun run build
 bun run test:package
-bun run fetch:lini
 bunx playwright install chromium
 bun run test:native       # requires Graphviz dot and Python 3 on PATH
 bun run test:native:annotated
@@ -70,7 +69,8 @@ engines are build/test dependencies; the portable library does not load them.
 
 The separate presentation compiler draws the existing DSL with renderer-owned
 themes and layout options. Graphviz, Mermaid and Lini execution stays outside the
-portable package. This is a drawing projection, with explicit omissions and
+portable vocabulary/compiler. The separate `/renderers/lini` entry executes the
+pinned Lini runtime in a browser. This is a drawing projection, with explicit omissions and
 approximations; it is separate from editable interchange and full readback.
 
 ```ts
@@ -95,21 +95,52 @@ Architecture dependencies, ordered stack composition and entity/relationship
 views reuse the current nodes, groups, layers, fields and references. Renderer
 support is qualified per view and backend; a successful complete interchange
 round trip does not establish presentation quality. Graphviz qualifies for all
-six showcase examples, including field-bound E/R connections. Lini also covers
-all six with native nested layouts, entity cells, actual field/port attachments
-and cardinality markers. Mermaid qualifies for four architecture/stack views;
-E/R relationships refuse when their identification is unspecified. The source
-model can express that distinction explicitly in 1.2.0.
+the architecture/stack/entity showcase views, including field-bound E/R connections.
+Lini adds native sequence and tree projections for the gallery checkout and
+product-vision examples. Mermaid E/R refuses relationships whose identification
+is unspecified. Qualification is per view, source and engine version.
 
-Every example shows its exact visual payload by default, a separate full UMF
-envelope download and executable `getVisual` → `editVisual` →
-`compilePresentation` usage. The 1.2.0 named-interface example demonstrates
-explicit shapes, grid/stack composition and node-local connection anchors.
-`upgradeVisualDocument(document, '1.2.0')` selects the new model; omitting the
-target preserves the existing 1.1.0 upgrade behavior.
+Every example shows its exact visual payload as YAML, a separate full UMF JSON
+download and executable create/read/edit/compile usage. The gallery sources are
+pinned to Lini v1.1.0 with their original MIT license. Shared model 1.3.0 adds
+symbolic icons, parallelograms, tree composition, positioned sequence notes and
+explicit `edge.directed: false` associations. Colors and pixel positions remain
+theme/layout decisions. A node's parent and ordered message records remain data,
+not native Lini snippets. `upgradeVisualDocument(document, '1.3.0')` selects the
+latest model; omitting the target still selects 1.1.0.
+
+```ts
+import {renderLiniPresentation} from '@documentdrivendx/umf-visual/renderers/lini';
+
+const drawing = await renderLiniPresentation(diagram, {
+  runtimeBaseUrl: '/vendor/lini/'
+});
+if (drawing.ok) {
+  console.log(drawing.svg, drawing.nativeVersion, drawing.elementMap);
+}
+```
+
+The package includes `lini_wasm.js`, `lini_wasm_bg.wasm`, `runtime-manifest.json`
+and `LICENSE` through `/renderers/lini/assets/*`. Bundled applications copy these
+files to their served `runtimeBaseUrl`; unbundled ESM uses package-relative URLs
+by default. The loader verifies both runtime hashes, initializes lazily and
+refuses native diagnostics. Successful output is the actual native SVG, with
+source and identity mappings. Browser execution requires an HTTP(S) secure context
+(or localhost), Fetch, Web Crypto, Blob module loading and WebAssembly.
+
+Current core registration uses fixed-schema code generation. A page that forbids
+JavaScript `unsafe-eval` can use a separately served same-origin module worker:
+keep the parent policy strict and explicitly allow code generation and verified
+Blob module loading only in that trusted worker's policy. This worker boundary
+is qualified separately; direct strict-CSP import of the current core is not.
+The renderer uses portable XML verification and does not require a DOM in the
+worker. SVG embedding/style policy remains the host application's responsibility.
+Native node carriers expose `data-id`; link identities are classes such as
+`lini-style-e1`. Match the returned map and native endpoint paths rather than
+assuming every native link has a DOM `id` attribute.
 
 Existing editable interchange/host profiles keep their qualified model-version
-scope and refuse 1.2.0 until their new mappings are qualified. Presentation
+scope and refuse 1.2.0/1.3.0 until their new mappings are qualified. Presentation
 output does not claim editable round trips merely because the original payload
 is available beside it.
 

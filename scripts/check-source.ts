@@ -15,10 +15,13 @@ export function boundaryIssues(source:string,filename='src/index.ts'):string[]{
   }
   // Pinned portable ZIP/XML codecs stay inside the PowerPoint adapter bundle.
   if(['fflate','saxes'].includes(name)&&resolve(filename).startsWith(resolve('src/adapters/powerpoint')+sep))continue;
+  if(name==='saxes'&&resolve(filename)===resolve('src/renderers/lini.ts'))continue;
   if(!name.startsWith('.')){issues.push('Forbidden external import: '+name);continue;}
   const destination=resolve(dirname(filename),name);
+  // Only the separate native renderer may consume its integrity-pinned runtime manifest.
+  if(resolve(filename)===resolve('src/renderers/lini.ts')&&destination===resolve('spec/interchange/lini-runtime.json'))continue;
   if(resolve(filename).startsWith(resolve('src/extensions')+sep)&&destination.startsWith(resolve('src/adapters')+sep))issues.push('Vocabulary cannot depend on adapters');
-  if(!destination.startsWith(resolve('src')+sep)&&![resolve('spec/extensions/visual/package.json'),resolve('spec/extensions/visual/1.0.0/package.json'),resolve('spec/extensions/visual/1.1.0/package.json')].includes(destination))issues.push('Forbidden private import: '+name);
+  if(!destination.startsWith(resolve('src')+sep)&&![resolve('spec/extensions/visual/package.json'),resolve('spec/extensions/visual/1.0.0/package.json'),resolve('spec/extensions/visual/1.1.0/package.json'),resolve('spec/extensions/visual/1.2.0/package.json')].includes(destination))issues.push('Forbidden private import: '+name);
  }
  return issues;
 }

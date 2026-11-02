@@ -1,12 +1,12 @@
 {
   "id": "umf.visual",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "coreVersion": "0.10.0",
   "description": "Renderer-neutral visual declarations: shared geometric shapes, named ports, relationships, walkthroughs and container layout intent; rendering themes remain separate",
   "schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "urn:umf:visual:1.2.0",
-    "title": "UMF visual vocabulary 1.2.0",
+    "$id": "urn:umf:visual:1.3.0",
+    "title": "UMF visual vocabulary 1.3.0",
     "type": "object",
     "required": [
       "id",
@@ -296,7 +296,8 @@
               "diamond",
               "hexagon",
               "cylinder",
-              "folded-corner"
+              "folded-corner",
+              "parallelogram"
             ]
           },
           "ports": {
@@ -305,6 +306,11 @@
               "$ref": "#/$defs/port"
             },
             "minItems": 1
+          },
+          "icon": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:[_-]+[a-z0-9]+)*$",
+            "maxLength": 128
           }
         }
       },
@@ -353,8 +359,14 @@
               "diamond",
               "hexagon",
               "cylinder",
-              "folded-corner"
+              "folded-corner",
+              "parallelogram"
             ]
+          },
+          "icon": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:[_-]+[a-z0-9]+)*$",
+            "maxLength": 128
           }
         }
       },
@@ -405,6 +417,9 @@
           },
           "toPort": {
             "$ref": "#/$defs/id"
+          },
+          "directed": {
+            "type": "boolean"
           }
         }
       },
@@ -530,6 +545,41 @@
                 },
                 "evidence": {
                   "$ref": "#/$defs/evidence"
+                }
+              }
+            },
+            "minItems": 1
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "text",
+                "participants"
+              ],
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "participants": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "minItems": 1,
+                  "uniqueItems": true
+                },
+                "before": {
+                  "$ref": "#/$defs/id"
+                },
+                "after": {
+                  "$ref": "#/$defs/id"
                 }
               }
             },
@@ -1294,6 +1344,31 @@
                 "uniqueItems": true
               }
             }
+          },
+          {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "const": "tree"
+              },
+              "direction": {
+                "enum": [
+                  "LR",
+                  "TB",
+                  "bilateral"
+                ]
+              },
+              "order": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "uniqueItems": true
+              }
+            }
           }
         ]
       }
@@ -1311,8 +1386,8 @@
     ],
     "native": {
       "system": "UMF-authored visual vocabulary",
-      "version": "1.2.0",
-      "subset": "Versioned declarations in UMF JSON/YAML with optional renderer-neutral shape, ports, relationship identification, and declarative layout; no renderer or coordinate semantics."
+      "version": "1.3.0",
+      "subset": "Versioned declarations in UMF JSON/YAML; 1.3 tree layout, generic participant icons and anchored sequence notes; no renderer, layout engine or Mermaid compatibility claimed"
     },
     "evidence": [
       "tests/visual/vocabulary.test.ts"

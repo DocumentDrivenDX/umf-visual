@@ -34,6 +34,12 @@ approximate them. Explicit 1.2.0 introduces these concepts without changing
 released 1.0.0/1.1.0 interpretation. Colors, typography and native engine
 attributes remain renderer concerns.
 
+Explicit 1.3.0 adds reusable tree composition, symbolic icon cues and positioned
+sequence notes. These are shared authored intent, not native Lini snippets.
+Participant/message order, self-calls, asynchronous messages and loop membership
+retain their existing semantic records. Versions 1.0.0 through 1.2.0 remain
+frozen; new concepts require explicit version selection.
+
 Describe one picture as data: a system's parts and what moves between them, a call sequence, a
 layered or nested structure, a lifecycle, a timeline, a comparison of options or a metric. The
 document names a closed kind and form, the reader's question, roles and statuses, and an

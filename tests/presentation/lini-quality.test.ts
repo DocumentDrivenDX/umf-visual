@@ -3,7 +3,7 @@ import {afterAll,beforeAll,describe,expect,it} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {chromium,type Browser, type Page} from 'playwright';
-import {createVisualDocument,readVisualDocument,type Visual} from '../../src/extensions/visual';
+import {createVisualDocument,getVisual,readVisualDocument,type Visual} from '../../src/extensions/visual';
 import {compilePresentation,type PresentationPlan} from '../../src/presentation';
 import {renderPresentationLini} from '../../scripts/presentation/lini-runtime';
 import {verifyLiniPresentationQuality} from '../../scripts/presentation/lini-quality';
@@ -55,6 +55,17 @@ describe('pinned Lini presentation quality',()=>{
    expect(result(outside,'lini-containment-and-order')).toBe('fail');
    const blankAst=await recheck(good.page,good.document,good.plan,'');
    expect(result(blankAst,'lini-native-ast')).toBe('fail');
+  }finally{await good.page.close();}
+ });
+
+ it('preserves an explicit headless network association and rejects a native arrowhead',async()=>{
+  const visual:Visual={id:'headless-association',kind:'flow',form:'network',question:'Which nodes are associated?',nodes:[{id:'source',label:'Source'},{id:'target',label:'Target'}],edges:[{id:'association',from:'source',to:'target',directed:false,label:'belongs to'}]},good=await renderDocument(createVisualDocument(visual,'test:headless-association','1.3.0'));
+  try{
+   expectAll(good.checks);
+   const mapped=good.plan.elementMap.find(item=>item.kind==='edge'&&item.logicalId==='association');expect(mapped).toBeDefined();if(!mapped)return;
+   const link=good.page.locator(`g.lini-link.lini-style-${mapped.nativeId}`);expect(await link.getAttribute('data-from')).toBe('visual.n1');expect(await link.getAttribute('data-to')).toBe('visual.n2');expect(await link.locator('.lini-marker-arrow').count()).toBe(0);
+   await link.evaluate(element=>element.insertAdjacentHTML('beforeend','<polygon class="lini-marker lini-marker-arrow" points="0,0 5,2 5,-2"></polygon>'));
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
   }finally{await good.page.close();}
  });
 
@@ -195,6 +206,21 @@ describe('pinned Lini presentation quality',()=>{
   }finally{await entity.page.close();}
  });
 
+ it('proves native ER body terminal symbols and rejects a detached moved relation',async()=>{
+  const root=resolve(import.meta.dir,'../..'),document=readVisualDocument(readFileSync(resolve(root,'fixtures/showcase/definitions/lini-gallery-commerce-entities.json'),'utf8'),'json'),plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});
+  expect(plan.ok).toBe(true);if(!plan.ok)throw Error(JSON.stringify(plan));
+  const native=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900}});
+  try{
+   await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
+   await page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},native.svg);
+   const checks=await verifyLiniPresentationQuality(page,{document,plan,nativeAst:native.nativeAst});expectAll(checks);
+   const relation=page.locator('g.lini-link.lini-style-r2');expect(await relation.getAttribute('data-from')).toBe('visual.n1');expect(await relation.getAttribute('data-to')).toBe('visual.n5');
+   const transform=await relation.getAttribute('transform');await relation.evaluate(element=>element.setAttribute('transform','translate(100,0)'));
+   expect(result(await recheck(page,document,plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await relation.evaluate((element,value)=>element.setAttribute('transform',value??''),transform);
+  }finally{await page.close();}
+ });
+
  it('replays all six actual showcase definitions through pinned Lini and Chromium',async()=>{
   const root=resolve(import.meta.dir,'../..'),manifest=JSON.parse(readFileSync(resolve(root,'fixtures/showcase/showcase-sources.json'),'utf8')) as {examples:Array<{id:string;definitionPath:string}>};
   for(const example of manifest.examples){
@@ -204,7 +230,11 @@ describe('pinned Lini presentation quality',()=>{
    try{
     await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
     await page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},native.svg);
-    expectAll(await verifyLiniPresentationQuality(page,{document,plan,nativeAst:native.nativeAst}));
+    const checks=await verifyLiniPresentationQuality(page,{document,plan,nativeAst:native.nativeAst});
+    const visual=getVisual(document);
+    const rich=visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree';
+    if(rich){expect(checks.map(check=>check.check)).toEqual(['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw Error(JSON.stringify(failed));}
+    else expectAll(checks);
    }finally{await page.close();}
   }
  });

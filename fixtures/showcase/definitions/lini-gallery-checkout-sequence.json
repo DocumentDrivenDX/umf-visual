@@ -1,0 +1,130 @@
+{
+  "umf": "0.10.0",
+  "id": "showcase:lini-gallery-checkout-sequence",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.3.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "title": "A checkout, from order to tracking",
+      "kind": "sequence",
+      "form": "lifelines",
+      "question": "How does checkout move from a customer to parcel tracking?",
+      "takeaway": "The source sequence preserves the checkout calls, stock loop, self-call, return messages, note, and asynchronous tracking request.",
+      "source": {
+        "path": "fixtures/showcase/sources/lini/sequence.lini",
+        "view": "Complete sequence sample",
+        "digest": "sha256:8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c"
+      },
+      "groups": [
+        {
+          "id": "each-item",
+          "label": "each item",
+          "role": "loop"
+        }
+      ],
+      "sequence": {
+        "participants": [
+          {
+            "id": "user",
+            "label": "user",
+            "role": "actor",
+            "icon": "user"
+          },
+          {
+            "id": "shop",
+            "label": "Storefront",
+            "role": "platform",
+            "shape": "rectangle"
+          },
+          {
+            "id": "pay",
+            "label": "Payments",
+            "role": "platform",
+            "shape": "rectangle"
+          },
+          {
+            "id": "db",
+            "label": "Orders",
+            "role": "store",
+            "shape": "parallelogram"
+          }
+        ],
+        "messages": [
+          {
+            "id": "place-order",
+            "from": "user",
+            "to": "shop",
+            "label": "place order",
+            "kind": "call"
+          },
+          {
+            "id": "charge",
+            "from": "shop",
+            "to": "pay",
+            "label": "charge $42",
+            "kind": "call"
+          },
+          {
+            "id": "verify-card",
+            "from": "pay",
+            "to": "pay",
+            "label": "verify card",
+            "kind": "call"
+          },
+          {
+            "id": "receipt",
+            "from": "pay",
+            "to": "shop",
+            "label": "receipt",
+            "kind": "return"
+          },
+          {
+            "id": "reserve-stock",
+            "from": "shop",
+            "to": "db",
+            "label": "reserve stock",
+            "kind": "call",
+            "group": "each-item"
+          },
+          {
+            "id": "in-stock",
+            "from": "db",
+            "to": "shop",
+            "label": "in stock",
+            "kind": "return",
+            "group": "each-item"
+          },
+          {
+            "id": "order-confirmation",
+            "from": "shop",
+            "to": "user",
+            "label": "order #1024",
+            "kind": "return"
+          },
+          {
+            "id": "track-parcel",
+            "from": "user",
+            "to": "shop",
+            "label": "track parcel",
+            "kind": "async"
+          }
+        ],
+        "notes": [
+          {
+            "id": "checkout-note",
+            "text": "starts checkout",
+            "participants": [
+              "user"
+            ],
+            "before": "place-order"
+          }
+        ]
+      },
+      "id": "lini-gallery-checkout-sequence"
+    }
+  },
+  "modules": []
+}
