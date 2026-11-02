@@ -10,9 +10,11 @@ The intended model is a superset of common visual types and properties exposed
 by these tools, serving both interchange and generic authoring by semantic
 producers such as UMF schemas: `semantic producer → umf.visual → native targets`.
 The released 1.0.0 vocabulary and native adapter profiles are an initial subset; explicit 1.1.0 vocabulary corrections are described below.
-Common shapes, layout/style, ports and richer native relationships still need
-first-class model/mapping work; retained source is a preservation mechanism,
-not a replacement for that typed model.
+Explicit 1.2.0 adds common geometric shapes, container layout intent, named
+node-local ports and authored E/R identification. These are shared model
+concepts, independent of renderer capabilities. Interpreters realize them or
+describe a faithful approximation; themes own colors, fonts and pixel spacing.
+Retained source is a preservation mechanism, not a replacement for that model.
 
 The vocabulary describes seven kinds and 22 forms. Its validation and
 read/write/inspect/create/edit APIs were extracted from
@@ -27,12 +29,13 @@ Browse the [umf.visuals catalog](https://documentdrivendx.github.io/umf-visual/)
 Default authoring remains `umf.visual` 1.0.0 and the core envelope 0.10.0. The
 released package is 0.4.0; its publication receipt records Linux CI and deployed
 preview verification. It includes opt-in vocabulary 1.1.0, readable annotation
-profiles and complete portable routes. The working 0.5.0 package adds a separate
-presentation compiler; its source and visual qualification remain independent
+profiles and complete portable routes. The working 0.5.0 package adds explicit
+model 1.2.0 and Graphviz/Mermaid/Lini presentation compilers; their source and visual qualification remain independent
 of the v0.4.0 release evidence.
 Core comes from the pinned released SDK `umf-v0.5.7`; only its public APIs are used.
-The authored latest schema generates the 1.1.0 manifest and TypeScript shapes;
-released 1.0.0 assets and interpretation remain frozen.
+The authored latest schema generates the 1.2.0 manifest and TypeScript shapes;
+released 1.0.0 and 1.1.0 assets and interpretation remain frozen. The unversioned
+schema/manifest and authoring defaults remain 1.0.0; 1.2.0 requires explicit opt-in.
 
 ```sh
 bun install --frozen-lockfile --ignore-scripts
@@ -66,7 +69,7 @@ engines are build/test dependencies; the portable library does not load them.
 ### Presentation rendering
 
 The separate presentation compiler draws the existing DSL with renderer-owned
-themes and layout options. Graphviz and Mermaid execution stays outside the
+themes and layout options. Graphviz, Mermaid and Lini execution stays outside the
 portable package. This is a drawing projection, with explicit omissions and
 approximations; it is separate from editable interchange and full readback.
 
@@ -92,9 +95,23 @@ Architecture dependencies, ordered stack composition and entity/relationship
 views reuse the current nodes, groups, layers, fields and references. Renderer
 support is qualified per view and backend; a successful complete interchange
 round trip does not establish presentation quality. Graphviz qualifies for all
-five showcase examples, including field-bound E/R connections. Mermaid qualifies
-for the three architecture/stack examples; E/R relationships refuse when native
-syntax would assert identifying semantics absent from the source model.
+six showcase examples, including field-bound E/R connections. Lini also covers
+all six with native nested layouts, entity cells, actual field/port attachments
+and cardinality markers. Mermaid qualifies for four architecture/stack views;
+E/R relationships refuse when their identification is unspecified. The source
+model can express that distinction explicitly in 1.2.0.
+
+Every example shows its exact visual payload by default, a separate full UMF
+envelope download and executable `getVisual` → `editVisual` →
+`compilePresentation` usage. The 1.2.0 named-interface example demonstrates
+explicit shapes, grid/stack composition and node-local connection anchors.
+`upgradeVisualDocument(document, '1.2.0')` selects the new model; omitting the
+target preserves the existing 1.1.0 upgrade behavior.
+
+Existing editable interchange/host profiles keep their qualified model-version
+scope and refuse 1.2.0 until their new mappings are qualified. Presentation
+output does not claim editable round trips merely because the original payload
+is available beside it.
 
 ```ts
 import {
@@ -229,7 +246,7 @@ Current source profiles qualify these bounded subsets:
 | `umf.visual.mermaid.annotated/1` | 0.1.0 | Sequence lifelines with visible typed notes; ladder geometry remains reported loss |
 
 These profiles require the canonical frozen 1.0.0 vocabulary declaration.
-Generated 1.1.0 types do not establish native support for stable field IDs,
+Generated vocabulary types alone do not establish native support for stable field IDs,
 exact multiplicities or the larger model's resource bounds. Strict mode refuses
 remaining geometry losses; reported-loss mode exposes them, including on exact
 retained-source replay.
@@ -317,5 +334,5 @@ together; default authoring/public manifest aliases retain 1.0.0. Use the third
 opt into early-year date corrections, 500-node resource bounds with split advice,
 exact multiplicities and stable field IDs. Native companions remain unchanged;
 a changed vocabulary declaration is a source revision change and cannot replay
-stale receipts. The current standalone schema generates the 1.1 manifest and
+stale receipts. The current standalone schema generates the 1.2 manifest and
 TypeScript shapes; generation freshness is checked without writing.

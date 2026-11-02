@@ -25,8 +25,10 @@
       "types": "./dist/adapters/miro/index.d.ts",
       "import": "./dist/miro.js"
     },
-    "./schema/1.1.0": "./spec/extensions/visual/schema.json",
-    "./manifest/1.1.0": "./spec/extensions/visual/package.json",
+    "./schema/1.1.0": "./spec/extensions/visual/1.1.0/schema.json",
+    "./manifest/1.1.0": "./spec/extensions/visual/1.1.0/package.json",
+    "./schema/1.2.0": "./spec/extensions/visual/schema.json",
+    "./manifest/1.2.0": "./spec/extensions/visual/package.json",
     "./powerpoint": {
       "types": "./dist/adapters/powerpoint/index.d.ts",
       "import": "./dist/powerpoint.js"

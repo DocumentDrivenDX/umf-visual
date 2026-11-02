@@ -18,7 +18,7 @@ ddx:
 
 # CONTRACT-089: Presentation rendering and diagram showcase
 
-**Type:** library projection and static showcase. **Version:** 1.0.0.
+**Type:** library projection and static showcase. **Version:** 1.1.0.
 
 ## Purpose
 
@@ -30,7 +30,7 @@ artifacts. Qualify visible output separately from complete interchange readback.
 The portable presentation compiler consumes the existing `umf.visual` payload
 in a public UMF document. Themes, direction and typography are renderer options;
 they MUST NOT introduce application-specific vocabulary definitions. Native
-Graphviz and Mermaid execution remains host-side. The library MUST NOT import
+Graphviz, Mermaid and Lini execution remains host-side. The library MUST NOT import
 Bun, Node or a native renderer into its browser-compatible entry point.
 
 Initial presentation views cover flow/network, including grouped dependency
@@ -41,12 +41,12 @@ authored views; the renderer MUST NOT invent arrows in a structure stack.
 ## Normative Surface
 
 `compilePresentation(document, options)` is exported through the separate
-`/presentation` package entry. Options select `backend: graphviz | mermaid`,
+`/presentation` package entry. Options select `backend: graphviz | mermaid | lini`,
 optional `direction: LR | TB` and `theme: presentation/1`. The default direction
 is LR. Themes are versioned independently of the visual model and interchange.
 
 Success returns `ok:true`, `profileId:umf.visual.presentation/1`, backend, native
-`nativeFormat` (`dot` or `mermaid`), exact native `source`, `elementMap`, `omissions` and
+`nativeFormat` (`dot`, `mermaid` or `lini`), exact native `source`, `elementMap`, `omissions` and
 `approximations`. Each mapped element identifies its logical ID, source pointer,
 native ID and kind. Omissions identify source paths excluded from the visible
 view and why. Approximations identify requested meaning and its actual visible
@@ -78,13 +78,31 @@ definition inspection and SVG/PNG downloads. Detailed schema and conformance
 UI lives at `evidence.html`; existing example/profile/hash links preserve their
 selection there. The original 53-example corpus and diagnostics stay unchanged.
 
+The exact versioned visual payload MUST be visible by default, with a bounded
+source panel, copy access and a separate full-envelope download. Each example
+MUST show executable public API usage for reading, editing and compiling that
+definition; hand-written summaries MUST NOT masquerade as the source.
+
+Lini qualification uses the independently pinned runtime and native themeable
+SVG, native nested containers, card/entity cells and real connection anchors.
+Fields MUST remain associated with their owning entity and their own type,
+key/nullability text and endpoint geometry. Conventional endpoint cardinalities
+MUST use their actual native markers; nonstandard ranges require exact visible
+relationship-owned labels and a located approximation. Unspecified endpoints
+MUST remain unspecified. No identification classification is inferred.
+
+For 1.2.0, declared shapes, layout intent, ports and relationship identification
+are authored input, independent of an interpreter's capabilities. Each target
+MUST realize them or report an explicit located approximation/refusal. Theme
+colors, typography and pixel spacing remain outside the semantic payload.
+
 ## Precedence and Compatibility
 
 CONTRACT-083 owns visual meaning; CONTRACT-086 owns native interchange.
 CONTRACT-085 retains the existing catalog schema and its evidence obligations.
 This contract amends reference-first page ordering through CAT-16–CAT-18 and
 adds independent presentation assets. It does not upgrade model versions or
-reinterpret existing profiles. Visual 1.0.0 and explicit 1.1.0 source identity
+reinterpret existing profiles. Visual 1.0.0 and explicit 1.1.0/1.2.0 source identity
 MUST remain visible. Unknown content is preserved in the original document;
 content outside the visible view MUST be inventoried, not silently certified.
 
@@ -120,9 +138,9 @@ if (plan.ok) {
 
 ## Schema Basis
 
-The compiler reuses public `@umf/core` Document and existing `umf.visual` 1.0.0
-and 1.1.0 definitions at `spec/extensions/visual/`. Their groups/nodes/edges,
+The compiler reuses public `@umf/core` Document and versioned `umf.visual` 1.0.0,
+1.1.0 and 1.2.0 definitions at `spec/extensions/visual/`. Their groups/nodes/edges,
 stack layers, entity fields and references are the authored semantics. No new
-diagram payload schema is introduced. Source references pin actual architecture
+renderer-specific payload schema is introduced. Source references pin actual architecture
 or schema facts; a conceptual metamodel E/R view MUST NOT invent SQL keys or
 conflate required presence with non-nullability.

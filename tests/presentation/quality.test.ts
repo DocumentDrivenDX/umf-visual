@@ -126,6 +126,24 @@ describe('presentation native quality verifier',()=>{
   const mermaid=await check(d,'mermaid');try{expect(result(mermaid.checks,'mermaid-containment-and-order')).toBe('pass');}finally{await mermaid.page.close();}
  });
 
+ it('binds 1.2 named Graphviz ports to owned rows, exact native selectors and drawn row sides',async()=>{
+  const d=JSON.parse(await Bun.file('fixtures/showcase/definitions/umf-logical-interface-architecture.json').text()) as ReturnType<typeof doc>;
+  const good=await check(d);
+  try{
+   expect(result(good.checks,'graphviz-node-port-rows')).toBe('pass');
+   expect(result(good.checks,'graphviz-edge-endpoints-and-paths')).toBe('pass');
+   const ast=JSON.parse(await dot(good.plan,'json'));
+   ast.edges.find((edge:any)=>edge.id==='e2').tailport='p1:w';
+   expect(result(await verifyPresentationQuality(good.page,{svg:good.svg,document:d,plan:good.plan,nativeAst:ast}),'graphviz-edge-endpoints-and-paths')).toBe('fail');
+   const detachedArrow=good.svg.replace(/(<g id="e1" class="edge">[\s\S]*?<polygon[^>]*points=")([^"]+)(")/u,(_match:string,prefix:string,points:string,suffix:string)=>prefix+points.replace(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/gu,(_pair:string,x:string,y:string)=>`${Number(x)+100},${Number(y)+100}`)+suffix);
+   expect(detachedArrow).not.toBe(good.svg);
+   expect(result(await verifyPresentationQuality(good.page,{svg:detachedArrow,document:d,plan:good.plan,nativeAst:JSON.parse(await dot(good.plan,'json'))}),'graphviz-edge-endpoints-and-paths')).toBe('fail');
+   const altered=good.svg.replace('resolve · resolve · south','other · other · south');
+   expect(altered).not.toBe(good.svg);
+   expect(result(await verifyPresentationQuality(good.page,{svg:altered,document:d,plan:good.plan,nativeAst:JSON.parse(await dot(good.plan,'json'))}),'graphviz-node-port-rows')).toBe('fail');
+  }finally{await good.page.close();}
+ });
+
  it('checks Mermaid node ownership and exact directed paths for a flow',async()=>{
   const d=doc({id:'mermaid-flow',kind:'flow',form:'network',question:'Where does the request go?',nodes:[{id:'client',label:'Client API'},{id:'service',label:'Service'},{id:'store',label:'Record store'}],edges:[{id:'submit',from:'client',to:'service',label:'Submit'},{id:'persist',from:'service',to:'store',label:'Persist'}]});
   const good=await check(d,'mermaid');try{

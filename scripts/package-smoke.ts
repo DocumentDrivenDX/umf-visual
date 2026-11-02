@@ -24,6 +24,7 @@ const fullEntity=JSON.parse(await Bun.file('fixtures/catalog/canary-entities.jso
 await Bun.write(join(consumer,'consumer.mjs'),`import {createVisualDocument,getVisual,editVisual,inspectVisual,importVisual,exportVisual,upgradeVisualDocument,latestVisualPackage} from '@documentdrivendx/umf-visual';
 import legacySchema from '@documentdrivendx/umf-visual/schema' with {type:'json'};
 import modernSchema from '@documentdrivendx/umf-visual/schema/1.1.0' with {type:'json'};
+import expressiveSchema from '@documentdrivendx/umf-visual/schema/1.2.0' with {type:'json'};
 import {planMiroExport} from '@documentdrivendx/umf-visual/miro';
 import {exportPowerPoint,importPowerPoint} from '@documentdrivendx/umf-visual/powerpoint';
 import {observeGoogleSlides,planGoogleSlidesExport} from '@documentdrivendx/umf-visual/google-slides';
@@ -31,7 +32,7 @@ import {hostDigest,admitHostObservation} from '@documentdrivendx/umf-visual/reco
 import {planEditableMiroExport} from '@documentdrivendx/umf-visual/miro/editable';
 import {compilePresentation} from '@documentdrivendx/umf-visual/presentation';
 const doc=createVisualDocument({id:'consumer',kind:'flow',form:'network',question:'Does installation work?',nodes:[{id:'n',label:'Installed consumer'}]});
-const presentationPlans=[compilePresentation(doc,{backend:'graphviz'}),compilePresentation(doc,{backend:'mermaid'})];
+const presentationPlans=[compilePresentation(doc,{backend:'graphviz'}),compilePresentation(doc,{backend:'mermaid'}),compilePresentation(doc,{backend:'lini'})];
 for(const plan of presentationPlans){if(!plan.ok||plan.profileId!=='umf.visual.presentation/1'||!plan.source||!plan.elementMap.length)throw Error('Installed presentation compiler failed');}
 if(planMiroExport(doc).shapes.length!==2)throw Error('Installed Miro entrypoint failed');
 const editable=await planEditableMiroExport(doc,'strict');if(editable.nodes.length!==1)throw Error('Installed editable Miro entrypoint failed');
@@ -40,8 +41,10 @@ const ppt=await exportPowerPoint(doc,{mode:'report'});const pptBack=await import
 const snapshot={presentationId:'consumer-presentation',revisionId:'consumer-rev-1',pageSize:{width:{magnitude:720,unit:'PT'},height:{magnitude:405,unit:'PT'}},slides:[{objectId:'consumer-slide',pageElements:[]}]};
 const observed=await observeGoogleSlides(snapshot);await admitHostObservation({resource:{host:'google-slides',documentId:'consumer-presentation'},revision:{kind:'host-revision',value:'consumer-rev-1'},captureDigestSha256:observed.captureDigestSha256,payload:snapshot});
 const slides=await planGoogleSlidesExport(doc,observed,{question:{x:20,y:20,width:400,height:50},nodes:{n:{x:100,y:120,width:180,height:80}}},{namespace:'consumer'});if(slides.batch.writeControl.requiredRevisionId!=='consumer-rev-1')throw Error('Installed Google Slides entrypoint failed');
-if(legacySchema.$id!=='urn:umf:visual:1.0.0'||modernSchema.$id!=='urn:umf:visual:1.1.0'||latestVisualPackage.version!=='1.1.0')throw Error('Versioned package assets failed');
+if(legacySchema.$id!=='urn:umf:visual:1.0.0'||modernSchema.$id!=='urn:umf:visual:1.1.0'||latestVisualPackage.version!=='1.2.0'||expressiveSchema.$id!=='urn:umf:visual:1.2.0')throw Error('Versioned package assets failed');
 if(!inspectVisual(upgradeVisualDocument(doc)).complete||doc.vocabularies['umf.visual'].version!=='1.0.0')throw Error('Installed upgrade failed');
+const rich=createVisualDocument({id:'rich',kind:'flow',form:'network',question:'Which ports?',layout:{kind:'flow',direction:'LR',order:['client','api']},nodes:[{id:'client',label:'Client',shape:'ellipse',ports:[{id:'out',side:'east'}]},{id:'api',label:'API',shape:'hexagon',ports:[{id:'in',side:'west'}]}],edges:[{id:'request',from:'client',to:'api',fromPort:'out',toPort:'in'}]},'visual:rich','1.2.0');
+if(!inspectVisual(rich).complete||!compilePresentation(editVisual(rich,v=>({...v,title:'Reviewed ports'})),{backend:'lini'}).ok)throw Error('Installed expressive model authoring failed');
 const report=inspectVisual(doc);if(!report.valid||!report.complete)throw Error('Installed package rejected valid data');
 for(const format of ['dot','mermaid','lini']){
  const output=exportVisual(doc,{format});if(!output.ok)throw Error('Installed export failed '+format);

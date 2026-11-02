@@ -105,6 +105,26 @@
           "description": "Selected relational tables and foreign-key constraints, copied unchanged from the Beacon source migration."
         }
       ]
+    },
+    {
+      "id": "umf-logical-interface-architecture",
+      "title": "Named interfaces, shared composition",
+      "description": "The documented catalog-to-Ashlar path, authored with explicit shapes, container layout and named logical connection ports in umf.visual 1.2.0. Glyphs and anchors express visual intent; they do not assert extra runtime capabilities.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/showcase/definitions/umf-logical-interface-architecture.json",
+      "definitionSha256": "f47d185a7e1c900cb9bea7da5f12d75489e521e737a432c6b47fc263b5d8ef00",
+      "sources": [
+        {
+          "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
+          "sha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
+          "originRepository": "DocumentDrivenDX/umf",
+          "originPath": "docs/helix/02-design/solution-designs/SD-031-engine-target-adapters.md",
+          "originSha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
+          "pointer": "Domain Model; Solution Approaches; Scope",
+          "description": "The exact documented Q → AR → AP connection subset; geometric shapes, composition order and logical anchor names are additional authored visual intent."
+        }
+      ]
     }
   ]
 }

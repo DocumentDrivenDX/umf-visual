@@ -18,8 +18,9 @@ ddx:
 
 The extraction owns the visual package, schema/types/semantics and behavioral
 corpus from #62. The user authorized independent repository ownership. Native interchange is governed by FEAT-035 and CONTRACT-086. The latest authored schema
-generates 1.1.0 types and manifest; UMF-authored metamodel authority remains a
-subsequent governed change. The desired model is a typed
+generates 1.2.0 types and manifest. Versions 1.0.0/1.1.0 retain frozen
+interpretation. UMF-authored metamodel authority remains a subsequent governed
+change. The desired model is a typed
 authoring target for common native visual concepts as well as an interchange
 representation; the current schema and adapters are an initial bounded subset.
 
@@ -90,9 +91,11 @@ prove all semantic encapsulation or dynamic-import safety.
 ## Data Flow
 
 Presentation rendering is independent of interchange. A pure compiler projects
-the existing visual definition to themed Graphviz or Mermaid drawing source.
+the existing visual definition to themed Graphviz, Mermaid or Lini drawing source.
 Host-side tooling executes the named renderer, records exact source/image hashes
-and checks visible geometry. Styling and direction are renderer options. The
+and checks visible geometry. Themes and default direction are renderer options;
+authored 1.2.0 shapes, composition and ports take precedence, with target
+approximations kept explicit. The
 source definition, omitted-from-view paths and approximations remain inspectable.
 This projection makes no native-source readback claim. The homepage showcases
 these drawings; `evidence.html` retains the complete reference and conformance UI.
@@ -201,5 +204,5 @@ together; default authoring/public manifest aliases retain 1.0.0. Use the third
 opt into early-year date corrections, 500-node resource bounds with split advice,
 exact multiplicities and stable field IDs. Native companions remain unchanged;
 a changed vocabulary declaration is a source revision change and cannot replay
-stale receipts. The current standalone schema generates the 1.1 manifest and
+stale receipts. The current standalone schema generates the 1.2 manifest and
 TypeScript shapes; generation freshness is checked without writing.

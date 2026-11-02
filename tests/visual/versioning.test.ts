@@ -15,7 +15,7 @@ test('released schema, manifest, validator and imported fixture bytes remain fro
  expect(hash(readFileSync('src/extensions/visual/legacy-1-0.ts','utf8').replace('../../../spec/extensions/visual/1.0.0/package.json','../../../spec/extensions/visual/package.json'))).toBe('fab32123da58330e7d4c290743b746363913b5fa23cbb7491e931343eda29cb1');
  const provenance=JSON.parse(readFileSync('UPSTREAM.json','utf8'));
  for(const [path,digest] of Object.entries(provenance.originalFileSha256))if(path.startsWith('fixtures/visual/'))expect(hash(readFileSync(path)),path).toBe(digest as string);
- expect(VISUAL_VERSION).toBe('1.0.0');expect(LATEST_VISUAL_VERSION).toBe('1.1.0');expect(visualPackage.version).toBe('1.0.0');expect(latestVisualPackage.version).toBe('1.1.0');
+ expect(VISUAL_VERSION).toBe('1.0.0');expect(LATEST_VISUAL_VERSION).toBe('1.2.0');expect(visualPackage.version).toBe('1.0.0');expect(latestVisualPackage.version).toBe('1.2.0');
 });
 
 test('1.1 size admission is explicit and does not broaden native profiles',()=>{

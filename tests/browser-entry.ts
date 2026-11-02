@@ -31,12 +31,14 @@ try{
  if(!refused)throw Error('Legacy size semantics changed');
  const modern=createVisualDocument(big,undefined,'1.1.0');
  if(!inspectVisual(modern).valid||!inspectVisual(modern).advice.some(d=>d.code==='VISUAL_SPLIT'))throw Error('Opt-in size behavior failed');
+ const v12=createVisualDocument({id:'browser-ports-layout',kind:'flow',form:'network',question:'Which ports are connected?',nodes:[{id:'client',label:'Client',shape:'ellipse',ports:[{id:'out',side:'east'}]},{id:'store',label:'Store',shape:'cylinder',ports:[{id:'in',side:'west'}]}],edges:[{id:'request',from:'client',to:'store',fromPort:'out',toPort:'in'}],layout:{kind:'flow',direction:'LR',order:['client','store']}},undefined,'1.2.0');
+ if(!inspectVisual(v12).complete||getVisual(readVisualDocument(writeVisualDocument(v12,'yaml'),'yaml')).nodes?.[0]?.shape!=='ellipse')throw Error('1.2 browser model round trip failed');
  const early=createVisualDocument({id:'early',kind:'timeline',form:'milestones',question:'When?',timeline:{scale:{kind:'date'},events:[{id:'leap',label:'Leap',at:'0000-02-29'}]}},undefined,'1.1.0');
  if(!inspectVisual(early).valid)throw Error('Modern early-year date failed');
  const entity=createVisualDocument({id:'browser-entity',kind:'structure',form:'entities',question:'What refers?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{id:'stable',name:'key'}]},{node:'b',fields:[{name:'fk'}]}],references:[{id:'ref',from:{node:'a',fieldId:'stable'},to:{node:'b',field:'fk'},fromMultiplicity:{min:1,max:1},toMultiplicity:{min:2,max:5,text:'2..5'}}]}},undefined,'1.1.0');
  if(!inspectVisual(entity).complete)throw Error('Modern entity semantics incomplete');
  const presentationFlow=createVisualDocument({id:'presentation-browser',kind:'flow',form:'network',question:'Which tool draws?',nodes:[{id:'schema',label:'Schema <π>'},{id:'renderer',label:'Renderer & output'}],edges:[{id:'draw',from:'schema',to:'renderer',label:'author → draw'}]});
- const presentationPlans=[compilePresentation(presentationFlow,{backend:'graphviz'}),compilePresentation(presentationFlow,{backend:'mermaid'}),compilePresentation(entity,{backend:'graphviz'})];
+ const presentationPlans=[compilePresentation(presentationFlow,{backend:'graphviz'}),compilePresentation(presentationFlow,{backend:'mermaid'}),compilePresentation(entity,{backend:'graphviz'}),compilePresentation(presentationFlow,{backend:'lini'}),compilePresentation(v12,{backend:'lini'})];
  for(const plan of presentationPlans)if(!plan.ok||plan.profileId!=='umf.visual.presentation/1'||!plan.source||!plan.elementMap.length)throw Error('Browser presentation compiler failed');
  entity.vocabularies['umf.visual']!.version='1.0.0';
  if(inspectVisual(entity).complete)throw Error('Legacy validator interpreted new fields');
@@ -60,5 +62,5 @@ try{
  }
  if(wave2.length!==16)throw Error('Expected 11 grouped flows and 5 sequences in browser');
  const interchange=await runInterchangeBrowserChecks();
- window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true},presentationPlans:presentationPlans.length,wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),full:runFullBrowserChecks(fixtures),miro:await exerciseMiroBrowser(),portableAdapters:await runPortableAdaptersBrowserChecks()};
+ window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true,model12:true},presentationPlans:presentationPlans.length,wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),full:runFullBrowserChecks(fixtures),miro:await exerciseMiroBrowser(),portableAdapters:await runPortableAdaptersBrowserChecks()};
 }catch(error){window.visualResult={ok:false,error:String(error)};}

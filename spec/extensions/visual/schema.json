@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:umf:visual:1.1.0",
-  "title": "UMF visual vocabulary 1.1.0",
+  "$id": "urn:umf:visual:1.2.0",
+  "title": "UMF visual vocabulary 1.2.0",
   "type": "object",
   "required": [
     "id",
@@ -127,6 +127,9 @@
     },
     "metric": {
       "$ref": "#/$defs/metric"
+    },
+    "layout": {
+      "$ref": "#/$defs/layout"
     }
   },
   "$defs": {
@@ -228,6 +231,9 @@
         },
         "emphasis": {
           "$ref": "#/$defs/emphasis"
+        },
+        "layout": {
+          "$ref": "#/$defs/layout"
         }
       }
     },
@@ -276,6 +282,24 @@
         },
         "evidence": {
           "$ref": "#/$defs/evidence"
+        },
+        "shape": {
+          "enum": [
+            "rectangle",
+            "rounded-rectangle",
+            "ellipse",
+            "diamond",
+            "hexagon",
+            "cylinder",
+            "folded-corner"
+          ]
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/port"
+          },
+          "minItems": 1
         }
       }
     },
@@ -315,6 +339,17 @@
         },
         "evidence": {
           "$ref": "#/$defs/evidence"
+        },
+        "shape": {
+          "enum": [
+            "rectangle",
+            "rounded-rectangle",
+            "ellipse",
+            "diamond",
+            "hexagon",
+            "cylinder",
+            "folded-corner"
+          ]
         }
       }
     },
@@ -359,6 +394,12 @@
         },
         "evidence": {
           "$ref": "#/$defs/evidence"
+        },
+        "fromPort": {
+          "$ref": "#/$defs/id"
+        },
+        "toPort": {
+          "$ref": "#/$defs/id"
         }
       }
     },
@@ -534,6 +575,9 @@
         },
         "fieldId": {
           "$ref": "#/$defs/id"
+        },
+        "portId": {
+          "$ref": "#/$defs/id"
         }
       }
     },
@@ -634,6 +678,12 @@
               },
               "toMultiplicity": {
                 "$ref": "#/$defs/multiplicity"
+              },
+              "identification": {
+                "enum": [
+                  "identifying",
+                  "non-identifying"
+                ]
               }
             }
           },
@@ -1164,6 +1214,83 @@
           }
         }
       }
+    },
+    "port": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "side": {
+          "enum": [
+            "north",
+            "east",
+            "south",
+            "west"
+          ]
+        }
+      }
+    },
+    "layout": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "flow",
+                "stack"
+              ]
+            },
+            "direction": {
+              "enum": [
+                "LR",
+                "TB"
+              ]
+            },
+            "order": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/id"
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "columns"
+          ],
+          "properties": {
+            "kind": {
+              "const": "grid"
+            },
+            "columns": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "order": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/id"
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
     }
   }
 }

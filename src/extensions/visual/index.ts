@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-import {visualRegistry as legacyRegistry, inspectVisual as inspectLegacy} from './legacy-1-0.js';
+import {inspectVisual as inspectLegacy} from './legacy-1-0.js';
+import {visualRegistry as visualRegistry11, inspectVisual as inspectVisual11} from './legacy-1-1.js';
 import legacyManifest from '../../../spec/extensions/visual/1.0.0/package.json';
 import manifest from '../../../spec/extensions/visual/package.json';
 import {Registry,validateDocument,copyJson,readDocument,writeDocument,UmfError,pointer,type Document,type Json,type Diagnostic,type ExtensionPackage,type Validation} from '@umf/core';
@@ -7,8 +8,8 @@ import type {VisualDefs,VisualShape} from './generated';
 export const VISUAL_EXTENSION='umf.visual';
 // Preserve released authoring defaults; 1.1.0 is an explicit opt-in.
 export const VISUAL_VERSION='1.0.0';
-export const LATEST_VISUAL_VERSION='1.1.0';
-export type VisualVersion=typeof VISUAL_VERSION|typeof LATEST_VISUAL_VERSION;
+export const LATEST_VISUAL_VERSION='1.2.0';
+export type VisualVersion=typeof VISUAL_VERSION|'1.1.0'|typeof LATEST_VISUAL_VERSION;
 export const visualPackage=legacyManifest as unknown as ExtensionPackage;
 export const latestVisualPackage=manifest as unknown as ExtensionPackage;
 export type {VisualDefs,VisualShape} from './generated';
@@ -16,6 +17,11 @@ export type {VisualDefs,VisualShape} from './generated';
 export type Visual=VisualShape;
 export type VisualKind=VisualShape['kind'];
 export type VisualForm=VisualShape['form'];
+export type VisualShapeKind=NonNullable<VisualDefs['node']['shape']>;
+export type VisualParticipantShape=NonNullable<VisualDefs['participant']['shape']>;
+export type VisualLayout=VisualDefs['layout'];
+export type VisualPort=VisualDefs['port'];
+export type VisualIdentification=NonNullable<NonNullable<VisualDefs['structure']['references']>[number]['identification']>;
 // Which forms belong to each kind: a semantic rule (VISUAL_FORM), checked here against the schema's kinds and forms.
 export const visualForms={
  flow:['network','pipeline','zoned','lanes'],
@@ -93,7 +99,7 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
  const defs=manifest.schema.$defs as Record<string,any>;
  function unknown(node:any,schema:any,path:string):void {
   if(schema.$ref)schema=defs[schema.$ref.split('/').at(-1)];
-  if(schema.oneOf){schema=schema.oneOf.find((candidate:any)=>candidate.properties?.kind?.const===node?.kind);if(!schema)return;}
+  if(schema.oneOf){schema=schema.oneOf.find((candidate:any)=>candidate.properties?.kind?.const===node?.kind||candidate.properties?.kind?.enum?.includes(node?.kind));if(!schema)return;}
   if(schema.type==='object'&&node&&typeof node==='object'&&!Array.isArray(node))for(const[key,child]of Object.entries(node)){
    const next=schema.properties&&Object.hasOwn(schema.properties,key)?schema.properties[key]:undefined;
    if(next)unknown(child,next,path+'/'+pointer(key));else add('VISUAL_UNKNOWN',path+'/'+pointer(key),'Unknown visual content retained','warning');
@@ -111,6 +117,8 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
  each(v.nodes,'/nodes',(node,path)=>{
   if(node.parent!==undefined&&v.kind!=='structure'&&v.kind!=='state')add('VISUAL_BLOCK',path+'/parent','Only structure and state visuals nest nodes');
   if(node.layer!==undefined&&v.kind!=='structure')add('VISUAL_BLOCK',path+'/layer','Only structure visuals place nodes in layers');
+  if(node.ports!==undefined&&v.kind!=='flow'&&v.kind!=='structure')add('VISUAL_PORT',path+'/ports','Node ports are declared only on flow and structure visuals');
+  const localPorts=new Set<string>();each(node.ports,path+'/ports',(port,portPath)=>{if(localPorts.has(port.id))add('VISUAL_PORT',portPath+'/id','Port id '+JSON.stringify(port.id)+' is already declared on this node');localPorts.add(port.id);});
  });
  if(v.steps&&!walkthroughKinds.includes(v.kind))add('VISUAL_STEPS','/steps','A '+v.kind+' visual has no walkthrough');
  if((v.nodes?.length??0)>MAX_NODES)add('VISUAL_SIZE','/nodes','More than '+MAX_NODES+' nodes, the resource limit');
@@ -142,7 +150,12 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
   if(!groupRoles.includes(group.role))add('VISUAL_FORM_RULE',path+'/role','A '+v.kind+' group is one of '+groupRoles.join(', '));
  });
  each(v.nodes,'/nodes',(node,path)=>{resolve(node.group,['group'],path+'/group');resolve(node.parent,['node'],path+'/parent');resolve(node.layer,['layer'],path+'/layer');});
- each(v.edges,'/edges',(edge,path)=>{resolve(edge.from,['node'],path+'/from');resolve(edge.to,['node'],path+'/to');});
+ const portsByNode=new Map((v.nodes??[]).map(node=>[node.id,new Set((node.ports??[]).map(port=>port.id))]));
+ each(v.edges,'/edges',(edge,path)=>{
+  resolve(edge.from,['node'],path+'/from');resolve(edge.to,['node'],path+'/to');
+  if(edge.fromPort!==undefined&&!portsByNode.get(edge.from)?.has(edge.fromPort))add('VISUAL_PORT',path+'/fromPort','Node '+JSON.stringify(edge.from)+' declares no port '+JSON.stringify(edge.fromPort));
+  if(edge.toPort!==undefined&&!portsByNode.get(edge.to)?.has(edge.toPort))add('VISUAL_PORT',path+'/toPort','Node '+JSON.stringify(edge.to)+' declares no port '+JSON.stringify(edge.toPort));
+ });
  each(v.steps,'/steps',(step,path)=>{
   each(step.focus,path+'/focus',(id,at)=>resolve(id,[],at));
   // An unnumbered step's mark says when it happens: its when's words, or its tag.
@@ -171,6 +184,8 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
    if(endpoint.field!==undefined&&!byName)add('VISUAL_REFERENCE',path+'/'+end+'/field','Entity '+JSON.stringify(endpoint.node)+' declares no field '+JSON.stringify(endpoint.field));
    if(endpoint.fieldId!==undefined&&!byId)add('VISUAL_REFERENCE',path+'/'+end+'/fieldId','Entity '+JSON.stringify(endpoint.node)+' declares no field id '+JSON.stringify(endpoint.fieldId));
    if(byName&&byId&&byName!==byId)add('VISUAL_REFERENCE',path+'/'+end,'field and fieldId name different fields');
+   if(endpoint.portId!==undefined&&(!portsByNode.get(endpoint.node)?.has(endpoint.portId)))add('VISUAL_PORT',path+'/'+end+'/portId','Node '+JSON.stringify(endpoint.node)+' declares no port '+JSON.stringify(endpoint.portId));
+   if(endpoint.portId!==undefined&&(endpoint.field!==undefined||endpoint.fieldId!==undefined))add('VISUAL_PORT',path+'/'+end,'An endpoint uses either portId or a field/fieldId, not both');
    const multiplicity=reference[(end+'Multiplicity') as 'fromMultiplicity'|'toMultiplicity'],cardinality=reference[(end+'Cardinality') as 'fromCardinality'|'toCardinality'];
    if(!multiplicity)continue;
    if(multiplicity.max!==undefined&&multiplicity.max<multiplicity.min)add('VISUAL_VALUE',path+'/'+end+'Multiplicity/max','The upper bound is below the lower bound');
@@ -233,6 +248,27 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
   });
  };
  cycles(v.nodes,'/nodes');cycles(v.groups,'/groups');
+ const directLayoutMembers=(groupId?:string)=>[
+  ...(v.groups??[]).filter(group=>group.parent===groupId).map(group=>group.id),
+  ...(v.nodes??[]).filter(node=>node.parent===undefined&&node.group===groupId).map(node=>node.id)
+ ];
+ const validateLayout=(layout:VisualLayout|undefined,path:string,groupId?:string)=>{
+  if(!layout)return;
+  if(groupId===undefined){
+   if(!graphKinds.includes(v.kind))add('VISUAL_LAYOUT',path,'Root layout is available for flow, structure and state node-based visuals');
+  }else if(v.kind!=='flow'&&v.kind!=='structure')add('VISUAL_LAYOUT',path,'Group layout is available only for flow and structure visuals');
+  if(layout.order!==undefined){
+   const expected=directLayoutMembers(groupId),given=layout.order;
+   if(given.length!==expected.length||new Set(given).size!==given.length||expected.some(id=>!given.includes(id)))add('VISUAL_LAYOUT',path+'/order','Order must be an exact permutation of this container’s direct nodes and subgroups');
+  }
+ };
+ validateLayout(v.layout,'/layout');
+ each(v.groups,'/groups',(group,path)=>validateLayout(group.layout,path+'/layout',group.id));
+ if(v.kind==='structure'&&v.form==='stack'&&v.layout?.order){
+  const layerRank=new Map((v.structure?.layers??[]).map((layer,index)=>[layer.id,index]));
+  const ranks=v.layout.order.flatMap(id=>{const node=v.nodes?.find(candidate=>candidate.id===id);if(!node)return [];const rank=node.layer===undefined?undefined:layerRank.get(node.layer);return rank===undefined?[]:[rank];});
+  if(ranks.some((rank,index)=>index>0&&rank<ranks[index-1]!))add('VISUAL_LAYOUT','/layout/order','Root stack order cannot contradict the authored structure.layers order');
+ }
  const problem=(path:string,message:string)=>add('VISUAL_FORM_RULE',path,message);
  formRules[v.form as VisualForm]?.(v,problem);
  return out;
@@ -317,14 +353,18 @@ function advise(payload:unknown):Diagnostic[]{
  if(Array.isArray(participants)&&participants.length>ADVISED_PARTICIPANTS)out.push({code:'VISUAL_DENSITY',path:at+'/sequence/participants',message:participants.length+' participants; a sequence reads best with eight or fewer',severity:'warning'});
  return out;
 }
-export function visualRegistry():Registry{return legacyRegistry().register(latestVisualPackage,semantics);}
+export function visualRegistry():Registry{return visualRegistry11().register(latestVisualPackage,semantics);}
 // Registration compiles the payload schema; the API reuses one registry, which nothing mutates after registration.
 let shared:Registry|undefined;
 const registry=()=>shared??=visualRegistry();
-export function inspectVisual(document:Document):VisualInspection{return {...validateDocument(document,registry()),advice:document.vocabularies[VISUAL_EXTENSION]?.version===VISUAL_VERSION?inspectLegacy(document).advice:advise(document.extensions?.[VISUAL_EXTENSION])};}
+export function inspectVisual(document:Document):VisualInspection {
+ const version=document.vocabularies[VISUAL_EXTENSION]?.version;
+ const advice=version==='1.0.0'?inspectLegacy(document).advice:version==='1.1.0'?inspectVisual11(document).advice:advise(document.extensions?.[VISUAL_EXTENSION]);
+ return {...validateDocument(document,registry()),advice};
+}
 function requireProfile(doc:Document):void {
  const payload=doc.extensions?.[VISUAL_EXTENSION];
- if(![VISUAL_VERSION,LATEST_VISUAL_VERSION].includes(doc.vocabularies[VISUAL_EXTENSION]?.version??'')||!payload||typeof payload!=='object'||Array.isArray(payload))throw new UmfError('VISUAL_PROFILE','Expected umf.visual 1.0.0 or 1.1.0 and a document-level visual');
+ if(![VISUAL_VERSION,'1.1.0',LATEST_VISUAL_VERSION].includes(doc.vocabularies[VISUAL_EXTENSION]?.version??'')||!payload||typeof payload!=='object'||Array.isArray(payload))throw new UmfError('VISUAL_PROFILE','Expected umf.visual 1.0.0, 1.1.0 or 1.2.0 and a document-level visual');
 }
 function requireValid(doc:Document):void {const result=inspectVisual(doc);if(!result.valid)throw new UmfError('VISUAL_DOCUMENT',JSON.stringify(result.diagnostics));}
 export function readVisualDocument(text:string,format:'json'|'yaml'='yaml'):Document{const doc=readDocument(text,format);requireProfile(doc);requireValid(doc);return doc;}
@@ -345,10 +385,13 @@ export function editVisual(doc:Document,update:(visual:Visual)=>Visual):Document
  return result;
 }
 
-/** Explicit opt-in to corrected 1.1 semantics; never rewrites source or native companions. */
-export function upgradeVisualDocument(document:Document):Document {
+/** Explicit opt-in to corrected 1.1 semantics or the additive 1.2 vocabulary; never rewrites native companions. */
+export function upgradeVisualDocument(document:Document,targetVersion:'1.1.0'|'1.2.0'='1.1.0'):Document {
+ if(targetVersion!=='1.1.0'&&targetVersion!=='1.2.0')throw new UmfError('VISUAL_UPGRADE_TARGET','Choose upgrade target 1.1.0 or 1.2.0');
  requireProfile(document);
+ const currentVersion=document.vocabularies[VISUAL_EXTENSION]?.version;
+ if(currentVersion==='1.2.0'&&targetVersion!=='1.2.0')throw new UmfError('VISUAL_DOWNGRADE','A 1.2.0 visual document cannot be downgraded by upgradeVisualDocument');
  const result=copyJson(document) as unknown as Document;
- result.vocabularies[VISUAL_EXTENSION]={...result.vocabularies[VISUAL_EXTENSION],version:LATEST_VISUAL_VERSION};
+ result.vocabularies[VISUAL_EXTENSION]={...result.vocabularies[VISUAL_EXTENSION],version:targetVersion};
  requireValid(result);return result;
 }

@@ -197,6 +197,31 @@ or self-roundtrip alone cannot satisfy these gates. The
 [example completion plan](../../04-build/example-completion-plan.md) sequences
 the packages and preserves post-release integration work as a later milestone.
 
+## Lini and expansive-model presentation qualification
+
+CAT-19 adds default-visible exact payloads and executable public API examples.
+For each showcased source, Chromium MUST compare the visible payload with its
+versioned envelope, copy it unchanged, download the full envelope, and exercise
+every available backend. Creation, copied reads, atomic edits and JSON/YAML
+serialization MUST also pass in portable and installed Bun/Node/browser clients.
+
+Visual 1.2.0 tests cover explicit geometric shapes, generic container composition,
+node-local ports and relationship identification. Frozen 1.0/1.1 snapshots and
+interpretation MUST remain unchanged. Unknown nested layout content is retained
+but incomplete; invalid targets, downgrades, dangling ports, ambiguous field/port
+endpoints and foreign/duplicate layout members MUST refuse. Released interpreters
+MUST NOT certify new model semantics through generic visible-record retention.
+
+Pinned Lini native qualification MUST verify owned glyphs, visible labels/details,
+group membership, actual layer/container direction and child order, field names
+and same-row types/keys/nullability, exact row/port attachment and endpoint symbols.
+Negative controls MUST include one adjacent-row path shift with unchanged native
+endpoint attributes, removal of one exactly-one bar or nullable-end circle,
+changed exact range text, altered port/glyph/label, and reordered native bands.
+Compiler acceptance, matching text elsewhere and metadata alone are insufficient.
+The native SVG MUST reproduce the stored PNG and the exact native source MUST
+recompile to the admitted Lini artifact under the pinned runtime.
+
 ## UX Coverage
 
 | Pattern | Disposition | AC IDs or Reason | Evidence |
