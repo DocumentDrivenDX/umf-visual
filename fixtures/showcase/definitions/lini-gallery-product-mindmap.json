@@ -1,0 +1,132 @@
+{
+  "umf": "0.10.0",
+  "id": "showcase:lini-gallery-product-mindmap",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.3.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "title": "Product Vision",
+      "kind": "structure",
+      "form": "tree",
+      "question": "What topics make up this product vision?",
+      "takeaway": "Six branches each retain their two source topics, and the four authored glyphs remain named icons.",
+      "source": {
+        "path": "fixtures/showcase/sources/lini/mindmap.lini",
+        "view": "Complete mindmap sample",
+        "digest": "sha256:fd4b2c771b78d49b65b0674bcdd335859b4ffbdd8a90a478c0c0ccdd26ce03b7"
+      },
+      "layout": {
+        "kind": "tree",
+        "direction": "bilateral",
+        "order": [
+          "product-vision"
+        ]
+      },
+      "nodes": [
+        {
+          "id": "product-vision",
+          "label": "Product Vision"
+        },
+        {
+          "id": "shipping-cadence",
+          "label": "Shipping cadence",
+          "parent": "product-vision",
+          "icon": "rocket"
+        },
+        {
+          "id": "weekly-release-train",
+          "label": "Weekly release train",
+          "parent": "shipping-cadence"
+        },
+        {
+          "id": "feature-flags",
+          "label": "Feature flags gate the risky work",
+          "parent": "shipping-cadence"
+        },
+        {
+          "id": "build-quality",
+          "label": "Build quality",
+          "parent": "product-vision",
+          "icon": "seal"
+        },
+        {
+          "id": "snapshot-tests",
+          "label": "Snapshot tests on every output",
+          "parent": "build-quality"
+        },
+        {
+          "id": "zero-clippy-debt",
+          "label": "Zero clippy debt",
+          "parent": "build-quality"
+        },
+        {
+          "id": "learning-loop",
+          "label": "Learning loop",
+          "parent": "product-vision"
+        },
+        {
+          "id": "dogfood-tool",
+          "label": "Dogfood the tool daily",
+          "parent": "learning-loop"
+        },
+        {
+          "id": "user-interviews",
+          "label": "User interviews every sprint",
+          "parent": "learning-loop"
+        },
+        {
+          "id": "planning",
+          "label": "Planning",
+          "parent": "product-vision",
+          "icon": "presentation"
+        },
+        {
+          "id": "one-page-specs",
+          "label": "One-page specs before code",
+          "parent": "planning"
+        },
+        {
+          "id": "one-session-stages",
+          "label": "Stages sized for one session",
+          "parent": "planning"
+        },
+        {
+          "id": "team",
+          "label": "Team",
+          "parent": "product-vision"
+        },
+        {
+          "id": "small-and-senior",
+          "label": "Small and senior",
+          "parent": "team"
+        },
+        {
+          "id": "ownership",
+          "label": "Ownership over process",
+          "parent": "team"
+        },
+        {
+          "id": "customer-care",
+          "label": "Customer care",
+          "parent": "product-vision",
+          "icon": "heart"
+        },
+        {
+          "id": "support-rotations",
+          "label": "Support rotations",
+          "parent": "customer-care"
+        },
+        {
+          "id": "bug-fixes",
+          "label": "Bug fixes beat features",
+          "parent": "customer-care"
+        }
+      ],
+      "id": "lini-gallery-product-mindmap"
+    }
+  },
+  "modules": []
+}

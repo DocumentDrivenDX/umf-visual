@@ -157,7 +157,9 @@ function renderSource(example, variant, nativeSource = '') {
 
 function renderAuthoredPayload(example) {
   const visual = example?.definition?.extensions?.['umf.visual'];
-  ui.payload.textContent = visual && typeof visual === 'object' ? JSON.stringify(visual, null, 2) : 'No umf.visual payload is present in this UMF envelope.';
+  ui.payload.textContent = visual && typeof visual === 'object' && typeof example.visualPayloadYaml === 'string'
+    ? example.visualPayloadYaml
+    : 'No serialized umf.visual payload is available for this UMF envelope.';
   const version = example?.definition?.vocabularies?.['umf.visual']?.version;
   ui.visualVersion.textContent = typeof version === 'string' ? version : 'version not recorded';
   const variant = getVariant(example, state.backend);
@@ -171,7 +173,7 @@ function renderAuthoredPayload(example) {
   ui.programmaticCode.textContent = `import { createVisualDocument, getVisual, editVisual, type Visual, type VisualVersion } from '@documentdrivendx/umf-visual';
 import { compilePresentation } from '@documentdrivendx/umf-visual/presentation';
 
-// Pass the exact umf.visual payload shown above.
+// Start with the umf.visual value shown above as a Visual object.
 const modelVersion: VisualVersion = '${modelVersion}';
 
 export function editAndCompile(payload: Visual) {
@@ -317,10 +319,11 @@ async function initialize() {
     const response = await fetch('./showcase.json', {cache: 'no-store'});
     if (!response.ok) throw new Error(`Showcase catalogue request failed (${response.status})`);
     const data = await response.json();
-    if (data.schemaVersion !== 1 || !Array.isArray(data.examples) || data.examples.length < 5) throw new Error('Showcase catalogue does not contain the curated authored examples.');
+    if (data.schemaVersion !== 1 || !Array.isArray(data.examples) || data.examples.length === 0) throw new Error('Showcase catalogue does not contain the curated authored examples.');
     state.examples = data.examples;
     if (state.examples.some(example => !example || typeof example.id !== 'string' || !example.id || typeof example.title !== 'string' ||
-      !example.definition || typeof example.definitionPath !== 'string' || !HASH.test(example.definitionSha256 || '') || !Array.isArray(example.renders))) {
+      !example.definition || typeof example.definitionPath !== 'string' || !HASH.test(example.definitionSha256 || '') ||
+      typeof example.visualPayloadYaml !== 'string' || !Array.isArray(example.renders))) {
       throw new Error('Showcase catalogue contains an invalid example receipt.');
     }
     createScenarioList();

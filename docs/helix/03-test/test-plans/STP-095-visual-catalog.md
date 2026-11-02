@@ -30,6 +30,16 @@ Prove complete corpus discovery, honest export/render distinctions, usable
 comparison and a reproducible static artifact. Existing native/library tests
 remain required; a passing catalog does not expand adapter support.
 
+Gallery expansion covers the pinned Lini checkout sequence, product mindmap and
+commerce entities. YAML source must parse back to the exact payload, including
+scalar types, multiline strings and ordered arrays; altered or stale displayed
+YAML refuses qualification. Native sequence checks cover message order, endpoints,
+self-call, return/async marks, note attachment/position and loop membership. Native
+tree checks cover every topic, parent-child link, sibling order and icon ownership.
+Entity checks retain exact fields, endpoint rows and asymmetric multiplicities.
+Negative controls alter these actual native carriers while preserving matching
+text elsewhere. Inspect each SVG/PNG and desktop/mobile source interaction.
+
 ## Acceptance Criteria Test Mapping
 
 The named tests are planned implementation obligations until executed. Each
@@ -221,6 +231,15 @@ changed exact range text, altered port/glyph/label, and reordered native bands.
 Compiler acceptance, matching text elsewhere and metadata alone are insufficient.
 The native SVG MUST reproduce the stored PNG and the exact native source MUST
 recompile to the admitted Lini artifact under the pinned runtime.
+
+Public renderer package gates MUST resolve its declarations and all runtime
+assets from an installed archive, verify the pinned executable hashes and bundled
+notices, and execute actual browser output. The finite 100-record case must own
+all declared record/field carriers; self and parallel connections must have distinct
+native paths, while explicit undirected flow edges have no arrowheads. Corrupt
+JS/WASM and malformed/active SVG refuse. A strict-parent-CSP test uses a separately
+served same-origin module worker with its own explicit runtime/code-generation
+policy; it MUST NOT claim direct strict-CSP import of the current core library.
 
 ## UX Coverage
 

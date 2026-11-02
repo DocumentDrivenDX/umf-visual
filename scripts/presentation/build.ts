@@ -10,6 +10,7 @@ import {createVisualDocument,readVisualDocument,type Visual} from '../../src/ext
 import {compilePresentation,type PresentationPlan,type PresentationBackend} from '../../src/presentation';
 import {verifyPresentationQuality} from './quality';
 import {loadPresentationLini,renderPresentationLini} from './lini-runtime';
+import {visualPayloadYaml} from './payload-source';
 
 const root=resolve(import.meta.dir,'../..');
 const sourceManifestPath='fixtures/showcase/showcase-sources.json';
@@ -147,7 +148,7 @@ async function verifyNativeSvg(browser:Browser,svg:string,tokens:string[]):Promi
 
 async function buildRender(example:SourceExample,doc:Document,backend:PresentationBackend,browser:Browser,versions:{graphviz:string;mermaid:string;lini:string;chromium:string}):Promise<RenderRow>{
  const plan=compilePresentation(doc,{backend,theme:'presentation/1'});
- if(!plan.ok){const refused=plan.diagnostics.every(d=>d.code==='PRESENTATION_FORM'||d.code==='PRESENTATION_MERMAID_FIELD'||d.code==='PRESENTATION_MERMAID_CARDINALITY'||d.code==='PRESENTATION_MERMAID_RELATIONSHIP');return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath:'',nativeSourceSha256:'',svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:[],omissions:[],approximations:[],status:refused?'unsupported':'failed',quality:{evidence:[]},diagnostics:plan.diagnostics};}
+ if(!plan.ok){const refused=plan.diagnostics.every(d=>d.code==='PRESENTATION_FORM'||d.code==='PRESENTATION_BACKEND_SUBSET'||d.code==='PRESENTATION_MERMAID_FIELD'||d.code==='PRESENTATION_MERMAID_CARDINALITY'||d.code==='PRESENTATION_MERMAID_RELATIONSHIP');return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath:'',nativeSourceSha256:'',svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:[],omissions:[],approximations:[],status:refused?'unsupported':'failed',quality:{evidence:[]},diagnostics:plan.diagnostics};}
  const extension=backend==='graphviz'?'dot':backend==='lini'?'lini':'mmd',base=`showcase/${safe(example.id)}/${backend}`,diskBase=`dist-site/${base}`;
  const nativeSourcePath=`${base}/source.${extension}`,svgPath=`${base}/diagram.svg`,pngPath=`${base}/diagram.png`;
  assertRelative(nativeSourcePath,'Native source path');assertRelative(svgPath,'SVG path');assertRelative(pngPath,'PNG path');
@@ -209,7 +210,7 @@ export async function buildShowcase():Promise<{outputPath:string;examples:number
    if(visual.kind!==example.kind||visual.form!==example.form)throw Error(`Definition kind/form does not match manifest for ${example.id}.`);
    const renders:RenderRow[]=[];
    for(const backend of ['graphviz','mermaid','lini'] as const)renders.push(await buildRender(example,doc,backend,browser,{graphviz,mermaid:mermaidPackage.version,lini,chromium:chromiumVersion}));
-   rows.push({...example,definition:JSON.parse(raw),renders});
+   rows.push({...example,definition:JSON.parse(raw),visualPayloadYaml:visualPayloadYaml(doc),renders});
   }
  }finally{await browser.close();}
  const output={schemaVersion:1,nativeProbes,examples:rows};await mkdir(join(root,dirname(outputPath)),{recursive:true});await writeFile(join(root,outputPath),JSON.stringify(output,null,2)+'\n');

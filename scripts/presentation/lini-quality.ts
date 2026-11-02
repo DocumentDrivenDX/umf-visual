@@ -6,6 +6,7 @@ import type {Document} from '@umf/core';
 import {getVisual,type Visual,type VisualCardinality,type VisualMultiplicity} from '../../src/extensions/visual';
 import type {PresentationPlan} from '../../src/presentation';
 import type {PresentationQualityCheck} from './quality';
+import {verifyLiniRichPresentationQuality} from './lini-rich-quality';
 
 type Box={x:number;y:number;width:number;height:number};
 type Carrier={id:string;classes:string[];texts:string[];title:string;bounds:Box;containerBounds:Box;rectRadii:number[];groups:string[];parentId:string|null;cells:Array<{id:string|null;text:string;bounds:Box}>};
@@ -57,7 +58,7 @@ function fieldExpectedText(field:{name:string;keys?:string[];nullable?:boolean})
  return field.name+(badges.length?' · '+badges.join(' · '):'');
 }
 type ExplicitNodeShape=NonNullable<NonNullable<Visual['nodes']>[number]['shape']>;
-const nativeShapeClass:Record<ExplicitNodeShape,string>={rectangle:'lini-box','rounded-rectangle':'lini-box',ellipse:'lini-oval',diamond:'lini-diamond',hexagon:'lini-hex',cylinder:'lini-cyl','folded-corner':'lini-note'};
+const nativeShapeClass:Record<ExplicitNodeShape,string>={rectangle:'lini-box','rounded-rectangle':'lini-box',ellipse:'lini-oval',diamond:'lini-diamond',hexagon:'lini-hex',cylinder:'lini-cyl','folded-corner':'lini-note',parallelogram:'lini-slant'};
 
 /** The caller inserts the exact returned Lini SVG into `#frame` before invoking this check. */
 export async function verifyLiniPresentationQuality(
@@ -66,6 +67,7 @@ export async function verifyLiniPresentationQuality(
 ):Promise<PresentationQualityCheck[]>{
  const {document,plan}=input,sourceSha256=sha(plan.source),checks:PresentationQualityCheck[]=[];
  let visual:Visual|undefined;try{visual=getVisual(document);}catch{/* checked below */}
+ if(visual&&(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'))return verifyLiniRichPresentationQuality(page,input);
  const nativeAst=typeof input.nativeAst==='string'?input.nativeAst:'';
  const maps=plan.elementMap;
  const requiredMapToken=(element:PresentationPlan['elementMap'][number]):string=>{
@@ -208,13 +210,14 @@ export async function verifyLiniPresentationQuality(
     const withinSpan=side==='west'||side==='east'?point.y>=row.y-2&&point.y<=row.y+row.height+2:point.x>=row.x-2&&point.x<=row.x+row.width+2;
     return coordinate<=4&&withinSpan;
    }
-   if(endpoint.carrier===endpoint.host)return inside(point,host,12);
+   if(endpoint.carrier===endpoint.host)return distToBox(point,host)<=32;
    const rowAligned=point.y>=row.y-2&&point.y<=row.y+row.height+2;
    const onHostPerimeter=Math.min(Math.abs(point.x-host.x),Math.abs(point.x-host.x-host.width))<=50;
    return rowAligned&&onHostPerimeter;
   };
   const targetArrow=link.markers.find(marker=>marker.classes.includes('lini-marker-arrow')&&marker.points.some(point=>portNear(point,to)));
-  if(!link.line||!portNear(link.line.start,from)||(!portNear(link.line.end,to)&&!targetArrow)){endpointOk=false;endpointProblems.push(`${mapItem.logicalId}: path ${link.line?`(${link.line.start.x.toFixed(1)},${link.line.start.y.toFixed(1)})→(${link.line.end.x.toFixed(1)},${link.line.end.y.toFixed(1)})`: 'missing'} is outside source row ${JSON.stringify(from.carrier.bounds)} / host ${JSON.stringify(from.host.bounds)} or target row ${JSON.stringify(to.carrier.bounds)} / host ${JSON.stringify(to.host.bounds)}`);}
+  const bodyTerminalNear=(point:Vector,endpoint:EndpointProof)=>!endpoint.side&&endpoint.carrier===endpoint.host&&distToBox(point,endpoint.host.bounds)<=32;
+  if(!link.line||(!portNear(link.line.start,from)&&!bodyTerminalNear(link.line.start,from))||(!portNear(link.line.end,to)&&!bodyTerminalNear(link.line.end,to)&&!targetArrow)){endpointOk=false;endpointProblems.push(`${mapItem.logicalId}: path ${link.line?`(${link.line.start.x.toFixed(1)},${link.line.start.y.toFixed(1)})→(${link.line.end.x.toFixed(1)},${link.line.end.y.toFixed(1)})`: 'missing'} is outside source row ${JSON.stringify(from.carrier.bounds)} / host ${JSON.stringify(from.host.bounds)} or target row ${JSON.stringify(to.carrier.bounds)} / host ${JSON.stringify(to.host.bounds)}`);}
   if(directed&&(!link.arrows||!targetArrow)){endpointOk=false;endpointProblems.push(`${mapItem.logicalId}: directed target arrow is absent or detached`);}
   if(expectedLabel&&link.labels.join(' ')!==norm(expectedLabel)){endpointOk=false;endpointProblems.push(`${mapItem.logicalId}: authored link label or exact range text is missing`);}
   const sourceExpected=markerMinimum(fromCardinality,fromMultiplicity),targetExpected=markerMinimum(toCardinality,toMultiplicity);
@@ -222,13 +225,15 @@ export async function verifyLiniPresentationQuality(
    if(marker.tag==='circle')return'circle';
    if((marker.d.match(/\bL\b/gu)?.length??0)>=3)return'fork';
    const oneSegment=(marker.d.match(/\bM\b/gu)?.length??0)===1&&(marker.d.match(/\bL\b/gu)?.length??0)===1&&marker.length>=5;
-   if(oneSegment&&link.line&&marker.orientation){const tangent=source?link.line.startTangent:link.line.endTangent,dot=Math.abs(marker.orientation.x*tangent.x+marker.orientation.y*tangent.y);if(dot<=0.5)return'bar';}
+   if(oneSegment&&link.line&&marker.orientation){const tangent=source?link.line.startTangent:link.line.endTangent,dot=Math.abs(marker.orientation.x*tangent.x+marker.orientation.y*tangent.y);if(dot<=0.5)return'bar';return'connector';}
+   if((marker.d.match(/\bM\b/gu)?.length??0)===1&&(marker.d.match(/\bL\b/gu)?.length??0)===1&&marker.length>0&&marker.length<5)return'connector';
    return'other';
-  }).filter(symbol=>symbol!=='other');
+  }).filter(symbol=>symbol!=='connector');
   const expectedSymbols=(cardinality:VisualCardinality|undefined,multiplicity:VisualMultiplicity|undefined):string[]=>{
    switch(multiplicityCardinality(cardinality,multiplicity)){case'exactly-one':return['bar','bar'];case'zero-or-one':return['circle','bar'];case'zero-or-many':return['circle','fork'];case'one-or-many':return['bar','fork'];default:return[];}
   };
   const actualStart=symbolsAt(from,true),actualEnd=symbolsAt(to,false),expectedStart=expectedSymbols(fromCardinality,fromMultiplicity),expectedEnd=expectedSymbols(toCardinality,toMultiplicity);
+  if(!directed&&link.arrows>0){endpointOk=false;endpointProblems.push(`${mapItem.logicalId}: headless association carries ${link.arrows} native arrow markers`);}
   const sameSymbols=(actual:string[],expected:string[])=>actual.length===expected.length&&[...actual].sort().every((symbol,index)=>symbol===[...expected].sort()[index]);
   if(!sameSymbols(actualStart,expectedStart)||!sameSymbols(actualEnd,expectedEnd)){endpointOk=false;endpointProblems.push(`${mapItem.logicalId}: native endpoint cardinality symbols differ (${actualStart.join('+')||'none'} vs ${expectedStart.join('+')||'none'} at source; ${actualEnd.join('+')||'none'} vs ${expectedEnd.join('+')||'none'} at target)`);}
   if(!sourceExpected&&fromMultiplicity&&!multiplicityCardinality(fromCardinality,fromMultiplicity)&&!link.labels.some(label=>label.includes(rangeText(fromMultiplicity)!))){endpointOk=false;endpointProblems.push(`${mapItem.logicalId}: exact source multiplicity text is absent`);}
@@ -236,7 +241,7 @@ export async function verifyLiniPresentationQuality(
  };
  for(let index=0;index<(visual.edges??[]).length;index++){
   const edge=visual.edges![index]!,item=maps.find(candidate=>candidate.kind==='edge'&&candidate.logicalId===edge.id);
-  if(item)verifyLink(item,edge.from,undefined,undefined,edge.to,undefined,undefined,true,undefined,undefined,undefined,undefined,edge.label??'',edge.fromPort,edge.toPort);
+  if(item)verifyLink(item,edge.from,undefined,undefined,edge.to,undefined,undefined,edge.directed!==false,undefined,undefined,undefined,undefined,edge.label??'',edge.fromPort,edge.toPort);
  }
  for(let index=0;index<(visual.structure?.references??[]).length;index++){
   const reference=visual.structure!.references![index]!,item=maps.find(candidate=>candidate.kind==='reference'&&candidate.logicalId===reference.id);

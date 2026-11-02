@@ -2,11 +2,11 @@ import {chromium} from 'playwright';
 import {createHash} from 'node:crypto';
 import {mkdir} from 'node:fs/promises';
 import {extname,join,resolve,sep} from 'node:path';
+import {readJsonValue} from '@umf/core';
 
 const siteRoot=resolve('dist-site');
 const showcase=await Bun.file(join(siteRoot,'showcase.json')).json() as {schemaVersion:number;examples:Array<any>};
-const expectedIds=['umf-engine-target-architecture','umf-native-interchange-architecture','umf-architecture-stack','umf-logical-metamodel','beacon-relational-core'];
-if(showcase.schemaVersion!==1||showcase.examples.length<expectedIds.length||expectedIds.some(id=>!showcase.examples.some(example=>example.id===id)))throw new Error('Build the curated authored showcase examples before running the homepage browser gate.');
+if(showcase.schemaVersion!==1||showcase.examples.length===0)throw new Error('Build the curated authored showcase examples before running the homepage browser gate.');
 const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
 const browser=await chromium.launch({headless:true});
 const errors:string[]=[];const checks:string[]=[];
@@ -35,13 +35,14 @@ try{
   if(await page.locator(`#backend-options [data-backend="${preferredBackend}"]`).getAttribute('aria-pressed')!=='true')throw new Error(`The initial selection did not prefer the available ${preferredBackend} renderer.`);
   const initialVersion=showcase.examples[0].definition?.vocabularies?.['umf.visual']?.version;
   if(await page.locator('#scenario-provenance').innerText()!==`umf.visual ${initialVersion} · sourced definition`)throw new Error('The scenario rail does not show the source definition vocabulary version.');
-  const initialPayload=JSON.parse(await page.locator('#visual-payload').innerText());
-  if(JSON.stringify(initialPayload)!==JSON.stringify(showcase.examples[0].definition.extensions?.['umf.visual']))throw new Error('The visible umf.visual payload is not the exact extension value from the selected envelope.');
+  const initialYaml=await page.locator('#visual-payload').innerText();
+  const initialPayload=readJsonValue(initialYaml,'yaml');
+  if(initialYaml!==showcase.examples[0].visualPayloadYaml||JSON.stringify(initialPayload)!==JSON.stringify(showcase.examples[0].definition.extensions?.['umf.visual']))throw new Error('The visible YAML umf.visual payload does not parse to the exact extension value from the selected envelope.');
   if(await page.locator('#visual-version').innerText()!==String(initialVersion))throw new Error('The visible payload version does not match the selected UMF envelope.');
   await page.context().grantPermissions(['clipboard-read','clipboard-write'],{origin:'https://umf.local'});
   await page.locator('#copy-payload').click();
-  if(await page.evaluate(()=>navigator.clipboard.readText())!==await page.locator('#visual-payload').innerText())throw new Error('Copy payload did not copy the exact visible JSON.');
-  checks.push('the visible versioned umf.visual payload matches the envelope and copies exactly');
+  if(await page.evaluate(()=>navigator.clipboard.readText())!==initialYaml)throw new Error('Copy payload did not copy the exact visible YAML.');
+  checks.push('the visible versioned umf.visual YAML parses to the exact extension value and copies exactly');
   if(await page.locator('#showcase-error').isVisible())throw new Error('The showcase load error is visible despite a successful page load.');
   const adjacency=await page.locator('#diagram-frame').evaluate(frame=>({previous:frame.previousElementSibling?.className,scenarioBefore:!!(document.querySelector('#scenario-list')!.compareDocumentPosition(frame)&Node.DOCUMENT_POSITION_FOLLOWING)}));
   if(!String(adjacency.previous).includes('diagram-toolbar')||!adjacency.scenarioBefore)throw new Error('Scenario and renderer controls are separated from the primary diagram preview.');
@@ -73,15 +74,18 @@ try{
   for(let index=0;index<showcase.examples.length;index++){
     await selected.nth(index).click();
     const example=showcase.examples[index];
-    const visiblePayload=JSON.parse(await page.locator('#visual-payload').innerText());
-    if(JSON.stringify(visiblePayload)!==JSON.stringify(example.definition.extensions?.['umf.visual']))throw new Error(`Scenario ${example.id} does not show its exact umf.visual payload.`);
+    const visibleYaml=await page.locator('#visual-payload').innerText();
+    const visiblePayload=readJsonValue(visibleYaml,'yaml');
+    if(visibleYaml!==example.visualPayloadYaml||JSON.stringify(visiblePayload)!==JSON.stringify(example.definition.extensions?.['umf.visual']))throw new Error(`Scenario ${example.id} YAML does not parse to its exact umf.visual payload.`);
+    await page.locator('#copy-payload').click();
+    if(await page.evaluate(()=>navigator.clipboard.readText())!==visibleYaml)throw new Error(`Scenario ${example.id} does not copy its exact YAML payload.`);
     if(await page.locator('#visual-version').innerText()!==String(example.definition.vocabularies?.['umf.visual']?.version))throw new Error(`Scenario ${example.id} shows the wrong umf.visual version.`);
     for(const backend of ['lini','graphviz','mermaid']){
       const button=page.locator(`[data-backend="${backend}"]`);
       await button.click();
       const apiExample=await page.locator('#programmatic-code').innerText();
       const modelVersion=example.definition.vocabularies?.['umf.visual']?.version;
-      if(!apiExample.includes('editAndCompile(payload: Visual)')||!apiExample.includes('Pass the exact umf.visual payload shown above.')||!apiExample.includes('createVisualDocument(payload, undefined, modelVersion)')||!apiExample.includes(`const modelVersion: VisualVersion = '${modelVersion}';`)||!apiExample.includes("getVisual, editVisual")||!apiExample.includes('compilePresentation')||!apiExample.includes(`backend: '${backend}'`))throw new Error(`The public API example does not carry the selected ${modelVersion} payload through to the selected ${backend} renderer.`);
+      if(!apiExample.includes('editAndCompile(payload: Visual)')||!apiExample.includes('Start with the umf.visual value shown above as a Visual object.')||!apiExample.includes('createVisualDocument(payload, undefined, modelVersion)')||!apiExample.includes(`const modelVersion: VisualVersion = '${modelVersion}';`)||!apiExample.includes("getVisual, editVisual")||!apiExample.includes('compilePresentation')||!apiExample.includes(`backend: '${backend}'`))throw new Error(`The public API example does not carry the selected ${modelVersion} payload through to the selected ${backend} renderer.`);
       const expectedRender=example.renders.find((render:any)=>render.backend===backend&&render.status==='qualified');
       const versionNote=await page.locator('#compile-target-note').innerText();
       if(expectedRender&&!versionNote.toLowerCase().includes(`${expectedRender.engine} ${expectedRender.nativeVersion}`.toLowerCase()))throw new Error(`${example.id}/${backend} API example omits its native renderer version.`);

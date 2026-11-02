@@ -171,7 +171,7 @@ export async function verifyPresentationQuality(
       const side={north:'n',east:'e',south:'s',west:'w'} as const;
       return index<0?undefined:'p'+(index+1)+(port?.side?':'+side[port.side]:'');
      };
-     if(mapped&&from&&to)expectedEdges.push({id:mapped.nativeId,from,to,fromPort:namedPort(e.from,e.fromPort),toPort:namedPort(e.to,e.toPort),directed:true,sourcePath:mapped.sourcePath});
+     if(mapped&&from&&to)expectedEdges.push({id:mapped.nativeId,from,to,fromPort:namedPort(e.from,e.fromPort),toPort:namedPort(e.to,e.toPort),directed:e.directed!==false,sourcePath:mapped.sourcePath});
     });
    }else if(visual.form==='entities'){
     visual.structure?.references?.forEach((r,i)=>{const from=nativeIdForNode(plan,r.from.node),to=nativeIdForNode(plan,r.to.node);if(from&&to)expectedEdges.push({id:`reference-${i+1}`,from,to,fromPort:portFor(plan,r.from.node,r.from.fieldId??r.from.field,visual),toPort:portFor(plan,r.to.node,r.to.fieldId??r.to.field,visual),directed:false,sourcePath:`/extensions/umf.visual/structure/references/${i}`});});
@@ -197,6 +197,7 @@ export async function verifyPresentationQuality(
     if(svgEdge)usedSvgEdges.add(svgEdge.id||svgEdge.title);
     const drawn=svgEdge?.paths.find(p=>p.d.trim()&&p.start&&p.end);
     if(!svgEdge||!drawn||(exp.directed&&!svgEdge.arrow))endpointFailures.push(`${exp.id} has no native SVG path${exp.directed?' and arrow':''}`);
+    if(!exp.directed&&svgEdge?.arrow)endpointFailures.push(`${exp.id} is undirected but has a native arrowhead`);
     const authoredLabel=visual.kind==='flow'?visual.edges?.find(e=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===e.id)?.label:visual.structure?.references?.[Number(exp.sourcePath.split('/').at(-1))]?.label;
     if(authoredLabel&&!svgEdge?.ownText.some(t=>norm(t)===norm(authoredLabel)))endpointFailures.push(`${exp.id} label is not owned by its native edge carrier`);
     if(visual.form==='entities'){
@@ -345,16 +346,18 @@ export async function verifyPresentationQuality(
    const usedPaths=new Set<string>();
    visual.edges?.forEach(edge=>{
     const from=nativeIdForNode(plan,edge.from),to=nativeIdForNode(plan,edge.to),mapped=plan.elementMap.find(item=>item.kind==='edge'&&item.logicalId===edge.id);
-    const candidates=dom.paths.filter(p=>!usedPaths.has(p.id||p.dataId)&&p.markerEnd&&p.d&&(p.dataId===mapped?.nativeId||p.id===mapped?.nativeId||p.dataId.startsWith(`L_${from}_${to}_`)));
+    const candidates=dom.paths.filter(p=>!usedPaths.has(p.id||p.dataId)&&p.d&&!p.className.includes('invisible')&&(p.dataId===mapped?.nativeId||p.id===mapped?.nativeId||p.dataId.startsWith(`L_${from}_${to}_`)));
     const path=candidates.find(p=>!edge.label||dom.edgeLabels.some(label=>label.id===p.dataId&&label.text===norm(edge.label!)))??candidates[0];
-    if(!path||!path.d||!path.markerEnd){failures.push(`${edge.id} has no Mermaid directed path ${from} → ${to}`);return;}
+    if(!path||!path.d){failures.push(`${edge.id} has no Mermaid path ${from} to ${to}`);return;}
+    if(edge.directed!==false&&!path.markerEnd)failures.push(`${edge.id} has no directed target marker`);
+    if(edge.directed===false&&(path.markerStart||path.markerEnd))failures.push(`${edge.id} is undirected but has a native arrow marker`);
     usedPaths.add(path.id||path.dataId);
     const sourceCarrier=dom.carriers.find(c=>c.id.includes(`flowchart-${from}-`)),targetCarrier=dom.carriers.find(c=>c.id.includes(`flowchart-${to}-`));
     const distance=(p:{x:number;y:number}|null,b:any)=>!p||!b?Infinity:Math.hypot(Math.max(b.x-p.x,0,p.x-(b.x+b.width)),Math.max(b.y-p.y,0,p.y-(b.y+b.height)));
     if(distance(path.start,sourceCarrier?.bounds)>32||distance(path.end,targetCarrier?.bounds)>32)failures.push(`${edge.id} path is detached from its mapped Mermaid node shapes`);
     if(edge.label&&!dom.edgeLabels.some(l=>l.text===norm(edge.label!)&&l.id===path.dataId))failures.push(`${edge.id} label is not owned by its native Mermaid edge-label carrier`);
    });
-   checks.push(pass('mermaid-flow-paths',sourceSha256,failures.length===0,failures.length?failures.join('; '):`${visual.edges?.length??0} authored flow connections have native SVG paths with exact mapped endpoint IDs and directed markers.`));
+   checks.push(pass('mermaid-flow-paths',sourceSha256,failures.length===0,failures.length?failures.join('; '):`${visual.edges?.length??0} authored flow connections have native SVG paths with exact mapped endpoint IDs and their declared direction.`));
   }
   if(visual.kind==='flow'||(visual.kind==='structure'&&visual.form==='stack')){
    const problems:string[]=[];

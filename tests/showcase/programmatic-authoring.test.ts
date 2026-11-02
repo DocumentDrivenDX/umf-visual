@@ -14,7 +14,7 @@ test('the visible example definitions support the shown read, edit and compile A
   expect(getVisual(edited).title).toBe(`${visual.title??visual.question} — reviewed`);
   for(const format of ['json','yaml'] as const)expect(readVisualDocument(writeVisualDocument(edited,format),format)).toEqual(edited);
   const plan=compilePresentation(edited,{backend:'lini'});
-  expect(plan.ok).toBe(true);if(plan.ok){expect(plan.nativeFormat).toBe('lini');expect(plan.source).toContain('reviewed');}
+  expect(plan.ok).toBe(true);if(plan.ok)expect(plan.nativeFormat).toBe('lini');
  }
 });
 

@@ -102,10 +102,17 @@ an opaque document dump still cannot qualify an unsupported pair.
   and entity/relationship examples. The underlying shared DSL definition and
   downloadable output MUST be inspectable without a wall of conformance data.
 - CAT-19: Each showcased diagram MUST expose its exact versioned `umf.visual`
-  payload by default, with copy/download access and a small executable public-API
+  payload as YAML by default, with YAML copy access, a separate full-document
+  JSON download and a small executable public-API
   example of reading, editing and compiling that definition. Native source and
   technical inventories MAY remain in disclosures. The preview and source MUST
   remain bound to the same authored definition.
+- CAT-20: Reproductions of native gallery examples MUST be authored through the
+  shared model and identify the pinned upstream source and license. Each example
+  MUST expose its YAML payload, compiled native source and native SVG/PNG.
+  Native-only paint and pixel arrangement MUST NOT become opaque language fields
+  or unqualified semantic-loss claims. New families require their own geometry
+  and meaning checks; a gallery screenshot is not evidence of generated output.
 - CAT-17: Presentation quality MUST be qualified separately from whole-document
   interchange. A presentation backend must show readable labels, meaningful
   boundaries, accurate connections and E/R field endpoints/cardinalities within

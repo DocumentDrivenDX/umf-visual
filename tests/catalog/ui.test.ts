@@ -13,7 +13,7 @@ describe('microsite catalogue UI contract',()=>{
     expect(html).toContain('These are example instances, not language definitions.');
     expect(html).toContain('A question is required');
     expect(html).toContain('Visual 1.0.0 graph kinds are limited to 15 nodes');
-    expect(html).toContain('Visual 1.1.0/1.2.0 validation permits up to 500 nodes and 10,000 items in each connection list');
+    expect(html).toContain('Visual 1.1.0/1.2.0/1.3.0 validation permits up to 500 nodes and 10,000 items in each connection list');
     const legacyVisual=await Bun.file('src/extensions/visual/legacy-1-0.ts').text();
     const currentVisual=await Bun.file('src/extensions/visual/index.ts').text();
     expect(legacyVisual).toContain('const MAX_NODES=15');
@@ -83,6 +83,8 @@ describe('microsite catalogue UI contract',()=>{
     expect(home).toContain('id="native-source"');
     expect(home).toContain('id="definition-source"');
     expect(home).toContain('id="visual-payload"');
+    expect(home).toContain('serialized as YAML');
+    expect(home).toContain('class="payload-yaml"');
     expect(home).toContain('id="visual-version"');
     expect(home).toContain('id="copy-payload"');
     expect(home).toContain('id="download-full-umf"');
@@ -91,6 +93,9 @@ describe('microsite catalogue UI contract',()=>{
     expect(home).toContain('./evidence.html');
     const showcaseBrowser=await Bun.file('scripts/showcase-ui-browser.ts').text();
     expect(showcaseBrowser).toContain('all qualified SVG, PNG, and native-source downloads match their content hashes');
+    expect(showcaseBrowser).toContain("readJsonValue(visibleYaml,'yaml')");
+    expect(showcaseBrowser).toContain('example.visualPayloadYaml');
+    expect(showcaseBrowser).toContain('does not copy its exact YAML payload');
     expect(showcaseBrowser).toContain("for(const backend of ['lini','graphviz','mermaid'])");
     expect(showcaseBrowser).toContain('every qualified renderer exposes hash-matching SVG, PNG, and native-source downloads');
     expect(showcaseBrowser).toContain("render.backend==='lini'&&render.status==='qualified'");
@@ -101,9 +106,10 @@ describe('microsite catalogue UI contract',()=>{
     expect(viewer).toContain("variant.backend === 'lini' ? '.lini'");
     expect(viewer).toContain("qualifiedVariant(state.examples[0], 'lini')");
     expect(viewer).toContain("example?.definition?.extensions?.['umf.visual']");
+    expect(viewer).toContain('example.visualPayloadYaml');
     expect(viewer).toContain('createVisualDocument(payload, undefined, modelVersion)');
     expect(viewer).toContain('editAndCompile(payload: Visual)');
-    expect(viewer).toContain('Pass the exact umf.visual payload shown above.');
+    expect(viewer).toContain('Start with the umf.visual value shown above as a Visual object.');
     expect(viewer).toContain('const modelVersion: VisualVersion = \'${modelVersion}\';');
     expect(viewer).toContain("@documentdrivendx/umf-visual/presentation");
     expect(viewer).toContain("@documentdrivendx/umf-visual");

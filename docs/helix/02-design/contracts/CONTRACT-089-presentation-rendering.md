@@ -78,8 +78,8 @@ definition inspection and SVG/PNG downloads. Detailed schema and conformance
 UI lives at `evidence.html`; existing example/profile/hash links preserve their
 selection there. The original 53-example corpus and diagnostics stay unchanged.
 
-The exact versioned visual payload MUST be visible by default, with a bounded
-source panel, copy access and a separate full-envelope download. Each example
+The exact versioned visual payload MUST be visible as YAML by default, with a bounded
+source panel, YAML copy access and a separate full-envelope JSON download. Each example
 MUST show executable public API usage for reading, editing and compiling that
 definition; hand-written summaries MUST NOT masquerade as the source.
 
@@ -105,6 +105,27 @@ adds independent presentation assets. It does not upgrade model versions or
 reinterpret existing profiles. Visual 1.0.0 and explicit 1.1.0/1.2.0 source identity
 MUST remain visible. Unknown content is preserved in the original document;
 content outside the visible view MUST be inventoried, not silently certified.
+
+Gallery reproductions MUST bind exact upstream source bytes and a pinned commit.
+Lini tree and sequence qualification additionally requires actual native hierarchy
+connections and source-order messages, including self-call geometry, return/async
+distinctions, participant-owned notes and the declared loop extent. A note MUST NOT
+be implemented as an invented call. Native palette, icon styling and pixel
+placement remain interpreter decisions; approximations must describe what changed.
+Source-level claims do not qualify another backend or editable interchange profile.
+
+The separate public `/renderers/lini` entry executes the pinned renderer in a
+browser. `renderLiniPresentation(document, options?)` returns a promise of the
+presentation plan plus `svg` and `nativeVersion`, or typed diagnostics. Options
+include the existing direction/theme and optional `runtimeBaseUrl`; bundled
+consumers may serve the distributable runtime assets there. Default asset URLs
+are relative to the unbundled ESM entry. Assets are available through the
+`/renderers/lini/assets/*` export and include the runtime manifest and license.
+The loader MUST verify the pinned JS/WASM hashes before executing those exact
+bytes and reject version mismatches or native diagnostics. Native imports are
+lazy; the pure vocabulary and presentation compiler MUST NOT fetch or initialize
+WASM. This renderer boundary may use browser Fetch, Web Crypto, Blob modules and
+WebAssembly, and MUST NOT import Node/Bun APIs.
 
 ## Error Semantics
 

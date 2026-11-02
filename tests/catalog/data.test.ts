@@ -33,7 +33,7 @@ describe('visual interchange catalogue data', () => {
     const schemaDefinition = JSON.parse(await readFile('spec/extensions/visual/schema.json', 'utf8')) as any;
     expect(catalog.language.schema.schema).toEqual(schemaDefinition);
     expect(Object.keys(schemaDefinition.$defs)).toHaveLength(22);
-    expect(schemaDefinition.$id).toBe('urn:umf:visual:1.2.0');
+    expect(schemaDefinition.$id).toBe('urn:umf:visual:1.3.0');
     expect(schemaDefinition.$defs.multiplicity).toBeDefined();
     expect(schemaDefinition.$defs.layout).toBeDefined();
     expect(schemaDefinition.$defs.port).toBeDefined();

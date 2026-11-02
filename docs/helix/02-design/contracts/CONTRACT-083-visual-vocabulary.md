@@ -17,7 +17,7 @@ ddx:
 
 # CONTRACT-083: Visual vocabulary
 
-**Profiles:** frozen `umf.visual` 1.0.0/1.1.0, plus additive 1.2.0 below. **Native representation:** UMF
+**Profiles:** frozen `umf.visual` 1.0.0/1.1.0/1.2.0, plus additive 1.3.0 below. **Native representation:** UMF
 JSON/YAML with the visual package registered. No renderer, layout or Mermaid output is claimed.
 
 ## Purpose
@@ -253,9 +253,9 @@ Native adapter subset limits and loss policies are independent of vocabulary siz
 |---|---|
 | `visualRegistry()` | Registry with structural and semantic validation |
 | `inspectVisual(document)` | `{valid, complete, diagnostics, advice}` |
-| `readVisualDocument(text, format)` | Requires declared vocabulary 1.0.0, 1.1.0 or 1.2.0 and a payload (`VISUAL_PROFILE`); rejects invalid visuals (`VISUAL_DOCUMENT`) |
+| `readVisualDocument(text, format)` | Requires declared vocabulary 1.0.0, 1.1.0, 1.2.0 or 1.3.0 and a payload (`VISUAL_PROFILE`); rejects invalid visuals (`VISUAL_DOCUMENT`) |
 | `writeVisualDocument(document, format)` | Same checks, then serializes |
-| `createVisualDocument(visual, id?, version?)` | Wraps a payload in a document (`id` defaults to `visual:<visual id>`); version defaults to frozen 1.0.0, with explicit 1.1.0/1.2.0 opt-in; rejects an invalid result |
+| `createVisualDocument(visual, id?, version?)` | Wraps a payload in a document (`id` defaults to `visual:<visual id>`); version defaults to frozen 1.0.0, with explicit 1.1.0/1.2.0/1.3.0 opt-in; rejects an invalid result |
 | `getVisual(document)` | A copy of the payload |
 | `editVisual(document, update)` | Requires complete interpretation before and after (`UNSAFE_EDIT`, `INVALID_EDIT`); input unchanged |
 | `visualForms` | The kind-to-forms table |
@@ -300,12 +300,38 @@ approximation, or refuse the affected mapping. A metadata appendix or retained
 source alone MUST NOT qualify it as interpreted. Released interchange profiles
 retain their declared model-version scope until their mappings are qualified.
 
-The authored latest schema and generated shapes describe 1.2.0. Explicit
-`./schema/1.1.0` and `./manifest/1.1.0` exports point to frozen snapshots;
-1.2.0 has its own exports. Default authoring and unversioned schema/manifest
+The authored latest schema and generated shapes describe 1.3.0. Explicit
+1.0.0, 1.1.0 and 1.2.0 schema/manifest exports point to frozen snapshots;
+1.3.0 has its own exports. Default authoring and unversioned schema/manifest
 exports remain 1.0.0. `upgradeVisualDocument(document)` still selects 1.1.0;
 `upgradeVisualDocument(document, '1.2.0')` explicitly selects the new model.
 Downgrading through that operation MUST refuse.
+
+### Additive visual 1.3.0 concepts
+
+| Element | Type | Meaning |
+|---|---|---|
+| `node.icon`, `participant.icon` | stable symbolic name | A generic icon cue, independent of role and shape; not a native snippet, image URL or style declaration |
+| `node.shape`, `participant.shape` | geometric enum addition | `parallelogram`, alongside the existing shapes |
+| `edge.directed` | optional boolean | Explicit `false` is an undirected association; absence retains the existing directed interpretation |
+| root `layout` | `kind: tree`, optional `direction: LR | TB | bilateral` and `order: Id[]` | Tree composition for `structure/tree`; order names the roots, while sibling order follows the authored node array |
+| `sequence.notes[]` | `{id,text,participants,before?,after?}` | An independently identified note attached to one or more participants and positioned relative to an actual message |
+
+A positioned note MUST declare exactly one of `before` and `after`, resolving to
+a message. Its participant list MUST be nonempty, unique and resolve to actual
+participants. A note is not a message and MUST NOT introduce a call. Note IDs
+share the visual's identity namespace and may be used by walkthrough focus.
+The existing `message.kind: note` remains available under its prior meaning.
+
+Tree layout is not allowed on groups or on a different form. Parentage reuses
+`node.parent`; the existing single-root and cycle rules continue to apply.
+The model retains broad sequence group membership. A renderer unable to draw a
+noncontiguous or nested group faithfully must approximate explicitly or refuse;
+it MUST NOT narrow the shared model merely to suit its native interval model.
+Version 1.2.0 keeps its exact unknown-content behavior for these new fields.
+An undirected edge retains its endpoint identifiers for stable authoring, but
+MUST NOT acquire a causal direction or native arrowhead from their `from`/`to`
+field names. Parallel edges and self-edges retain separate identities.
 
 ## Non-Normative Notes
 
