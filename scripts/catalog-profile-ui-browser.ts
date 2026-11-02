@@ -3,7 +3,7 @@ import {mkdir} from 'node:fs/promises';
 import {extname,join,resolve,sep} from 'node:path';
 
 const siteRoot=resolve('dist-site');
-const baseUrl='https://umf.local/';
+const baseUrl='https://umf.local/evidence.html';
 const catalog=await Bun.file(join(siteRoot,'catalog.json')).json() as {schemaVersion:number;items:Array<any>;language:any};
 if(catalog.schemaVersion!==1||!Array.isArray(catalog.items)||catalog.items.length!==53)throw new Error('Profile UI acceptance requires the current 53-example catalog. Build the catalog first.');
 const forms=catalog.language?.forms?.kinds?.flatMap((entry:any)=>entry.forms.map((form:string)=>`${entry.kind}/${form}`))||[];

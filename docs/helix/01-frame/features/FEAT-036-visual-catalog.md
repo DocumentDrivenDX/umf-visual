@@ -97,6 +97,24 @@ an opaque document dump still cannot qualify an unsupported pair.
 
 ## User Stories
 
+- CAT-16: The primary site MUST demonstrate the visual language through a small
+  set of large diagrams, including sourced UMF architecture, stack composition
+  and entity/relationship examples. The underlying shared DSL definition and
+  downloadable output MUST be inspectable without a wall of conformance data.
+- CAT-17: Presentation quality MUST be qualified separately from whole-document
+  interchange. A presentation backend must show readable labels, meaningful
+  boundaries, accurate connections and E/R field endpoints/cardinalities within
+  its declared scope. Native SVG and high-resolution PNG downloads are required.
+  A typed-property appendix is not presentation-quality evidence.
+- CAT-18: Language reference, complete example corpus, historical profile
+  outcomes, six-target matrix and receipts MUST remain reachable on a secondary
+  evidence page. Existing example/profile links MUST retain their intent.
+
+CAT-16 through CAT-18 amend the earlier reference-first ordering: the homepage
+leads with authored diagrams and concise composition guidance. Detailed schema
+and conformance interfaces belong on the secondary evidence page. These changes
+do not weaken preservation, compatibility or raw-diagnostic obligations.
+
 - [US-095: Inspect a visual across native targets](../user-stories/US-095-visual-catalog.md).
 
 ## Edge Cases and Error Handling

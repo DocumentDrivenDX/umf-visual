@@ -1,6 +1,6 @@
 {
   "name": "@documentdrivendx/umf-visual",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "UMF visual vocabulary and format interchange library",
   "license": "MIT OR Apache-2.0",
@@ -11,6 +11,10 @@
     "url": "https://github.com/DocumentDrivenDX/umf-visual.git"
   },
   "exports": {
+    "./presentation": {
+      "types": "./dist/presentation/index.d.ts",
+      "import": "./dist/presentation.js"
+    },
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
@@ -60,8 +64,11 @@
     "test:native": "bun scripts/native-interchange.ts",
     "test:native:full": "bun scripts/native-full.ts",
     "build:catalog": "bun scripts/catalog/build.ts",
+    "build:showcase": "bun scripts/presentation/build.ts",
+    "test:showcase": "bun scripts/presentation/verify.ts",
     "build:site": "bun microsite/build.ts",
     "test:site": "bun scripts/catalog-ui-browser.ts",
+    "test:site:showcase": "bun scripts/showcase-ui-browser.ts",
     "test:catalog": "bun scripts/catalog/verify.ts",
     "report:loss": "bun scripts/catalog/loss-progress.ts",
     "report:loss:wave2": "bun scripts/catalog/loss-progress.ts --since-v0.1.0",

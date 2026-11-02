@@ -1,0 +1,126 @@
+{
+  "umf": "0.10.0",
+  "id": "showcase:umf-engine-target-architecture",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.1.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "umf-engine-target-architecture",
+      "kind": "flow",
+      "form": "network",
+      "title": "UMF access across engine boundaries",
+      "question": "Which parts of the documented access stack own protocols, execution and pinned reads?",
+      "takeaway": "A documented target design: UMF owns protocols and clients; each engine owns its protected adapter paths. Native capability qualification remains separate.",
+      "audience": "developer",
+      "source": {
+        "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
+        "view": "Domain Model and Solution Approaches",
+        "digest": "sha256:f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021"
+      },
+      "groups": [
+        {
+          "id": "sdk",
+          "label": "UMF access SDK",
+          "detail": "Protocols and generated clients",
+          "role": "boundary"
+        },
+        {
+          "id": "truss",
+          "label": "Truss",
+          "detail": "Engine-owned execution paths",
+          "role": "boundary"
+        },
+        {
+          "id": "ashlar",
+          "label": "Ashlar",
+          "detail": "Resolver-pinned reads",
+          "role": "boundary"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "catalog",
+          "label": "Catalog function",
+          "group": "sdk",
+          "role": "own"
+        },
+        {
+          "id": "actions",
+          "label": "Actions client",
+          "group": "sdk",
+          "role": "own"
+        },
+        {
+          "id": "truss-read",
+          "label": "Read path",
+          "group": "truss",
+          "role": "external"
+        },
+        {
+          "id": "truss-action",
+          "label": "Action admission",
+          "group": "truss",
+          "role": "external"
+        },
+        {
+          "id": "truss-bulk",
+          "label": "Bulk coordination",
+          "group": "truss",
+          "role": "external"
+        },
+        {
+          "id": "ashlar-resolver",
+          "label": "Publication resolver",
+          "group": "ashlar",
+          "role": "external"
+        },
+        {
+          "id": "ashlar-read",
+          "label": "Pinned read",
+          "group": "ashlar",
+          "role": "external"
+        }
+      ],
+      "edges": [
+        {
+          "id": "catalog-truss-read",
+          "from": "catalog",
+          "to": "truss-read",
+          "label": "read"
+        },
+        {
+          "id": "actions-truss-action",
+          "from": "actions",
+          "to": "truss-action",
+          "label": "action"
+        },
+        {
+          "id": "catalog-truss-bulk",
+          "from": "catalog",
+          "to": "truss-bulk",
+          "label": "bulk"
+        },
+        {
+          "id": "catalog-ashlar-resolver",
+          "from": "catalog",
+          "to": "ashlar-resolver",
+          "label": "read"
+        },
+        {
+          "id": "resolve-pinned-read",
+          "from": "ashlar-resolver",
+          "to": "ashlar-read",
+          "label": "resolve publication"
+        }
+      ],
+      "omissions": [
+        "This is the documented adapter boundary design, not a deployment or a claim that every target capability is implemented or qualified.",
+        "Raw-table targets and Weft catalog compilation are outside this focused engine-adapter view."
+      ]
+    }
+  },
+  "modules": []
+}

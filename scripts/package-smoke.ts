@@ -29,7 +29,10 @@ import {exportPowerPoint,importPowerPoint} from '@documentdrivendx/umf-visual/po
 import {observeGoogleSlides,planGoogleSlidesExport} from '@documentdrivendx/umf-visual/google-slides';
 import {hostDigest,admitHostObservation} from '@documentdrivendx/umf-visual/reconciliation';
 import {planEditableMiroExport} from '@documentdrivendx/umf-visual/miro/editable';
+import {compilePresentation} from '@documentdrivendx/umf-visual/presentation';
 const doc=createVisualDocument({id:'consumer',kind:'flow',form:'network',question:'Does installation work?',nodes:[{id:'n',label:'Installed consumer'}]});
+const presentationPlans=[compilePresentation(doc,{backend:'graphviz'}),compilePresentation(doc,{backend:'mermaid'})];
+for(const plan of presentationPlans){if(!plan.ok||plan.profileId!=='umf.visual.presentation/1'||!plan.source||!plan.elementMap.length)throw Error('Installed presentation compiler failed');}
 if(planMiroExport(doc).shapes.length!==2)throw Error('Installed Miro entrypoint failed');
 const editable=await planEditableMiroExport(doc,'strict');if(editable.nodes.length!==1)throw Error('Installed editable Miro entrypoint failed');
 const digest=await hostDigest(doc);if(!/^[0-9a-f]{64}$/.test(digest))throw Error('Installed reconciliation entrypoint failed');

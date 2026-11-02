@@ -1,0 +1,5277 @@
+umf: 0.10.0
+id: urn:umf:metamodel
+title: UMF for UMF
+vocabularies:
+  umf.metamodel:
+    version: 1.0.0
+extensions:
+  umf.metamodel:
+    language:
+      version: 0.10.0
+      root: document
+      schemaId: urn:umf:core:0.10.0
+      semanticReference: semanticType
+      semanticReferenceId: urn:umf:core:semantic-type-reference:1.0.0
+      packageEnvelope: extensionPackage
+      packageSchemaId: urn:umf:extension-package:0.10.0
+    description: Authored language definitions. Structural shapes and ordered constraints compile to
+      current portable enforcement.
+    constraints:
+      profile: umf.constraints/1
+      steps:
+        - op: let
+          name: elements
+          value:
+            op: flatten
+            args:
+              - op: map
+                args:
+                  - op: get
+                    args:
+                      - var: doc
+                      - - modules
+                as: wm
+                index: wmi
+                value:
+                  op: map
+                  args:
+                    - op: get
+                      args:
+                        - var: wm
+                        - - elements
+                  as: we
+                  index: wei
+                  value:
+                    node:
+                      var: we
+                    module:
+                      var: wm
+                    path:
+                      op: concat
+                      args:
+                        - /modules/
+                        - var: wmi
+                        - /elements/
+                        - var: wei
+        - op: let
+          name: elementIndex
+          value:
+            op: index
+            args:
+              - var: elements
+            as: wi
+            value:
+              op: tuple
+              args:
+                - op: get
+                  args:
+                    - var: wi
+                    - - module
+                      - id
+                - op: get
+                  args:
+                    - var: wi
+                    - - node
+                      - id
+        - op: for
+          each:
+            op: keys
+            args:
+              - var: doc
+          as: unknownKey
+          body:
+            - op: emit
+              when:
+                op: not
+                args:
+                  - op: in
+                    args:
+                      - var: unknownKey
+                      - op: get
+                        args:
+                          - var: policy
+                          - - knownKeys
+                            - document
+              diagnostic:
+                code: UNKNOWN_CORE_FIELD
+                path:
+                  op: concat
+                  args:
+                    - ""
+                    - /
+                    - op: pointer
+                      args:
+                        - var: unknownKey
+                message: Field retained without interpretation
+                severity: warning
+        - op: for
+          each:
+            op: entries
+            args:
+              - op: get
+                args:
+                  - var: doc
+                  - - vocabularies
+          as: v
+          body:
+            - op: for
+              each:
+                op: keys
+                args:
+                  - op: get
+                    args:
+                      - var: v
+                      - - 1
+              as: unknownKey
+              body:
+                - op: emit
+                  when:
+                    op: not
+                    args:
+                      - op: in
+                        args:
+                          - var: unknownKey
+                          - - version
+                  diagnostic:
+                    code: UNKNOWN_CORE_FIELD
+                    path:
+                      op: concat
+                      args:
+                        - op: concat
+                          args:
+                            - /vocabularies/
+                            - op: pointer
+                              args:
+                                - op: get
+                                  args:
+                                    - var: v
+                                    - - 0
+                        - /
+                        - op: pointer
+                          args:
+                            - var: unknownKey
+                    message: Field retained without interpretation
+                    severity: warning
+            - op: emit
+              when:
+                op: not
+                args:
+                  - op: registered
+                    args:
+                      - op: get
+                        args:
+                          - var: v
+                          - - 0
+                      - op: get
+                        args:
+                          - op: get
+                            args:
+                              - var: v
+                              - - 1
+                          - - version
+              diagnostic:
+                code: UNKNOWN_EXTENSION
+                path:
+                  op: concat
+                  args:
+                    - /vocabularies/
+                    - op: pointer
+                      args:
+                        - op: get
+                          args:
+                            - var: v
+                            - - 0
+                message: Exact extension version unavailable; content retained
+                severity: warning
+        - op: for
+          each:
+            op: extension-errors
+            args:
+              - var: doc
+              - op: get
+                args:
+                  - var: doc
+                  - - extensions
+              - document
+              - ""
+              - op: get
+                args:
+                  - var: policy
+                  - - extensions
+          as: extensionError
+          body:
+            - op: emit
+              diagnostic:
+                var: extensionError
+        - op: let
+          name: moduleIds
+          value:
+            op: set
+            args: []
+        - op: for
+          each:
+            op: get
+            args:
+              - var: doc
+              - - modules
+          as: m
+          index: mi
+          body:
+            - op: let
+              name: mp
+              value:
+                op: concat
+                args:
+                  - /modules/
+                  - var: mi
+            - op: for
+              each:
+                op: keys
+                args:
+                  - var: m
+              as: unknownKey
+              body:
+                - op: emit
+                  when:
+                    op: not
+                    args:
+                      - op: in
+                        args:
+                          - var: unknownKey
+                          - op: get
+                            args:
+                              - var: policy
+                              - - knownKeys
+                                - module
+                  diagnostic:
+                    code: UNKNOWN_CORE_FIELD
+                    path:
+                      op: concat
+                      args:
+                        - var: mp
+                        - /
+                        - op: pointer
+                          args:
+                            - var: unknownKey
+                    message: Field retained without interpretation
+                    severity: warning
+            - op: remember
+              set:
+                var: moduleIds
+              key:
+                op: get
+                args:
+                  - var: m
+                  - - id
+              diagnostic:
+                code: DUPLICATE_MODULE
+                path:
+                  op: concat
+                  args:
+                    - var: mp
+                    - /id
+                message: Module id is not unique
+                severity: error
+            - op: for
+              each:
+                op: extension-errors
+                args:
+                  - var: doc
+                  - op: get
+                    args:
+                      - var: m
+                      - - extensions
+                  - module
+                  - var: mp
+                  - op: get
+                    args:
+                      - var: policy
+                      - - extensions
+              as: extensionError
+              body:
+                - op: emit
+                  diagnostic:
+                    var: extensionError
+            - op: let
+              name: elementIds
+              value:
+                op: set
+                args: []
+            - op: for
+              each:
+                op: get
+                args:
+                  - var: m
+                  - - elements
+              as: e
+              index: ei
+              body:
+                - op: let
+                  name: ep
+                  value:
+                    op: concat
+                    args:
+                      - var: mp
+                      - /elements/
+                      - var: ei
+                - op: for
+                  each:
+                    op: keys
+                    args:
+                      - var: e
+                  as: unknownKey
+                  body:
+                    - op: emit
+                      when:
+                        op: not
+                        args:
+                          - op: in
+                            args:
+                              - var: unknownKey
+                              - op: get
+                                args:
+                                  - var: policy
+                                  - - knownKeys
+                                    - element
+                      diagnostic:
+                        code: UNKNOWN_CORE_FIELD
+                        path:
+                          op: concat
+                          args:
+                            - var: ep
+                            - /
+                            - op: pointer
+                              args:
+                                - var: unknownKey
+                        message: Field retained without interpretation
+                        severity: warning
+                - op: emit
+                  when:
+                    op: and
+                    args:
+                      - op: has
+                        args:
+                          - var: e
+                          - - kind
+                      - op: not
+                        args:
+                          - op: in
+                            args:
+                              - op: get
+                                args:
+                                  - var: e
+                                  - - kind
+                              - op: get
+                                args:
+                                  - var: policy
+                                  - - vocabulary
+                                    - kind
+                  diagnostic:
+                    code: UNKNOWN_ELEMENT_KIND
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /
+                        - kind
+                    message: Kind retained without interpretation
+                    severity: warning
+                - op: emit
+                  when:
+                    op: and
+                    args:
+                      - op: has
+                        args:
+                          - var: e
+                          - - nullability
+                      - op: not
+                        args:
+                          - op: in
+                            args:
+                              - op: get
+                                args:
+                                  - var: e
+                                  - - nullability
+                              - op: get
+                                args:
+                                  - var: policy
+                                  - - vocabulary
+                                    - nullability
+                  diagnostic:
+                    code: UNKNOWN_NULLABILITY
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /
+                        - nullability
+                    message: Availability label retained without interpretation
+                    severity: warning
+                - op: emit
+                  when:
+                    op: and
+                    args:
+                      - op: has
+                        args:
+                          - var: e
+                          - - cardinality
+                      - op: not
+                        args:
+                          - op: in
+                            args:
+                              - op: get
+                                args:
+                                  - var: e
+                                  - - cardinality
+                              - op: get
+                                args:
+                                  - var: policy
+                                  - - vocabulary
+                                    - cardinality
+                  diagnostic:
+                    code: UNKNOWN_CARDINALITY
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /
+                        - cardinality
+                    message: Container label retained without interpretation
+                    severity: warning
+                - op: if
+                  test:
+                    op: has
+                    args:
+                      - var: e
+                      - - itemType
+                  then:
+                    - op: for
+                      each:
+                        op: keys
+                        args:
+                          - op: get
+                            args:
+                              - var: e
+                              - - itemType
+                      as: unknownKey
+                      body:
+                        - op: emit
+                          when:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - var: unknownKey
+                                  - op: get
+                                    args:
+                                      - var: policy
+                                      - - knownKeys
+                                        - itemType
+                          diagnostic:
+                            code: UNKNOWN_CORE_FIELD
+                            path:
+                              op: concat
+                              args:
+                                - op: concat
+                                  args:
+                                    - var: ep
+                                    - /itemType
+                                - /
+                                - op: pointer
+                                  args:
+                                    - var: unknownKey
+                            message: Field retained without interpretation
+                            severity: warning
+                  else: []
+                - op: if
+                  test:
+                    op: has
+                    args:
+                      - var: e
+                      - - facets
+                  then:
+                    - op: let
+                      name: facets
+                      value:
+                        op: get
+                        args:
+                          - var: e
+                          - - facets
+                    - op: for
+                      each:
+                        op: keys
+                        args:
+                          - var: facets
+                      as: unknownKey
+                      body:
+                        - op: emit
+                          when:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - var: unknownKey
+                                  - op: get
+                                    args:
+                                      - var: policy
+                                      - - knownKeys
+                                        - facets
+                          diagnostic:
+                            code: UNKNOWN_FACET
+                            path:
+                              op: concat
+                              args:
+                                - op: concat
+                                  args:
+                                    - var: ep
+                                    - /facets
+                                - /
+                                - op: pointer
+                                  args:
+                                    - var: unknownKey
+                            message: Facet member retained without interpretation
+                            severity: warning
+                    - op: emit
+                      when:
+                        op: and
+                        args:
+                          - op: has
+                            args:
+                              - var: facets
+                              - - precision
+                          - op: gt
+                            args:
+                              - op: get
+                                args:
+                                  - var: facets
+                                  - - scale
+                              - op: get
+                                args:
+                                  - var: facets
+                                  - - precision
+                      diagnostic:
+                        code: FACET_SCALE
+                        path:
+                          op: concat
+                          args:
+                            - var: ep
+                            - /facets/scale
+                        message: Scale must not exceed precision
+                        severity: error
+                    - op: if
+                      test:
+                        op: has
+                        args:
+                          - var: facets
+                          - - integerWidth
+                      then:
+                        - op: for
+                          each:
+                            op: keys
+                            args:
+                              - op: get
+                                args:
+                                  - var: facets
+                                  - - integerWidth
+                          as: unknownKey
+                          body:
+                            - op: emit
+                              when:
+                                op: not
+                                args:
+                                  - op: in
+                                    args:
+                                      - var: unknownKey
+                                      - - bits
+                                        - signed
+                              diagnostic:
+                                code: UNKNOWN_FACET
+                                path:
+                                  op: concat
+                                  args:
+                                    - op: concat
+                                      args:
+                                        - var: ep
+                                        - /facets/integerWidth
+                                    - /
+                                    - op: pointer
+                                      args:
+                                        - var: unknownKey
+                                message: Facet member retained without interpretation
+                                severity: warning
+                      else: []
+                  else: []
+                - op: emit
+                  when:
+                    op: and
+                    args:
+                      - op: has
+                        args:
+                          - var: e
+                          - - scalarType
+                      - op: not
+                        args:
+                          - op: in
+                            args:
+                              - op: get
+                                args:
+                                  - var: e
+                                  - - scalarType
+                              - op: get
+                                args:
+                                  - var: policy
+                                  - - vocabulary
+                                    - scalarType
+                  diagnostic:
+                    code: UNKNOWN_SCALAR_TYPE
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /scalarType
+                    message: Scalar family retained without interpretation
+                    severity: warning
+                - op: remember
+                  set:
+                    var: elementIds
+                  key:
+                    op: get
+                    args:
+                      - var: e
+                      - - id
+                  diagnostic:
+                    code: DUPLICATE_ELEMENT
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /id
+                    message: Element id is not unique within module
+                    severity: error
+                - op: for
+                  each:
+                    op: extension-errors
+                    args:
+                      - var: doc
+                      - op: get
+                        args:
+                          - var: e
+                          - - extensions
+                      - element
+                      - var: ep
+                      - op: get
+                        args:
+                          - var: policy
+                          - - extensions
+                  as: extensionError
+                  body:
+                    - op: emit
+                      diagnostic:
+                        var: extensionError
+                - op: for
+                  each:
+                    op: get
+                    args:
+                      - var: e
+                      - - references
+                  as: reference
+                  index: ri
+                  body:
+                    - op: for
+                      each:
+                        op: keys
+                        args:
+                          - var: reference
+                      as: unknownKey
+                      body:
+                        - op: emit
+                          when:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - var: unknownKey
+                                  - op: get
+                                    args:
+                                      - var: policy
+                                      - - knownKeys
+                                        - reference
+                          diagnostic:
+                            code: UNKNOWN_CORE_FIELD
+                            path:
+                              op: concat
+                              args:
+                                - op: concat
+                                  args:
+                                    - var: ep
+                                    - /references/
+                                    - var: ri
+                                - /
+                                - op: pointer
+                                  args:
+                                    - var: unknownKey
+                            message: Field retained without interpretation
+                            severity: warning
+        - op: for
+          each:
+            var: elements
+          as: w
+          body:
+            - op: let
+              name: e
+              value:
+                op: get
+                args:
+                  - var: w
+                  - - node
+            - op: let
+              name: ep
+              value:
+                op: get
+                args:
+                  - var: w
+                  - - path
+            - op: for
+              each:
+                op: get
+                args:
+                  - var: e
+                  - - references
+              as: reference
+              index: ri
+              body:
+                - op: emit
+                  when:
+                    op: not
+                    args:
+                      - op: lookup
+                        args:
+                          - var: elementIndex
+                          - op: tuple
+                            args:
+                              - op: get
+                                args:
+                                  - var: reference
+                                  - - module
+                              - op: get
+                                args:
+                                  - var: reference
+                                  - - element
+                  diagnostic:
+                    code: UNRESOLVED_REFERENCE
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /references/
+                        - var: ri
+                    message: Target element does not exist in supplied document
+                    severity: error
+        - op: for
+          each:
+            var: elements
+          as: w
+          body:
+            - op: let
+              name: e
+              value:
+                op: get
+                args:
+                  - var: w
+                  - - node
+            - op: let
+              name: ep
+              value:
+                op: get
+                args:
+                  - var: w
+                  - - path
+            - op: if
+              test:
+                op: has
+                args:
+                  - var: e
+                  - - itemType
+              then:
+                - op: let
+                  name: item
+                  value:
+                    op: lookup
+                    args:
+                      - var: elementIndex
+                      - op: tuple
+                        args:
+                          - op: get
+                            args:
+                              - var: e
+                              - - itemType
+                                - module
+                          - op: get
+                            args:
+                              - var: e
+                              - - itemType
+                                - element
+                - op: if
+                  test:
+                    op: not
+                    args:
+                      - var: item
+                  then:
+                    - op: emit
+                      diagnostic:
+                        code: UNRESOLVED_ITEM_TYPE
+                        path:
+                          op: concat
+                          args:
+                            - var: ep
+                            - /itemType
+                        message: Item/value Field does not exist in supplied document
+                        severity: error
+                  else:
+                    - op: emit
+                      when:
+                        op: ne
+                        args:
+                          - op: get
+                            args:
+                              - var: item
+                              - - node
+                                - kind
+                          - field
+                      diagnostic:
+                        code: ITEM_TYPE_ROLE
+                        path:
+                          op: concat
+                          args:
+                            - var: ep
+                            - /itemType
+                        message: Item/value definition must be an explicit Field
+                        severity: error
+              else: []
+        - op: let
+          name: keyOwners
+          value:
+            op: set
+            args: []
+        - op: for
+          as: keyEntry
+          each:
+            var: elements
+          body:
+            - op: let
+              name: keyRecord
+              value:
+                op: get
+                args:
+                  - var: keyEntry
+                  - - node
+            - op: let
+              name: keyRecordPath
+              value:
+                op: get
+                args:
+                  - var: keyEntry
+                  - - path
+            - op: if
+              test:
+                op: has
+                args:
+                  - var: keyRecord
+                  - - members
+              then:
+                - op: let
+                  name: keyOwnMembers
+                  value:
+                    op: set
+                    args: []
+                - op: for
+                  as: memberRef
+                  each:
+                    op: get
+                    args:
+                      - var: keyRecord
+                      - - members
+                  body:
+                    - op: let
+                      name: memberPath
+                      value:
+                        op: concat
+                        args:
+                          - var: keyRecordPath
+                          - /members/
+                          - var: memberIndex
+                    - op: let
+                      name: memberIdentity
+                      value:
+                        op: tuple
+                        args:
+                          - op: get
+                            args:
+                              - var: memberRef
+                              - - module
+                          - op: get
+                            args:
+                              - var: memberRef
+                              - - element
+                    - op: let
+                      name: memberField
+                      value:
+                        op: get
+                        args:
+                          - op: lookup
+                            args:
+                              - var: elementIndex
+                              - op: tuple
+                                args:
+                                  - op: get
+                                    args:
+                                      - var: memberRef
+                                      - - module
+                                  - op: get
+                                    args:
+                                      - var: memberRef
+                                      - - element
+                          - - node
+                    - op: for
+                      as: qualifier
+                      each:
+                        op: keys
+                        args:
+                          - var: memberRef
+                      body:
+                        - op: emit
+                          diagnostic:
+                            code: UNKNOWN_KEY_QUALIFIER
+                            path:
+                              op: concat
+                              args:
+                                - var: memberPath
+                                - /
+                                - op: pointer
+                                  args:
+                                    - var: qualifier
+                            message: Qualifier retained without interpretation
+                            severity: warning
+                          when:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - var: qualifier
+                                  - op: get
+                                    args:
+                                      - var: policy
+                                      - - keys
+                                        - known
+                                        - member
+                    - op: remember
+                      set:
+                        var: keyOwnMembers
+                      key:
+                        var: memberIdentity
+                      diagnostic:
+                        code: KEY_DUPLICATE_MEMBER
+                        path:
+                          var: memberPath
+                        message: Record membership repeats a Field identity
+                        severity: error
+                    - op: if
+                      test:
+                        op: not
+                        args:
+                          - op: in
+                            args:
+                              - var: memberIdentity
+                              - var: elementIndex
+                      then:
+                        - op: emit
+                          diagnostic:
+                            code: KEY_MEMBER_MISSING
+                            path:
+                              var: memberPath
+                            message: Member Field does not exist
+                            severity: error
+                      else:
+                        - op: emit
+                          diagnostic:
+                            code: KEY_MEMBER_KIND
+                            path:
+                              var: memberPath
+                            message: Record members must be explicit Fields
+                            severity: error
+                          when:
+                            op: ne
+                            args:
+                              - op: get
+                                args:
+                                  - var: memberField
+                                  - - kind
+                              - field
+                    - op: let
+                      name: previousKeyOwner
+                      value:
+                        op: lookup
+                        args:
+                          - var: keyOwners
+                          - var: memberIdentity
+                    - op: emit
+                      diagnostic:
+                        code: KEY_MEMBER_OWNER
+                        path:
+                          var: memberPath
+                        message:
+                          op: concat
+                          args:
+                            - "Field already belongs to another Record: "
+                            - var: previousKeyOwner
+                        severity: error
+                      when:
+                        op: and
+                        args:
+                          - op: in
+                            args:
+                              - var: memberIdentity
+                              - var: keyOwners
+                          - op: ne
+                            args:
+                              - var: previousKeyOwner
+                              - var: keyRecordPath
+                    - op: remember
+                      set:
+                        var: keyOwners
+                      key:
+                        var: memberIdentity
+                      value:
+                        var: keyRecordPath
+                  index: memberIndex
+                - op: let
+                  name: keyIds
+                  value:
+                    op: set
+                    args: []
+                - op: let
+                  name: keyNames
+                  value:
+                    op: set
+                    args: []
+                - op: let
+                  name: keySets
+                  value:
+                    op: set
+                    args: []
+                - op: let
+                  name: keyPrimaries
+                  value:
+                    op: set
+                    args: []
+                - op: for
+                  as: keyDefinition
+                  each:
+                    op: get
+                    args:
+                      - var: keyRecord
+                      - - keys
+                  body:
+                    - op: let
+                      name: keyPath
+                      value:
+                        op: concat
+                        args:
+                          - var: keyRecordPath
+                          - /keys/
+                          - var: keyIndex
+                    - op: for
+                      as: qualifier
+                      each:
+                        op: keys
+                        args:
+                          - var: keyDefinition
+                      body:
+                        - op: emit
+                          diagnostic:
+                            code: UNKNOWN_KEY_QUALIFIER
+                            path:
+                              op: concat
+                              args:
+                                - var: keyPath
+                                - /
+                                - op: pointer
+                                  args:
+                                    - var: qualifier
+                            message: Qualifier retained without interpretation
+                            severity: warning
+                          when:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - var: qualifier
+                                  - op: get
+                                    args:
+                                      - var: policy
+                                      - - keys
+                                        - known
+                                        - key
+                    - op: remember
+                      set:
+                        var: keyIds
+                      key:
+                        op: get
+                        args:
+                          - var: keyDefinition
+                          - - id
+                      diagnostic:
+                        code: KEY_DUPLICATE_ID
+                        path:
+                          op: concat
+                          args:
+                            - var: keyPath
+                            - /id
+                        message: Key ID is not unique within the Record
+                        severity: error
+                    - op: remember
+                      set:
+                        var: keyNames
+                      key:
+                        op: get
+                        args:
+                          - var: keyDefinition
+                          - - name
+                      diagnostic:
+                        code: KEY_DUPLICATE_NAME
+                        path:
+                          op: concat
+                          args:
+                            - var: keyPath
+                            - /name
+                        message: Key name is not unique within the Record
+                        severity: error
+                    - op: if
+                      test:
+                        op: eq
+                        args:
+                          - op: get
+                            args:
+                              - var: keyDefinition
+                              - - primary
+                          - true
+                      then:
+                        - op: remember
+                          set:
+                            var: keyPrimaries
+                          key: true
+                          diagnostic:
+                            code: KEY_PRIMARY_COUNT
+                            path:
+                              op: concat
+                              args:
+                                - var: keyPath
+                                - /primary
+                            message: At most one key may be primary
+                            severity: error
+                    - op: let
+                      name: keyFieldIdentities
+                      value:
+                        op: map
+                        args:
+                          - op: get
+                            args:
+                              - var: keyDefinition
+                              - - fields
+                        as: component
+                        value:
+                          op: canonical
+                          args:
+                            - op: tuple
+                              args:
+                                - op: get
+                                  args:
+                                    - var: component
+                                    - - module
+                                - op: get
+                                  args:
+                                    - var: component
+                                    - - element
+                    - op: emit
+                      diagnostic:
+                        code: KEY_DUPLICATE_FIELD
+                        path:
+                          op: concat
+                          args:
+                            - var: keyPath
+                            - /fields
+                        message: Key repeats a Field identity
+                        severity: error
+                      when:
+                        op: ne
+                        args:
+                          - op: length
+                            args:
+                              - op: index
+                                args:
+                                  - var: keyFieldIdentities
+                                as: componentIdentity
+                                value:
+                                  var: componentIdentity
+                          - op: length
+                            args:
+                              - var: keyFieldIdentities
+                    - op: remember
+                      set:
+                        var: keySets
+                      key:
+                        op: sort
+                        args:
+                          - var: keyFieldIdentities
+                      diagnostic:
+                        code: KEY_DUPLICATE_SET
+                        path:
+                          op: concat
+                          args:
+                            - var: keyPath
+                            - /fields
+                        message: Key component set duplicates another key, regardless of order
+                        severity: error
+                    - op: for
+                      as: keyRef
+                      each:
+                        op: get
+                        args:
+                          - var: keyDefinition
+                          - - fields
+                      body:
+                        - op: let
+                          name: keyFieldPath
+                          value:
+                            op: concat
+                            args:
+                              - var: keyPath
+                              - /fields/
+                              - var: keyFieldIndex
+                        - op: let
+                          name: keyFieldIdentity
+                          value:
+                            op: tuple
+                            args:
+                              - op: get
+                                args:
+                                  - var: keyRef
+                                  - - module
+                              - op: get
+                                args:
+                                  - var: keyRef
+                                  - - element
+                        - op: let
+                          name: keyField
+                          value:
+                            op: get
+                            args:
+                              - op: lookup
+                                args:
+                                  - var: elementIndex
+                                  - op: tuple
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: keyRef
+                                          - - module
+                                      - op: get
+                                        args:
+                                          - var: keyRef
+                                          - - element
+                              - - node
+                        - op: for
+                          as: qualifier
+                          each:
+                            op: keys
+                            args:
+                              - var: keyRef
+                          body:
+                            - op: emit
+                              diagnostic:
+                                code: UNKNOWN_KEY_QUALIFIER
+                                path:
+                                  op: concat
+                                  args:
+                                    - var: keyFieldPath
+                                    - /
+                                    - op: pointer
+                                      args:
+                                        - var: qualifier
+                                message: Qualifier retained without interpretation
+                                severity: warning
+                              when:
+                                op: not
+                                args:
+                                  - op: in
+                                    args:
+                                      - var: qualifier
+                                      - op: get
+                                        args:
+                                          - var: policy
+                                          - - keys
+                                            - known
+                                            - member
+                        - op: emit
+                          diagnostic:
+                            code: KEY_FIELD_OWNER
+                            path:
+                              var: keyFieldPath
+                            message: Key component is not a member of its owning Record
+                            severity: error
+                          when:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - var: keyFieldIdentity
+                                  - var: keyOwnMembers
+                        - op: if
+                          test:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - var: keyFieldIdentity
+                                  - var: elementIndex
+                          then:
+                            - op: emit
+                              diagnostic:
+                                code: KEY_FIELD_MISSING
+                                path:
+                                  var: keyFieldPath
+                                message: Key Field does not exist
+                                severity: error
+                          else:
+                            - op: emit
+                              diagnostic:
+                                code: KEY_FIELD_KIND
+                                path:
+                                  var: keyFieldPath
+                                message: Key component must be an explicit Field
+                                severity: error
+                              when:
+                                op: ne
+                                args:
+                                  - op: get
+                                    args:
+                                      - var: keyField
+                                      - - kind
+                                  - field
+                            - op: emit
+                              diagnostic:
+                                code: KEY_FIELD_REQUIRED
+                                path:
+                                  var: keyFieldPath
+                                message: Key component must explicitly supply a value
+                                severity: error
+                              when:
+                                op: ne
+                                args:
+                                  - op: get
+                                    args:
+                                      - var: keyField
+                                      - - nullability
+                                  - required
+                            - op: emit
+                              diagnostic:
+                                code: KEY_FIELD_SINGULAR
+                                path:
+                                  var: keyFieldPath
+                                message: Key component must explicitly be singular
+                                severity: error
+                              when:
+                                op: ne
+                                args:
+                                  - op: get
+                                    args:
+                                      - var: keyField
+                                      - - cardinality
+                                  - one
+                            - op: emit
+                              diagnostic:
+                                code: KEY_EQUALITY
+                                path:
+                                  var: keyFieldPath
+                                message: Key equality is undefined for this component
+                                severity: error
+                              when:
+                                op: or
+                                args:
+                                  - op: not
+                                    args:
+                                      - op: in
+                                        args:
+                                          - op: get
+                                            args:
+                                              - var: keyField
+                                              - - scalarType
+                                          - op: get
+                                            args:
+                                              - var: policy
+                                              - - keys
+                                                - equalityFamilies
+                                  - op: some
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: keyField
+                                          - - references
+                                    as: fieldReference
+                                    value:
+                                      op: eq
+                                      args:
+                                        - op: get
+                                          args:
+                                            - var: fieldReference
+                                            - - role
+                                        - record-type
+                            - op: emit
+                              diagnostic:
+                                code: KEY_DECIMAL_DOMAIN
+                                path:
+                                  var: keyFieldPath
+                                message: Decimal key equality requires explicit precision and scale
+                                severity: error
+                              when:
+                                op: and
+                                args:
+                                  - op: eq
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: keyField
+                                          - - scalarType
+                                      - decimal
+                                  - op: or
+                                    args:
+                                      - op: not
+                                        args:
+                                          - op: has
+                                            args:
+                                              - var: keyField
+                                              - - facets
+                                                - precision
+                                      - op: not
+                                        args:
+                                          - op: has
+                                            args:
+                                              - var: keyField
+                                              - - facets
+                                                - scale
+                      index: keyFieldIndex
+                  index: keyIndex
+        - op: let
+          name: relationshipAnyPresentations
+          value:
+            op: set
+            args: []
+        - op: let
+          name: relationshipInversePresentations
+          value:
+            op: set
+            args: []
+        - op: for
+          as: relationshipModule
+          each:
+            op: get
+            args:
+              - var: doc
+              - - modules
+          body:
+            - op: let
+              name: relationshipIds
+              value:
+                op: set
+                args: []
+            - op: let
+              name: relationshipNames
+              value:
+                op: set
+                args: []
+            - op: for
+              as: relationship
+              each:
+                op: get
+                args:
+                  - var: relationshipModule
+                  - - relationships
+              body:
+                - op: let
+                  name: relationshipPath
+                  value:
+                    op: concat
+                    args:
+                      - /modules/
+                      - var: relationshipModuleIndex
+                      - /relationships/
+                      - var: relationshipIndex
+                - op: for
+                  as: qualifier
+                  each:
+                    op: keys
+                    args:
+                      - var: relationship
+                  body:
+                    - op: emit
+                      diagnostic:
+                        code: UNKNOWN_RELATIONSHIP_QUALIFIER
+                        path:
+                          op: concat
+                          args:
+                            - var: relationshipPath
+                            - /
+                            - op: pointer
+                              args:
+                                - var: qualifier
+                        message: Qualifier retained without interpretation
+                        severity: warning
+                      when:
+                        op: not
+                        args:
+                          - op: in
+                            args:
+                              - var: qualifier
+                              - - id
+                                - name
+                                - source
+                                - target
+                                - sourceMultiplicity
+                                - targetMultiplicity
+                                - targetLifecycle
+                                - directed
+                                - inverse
+                                - associationRecord
+                - op: remember
+                  set:
+                    var: relationshipIds
+                  key:
+                    op: get
+                    args:
+                      - var: relationship
+                      - - id
+                  diagnostic:
+                    code: RELATIONSHIP_DUPLICATE_ID
+                    path:
+                      op: concat
+                      args:
+                        - var: relationshipPath
+                        - /id
+                    message: Relationship ID must be unique in its module
+                    severity: error
+                - op: remember
+                  set:
+                    var: relationshipNames
+                  key:
+                    op: get
+                    args:
+                      - var: relationship
+                      - - name
+                  diagnostic:
+                    code: RELATIONSHIP_DUPLICATE_NAME
+                    path:
+                      op: concat
+                      args:
+                        - var: relationshipPath
+                        - /name
+                    message: Relationship name must be unique in its module
+                    severity: error
+                - op: for
+                  as: relationshipEnd
+                  each:
+                    - source
+                    - target
+                  body:
+                    - op: let
+                      name: endpointSeen
+                      value:
+                        op: set
+                        args: []
+                    - op: for
+                      as: endpointRef
+                      each:
+                        op: get
+                        args:
+                          - var: relationship
+                          - - var: relationshipEnd
+                      body:
+                        - op: let
+                          name: endpointPath
+                          value:
+                            op: concat
+                            args:
+                              - var: relationshipPath
+                              - /
+                              - var: relationshipEnd
+                              - /
+                              - var: endpointIndex
+                        - op: if
+                          test:
+                            op: eq
+                            args:
+                              - var: relationshipEnd
+                              - target
+                          then:
+                            - op: for
+                              as: qualifier
+                              each:
+                                op: keys
+                                args:
+                                  - var: endpointRef
+                              body:
+                                - op: emit
+                                  diagnostic:
+                                    code: UNKNOWN_RELATIONSHIP_QUALIFIER
+                                    path:
+                                      op: concat
+                                      args:
+                                        - var: endpointPath
+                                        - /
+                                        - op: pointer
+                                          args:
+                                            - var: qualifier
+                                    message: Qualifier retained without interpretation
+                                    severity: warning
+                                  when:
+                                    op: not
+                                    args:
+                                      - op: in
+                                        args:
+                                          - var: qualifier
+                                          - - module
+                                            - element
+                                            - key
+                          else:
+                            - op: for
+                              as: qualifier
+                              each:
+                                op: keys
+                                args:
+                                  - var: endpointRef
+                              body:
+                                - op: emit
+                                  diagnostic:
+                                    code: UNKNOWN_RELATIONSHIP_QUALIFIER
+                                    path:
+                                      op: concat
+                                      args:
+                                        - var: endpointPath
+                                        - /
+                                        - op: pointer
+                                          args:
+                                            - var: qualifier
+                                    message: Qualifier retained without interpretation
+                                    severity: warning
+                                  when:
+                                    op: not
+                                    args:
+                                      - op: in
+                                        args:
+                                          - var: qualifier
+                                          - op: get
+                                            args:
+                                              - var: policy
+                                              - - knownKeys
+                                                - itemType
+                        - op: remember
+                          set:
+                            var: endpointSeen
+                          key:
+                            op: tuple
+                            args:
+                              - op: get
+                                args:
+                                  - var: endpointRef
+                                  - - module
+                              - op: get
+                                args:
+                                  - var: endpointRef
+                                  - - element
+                          diagnostic:
+                            code: RELATIONSHIP_DUPLICATE_ENDPOINT
+                            path:
+                              var: endpointPath
+                            message: Endpoint Record repeats, regardless of qualifiers or target key
+                            severity: error
+                        - op: let
+                          name: endpointRecord
+                          value:
+                            op: get
+                            args:
+                              - op: lookup
+                                args:
+                                  - var: elementIndex
+                                  - op: tuple
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: endpointRef
+                                          - - module
+                                      - op: get
+                                        args:
+                                          - var: endpointRef
+                                          - - element
+                              - - node
+                        - op: if
+                          test:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - op: tuple
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: endpointRef
+                                          - - module
+                                      - op: get
+                                        args:
+                                          - var: endpointRef
+                                          - - element
+                                  - var: elementIndex
+                          then:
+                            - op: emit
+                              diagnostic:
+                                code: RELATIONSHIP_ENDPOINT_MISSING
+                                path:
+                                  var: endpointPath
+                                message: Endpoint does not resolve by exact module and element IDs
+                                severity: error
+                          else:
+                            - op: if
+                              test:
+                                op: ne
+                                args:
+                                  - op: get
+                                    args:
+                                      - var: endpointRecord
+                                      - - kind
+                                  - record
+                              then:
+                                - op: emit
+                                  diagnostic:
+                                    code: RELATIONSHIP_ENDPOINT_KIND
+                                    path:
+                                      var: endpointPath
+                                    message: Endpoint must be a Record
+                                    severity: error
+                              else:
+                                - op: emit
+                                  diagnostic:
+                                    code: RELATIONSHIP_ENDPOINT_KEY
+                                    path:
+                                      var: endpointPath
+                                    message: Endpoint must have authored Keys
+                                    severity: error
+                                  when:
+                                    op: eq
+                                    args:
+                                      - op: length
+                                        args:
+                                          - op: get
+                                            args:
+                                              - var: endpointRecord
+                                              - - keys
+                                      - 0
+                        - op: emit
+                          diagnostic:
+                            code: RELATIONSHIP_TARGET_KEY
+                            path:
+                              op: concat
+                              args:
+                                - var: endpointPath
+                                - /key
+                            message: Target key must resolve by its stable ID
+                            severity: error
+                          when:
+                            op: and
+                            args:
+                              - op: eq
+                                args:
+                                  - var: relationshipEnd
+                                  - target
+                              - op: eq
+                                args:
+                                  - op: get
+                                    args:
+                                      - var: endpointRecord
+                                      - - kind
+                                  - record
+                              - op: not
+                                args:
+                                  - op: some
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: endpointRecord
+                                          - - keys
+                                    as: authoredKey
+                                    value:
+                                      op: eq
+                                      args:
+                                        - op: get
+                                          args:
+                                            - var: authoredKey
+                                            - - id
+                                        - op: get
+                                          args:
+                                            - var: endpointRef
+                                            - - key
+                        - op: if
+                          test:
+                            op: eq
+                            args:
+                              - var: relationshipEnd
+                              - source
+                          then:
+                            - op: let
+                              name: presentationIdentity
+                              value:
+                                op: tuple
+                                args:
+                                  - op: get
+                                    args:
+                                      - var: endpointRef
+                                      - - module
+                                  - op: get
+                                    args:
+                                      - var: endpointRef
+                                      - - element
+                                  - op: get
+                                    args:
+                                      - var: relationship
+                                      - - name
+                            - op: emit
+                              diagnostic:
+                                code: RELATIONSHIP_PRESENTATION_COLLISION
+                                path:
+                                  var: endpointPath
+                                message:
+                                  op: concat
+                                  args:
+                                    - "Inverse presentation collides on this endpoint with "
+                                    - op: lookup
+                                      args:
+                                        - var: relationshipInversePresentations
+                                        - var: presentationIdentity
+                                severity: error
+                              when:
+                                op: in
+                                args:
+                                  - var: presentationIdentity
+                                  - var: relationshipInversePresentations
+                            - op: remember
+                              set:
+                                var: relationshipAnyPresentations
+                              key:
+                                var: presentationIdentity
+                              value:
+                                var: endpointPath
+                          else:
+                            - op: if
+                              test:
+                                op: has
+                                args:
+                                  - var: relationship
+                                  - - inverse
+                              then:
+                                - op: let
+                                  name: presentationIdentity
+                                  value:
+                                    op: tuple
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: endpointRef
+                                          - - module
+                                      - op: get
+                                        args:
+                                          - var: endpointRef
+                                          - - element
+                                      - op: get
+                                        args:
+                                          - var: relationship
+                                          - - inverse
+                                - op: emit
+                                  diagnostic:
+                                    code: RELATIONSHIP_PRESENTATION_COLLISION
+                                    path:
+                                      op: concat
+                                      args:
+                                        - var: relationshipPath
+                                        - /inverse
+                                    message:
+                                      op: concat
+                                      args:
+                                        - "Inverse presentation collides on this endpoint with "
+                                        - op: lookup
+                                          args:
+                                            - var: relationshipAnyPresentations
+                                            - var: presentationIdentity
+                                    severity: error
+                                  when:
+                                    op: in
+                                    args:
+                                      - var: presentationIdentity
+                                      - var: relationshipAnyPresentations
+                                - op: remember
+                                  set:
+                                    var: relationshipAnyPresentations
+                                  key:
+                                    var: presentationIdentity
+                                  value:
+                                    op: concat
+                                    args:
+                                      - var: relationshipPath
+                                      - /inverse
+                                - op: remember
+                                  set:
+                                    var: relationshipInversePresentations
+                                  key:
+                                    var: presentationIdentity
+                                  value:
+                                    op: concat
+                                    args:
+                                      - var: relationshipPath
+                                      - /inverse
+                      index: endpointIndex
+                    - op: let
+                      name: multiplicityName
+                      value:
+                        op: concat
+                        args:
+                          - var: relationshipEnd
+                          - Multiplicity
+                    - op: let
+                      name: multiplicity
+                      value:
+                        op: get
+                        args:
+                          - var: relationship
+                          - - var: multiplicityName
+                    - op: for
+                      as: qualifier
+                      each:
+                        op: keys
+                        args:
+                          - var: multiplicity
+                      body:
+                        - op: emit
+                          diagnostic:
+                            code: UNKNOWN_RELATIONSHIP_QUALIFIER
+                            path:
+                              op: concat
+                              args:
+                                - op: concat
+                                  args:
+                                    - var: relationshipPath
+                                    - /
+                                    - var: multiplicityName
+                                - /
+                                - op: pointer
+                                  args:
+                                    - var: qualifier
+                            message: Qualifier retained without interpretation
+                            severity: warning
+                          when:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - var: qualifier
+                                  - - min
+                                    - max
+                    - op: emit
+                      diagnostic:
+                        code: RELATIONSHIP_MULTIPLICITY
+                        path:
+                          op: concat
+                          args:
+                            - var: relationshipPath
+                            - /
+                            - var: multiplicityName
+                        message: Maximum must be at least the minimum
+                        severity: error
+                      when:
+                        op: and
+                        args:
+                          - op: ne
+                            args:
+                              - op: get
+                                args:
+                                  - var: multiplicity
+                                  - - max
+                              - "*"
+                          - op: lt
+                            args:
+                              - op: get
+                                args:
+                                  - var: multiplicity
+                                  - - max
+                              - op: get
+                                args:
+                                  - var: multiplicity
+                                  - - min
+                - op: emit
+                  diagnostic:
+                    code: RELATIONSHIP_LIFECYCLE
+                    path:
+                      op: concat
+                      args:
+                        - var: relationshipPath
+                        - /targetLifecycle
+                    message: Owned target lifecycle requires a directed relationship
+                    severity: error
+                  when:
+                    op: and
+                    args:
+                      - op: eq
+                        args:
+                          - op: get
+                            args:
+                              - var: relationship
+                              - - targetLifecycle
+                          - owned
+                      - op: not
+                        args:
+                          - op: get
+                            args:
+                              - var: relationship
+                              - - directed
+                - op: emit
+                  diagnostic:
+                    code: UNKNOWN_RELATIONSHIP_LIFECYCLE
+                    path:
+                      op: concat
+                      args:
+                        - var: relationshipPath
+                        - /targetLifecycle
+                    message: Future lifecycle retained without interpretation
+                    severity: warning
+                  when:
+                    op: not
+                    args:
+                      - op: in
+                        args:
+                          - op: get
+                            args:
+                              - var: relationship
+                              - - targetLifecycle
+                          - - owned
+                            - independent
+                            - unspecified
+                - op: if
+                  test:
+                    op: has
+                    args:
+                      - var: relationship
+                      - - associationRecord
+                  then:
+                    - op: for
+                      as: qualifier
+                      each:
+                        op: keys
+                        args:
+                          - op: get
+                            args:
+                              - var: relationship
+                              - - associationRecord
+                      body:
+                        - op: emit
+                          diagnostic:
+                            code: UNKNOWN_RELATIONSHIP_QUALIFIER
+                            path:
+                              op: concat
+                              args:
+                                - op: concat
+                                  args:
+                                    - var: relationshipPath
+                                    - /associationRecord
+                                - /
+                                - op: pointer
+                                  args:
+                                    - var: qualifier
+                            message: Qualifier retained without interpretation
+                            severity: warning
+                          when:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - var: qualifier
+                                  - op: get
+                                    args:
+                                      - var: policy
+                                      - - knownKeys
+                                        - itemType
+                    - op: let
+                      name: associationRecord
+                      value:
+                        op: get
+                        args:
+                          - op: lookup
+                            args:
+                              - var: elementIndex
+                              - op: tuple
+                                args:
+                                  - op: get
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: relationship
+                                          - - associationRecord
+                                      - - module
+                                  - op: get
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: relationship
+                                          - - associationRecord
+                                      - - element
+                          - - node
+                    - op: if
+                      test:
+                        op: not
+                        args:
+                          - op: in
+                            args:
+                              - op: tuple
+                                args:
+                                  - op: get
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: relationship
+                                          - - associationRecord
+                                      - - module
+                                  - op: get
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: relationship
+                                          - - associationRecord
+                                      - - element
+                              - var: elementIndex
+                      then:
+                        - op: emit
+                          diagnostic:
+                            code: RELATIONSHIP_ENDPOINT_MISSING
+                            path:
+                              op: concat
+                              args:
+                                - var: relationshipPath
+                                - /associationRecord
+                            message: Endpoint does not resolve by exact module and element IDs
+                            severity: error
+                      else:
+                        - op: if
+                          test:
+                            op: ne
+                            args:
+                              - op: get
+                                args:
+                                  - var: associationRecord
+                                  - - kind
+                              - record
+                          then:
+                            - op: emit
+                              diagnostic:
+                                code: RELATIONSHIP_ENDPOINT_KIND
+                                path:
+                                  op: concat
+                                  args:
+                                    - var: relationshipPath
+                                    - /associationRecord
+                                message: Endpoint must be a Record
+                                severity: error
+                          else:
+                            - op: emit
+                              diagnostic:
+                                code: RELATIONSHIP_ENDPOINT_KEY
+                                path:
+                                  op: concat
+                                  args:
+                                    - var: relationshipPath
+                                    - /associationRecord
+                                message: Endpoint must have authored Keys
+                                severity: error
+                              when:
+                                op: eq
+                                args:
+                                  - op: length
+                                    args:
+                                      - op: get
+                                        args:
+                                          - var: associationRecord
+                                          - - keys
+                                  - 0
+              index: relationshipIndex
+          index: relationshipModuleIndex
+        - op: for
+          each:
+            var: elements
+          as: w
+          body:
+            - op: let
+              name: e
+              value:
+                op: get
+                args:
+                  - var: w
+                  - - node
+            - op: let
+              name: ep
+              value:
+                op: get
+                args:
+                  - var: w
+                  - - path
+            - op: let
+              name: facets
+              value:
+                op: get
+                args:
+                  - var: e
+                  - - facets
+            - op: if
+              test:
+                op: has
+                args:
+                  - var: facets
+                  - - length
+              then:
+                - op: let
+                  name: bounds
+                  value:
+                    op: get
+                    args:
+                      - var: facets
+                      - - length
+                - op: for
+                  each:
+                    op: keys
+                    args:
+                      - var: bounds
+                  as: unknownKey
+                  body:
+                    - op: emit
+                      when:
+                        op: not
+                        args:
+                          - op: in
+                            args:
+                              - var: unknownKey
+                              - - min
+                                - max
+                                - unit
+                      diagnostic:
+                        code: UNKNOWN_SCHEMA_PROPERTY
+                        path:
+                          op: concat
+                          args:
+                            - op: concat
+                              args:
+                                - var: ep
+                                - /facets/
+                                - length
+                            - /
+                            - op: pointer
+                              args:
+                                - var: unknownKey
+                        message: Qualifier retained without interpretation
+                        severity: warning
+                - op: emit
+                  when:
+                    op: not
+                    args:
+                      - op: in
+                        args:
+                          - op: get
+                            args:
+                              - var: bounds
+                              - - unit
+                          - - unicode-scalar
+                            - byte
+                  diagnostic:
+                    code: UNKNOWN_FACET_UNIT
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /facets/length/unit
+                    message: Length unit retained without interpretation
+                    severity: warning
+                - op: emit
+                  when:
+                    op: and
+                    args:
+                      - op: has
+                        args:
+                          - var: bounds
+                          - - min
+                      - op: has
+                        args:
+                          - var: bounds
+                          - - max
+                      - op: gt
+                        args:
+                          - op: get
+                            args:
+                              - var: bounds
+                              - - min
+                          - op: get
+                            args:
+                              - var: bounds
+                              - - max
+                  diagnostic:
+                    code: CORE_SCHEMA_PROPERTIES
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /facets/
+                        - length
+                    message: Minimum exceeds maximum
+                    severity: error
+              else: []
+            - op: if
+              test:
+                op: has
+                args:
+                  - var: facets
+                  - - collectionSize
+              then:
+                - op: let
+                  name: bounds
+                  value:
+                    op: get
+                    args:
+                      - var: facets
+                      - - collectionSize
+                - op: for
+                  each:
+                    op: keys
+                    args:
+                      - var: bounds
+                  as: unknownKey
+                  body:
+                    - op: emit
+                      when:
+                        op: not
+                        args:
+                          - op: in
+                            args:
+                              - var: unknownKey
+                              - - min
+                                - max
+                      diagnostic:
+                        code: UNKNOWN_SCHEMA_PROPERTY
+                        path:
+                          op: concat
+                          args:
+                            - op: concat
+                              args:
+                                - var: ep
+                                - /facets/
+                                - collectionSize
+                            - /
+                            - op: pointer
+                              args:
+                                - var: unknownKey
+                        message: Qualifier retained without interpretation
+                        severity: warning
+                - op: emit
+                  when:
+                    op: and
+                    args:
+                      - op: has
+                        args:
+                          - var: bounds
+                          - - min
+                      - op: has
+                        args:
+                          - var: bounds
+                          - - max
+                      - op: gt
+                        args:
+                          - op: get
+                            args:
+                              - var: bounds
+                              - - min
+                          - op: get
+                            args:
+                              - var: bounds
+                              - - max
+                  diagnostic:
+                    code: CORE_SCHEMA_PROPERTIES
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /facets/
+                        - collectionSize
+                    message: Minimum exceeds maximum
+                    severity: error
+                - op: emit
+                  when:
+                    op: or
+                    args:
+                      - op: ne
+                        args:
+                          - op: get
+                            args:
+                              - var: e
+                              - - kind
+                          - field
+                      - op: not
+                        args:
+                          - op: in
+                            args:
+                              - op: get
+                                args:
+                                  - var: e
+                                  - - cardinality
+                              - - array
+                                - map
+                  diagnostic:
+                    code: CORE_SCHEMA_PROPERTIES
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /facets/collectionSize
+                    message: Collection bounds require array/map Field
+                    severity: error
+              else: []
+            - op: if
+              test:
+                op: has
+                args:
+                  - var: facets
+                  - - range
+              then:
+                - op: let
+                  name: range
+                  value:
+                    op: get
+                    args:
+                      - var: facets
+                      - - range
+                - op: for
+                  each:
+                    op: keys
+                    args:
+                      - var: range
+                  as: unknownKey
+                  body:
+                    - op: emit
+                      when:
+                        op: not
+                        args:
+                          - op: in
+                            args:
+                              - var: unknownKey
+                              - - min
+                                - max
+                                - minInclusive
+                                - maxInclusive
+                      diagnostic:
+                        code: UNKNOWN_SCHEMA_PROPERTY
+                        path:
+                          op: concat
+                          args:
+                            - op: concat
+                              args:
+                                - var: ep
+                                - /facets/range
+                            - /
+                            - op: pointer
+                              args:
+                                - var: unknownKey
+                        message: Qualifier retained without interpretation
+                        severity: warning
+                - op: if
+                  test:
+                    op: or
+                    args:
+                      - op: ne
+                        args:
+                          - op: get
+                            args:
+                              - var: e
+                              - - kind
+                          - field
+                      - op: not
+                        args:
+                          - op: in
+                            args:
+                              - op: get
+                                args:
+                                  - var: e
+                                  - - scalarType
+                              - - integer
+                                - decimal
+                  then:
+                    - op: emit
+                      diagnostic:
+                        code: CORE_SCHEMA_PROPERTIES
+                        path:
+                          op: concat
+                          args:
+                            - var: ep
+                            - /facets/range
+                        message: Range requires integer/decimal Field
+                        severity: error
+                  else:
+                    - op: emit
+                      when:
+                        op: and
+                        args:
+                          - op: not
+                            args:
+                              - op: has
+                                args:
+                                  - var: range
+                                  - - min
+                          - op: has
+                            args:
+                              - var: range
+                              - - minInclusive
+                      diagnostic:
+                        code: CORE_SCHEMA_PROPERTIES
+                        path:
+                          op: concat
+                          args:
+                            - var: ep
+                            - /facets/range/
+                            - min
+                            - Inclusive
+                        message: Inclusive flag requires its bound
+                        severity: error
+                    - op: emit
+                      when:
+                        op: and
+                        args:
+                          - op: not
+                            args:
+                              - op: has
+                                args:
+                                  - var: range
+                                  - - max
+                          - op: has
+                            args:
+                              - var: range
+                              - - maxInclusive
+                      diagnostic:
+                        code: CORE_SCHEMA_PROPERTIES
+                        path:
+                          op: concat
+                          args:
+                            - var: ep
+                            - /facets/range/
+                            - max
+                            - Inclusive
+                        message: Inclusive flag requires its bound
+                        severity: error
+                    - op: for
+                      each:
+                        op: numeric-interval
+                        args:
+                          - var: e
+                          - var: range
+                          - op: get
+                            args:
+                              - var: policy
+                              - - literal
+                      as: literalError
+                      body:
+                        - op: emit
+                          diagnostic:
+                            code:
+                              op: get
+                              args:
+                                - var: literalError
+                                - - code
+                            path:
+                              op: concat
+                              args:
+                                - op: concat
+                                  args:
+                                    - var: ep
+                                    - /facets/range
+                                - op: get
+                                  args:
+                                    - var: literalError
+                                    - - path
+                            message:
+                              op: get
+                              args:
+                                - var: literalError
+                                - - message
+                            severity:
+                              op: get
+                              args:
+                                - var: literalError
+                                - - severity
+              else: []
+            - op: if
+              test:
+                op: has
+                args:
+                  - var: e
+                  - - allowedValues
+              then:
+                - op: let
+                  name: allowedSeen
+                  value:
+                    op: set
+                    args: []
+                - op: for
+                  each:
+                    op: get
+                    args:
+                      - var: e
+                      - - allowedValues
+                  as: allowed
+                  index: ai
+                  body:
+                    - op: let
+                      name: allowedErrors
+                      value:
+                        op: literal-errors
+                        args:
+                          - var: doc
+                          - op: without
+                            args:
+                              - var: e
+                              - - allowedValues
+                          - var: allowed
+                          - true
+                          - op: get
+                            args:
+                              - var: policy
+                              - - literal
+                    - op: for
+                      each:
+                        var: allowedErrors
+                      as: literalError
+                      body:
+                        - op: emit
+                          diagnostic:
+                            code:
+                              op: get
+                              args:
+                                - var: literalError
+                                - - code
+                            path:
+                              op: concat
+                              args:
+                                - op: concat
+                                  args:
+                                    - var: ep
+                                    - /allowedValues
+                                - op: get
+                                  args:
+                                    - var: literalError
+                                    - - path
+                            message:
+                              op: get
+                              args:
+                                - var: literalError
+                                - - message
+                            severity:
+                              op: get
+                              args:
+                                - var: literalError
+                                - - severity
+                    - op: if
+                      test:
+                        op: eq
+                        args:
+                          - op: length
+                            args:
+                              - var: allowedErrors
+                          - 0
+                      then:
+                        - op: remember
+                          set:
+                            var: allowedSeen
+                          key:
+                            op: literal-identity
+                            args:
+                              - var: e
+                              - var: allowed
+                              - op: get
+                                args:
+                                  - var: policy
+                                  - - literal
+                          diagnostic:
+                            code: CORE_SCHEMA_PROPERTIES
+                            path:
+                              op: concat
+                              args:
+                                - var: ep
+                                - /allowedValues/
+                                - var: ai
+                            message: Duplicate equal allowed value
+                            severity: error
+                      else: []
+              else: []
+            - op: for
+              each:
+                op: get
+                args:
+                  - var: e
+                  - - examples
+              as: example
+              index: xi
+              body:
+                - op: for
+                  each:
+                    op: literal-errors
+                    args:
+                      - var: doc
+                      - var: e
+                      - var: example
+                      - false
+                      - op: get
+                        args:
+                          - var: policy
+                          - - literal
+                  as: literalError
+                  body:
+                    - op: emit
+                      diagnostic:
+                        code:
+                          op: get
+                          args:
+                            - var: literalError
+                            - - code
+                        path:
+                          op: concat
+                          args:
+                            - op: concat
+                              args:
+                                - var: ep
+                                - /examples/
+                                - var: xi
+                            - op: get
+                              args:
+                                - var: literalError
+                                - - path
+                        message:
+                          op: get
+                          args:
+                            - var: literalError
+                            - - message
+                        severity:
+                          op: get
+                          args:
+                            - var: literalError
+                            - - severity
+            - op: if
+              test:
+                op: has
+                args:
+                  - var: e
+                  - - default
+              then:
+                - op: for
+                  each:
+                    op: keys
+                    args:
+                      - op: get
+                        args:
+                          - var: e
+                          - - default
+                  as: unknownKey
+                  body:
+                    - op: emit
+                      when:
+                        op: not
+                        args:
+                          - op: in
+                            args:
+                              - var: unknownKey
+                              - - value
+                                - on
+                      diagnostic:
+                        code: UNKNOWN_SCHEMA_PROPERTY
+                        path:
+                          op: concat
+                          args:
+                            - op: concat
+                              args:
+                                - var: ep
+                                - /default
+                            - /
+                            - op: pointer
+                              args:
+                                - var: unknownKey
+                        message: Qualifier retained without interpretation
+                        severity: warning
+                - op: for
+                  each:
+                    op: literal-errors
+                    args:
+                      - var: doc
+                      - var: e
+                      - op: get
+                        args:
+                          - var: e
+                          - - default
+                            - value
+                      - true
+                      - op: get
+                        args:
+                          - var: policy
+                          - - literal
+                  as: literalError
+                  body:
+                    - op: emit
+                      diagnostic:
+                        code:
+                          op: get
+                          args:
+                            - var: literalError
+                            - - code
+                        path:
+                          op: concat
+                          args:
+                            - op: concat
+                              args:
+                                - var: ep
+                                - /default/value
+                            - op: get
+                              args:
+                                - var: literalError
+                                - - path
+                        message:
+                          op: get
+                          args:
+                            - var: literalError
+                            - - message
+                        severity:
+                          op: get
+                          args:
+                            - var: literalError
+                            - - severity
+              else: []
+        - op: for
+          each:
+            var: elements
+          as: w
+          body:
+            - op: let
+              name: e
+              value:
+                op: get
+                args:
+                  - var: w
+                  - - node
+            - op: let
+              name: ep
+              value:
+                op: get
+                args:
+                  - var: w
+                  - - path
+            - op: if
+              test:
+                op: has
+                args:
+                  - var: e
+                  - - semanticTypes
+              then:
+                - op: emit
+                  diagnostic:
+                    code: SEMANTIC_TYPE_EXTERNAL
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /semanticTypes
+                    message: Exact external semantic definitions and value validators are resolved separately
+                    severity: warning
+                - op: emit
+                  when:
+                    op: and
+                    args:
+                      - op: has
+                        args:
+                          - var: e
+                          - - extensions
+                            - umf.semantic-types
+                            - types
+                      - op: ne
+                        args:
+                          - op: get
+                            args:
+                              - var: e
+                              - - extensions
+                                - umf.semantic-types
+                                - types
+                          - op: get
+                            args:
+                              - var: e
+                              - - semanticTypes
+                  diagnostic:
+                    code: SEMANTIC_TYPE_COMPETING_MEANING
+                    path:
+                      op: concat
+                      args:
+                        - var: ep
+                        - /semanticTypes
+                    message: Core semanticTypes differ from the umf.semantic-types extension payload; core is
+                      authoritative and the extension is retained unchanged
+                    severity: warning
+                - op: for
+                  each:
+                    op: get
+                    args:
+                      - var: e
+                      - - semanticTypes
+                  as: term
+                  index: ti
+                  body:
+                    - op: for
+                      each:
+                        op: keys
+                        args:
+                          - var: term
+                      as: unknownKey
+                      body:
+                        - op: emit
+                          when:
+                            op: not
+                            args:
+                              - op: in
+                                args:
+                                  - var: unknownKey
+                                  - - vocabulary
+                                    - version
+                                    - term
+                          diagnostic:
+                            code: UNKNOWN_SEMANTIC_TYPE_QUALIFIER
+                            path:
+                              op: concat
+                              args:
+                                - op: concat
+                                  args:
+                                    - var: ep
+                                    - /semanticTypes/
+                                    - var: ti
+                                - /
+                                - op: pointer
+                                  args:
+                                    - var: unknownKey
+                            message: Qualifier retained without interpretation
+                            severity: warning
+              else: []
+    domains:
+      vocabulary:
+        scalarType:
+          $values: knownScalarType
+        kind:
+          $values: knownElementKind
+        nullability:
+          $values: knownNullability
+        cardinality:
+          $values: knownCardinality
+      knownKeys:
+        document:
+          $members: document
+        module:
+          $members: module
+        element:
+          $members: element
+        reference:
+          $members: reference
+        itemType:
+          $members: itemType
+        facets:
+          $members: facets
+      keys:
+        equalityFamilies:
+          - boolean
+          - integer
+          - decimal
+          - string
+          - binary
+          - bits128
+          - uuid
+        known:
+          member:
+            $members: keyFieldReference
+          key:
+            $members: key
+      extensions:
+        undeclared:
+          code: UNDECLARED_EXTENSION
+          message: Extension has no version declaration
+          severity: error
+        scope:
+          code: EXTENSION_SCOPE
+          message: Extension not permitted at this scope
+          severity: error
+        structure:
+          code: EXTENSION_STRUCTURE
+          message: Invalid payload
+          severity: error
+        unchecked:
+          code: SEMANTICS_UNCHECKED
+          message: Structure checked; semantics not validated
+          severity: warning
+        failure:
+          code: VALIDATOR_FAILURE
+          message: Validator failure
+          severity: error
+      literal:
+        fieldKind: field
+        recordReferenceRole: record-type
+        nullability: absent-allowed
+        itemReferenceKeys:
+          $members: itemType
+        facetKeys:
+          $members: facets
+        facetGroups:
+          length:
+            $keys: facets.length
+          integerWidth:
+            $keys: facets.integerWidth
+          range:
+            $keys: facets.range
+          collectionSize:
+            $keys: facets.collectionSize
+        containers:
+          array:
+            carrier: array
+            mechanic: sequence
+          map:
+            carrier: map
+            mechanic: mapping
+        singular:
+          - one
+          - unspecified
+        families:
+          boolean:
+            carrier: boolean
+            mechanic: boolean
+            equality: true
+            refinements: true
+          integer:
+            carrier: integerToken
+            mechanic: integer
+            equality: true
+            refinements: true
+          decimal:
+            carrier: decimalToken
+            mechanic: decimal
+            equality: true
+            refinements: true
+          string:
+            carrier: string
+            mechanic: unicode
+            equality: true
+            refinements: true
+            lengthUnit: unicode-scalar
+          binary:
+            carrier: binaryHex
+            mechanic: hex
+            equality: true
+            refinements: true
+            lengthUnit: byte
+          bits128:
+            carrier: bits128Hex
+            mechanic: bits128
+            equality: true
+            refinements: true
+          uuid:
+            carrier: uuid
+            mechanic: uuid
+            equality: true
+            refinements: true
+          float:
+            carrier: floatToken
+            mechanic: text
+            equality: false
+            refinements: false
+          date:
+            carrier: date
+            mechanic: text
+            equality: false
+            refinements: false
+          time:
+            carrier: time
+            mechanic: text
+            equality: false
+            refinements: false
+          timestamp:
+            carrier: timestamp
+            mechanic: text
+            equality: false
+            refinements: false
+        numericFacetKeys:
+          - precision
+          - scale
+          - integerWidth
+        errors:
+          numeric-token:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Expected exact JSON numeric token
+            severity: error
+          numeric-exponent:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Numeric exponent exceeds bounded domain
+            severity: error
+          numeric-rounding:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Numeric value would require rounding
+            severity: error
+          numeric-resource:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Numeric value exceeds precision/resource limit
+            severity: error
+          numeric-precision:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Numeric value exceeds precision
+            severity: error
+          unicode:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Unpaired Unicode surrogate
+            severity: error
+          object:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Expected object
+            severity: error
+          unknown:
+            code: CORE_SCHEMA_PROPERTY_UNKNOWN
+            message: "Unknown relevant qualifier: {detail}"
+            severity: warning
+          null-equality:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Null has no allowed-value equality
+            severity: error
+          equality:
+            code: CORE_SCHEMA_PROPERTIES
+            message: No exact equality for this literal/domain
+            severity: error
+          bits128:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Expected exact128-bit hexadecimal value
+            severity: error
+          uuid:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Expected UUID text
+            severity: error
+          decimal-domain:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Decimal requires explicit precision/scale
+            severity: error
+          hex:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Expected hexadecimal bytes
+            severity: error
+          boolean:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Expected boolean literal
+            severity: error
+          mechanic:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Unsupported literal mechanic
+            severity: error
+          depth:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Literal recursion exceeds limit
+            severity: error
+          field-role:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Literal target must be a Field
+            severity: error
+          record-value:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Record-valued literals require a separate contract
+            severity: error
+          "null":
+            code: CORE_SCHEMA_PROPERTIES
+            message: Null requires explicit absent-allowed
+            severity: error
+          wrapper:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Expected one typed literal wrapper
+            severity: error
+          container:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Container literal does not match Field
+            severity: error
+          item-required:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Container literal requires explicit itemType
+            severity: error
+          item-missing:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Unresolved itemType
+            severity: error
+          collection-size:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Collection size outside bounds
+            severity: error
+          cardinality:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Unknown cardinality
+            severity: error
+          family:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Literal does not match scalar family
+            severity: error
+          refinements:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Value/default semantics for float/temporal domain are not defined
+            severity: error
+          text:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Expected literal text
+            severity: error
+          length-unit:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Unknown/incompatible length unit
+            severity: error
+          length-domain:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Length requires string/binary
+            severity: error
+          length:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Literal length outside bounds
+            severity: error
+          integer-width:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Integer outside width/signedness
+            severity: error
+          numeric-null:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Numeric bounds cannot be null
+            severity: error
+          range:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Literal outside numeric range
+            severity: error
+          allowed:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Literal is not an allowed value
+            severity: error
+          interval:
+            code: CORE_SCHEMA_PROPERTIES
+            message: Empty or inverted numeric interval
+            severity: error
+        fields:
+          role: kind
+          references: references
+          referenceRole: role
+          item: itemType
+          facets: facets
+          family: scalarType
+          cardinality: cardinality
+          availability: nullability
+          precision: precision
+          scale: scale
+        wrapperKeys: 1
+        itemLookup:
+          modules: modules
+          moduleId: id
+          elements: elements
+          elementId: id
+          moduleRef: module
+          elementRef: element
+        interval:
+          min: min
+          max: max
+          minInclusive: minInclusive
+          maxInclusive: maxInclusive
+          width:
+            - facets
+            - integerWidth
+          bits: bits
+          signed: signed
+          omit:
+            - allowedValues
+            - default
+          qualifierKeys:
+            integerWidth:
+              $keys: facets.integerWidth
+        refinements:
+          - mechanic: count-bounds
+            selector:
+              - facets
+              - collectionSize
+            applies: container
+            mode: always
+            min: min
+            max: max
+            error: collection-size
+            domainError: collection-size
+            phase: before
+          - mechanic: count-bounds
+            selector:
+              - facets
+              - length
+            applies: scalar
+            mode: always
+            min: min
+            max: max
+            unit: unit
+            unitError: length-unit
+            domainError: length-domain
+            error: length
+            phase: before
+          - mechanic: integer-width
+            selector:
+              - facets
+              - integerWidth
+            applies: scalar
+            mode: always
+            bits: bits
+            signed: signed
+            error: integer-width
+            phase: before
+          - mechanic: coefficient-range
+            selector:
+              - facets
+              - range
+            applies: scalar
+            mode: refinements
+            min: min
+            max: max
+            minInclusive: minInclusive
+            maxInclusive: maxInclusive
+            error: range
+            nullError: numeric-null
+            phase: before
+          - mechanic: allowed-membership
+            selector:
+              - allowedValues
+            applies: all
+            mode: refinements
+            error: allowed
+            phase: after
+      structuralDiagnostic:
+        code: SEMANTIC_TYPE_STRUCTURE
+        message: Invalid core semantic type structure
+        severity: error
+      schemaPropertyNames:
+        - title
+        - aliases
+        - examples
+        - allowedValues
+        - default
+modules:
+  - id: umf
+    namespace: umf.metamodel
+    elements:
+      - id: document.umf
+        name: umf
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: constant
+              value: 0.10.0
+      - id: document.id
+        name: id
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: document.vocabularies
+        name: vocabularies
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: object
+              open:
+                tag: object
+                fields:
+                  version:
+                    tag: link
+                    target: version
+                mandatory:
+                  - version
+              key:
+                tag: link
+                target: id
+      - id: document.modules
+        name: modules
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: module
+      - id: document.extensions
+        name: extensions
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: link
+              target: extensions
+      - id: document.title
+        name: title
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+        scalarType: string
+      - id: document.aliases
+        name: aliases
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: sequence
+              item:
+                tag: text
+                min: 1
+              unique: true
+      - id: document
+        name: Document
+        kind: record
+        description: A Document groups Modules and declares the vocabularies used by its extension content.
+          Its identifier names the complete metadata envelope.
+        extensions:
+          umf.metamodel:
+            definition: document
+            shape:
+              description: A Document groups Modules and declares the vocabularies used by its extension content.
+                Its identifier names the complete metadata envelope.
+              tag: object
+        members:
+          - module: umf
+            element: document.umf
+          - module: umf
+            element: document.id
+          - module: umf
+            element: document.vocabularies
+          - module: umf
+            element: document.modules
+          - module: umf
+            element: document.extensions
+          - module: umf
+            element: document.title
+          - module: umf
+            element: document.aliases
+      - id: id
+        name: id
+        kind: field
+        description: UMF language id
+        extensions:
+          umf.metamodel:
+            definition: id
+            shape:
+              tag: text
+              min: 1
+      - id: version
+        name: version
+        kind: field
+        description: UMF language version
+        extensions:
+          umf.metamodel:
+            definition: version
+            shape:
+              tag: text
+              pattern: ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$
+      - id: knownScalarType
+        name: knownScalarType
+        kind: field
+        description: Value families; bits128 and uuid have intrinsic16-byte domains under umf-128/1. Native
+          refinements remain attached.
+        extensions:
+          umf.metamodel:
+            definition: knownScalarType
+            shape:
+              description: Value families; bits128 and uuid have intrinsic16-byte domains under umf-128/1. Native
+                refinements remain attached.
+              tag: choice
+              options:
+                - tag: constant
+                  value: boolean
+                - tag: constant
+                  value: integer
+                - tag: constant
+                  value: decimal
+                - tag: constant
+                  value: float
+                - tag: constant
+                  value: string
+                - tag: constant
+                  value: binary
+                - tag: constant
+                  value: date
+                - tag: constant
+                  value: time
+                - tag: constant
+                  value: timestamp
+                - tag: constant
+                  value: bits128
+                - tag: constant
+                  value: uuid
+      - id: scalarType
+        name: scalarType
+        kind: field
+        description: UMF language scalarType
+        extensions:
+          umf.metamodel:
+            definition: scalarType
+            shape:
+              tag: choice
+              options:
+                - tag: link
+                  target: knownScalarType
+                - description: Unknown family retained with incomplete semantic validation.
+                  tag: all
+                  options:
+                    - tag: text
+                      min: 1
+                    - tag: not
+                      value:
+                        tag: link
+                        target: knownScalarType
+      - id: extensions
+        name: extensions
+        kind: record
+        description: UMF language extensions
+        extensions:
+          umf.metamodel:
+            definition: extensions
+            shape:
+              tag: object
+              open: true
+              key:
+                tag: link
+                target: id
+        members: []
+      - id: reference.role
+        name: role
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: reference.module
+        name: module
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: reference.element
+        name: element
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: reference
+        name: reference
+        kind: record
+        description: UMF language reference
+        extensions:
+          umf.metamodel:
+            definition: reference
+            shape:
+              tag: object
+        members:
+          - module: umf
+            element: reference.role
+          - module: umf
+            element: reference.module
+          - module: umf
+            element: reference.element
+      - id: element.id
+        name: id
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: element.name
+        name: name
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+        scalarType: string
+      - id: element.description
+        name: description
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+        scalarType: string
+      - id: element.scalarType
+        name: scalarType
+        kind: field
+        description: The Field's intrinsic value family. Native representations and external term meanings remain separate.
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: link
+              target: scalarType
+      - id: element.extensions
+        name: extensions
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: extensions
+      - id: element.references
+        name: references
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: reference
+      - id: element.kind
+        name: kind
+        kind: field
+        description: Identifies a Field, Record or Group. Unknown labels are retained without interpretation.
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              description: UMF role; unknown labels remain uninterpreted. Missing is unspecified, never inferred
+                from scalarType.
+              tag: text
+              min: 1
+      - id: element.nullability
+        name: nullability
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              description: Ideal value availability. Unknown labels remain uninterpreted. Missing and unspecified
+                assert no availability constraint. Native absence carriers require explicit
+                bindings.
+              tag: text
+              min: 1
+      - id: element.cardinality
+        name: cardinality
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              description: One ideal value, finite ordered sequence with duplicates allowed, finite exact
+                string-key mapping with unique keys, or no assertion. Unknown labels remain
+                uninterpreted.
+              tag: text
+              min: 1
+      - id: element.itemType
+        name: itemType
+        kind: field
+        description: Identifies the Field that describes each array item or map value, using explicit Module and Element identifiers.
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: link
+              target: itemType
+      - id: element.facets
+        name: facets
+        kind: field
+        description: Constrains the values of a Field, including length, numeric width, precision, scale and range.
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: link
+              target: facets
+      - id: element.members
+        name: members
+        kind: field
+        description: Lists the Elements explicitly contained by a Record or Group.
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: keyFieldReference
+              unique: true
+      - id: element.keys
+        name: keys
+        kind: field
+        description: Declares named ordered Field tuples that identify values of a Record.
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: key
+              min: 1
+      - id: element.title
+        name: title
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+        scalarType: string
+      - id: element.aliases
+        name: aliases
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: sequence
+              item:
+                tag: text
+                min: 1
+              unique: true
+      - id: element.examples
+        name: examples
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: literal
+      - id: element.allowedValues
+        name: allowedValues
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: literal
+              min: 1
+      - id: element.default
+        name: default
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: object
+              fields:
+                value:
+                  tag: link
+                  target: literal
+                on:
+                  tag: choice
+                  options:
+                    - tag: constant
+                      value: missing
+                    - tag: constant
+                      value: "null"
+                    - tag: constant
+                      value: missing-or-null
+              mandatory:
+                - value
+                - on
+              open: true
+      - id: element.semanticTypes
+        name: semanticTypes
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: urn:umf:core:semantic-type-reference:1.0.0
+              min: 1
+      - id: element
+        name: Element
+        kind: record
+        description: An Element describes a Field, Record or Group within a Module. References connect
+          Elements without assuming a particular storage or compute implementation.
+        extensions:
+          umf.metamodel:
+            definition: element
+            shape:
+              tag: object
+              conditions:
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - kind
+                    fields:
+                      kind:
+                        tag: choice
+                        options:
+                          - tag: constant
+                            value: record
+                          - tag: constant
+                            value: group
+                  yes:
+                    tag: object
+                    fields:
+                      scalarType: false
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - nullability
+                    fields:
+                      nullability:
+                        tag: any
+                  yes:
+                    tag: object
+                    mandatory:
+                      - kind
+                    fields:
+                      kind:
+                        tag: constant
+                        value: field
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - cardinality
+                    fields:
+                      cardinality:
+                        tag: any
+                  yes:
+                    tag: object
+                    mandatory:
+                      - kind
+                    fields:
+                      kind:
+                        tag: constant
+                        value: field
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - cardinality
+                    fields:
+                      cardinality:
+                        tag: choice
+                        options:
+                          - tag: constant
+                            value: array
+                          - tag: constant
+                            value: map
+                  yes:
+                    tag: not
+                    value:
+                      tag: object
+                      mandatory:
+                        - scalarType
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - itemType
+                    fields:
+                      itemType:
+                        tag: any
+                  yes:
+                    tag: object
+                    mandatory:
+                      - kind
+                      - cardinality
+                    fields:
+                      kind:
+                        tag: constant
+                        value: field
+                      cardinality:
+                        tag: choice
+                        options:
+                          - tag: constant
+                            value: array
+                          - tag: constant
+                            value: map
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - facets
+                    fields:
+                      facets:
+                        tag: any
+                  yes:
+                    tag: object
+                    mandatory:
+                      - kind
+                    fields:
+                      kind:
+                        tag: constant
+                        value: field
+                      references:
+                        tag: all
+                        options:
+                          - tag: sequence
+                          - tag: not
+                            value:
+                              tag: any
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - facets
+                    fields:
+                      facets:
+                        tag: object
+                        fields:
+                          length:
+                            tag: any
+                        mandatory:
+                          - length
+                  yes:
+                    tag: object
+                    mandatory:
+                      - scalarType
+                    fields:
+                      scalarType:
+                        tag: choice
+                        options:
+                          - tag: constant
+                            value: string
+                          - tag: constant
+                            value: binary
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - facets
+                    fields:
+                      facets:
+                        tag: object
+                        fields:
+                          length:
+                            tag: object
+                            fields:
+                              unit:
+                                tag: constant
+                                value: unicode-scalar
+                            mandatory:
+                              - unit
+                        mandatory:
+                          - length
+                  yes:
+                    tag: object
+                    mandatory:
+                      - scalarType
+                    fields:
+                      scalarType:
+                        tag: constant
+                        value: string
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - facets
+                    fields:
+                      facets:
+                        tag: object
+                        fields:
+                          length:
+                            tag: object
+                            fields:
+                              unit:
+                                tag: constant
+                                value: byte
+                            mandatory:
+                              - unit
+                        mandatory:
+                          - length
+                  yes:
+                    tag: object
+                    mandatory:
+                      - scalarType
+                    fields:
+                      scalarType:
+                        tag: constant
+                        value: binary
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - facets
+                    fields:
+                      facets:
+                        tag: object
+                        fields:
+                          precision:
+                            tag: any
+                        mandatory:
+                          - precision
+                  yes:
+                    tag: object
+                    mandatory:
+                      - scalarType
+                    fields:
+                      scalarType:
+                        tag: constant
+                        value: decimal
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - facets
+                    fields:
+                      facets:
+                        tag: object
+                        fields:
+                          integerWidth:
+                            tag: any
+                        mandatory:
+                          - integerWidth
+                  yes:
+                    tag: object
+                    mandatory:
+                      - scalarType
+                    fields:
+                      scalarType:
+                        tag: constant
+                        value: integer
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - members
+                    fields:
+                      members:
+                        tag: any
+                  yes:
+                    tag: object
+                    mandatory:
+                      - kind
+                    fields:
+                      kind:
+                        tag: constant
+                        value: record
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - keys
+                    fields:
+                      keys:
+                        tag: any
+                  yes:
+                    tag: object
+                    mandatory:
+                      - kind
+                      - members
+                    fields:
+                      kind:
+                        tag: constant
+                        value: record
+                      members:
+                        tag: any
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - examples
+                    fields:
+                      examples:
+                        tag: any
+                  yes:
+                    tag: object
+                    mandatory:
+                      - kind
+                    fields:
+                      kind:
+                        tag: constant
+                        value: field
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - allowedValues
+                    fields:
+                      allowedValues:
+                        tag: any
+                  yes:
+                    tag: object
+                    mandatory:
+                      - kind
+                    fields:
+                      kind:
+                        tag: constant
+                        value: field
+                - tag: conditional
+                  condition:
+                    tag: object
+                    mandatory:
+                      - default
+                    fields:
+                      default:
+                        tag: any
+                  yes:
+                    tag: object
+                    mandatory:
+                      - kind
+                    fields:
+                      kind:
+                        tag: constant
+                        value: field
+        members:
+          - module: umf
+            element: element.id
+          - module: umf
+            element: element.name
+          - module: umf
+            element: element.description
+          - module: umf
+            element: element.scalarType
+          - module: umf
+            element: element.extensions
+          - module: umf
+            element: element.references
+          - module: umf
+            element: element.kind
+          - module: umf
+            element: element.nullability
+          - module: umf
+            element: element.cardinality
+          - module: umf
+            element: element.itemType
+          - module: umf
+            element: element.facets
+          - module: umf
+            element: element.members
+          - module: umf
+            element: element.keys
+          - module: umf
+            element: element.title
+          - module: umf
+            element: element.aliases
+          - module: umf
+            element: element.examples
+          - module: umf
+            element: element.allowedValues
+          - module: umf
+            element: element.default
+          - module: umf
+            element: element.semanticTypes
+      - id: module.id
+        name: id
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: module.namespace
+        name: namespace
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+        scalarType: string
+      - id: module.elements
+        name: elements
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: element
+      - id: module.extensions
+        name: extensions
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: link
+              target: extensions
+      - id: module.relationships
+        name: relationships
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: relationship
+      - id: module.title
+        name: title
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+        scalarType: string
+      - id: module.aliases
+        name: aliases
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: sequence
+              item:
+                tag: text
+                min: 1
+              unique: true
+      - id: module
+        name: Module
+        kind: record
+        description: A Module gives Elements and Relationships a namespace within a Document.
+        extensions:
+          umf.metamodel:
+            definition: module
+            shape:
+              tag: object
+        members:
+          - module: umf
+            element: module.id
+          - module: umf
+            element: module.namespace
+          - module: umf
+            element: module.elements
+          - module: umf
+            element: module.extensions
+          - module: umf
+            element: module.relationships
+          - module: umf
+            element: module.title
+          - module: umf
+            element: module.aliases
+      - id: knownElementKind
+        name: knownElementKind
+        kind: field
+        description: UMF language knownElementKind
+        extensions:
+          umf.metamodel:
+            definition: knownElementKind
+            shape:
+              tag: choice
+              options:
+                - tag: constant
+                  value: field
+                - tag: constant
+                  value: record
+                - tag: constant
+                  value: group
+      - id: knownNullability
+        name: knownNullability
+        kind: field
+        description: UMF language knownNullability
+        extensions:
+          umf.metamodel:
+            definition: knownNullability
+            shape:
+              tag: choice
+              options:
+                - tag: constant
+                  value: required
+                - tag: constant
+                  value: absent-allowed
+                - tag: constant
+                  value: unspecified
+      - id: knownCardinality
+        name: knownCardinality
+        kind: field
+        description: UMF language knownCardinality
+        extensions:
+          umf.metamodel:
+            definition: knownCardinality
+            shape:
+              tag: choice
+              options:
+                - tag: constant
+                  value: one
+                - tag: constant
+                  value: array
+                - tag: constant
+                  value: map
+                - tag: constant
+                  value: unspecified
+      - id: itemType.module
+        name: module
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: itemType.element
+        name: element
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: itemType
+        name: Item type
+        kind: record
+        description: UMF language itemType
+        extensions:
+          umf.metamodel:
+            definition: itemType
+            shape:
+              tag: object
+        members:
+          - module: umf
+            element: itemType.module
+          - module: umf
+            element: itemType.element
+      - id: facets.length
+        name: length
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: object
+              fields:
+                min:
+                  tag: integer
+                  min: 0
+                  max: 9007199254740991
+                max:
+                  tag: integer
+                  min: 0
+                  max: 9007199254740991
+                unit:
+                  tag: text
+                  min: 1
+              mandatory:
+                - unit
+              open: true
+              conditions:
+                - tag: choice
+                  options:
+                    - tag: object
+                      mandatory:
+                        - min
+                      fields:
+                        min:
+                          tag: any
+                    - tag: object
+                      mandatory:
+                        - max
+                      fields:
+                        max:
+                          tag: any
+      - id: facets.precision
+        name: precision
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              description: Decimal coefficient digit bound; requires scale. Absolute coefficient is less than
+                10^precision. No implicit rounding.
+              tag: integer
+              min: 1
+              max: 9007199254740991
+      - id: facets.scale
+        name: scale
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              description: Fixed fractional digit count; requires precision. Semantic validation requires scale <=
+                precision. Value equals integer coefficient times 10^-scale.
+              tag: integer
+              min: 0
+              max: 9007199254740991
+      - id: facets.integerWidth
+        name: integerWidth
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              description: Signed [-2^(bits-1),2^(bits-1)-1] or unsigned [0,2^bits-1]; mathematical domain, not a
+                physical storage-width assertion.
+              tag: object
+              fields:
+                bits:
+                  tag: integer
+                  min: 1
+                  max: 9007199254740991
+                signed:
+                  tag: boolean
+              mandatory:
+                - bits
+                - signed
+      - id: facets.collectionSize
+        name: collectionSize
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: object
+              fields:
+                min:
+                  tag: integer
+                  min: 0
+                  max: 9007199254740991
+                max:
+                  tag: integer
+                  min: 0
+                  max: 9007199254740991
+              open: true
+              conditions:
+                - tag: choice
+                  options:
+                    - tag: object
+                      mandatory:
+                        - min
+                      fields:
+                        min:
+                          tag: any
+                    - tag: object
+                      mandatory:
+                        - max
+                      fields:
+                        max:
+                          tag: any
+      - id: facets.range
+        name: range
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: object
+              fields:
+                min:
+                  tag: link
+                  target: literal
+                max:
+                  tag: link
+                  target: literal
+                minInclusive:
+                  tag: boolean
+                maxInclusive:
+                  tag: boolean
+              open: true
+              conditions:
+                - tag: choice
+                  options:
+                    - tag: object
+                      mandatory:
+                        - min
+                      fields:
+                        min:
+                          tag: any
+                    - tag: object
+                      mandatory:
+                        - max
+                      fields:
+                        max:
+                          tag: any
+      - id: facets
+        name: facets
+        kind: record
+        description: Missing members impose no bound. Unknown members and qualifiers are retained without
+          interpretation.
+        extensions:
+          umf.metamodel:
+            definition: facets
+            shape:
+              description: Missing members impose no bound. Unknown members and qualifiers are retained without
+                interpretation.
+              tag: object
+              requires:
+                precision:
+                  - scale
+                scale:
+                  - precision
+        members:
+          - module: umf
+            element: facets.length
+          - module: umf
+            element: facets.precision
+          - module: umf
+            element: facets.scale
+          - module: umf
+            element: facets.integerWidth
+          - module: umf
+            element: facets.collectionSize
+          - module: umf
+            element: facets.range
+      - id: keyFieldReference.module
+        name: module
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: keyFieldReference.element
+        name: element
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: keyFieldReference
+        name: keyFieldReference
+        kind: record
+        description: UMF language keyFieldReference
+        extensions:
+          umf.metamodel:
+            definition: keyFieldReference
+            shape:
+              tag: object
+              open: true
+        members:
+          - module: umf
+            element: keyFieldReference.module
+          - module: umf
+            element: keyFieldReference.element
+      - id: key.id
+        name: id
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: key.name
+        name: name
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: key.fields
+        name: fields
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: keyFieldReference
+              min: 1
+              unique: true
+      - id: key.primary
+        name: primary
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+        scalarType: boolean
+      - id: key
+        name: key
+        kind: record
+        description: UMF language key
+        extensions:
+          umf.metamodel:
+            definition: key
+            shape:
+              tag: object
+              open: true
+        members:
+          - module: umf
+            element: key.id
+          - module: umf
+            element: key.name
+          - module: umf
+            element: key.fields
+          - module: umf
+            element: key.primary
+      - id: relationshipEndpoint.module
+        name: module
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: relationshipEndpoint.element
+        name: element
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: relationshipEndpoint
+        name: relationshipEndpoint
+        kind: record
+        description: UMF language relationshipEndpoint
+        extensions:
+          umf.metamodel:
+            definition: relationshipEndpoint
+            shape:
+              tag: object
+              open: true
+        members:
+          - module: umf
+            element: relationshipEndpoint.module
+          - module: umf
+            element: relationshipEndpoint.element
+      - id: relationshipTarget.module
+        name: module
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: relationshipTarget.element
+        name: element
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: relationshipTarget.key
+        name: key
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: relationshipTarget
+        name: relationshipTarget
+        kind: record
+        description: UMF language relationshipTarget
+        extensions:
+          umf.metamodel:
+            definition: relationshipTarget
+            shape:
+              tag: object
+              open: true
+        members:
+          - module: umf
+            element: relationshipTarget.module
+          - module: umf
+            element: relationshipTarget.element
+          - module: umf
+            element: relationshipTarget.key
+      - id: relationshipMultiplicity.min
+        name: min
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: integer
+              min: 0
+              max: 9007199254740991
+      - id: relationshipMultiplicity.max
+        name: max
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: choice
+              options:
+                - tag: integer
+                  min: 1
+                  max: 9007199254740991
+                - tag: constant
+                  value: "*"
+      - id: relationshipMultiplicity
+        name: relationshipMultiplicity
+        kind: record
+        description: UMF language relationshipMultiplicity
+        extensions:
+          umf.metamodel:
+            definition: relationshipMultiplicity
+            shape:
+              tag: object
+              open: true
+        members:
+          - module: umf
+            element: relationshipMultiplicity.min
+          - module: umf
+            element: relationshipMultiplicity.max
+      - id: relationship.id
+        name: id
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: relationship.name
+        name: name
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: id
+      - id: relationship.source
+        name: source
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: relationshipEndpoint
+              min: 1
+      - id: relationship.target
+        name: target
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: sequence
+              item:
+                tag: link
+                target: relationshipTarget
+              min: 1
+      - id: relationship.sourceMultiplicity
+        name: sourceMultiplicity
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: relationshipMultiplicity
+      - id: relationship.targetMultiplicity
+        name: targetMultiplicity
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: link
+              target: relationshipMultiplicity
+      - id: relationship.targetLifecycle
+        name: targetLifecycle
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: text
+              min: 1
+      - id: relationship.directed
+        name: directed
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+        scalarType: boolean
+      - id: relationship.inverse
+        name: inverse
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: link
+              target: id
+      - id: relationship.associationRecord
+        name: associationRecord
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: optional
+            shape:
+              tag: link
+              target: relationshipEndpoint
+      - id: relationship
+        name: relationship
+        kind: record
+        description: UMF language relationship
+        extensions:
+          umf.metamodel:
+            definition: relationship
+            shape:
+              tag: object
+              open: true
+        members:
+          - module: umf
+            element: relationship.id
+          - module: umf
+            element: relationship.name
+          - module: umf
+            element: relationship.source
+          - module: umf
+            element: relationship.target
+          - module: umf
+            element: relationship.sourceMultiplicity
+          - module: umf
+            element: relationship.targetMultiplicity
+          - module: umf
+            element: relationship.targetLifecycle
+          - module: umf
+            element: relationship.directed
+          - module: umf
+            element: relationship.inverse
+          - module: umf
+            element: relationship.associationRecord
+      - id: literal
+        name: literal
+        kind: field
+        description: UMF language literal
+        extensions:
+          umf.metamodel:
+            definition: literal
+            shape:
+              tag: exclusive-choice
+              options:
+                - tag: "null"
+                - tag: object
+                  fields:
+                    boolean:
+                      tag: boolean
+                  mandatory:
+                    - boolean
+                  open: false
+                - tag: object
+                  fields:
+                    integerToken:
+                      tag: text
+                      pattern: ^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$(?![\s\S])
+                  mandatory:
+                    - integerToken
+                  open: false
+                - tag: object
+                  fields:
+                    decimalToken:
+                      tag: text
+                      pattern: ^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$(?![\s\S])
+                  mandatory:
+                    - decimalToken
+                  open: false
+                - tag: object
+                  fields:
+                    string:
+                      tag: text
+                  mandatory:
+                    - string
+                  open: false
+                - tag: object
+                  fields:
+                    binaryHex:
+                      tag: text
+                      pattern: ^([0-9a-fA-F]{2})*$(?![\s\S])
+                  mandatory:
+                    - binaryHex
+                  open: false
+                - tag: object
+                  fields:
+                    floatToken:
+                      tag: text
+                      pattern: ^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$(?![\s\S])
+                  mandatory:
+                    - floatToken
+                  open: false
+                - tag: object
+                  fields:
+                    date:
+                      tag: text
+                  mandatory:
+                    - date
+                  open: false
+                - tag: object
+                  fields:
+                    time:
+                      tag: text
+                  mandatory:
+                    - time
+                  open: false
+                - tag: object
+                  fields:
+                    timestamp:
+                      tag: text
+                  mandatory:
+                    - timestamp
+                  open: false
+                - tag: object
+                  fields:
+                    array:
+                      tag: sequence
+                      item:
+                        tag: link
+                        target: literal
+                  mandatory:
+                    - array
+                  open: false
+                - tag: object
+                  fields:
+                    map:
+                      tag: object
+                      open:
+                        tag: link
+                        target: literal
+                  mandatory:
+                    - map
+                  open: false
+                - tag: object
+                  fields:
+                    bits128Hex:
+                      tag: text
+                      min: 32
+                      max: 32
+                      pattern: ^[0-9a-fA-F]{32}$(?![\s\S])
+                  mandatory:
+                    - bits128Hex
+                  open: false
+                - tag: object
+                  fields:
+                    uuid:
+                      tag: text
+                      min: 36
+                      max: 36
+                      pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$(?![\s\S])
+                  mandatory:
+                    - uuid
+                  open: false
+      - id: semanticType.vocabulary
+        name: vocabulary
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: text
+              min: 1
+      - id: semanticType.version
+        name: version
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: text
+              min: 1
+      - id: semanticType.term
+        name: term
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: text
+              min: 1
+      - id: semanticType
+        name: Semantic type reference
+        kind: record
+        description: UMF language semanticType
+        extensions:
+          umf.metamodel:
+            definition: semanticType
+            shape:
+              tag: object
+        members:
+          - module: umf
+            element: semanticType.vocabulary
+          - module: umf
+            element: semanticType.version
+          - module: umf
+            element: semanticType.term
+      - id: extensionPackage.id
+        name: id
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: text
+              min: 1
+      - id: extensionPackage.version
+        name: version
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: text
+              pattern: ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$
+      - id: extensionPackage.coreVersion
+        name: coreVersion
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: constant
+              value: 0.10.0
+      - id: extensionPackage.description
+        name: description
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: text
+              min: 1
+      - id: extensionPackage.schema
+        name: schema
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: choice
+              options:
+                - tag: object
+                - tag: boolean
+      - id: extensionPackage.semantics
+        name: semantics
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: text
+              min: 1
+      - id: extensionPackage.scopes
+        name: scopes
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: sequence
+              item:
+                tag: choice
+                options:
+                  - tag: constant
+                    value: document
+                  - tag: constant
+                    value: module
+                  - tag: constant
+                    value: element
+              min: 1
+              unique: true
+      - id: extensionPackage.capabilities
+        name: capabilities
+        kind: field
+        cardinality: one
+        extensions:
+          umf.metamodel:
+            presence: required
+            shape:
+              tag: object
+              fields:
+                validation:
+                  tag: choice
+                  options:
+                    - tag: constant
+                      value: structural
+                    - tag: constant
+                      value: semantic
+                directions:
+                  tag: sequence
+                  item:
+                    tag: choice
+                    options:
+                      - tag: constant
+                        value: import
+                      - tag: constant
+                        value: export
+                  unique: true
+                evidence:
+                  tag: sequence
+                  item:
+                    tag: text
+                    min: 1
+                native:
+                  tag: object
+                  fields:
+                    system:
+                      tag: text
+                      min: 1
+                    version:
+                      tag: text
+                      min: 1
+                    subset:
+                      tag: text
+                      min: 1
+                  mandatory:
+                    - system
+                    - version
+                    - subset
+              mandatory:
+                - validation
+                - directions
+                - evidence
+              conditions:
+                - tag: conditional
+                  condition:
+                    tag: object
+                    fields:
+                      directions:
+                        tag: sequence
+                        min: 1
+                  yes:
+                    tag: object
+                    mandatory:
+                      - native
+                    fields:
+                      native: true
+      - id: extensionPackage
+        name: extensionPackage
+        kind: record
+        description: UMF language extensionPackage
+        extensions:
+          umf.metamodel:
+            definition: extensionPackage
+            shape:
+              tag: object
+        members:
+          - module: umf
+            element: extensionPackage.id
+          - module: umf
+            element: extensionPackage.version
+          - module: umf
+            element: extensionPackage.coreVersion
+          - module: umf
+            element: extensionPackage.description
+          - module: umf
+            element: extensionPackage.schema
+          - module: umf
+            element: extensionPackage.semantics
+          - module: umf
+            element: extensionPackage.scopes
+          - module: umf
+            element: extensionPackage.capabilities

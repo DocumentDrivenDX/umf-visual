@@ -2,7 +2,7 @@ import {describe,expect,it} from 'bun:test';
 
 describe('qualified annotation profile interface',()=>{
   it('separates opt-in profile selection, focused and complete views, and native baselines',async()=>{
-    const html=await Bun.file('microsite/index.html').text();
+    const html=await Bun.file('microsite/evidence.html').text();
     const app=await Bun.file('microsite/app.js').text();
     const css=await Bun.file('microsite/styles.css').text();
     for(const text of ['id="qualified-profile-controls"','id="profile-select"','id="view-diagram"','id="view-complete"','aria-label="Target format"','id="full-profile-coverage-grid"','id="release-coverage-stats"','aria-label="Preferred annotation-profile coverage by form"','FULL INTERCHANGE · STRICT READBACK · NATIVE RENDER','Approximate presentation geometry is listed separately','Released native subsets (compatibility)','narrower, frozen native profiles','Native diagrams and readable typed-property fallbacks preserve authored meaning','Whole-document readback, visual approximations, native render results'])expect(html).toContain(text);

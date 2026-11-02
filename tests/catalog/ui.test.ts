@@ -6,7 +6,7 @@ const digest=(bytes:Uint8Array)=>createHash('sha256').update(bytes).digest('hex'
 
 describe('microsite catalogue UI contract',()=>{
   it('uses a static browser entry point with accessible controls and safe source rendering',async()=>{
-    const html=await Bun.file('microsite/index.html').text();
+    const html=await Bun.file('microsite/evidence.html').text();
     const app=await Bun.file('microsite/app.js').text();
     expect(html).toContain('id="language"');
     expect(html).toContain('id="examples"');
@@ -69,6 +69,33 @@ describe('microsite catalogue UI contract',()=>{
     expect(app).toContain("/^renders\\/[A-Za-z0-9._/-]+\\.svg$/");
   });
 
+  it('keeps the homepage presentation-led and preserves the evidence library as a separate route',async()=>{
+    const home=await Bun.file('microsite/index.html').text();
+    const viewer=await Bun.file('microsite/showcase.js').text();
+    const build=await Bun.file('microsite/build.ts').text();
+    expect(home).toContain('id="diagram-image"');
+    expect(home).toContain('id="scenario-list"');
+    expect(home).toContain('data-backend="graphviz"');
+    expect(home).toContain('data-backend="mermaid"');
+    expect(home).toContain('id="download-svg"');
+    expect(home).toContain('id="download-png"');
+    expect(home).toContain('id="native-source"');
+    expect(home).toContain('id="definition-source"');
+    expect(home).toContain('./evidence.html');
+    const showcaseBrowser=await Bun.file('scripts/showcase-ui-browser.ts').text();
+    expect(showcaseBrowser).toContain('all qualified SVG, PNG, and native-source downloads match their content hashes');
+    expect(showcaseBrowser).toContain('legacy catalogue query/hash URLs redirect to the preserved evidence page');
+    expect(viewer).toContain("fetch('./showcase.json', {cache: 'no-store'})");
+    expect(viewer).toContain("location.replace(`./evidence.html${url.search}${url.hash}`)");
+    expect(viewer).toContain("status === 'qualified'");
+    expect(viewer).toContain('No qualified ${state.backend');
+    expect(viewer).toContain('crypto.subtle.digest');
+    expect(viewer).toContain('textContent');
+    expect(viewer).not.toContain('innerHTML');
+    expect(build).toContain("writeHtml('evidence.html',versionedEvidenceHtml)");
+    expect(build).toContain("writeHtml('index.html',versionedShowcaseHtml)");
+  });
+
   it('versions static browser assets from their content and verifies all native renders in-browser',async()=>{
     const build=await Bun.file('microsite/build.ts').text();
     const browser=await Bun.file('scripts/catalog-ui-browser.ts').text();
@@ -83,15 +110,19 @@ describe('microsite catalogue UI contract',()=>{
     expect(browser).toContain('const ordinaryProfile=`umf.visual.${target}/1`');
     expect(browser).toContain('summaryText.includes(`v${capability.version}`)');
 
-    if(!existsSync('dist-site/index.html'))return;
-    const [html,servedApp,servedStyles,servedIntegrationCss,servedIntegrationJs]=await Promise.all([
-      Bun.file('dist-site/index.html').text(),Bun.file('dist-site/app.js').bytes(),Bun.file('dist-site/styles.css').bytes(),
+    if(!existsSync('dist-site/index.html')||!existsSync('dist-site/evidence.html')||!existsSync('dist-site/showcase.js'))return;
+    const [home,evidence,servedApp,servedStyles,servedIntegrationCss,servedIntegrationJs,showcaseCss,showcaseApp]=await Promise.all([
+      Bun.file('dist-site/index.html').text(),Bun.file('dist-site/evidence.html').text(),Bun.file('dist-site/app.js').bytes(),Bun.file('dist-site/styles.css').bytes(),
       Bun.file('dist-site/integrations.css').bytes(),Bun.file('dist-site/integrations.js').bytes(),
+      Bun.file('dist-site/showcase.css').bytes(),Bun.file('dist-site/showcase.js').bytes(),
     ]);
     const integrationHash=digest(servedIntegrationJs),appHash=digest(servedApp);
-    expect(html).toContain(`href="./styles.css?v=${digest(servedStyles)}"`);
-    expect(html).toContain(`href="./integrations.css?v=${digest(servedIntegrationCss)}"`);
-    expect(html).toContain(`src="./app.js?v=${appHash}"`);
+    expect(evidence).toContain(`href="./styles.css?v=${digest(servedStyles)}"`);
+    expect(evidence).toContain(`href="./integrations.css?v=${digest(servedIntegrationCss)}"`);
+    expect(evidence).toContain(`src="./app.js?v=${appHash}"`);
+    expect(home).toContain(`href="./showcase.css?v=${digest(showcaseCss)}"`);
+    expect(home).toContain(`src="./showcase.js?v=${digest(showcaseApp)}"`);
+    expect(home).toContain('id="diagram-image"');
     expect(Buffer.from(servedApp).toString()).toContain(`'./integrations.js?v=${integrationHash}'`);
   });
 

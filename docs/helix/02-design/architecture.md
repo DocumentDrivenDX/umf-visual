@@ -50,6 +50,7 @@ There is no hosted service or database. The library runs inside its consumer.
 | src/extensions/visual | Visual types, validation and edits | CONTRACT-083 API | Released @umf/core and local manifest | UMF internals, sibling checkout, renderer/Node APIs |
 | src/adapters/miro | Network projection, native preservation, atomic reconciliation and injected Web SDK I/O | CONTRACT-084; ./miro | Public core/visual APIs and local helpers | Host APIs, global SDK, vocabulary dependencies on adapters |
 | src/interchange | Portable native parsing, mapping, source companions and export | CONTRACT-086 | Local visual API, public @umf/core, local shared helpers | Native engines, renderer APIs, host APIs, sibling source |
+| src/presentation | Native drawing-source compilation and visible-view mapping | CONTRACT-089; ./presentation | Public visual/core types, portable local helpers | Native engines, filesystem, Node/Bun APIs, interchange behavior changes |
 | src/index.ts | Package export boundary | Visual and interchange APIs | Local visual and interchange modules | Broad core re-exports |
 | scripts | Build, catalog generation and verification | Package scripts; CONTRACT-085 data | Bun, Node tooling, TypeScript API, Playwright, native engines | Import into portable source |
 | microsite/ | Static catalog discovery and comparison | CONTRACT-085 consumer | Generated JSON and relative native SVG assets | Native runtimes, server secrets, portable core internals |
@@ -87,6 +88,14 @@ prove all semantic encapsulation or dynamic-import safety.
 | Package | Consumer's browser/Bun/Node runtime | Consumer-owned | No service scaling | Git source and pinned release dependencies |
 
 ## Data Flow
+
+Presentation rendering is independent of interchange. A pure compiler projects
+the existing visual definition to themed Graphviz or Mermaid drawing source.
+Host-side tooling executes the named renderer, records exact source/image hashes
+and checks visible geometry. Styling and direction are renderer options. The
+source definition, omitted-from-view paths and approximations remain inspectable.
+This projection makes no native-source readback claim. The homepage showcases
+these drawings; `evidence.html` retains the complete reference and conformance UI.
 
 A semantic producer selects schema or other metadata, constructs a typed visual
 definition and records its reader question, identity and provenance. The visual
