@@ -95,6 +95,12 @@ describe('pinned Lini presentation quality',()=>{
   const good=await render({id:'ordered-stack',kind:'structure',form:'stack',question:'Which layer comes first?',nodes:[{id:'client',label:'Client',layer:'interface'},{id:'engine',label:'Engine',layer:'runtime'},{id:'records',label:'Records',layer:'storage'}],structure:{layers:[{id:'interface',label:'Interface'},{id:'runtime',label:'Runtime'},{id:'storage',label:'Storage'}]}});
   try{
    expectAll(good.checks);
+   const runtimeCaption=good.page.locator('g.lini-caption').filter({hasText:'Runtime'}).first();
+   expect(await runtimeCaption.count()).toBe(1);
+   await runtimeCaption.evaluate(element=>{(element as SVGGElement).style.translate='0px -100px';});
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-containment-and-order')).toBe('fail');
+   await runtimeCaption.evaluate(element=>{(element as SVGGElement).style.removeProperty('translate');});
+   expectAll(await recheck(good.page,good.document,good.plan,good.nativeAst));
    const before=await good.page.locator('g.lini-node[data-id="l1"]').getAttribute('transform'),after=await good.page.locator('g.lini-node[data-id="l3"]').getAttribute('transform');
    expect(before).toBeDefined();expect(after).toBeDefined();expect(before).not.toBe(after);
    await good.page.locator('g.lini-node[data-id="l1"]').evaluate((element,transform)=>element.setAttribute('transform',transform??''),after);
@@ -125,6 +131,16 @@ describe('pinned Lini presentation quality',()=>{
    await stack.page.locator('g.lini-node[data-id="l2"]').evaluate((element,transform)=>element.setAttribute('transform',transform??''),first);
    expect(result(await recheck(stack.page,stack.document,stack.plan,stack.nativeAst),'lini-containment-and-order')).toBe('fail');
   }finally{await stack.page.close();}
+ });
+
+ it('binds stack caption clearance to its own layer when labels repeat elsewhere',async()=>{
+  const document=createVisualDocument({id:'repeated-layer-labels',kind:'structure',form:'stack',question:'Shared',nodes:[{id:'component-one',label:'First component',layer:'layer-one'},{id:'component-two',label:'Second component',layer:'layer-two'}],structure:{layers:[{id:'layer-one',label:'Shared'},{id:'layer-two',label:'Shared'}]}},'test:repeated-layer-labels','1.2.0');
+  const repeated=await renderDocument(document);
+  try{
+   expectAll(repeated.checks);
+   const orderCheck=repeated.checks.find(check=>check.check==='lini-containment-and-order');
+   expect(orderCheck?.details).toContain('layer-two ');
+  }finally{await repeated.page.close();}
  });
 
  it('checks one-column entity order from native positions and rejects swapped geometry',async()=>{

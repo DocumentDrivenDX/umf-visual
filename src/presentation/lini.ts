@@ -144,7 +144,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
   const fallbackLayout=visual.form==='entities'||visual.form==='stack'||visual.form==='network'?'grid':'flow';
   const rootComponents=groups.filter(group=>!group.parent).length+nodes.filter(node=>!node.group&&!node.parent).length;
   const rootColumns=visual.form==='entities'?(direction==='TB'?1:2):visual.form==='stack'?(rootLayout?.kind==='stack'&&(rootLayout.direction??direction)==='LR'?Math.max(1,visual.structure?.layers?.length??nodes.length):1):visual.form==='network'?Math.max(1,Math.min(3,rootComponents)):undefined;
-  const rootProperties=[...layoutProperties(rootLayout,fallbackLayout,rootColumns??1,direction),`gap: ${visual.form==='entities'?88:visual.form==='stack'?20:72};`,`padding: 36;`,`fill: none;`,`stroke: none;`,`stroke-width: 0;`].filter((item):item is string=>!!item);
+  const rootProperties=[...layoutProperties(rootLayout,fallbackLayout,rootColumns??1,direction),`gap: ${visual.form==='entities'?88:visual.form==='stack'?44:72};`,`padding: 36;`,`fill: none;`,`stroke: none;`,`stroke-width: 0;`].filter((item):item is string=>!!item);
   if(rootLayout?.kind==='grid'&&rootLayout.columns===1)approx(path('/layout'),'Grid layout with one column','Lini 1.1 represents a one-column grid with native column flow; requested component order and single-column containment are preserved.');
   let children:string[]=[];
 

@@ -241,7 +241,7 @@ export async function verifyLiniPresentationQuality(
  }
  checks.push(pass('lini-connection-endpoints',sourceSha256,endpointOk,endpointOk?'Every link retains its mapped identity, full source/target path, owned label, native endpoint geometry, and authored direction/cardinality marks.':endpointProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
 
- let containmentOk=!!dom?.svg;const containmentProblems:string[]=[];
+ let containmentOk=!!dom?.svg;const containmentProblems:string[]=[],stackCaptionClearances:string[]=[];
  const visualGroups=visual.groups??[];
  const expectedGroups=(nodeId:string)=>groupChain(visual,plan,nodeId);
  const contains=containsBox;
@@ -290,17 +290,24 @@ export async function verifyLiniPresentationQuality(
   layoutSequence(`group ${group.id}`,group.layout,children,'TB');
  }
  if(visual.form==='stack'){
-  const layers=visual.structure?.layers??[],direction=visual.layout?.kind==='stack'?(visual.layout.direction??'LR'):'TB',axis=direction==='LR'?'x':'y';let previous=-Infinity;
+  const layers=visual.structure?.layers??[],direction=visual.layout?.kind==='stack'?(visual.layout.direction??'LR'):'TB',axis=direction==='LR'?'x':'y';let previous=-Infinity,previousGroup:Carrier|undefined;
   for(const layer of layers){
    const id=nativeFor(plan,'layer',layer.id),group=carrier(id??'','lini-group');if(!group){containmentOk=false;containmentProblems.push(`layer ${layer.id} carrier missing`);continue;}
    const position=axis==='x'?group.containerBounds.x+group.containerBounds.width/2:group.containerBounds.y+group.containerBounds.height/2;
    if(position<=previous){containmentOk=false;containmentProblems.push(`native layer bands do not follow authored ${direction==='LR'?'left-to-right':'top-to-bottom'} order`);}previous=position;
+   if(direction==='TB'&&previousGroup){
+    const layerNative=nativeFor(plan,'layer',layer.id),caption=dom?.carriers.find(candidate=>candidate.classes.includes('lini-caption')&&candidate.parentId===layerNative&&candidate.texts.includes(norm(layer.label)));
+    const clearance=caption?caption.bounds.y-(previousGroup.containerBounds.y+previousGroup.containerBounds.height):-Infinity;
+    if(Number.isFinite(clearance))stackCaptionClearances.push(`${layer.id} ${clearance.toFixed(2)}px`);
+    if(!caption||clearance<4){containmentOk=false;containmentProblems.push(`layer ${layer.id} caption does not clear the preceding native layer boundary by 4 CSS px (measured ${Number.isFinite(clearance)?clearance.toFixed(2):'missing'}px)`);}
+   }
    for(const node of (visual.nodes??[]).filter(item=>item.layer===layer.id)){const nodeId=nativeFor(plan,'node',node.id),nodeBox=nodeId?carrier(nodeId)?.bounds:undefined;if(!nodeBox||!contains(group.bounds,nodeBox)){containmentOk=false;containmentProblems.push(`layer ${layer.id} does not contain node ${node.id}`);}}
    const nodeMembers=(visual.nodes??[]).filter(node=>node.layer===layer.id).map(node=>layoutMember('node',node.id)).filter((item):item is LayoutMember=>!!item);
    if(nodeMembers.length>1)layoutSequence(`layer ${layer.id} nodes`,{kind:'grid',columns:1,order:visual.layout?.order?.filter(id=>nodeMembers.some(item=>item.id===id))},nodeMembers,'TB');
+   previousGroup=group;
   }
  }
- checks.push(pass('lini-containment-and-order',sourceSha256,containmentOk,containmentOk?'Native group/layer bounds contain their authored members and stack layers retain top-to-bottom order.':containmentProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
+ checks.push(pass('lini-containment-and-order',sourceSha256,containmentOk,containmentOk?`Native group/layer bounds contain their authored members and stack layers retain authored order${stackCaptionClearances.length?`; native stack caption clearance from preceding layer boundary: ${stackCaptionClearances.join(', ')}.`:'.'}`:containmentProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
 
  let fieldsOk=!!dom?.svg;const fieldProblems:string[]=[];
  for(let entityIndex=0;entityIndex<(visual.structure?.entities??[]).length;entityIndex++){

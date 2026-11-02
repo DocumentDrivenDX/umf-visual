@@ -41,7 +41,7 @@ describe('Lini presentation compiler',()=>{
  it('renders authored stack layers as ordered one-column groups without connections',()=>{
   const source=document({id:'layers',kind:'structure',form:'stack',question:'Which layers appear?',nodes:[{id:'api',label:'API',layer:'interface'},{id:'compiler',label:'Compiler',layer:'engine'},{id:'package',label:'Package',layer:'engine'}],structure:{layers:[{id:'interface',label:'Public interface'},{id:'engine',label:'Compiler engine'}]}});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
-  expect(result.source).toContain('|group#visual| "Which layers appear?" { layout: grid; columns: repeat(1);');expect(result.source).toContain('|group#l1| "Public interface"');expect(result.source).toContain('|group#l2| "Compiler engine"');expect(result.source.indexOf('|group#l1|')).toBeLessThan(result.source.indexOf('|group#l2|'));expect(result.source).not.toContain(' -> ');
+  expect(result.source).toContain('|group#visual| "Which layers appear?" { layout: grid; columns: repeat(1); gap: 44;');expect(result.source).toContain('|group#l1| "Public interface"');expect(result.source).toContain('|group#l2| "Compiler engine"');expect(result.source.indexOf('|group#l1|')).toBeLessThan(result.source.indexOf('|group#l2|'));expect(result.source).not.toContain(' -> ');
   expect(result.elementMap).toContainEqual({logicalId:'engine',sourcePath:'/extensions/umf.visual/structure/layers/1',nativeId:'l2',kind:'layer'});expect(result.omissions.some(item=>item.sourcePath==='/extensions/umf.visual/edges')).toBe(false);
  });
 

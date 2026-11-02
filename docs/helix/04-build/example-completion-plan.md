@@ -149,6 +149,13 @@ corrected contradictory style receipts; its final independent Lini check passed
 validator findings. Exact-head CI and deployed-file verification remain the
 publication gates; no new package release is claimed.
 
+Final native image inspection found touching captions between stack layers.
+The Lini interpreter increases native root spacing, and the qualification gate
+now measures each caption against the preceding layer boundary using its own
+mapped layer identity. Negative caption movement and repeated root/layer labels
+are covered. The revised native quality suite passes eight tests (72 assertions)
+and Sol's independent spacing review has no remaining findings.
+
 ## Shared Constraints
 
 - Preserve the released visual 1.0.0 schema, manifest and interpretation.
