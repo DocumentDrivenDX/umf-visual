@@ -11,7 +11,7 @@ import {verifyLiniRichPresentationQuality} from './lini-rich-quality';
 type Box={x:number;y:number;width:number;height:number};
 type Carrier={id:string;classes:string[];texts:string[];title:string;bounds:Box;containerBounds:Box;rectRadii:number[];groups:string[];parentId:string|null;cells:Array<{id:string|null;text:string;bounds:Box}>};
 type Vector={x:number;y:number};
-type Link={classes:string[];from:string|null;to:string|null;labels:string[];bounds:Box;line:{start:Vector;end:Vector;startTangent:Vector;endTangent:Vector}|null;markers:Array<{classes:string[];tag:string;d:string;length:number;center:Vector;orientation:Vector|null;points:Vector[];bounds:Box}>;arrows:number};
+type Link={classes:string[];from:string|null;to:string|null;labels:string[];bounds:Box;line:{start:Vector;end:Vector;startTangent:Vector;endTangent:Vector;d:string;curveDeviation:number}|null;markers:Array<{classes:string[];tag:string;d:string;length:number;center:Vector;orientation:Vector|null;points:Vector[];bounds:Box}>;arrows:number};
 type EndpointProof={path:string;carrier:Carrier;host:Carrier;side?:string};
 type NativeDom={svg:boolean;carriers:Carrier[];links:Link[];fontFamilies:Array<{text:string;inline:string;computed:string}>};
 const sha=(value:string)=>createHash('sha256').update(Buffer.from(value,'utf8')).digest('hex');
@@ -109,12 +109,13 @@ export async function verifyLiniPresentationQuality(
     return{id,classes:[...group.classList],texts:ownTexts(group),title:group.querySelector(':scope > title')?.textContent?.trim()??'',bounds:box(group),containerBounds,rectRadii,groups:ancestorGroups,parentId:group.parentElement?.closest('g.lini-node[data-id]')?.getAttribute('data-id')??null,cells:directCells};
    });
    const point=(path:SVGPathElement,at:number)=>{try{const local=path.getPointAtLength(at),screen=new DOMPoint(local.x,local.y).matrixTransform(path.getScreenCTM()!);return{x:screen.x-origin.x,y:screen.y-origin.y};}catch{return null;}};
+   const curveDeviation=(path:SVGPathElement)=>{const length=path.getTotalLength();if(length<=0)return 0;const point=(at:number)=>{const p=path.getPointAtLength(at),matrix=path.getScreenCTM();return matrix?new DOMPoint(p.x,p.y).matrixTransform(matrix):p;},a=point(0),b=point(length),dx=b.x-a.x,dy=b.y-a.y,span=Math.hypot(dx,dy)||1;let deviation=0;for(let index=1;index<12;index++){const p=point(length*index/12);deviation=Math.max(deviation,Math.abs(dy*p.x-dx*p.y+b.x*a.y-b.y*a.x)/span);}return deviation;};
    const tangent=(path:SVGPathElement,at:number,length:number):Vector|null=>{const delta=Math.min(1,length/4),a=point(path,Math.max(0,Math.min(length,at))),b=point(path,Math.max(0,Math.min(length,at+(at===0?delta:-delta))));if(!a||!b)return null;const sign=at===0?1:-1,dx=(b.x-a.x)*sign,dy=(b.y-a.y)*sign,magnitude=Math.hypot(dx,dy);return magnitude?{x:dx/magnitude,y:dy/magnitude}:null;};
    const links=[...svg.querySelectorAll('g.lini-link')].map(element=>{
     const group=element as SVGGElement,line=[...group.querySelectorAll(':scope > path')].find(path=>!path.classList.contains('lini-marker')) as SVGPathElement|undefined,length=line?.getTotalLength()??0;
     const start=line&&length>0?point(line,0):null,end=line&&length>0?point(line,length):null;
     const markerElements=[...group.querySelectorAll('.lini-marker')];
-    return{classes:[...group.classList],from:group.getAttribute('data-from'),to:group.getAttribute('data-to'),labels:[...group.querySelectorAll(':scope > text.lini-link-label')].map(text=>normalize(text.textContent??'')).filter(Boolean),bounds:box(group),line:start&&end&&line?{start,end,startTangent:tangent(line,0,length)??{x:0,y:0},endTangent:tangent(line,length,length)??{x:0,y:0}}:null,markers:markerElements.map(marker=>{const graphics=marker as SVGGraphicsElement,b=box(marker),matrix=graphics.getScreenCTM(),vertices=marker instanceof SVGPolygonElement?[...marker.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(matrix!);return{x:screen.x-origin.x,y:screen.y-origin.y};}):[],markerPath=marker instanceof SVGPathElement?marker:undefined,markerLength=markerPath?.getTotalLength()??0,orientation=markerPath&&markerLength>0?tangent(markerPath,0,markerLength):null;return{classes:[...marker.classList],tag:marker.tagName.toLowerCase(),d:marker.getAttribute('d')??'',length:markerLength,center:{x:b.x+b.width/2,y:b.y+b.height/2},orientation,points:vertices,bounds:b};}),arrows:group.querySelectorAll('.lini-marker-arrow').length};
+    return{classes:[...group.classList],from:group.getAttribute('data-from'),to:group.getAttribute('data-to'),labels:[...group.querySelectorAll(':scope > text.lini-link-label')].map(text=>normalize(text.textContent??'')).filter(Boolean),bounds:box(group),line:start&&end&&line?{start,end,startTangent:tangent(line,0,length)??{x:0,y:0},endTangent:tangent(line,length,length)??{x:0,y:0},d:line.getAttribute('d')??'',curveDeviation:curveDeviation(line)}:null,markers:markerElements.map(marker=>{const graphics=marker as SVGGraphicsElement,b=box(marker),matrix=graphics.getScreenCTM(),vertices=marker instanceof SVGPolygonElement?[...marker.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(matrix!);return{x:screen.x-origin.x,y:screen.y-origin.y};}):[],markerPath=marker instanceof SVGPathElement?marker:undefined,markerLength=markerPath?.getTotalLength()??0,orientation=markerPath&&markerLength>0?tangent(markerPath,0,markerLength):null;return{classes:[...marker.classList],tag:marker.tagName.toLowerCase(),d:marker.getAttribute('d')??'',length:markerLength,center:{x:b.x+b.width/2,y:b.y+b.height/2},orientation,points:vertices,bounds:b};}),arrows:group.querySelectorAll('.lini-marker-arrow').length};
    });
    const fontFamilies=[...svg.querySelectorAll('text')].map(element=>({text:normalize(element.textContent??''),inline:(element as SVGTextElement).style.fontFamily,computed:getComputedStyle(element).fontFamily}));
    return{svg:svg.matches('svg.lini'),carriers,links,fontFamilies};
@@ -151,6 +152,11 @@ export async function verifyLiniPresentationQuality(
   const detail=item.kind==='group'?visual.groups?.find(group=>group.id===item.logicalId)?.detail:item.kind==='node'||item.kind==='entity'?visual.nodes?.find(node=>node.id===item.logicalId)?.detail:undefined;
   if(detail){const detailRow=found.cells.find(cell=>cell.id==='detail'),captionHasDetail=item.kind==='group'&&!!groupCaption&&groupCaption.texts.some(text=>text.includes(norm(detail)));if((!detailRow||norm(detailRow.text)!==norm(detail))&&!captionHasDetail){carriersOk=false;missing.push(`${item.kind} detail ${item.logicalId}`);}}
   const explicitNode=visual.nodes?.find(node=>node.id===item.logicalId);
+  if(item.kind==='node'&&explicitNode?.role==='process'){
+   const roleCell=found.cells.find(cell=>cell.id==='role'&&norm(cell.text)==='Process');
+   const authoredDetail=explicitNode.detail==='Process'&&found.cells.some(cell=>cell.id==='detail'&&norm(cell.text)==='Process');
+   if(!roleCell&&!authoredDetail){carriersOk=false;missing.push(`node ${item.logicalId} process role caption is not owned by its native carrier`);}
+  }
   if(explicitNode?.shape){
    const nodeIndex=visual.nodes!.indexOf(explicitNode),shapePath=sourcePointer('nodes',nodeIndex,'shape');
    if(item.kind==='entity'){
@@ -172,7 +178,7 @@ export async function verifyLiniPresentationQuality(
  for(const font of dom?.fontFamilies??[])if(!arialOnly(font.computed)||(font.inline&&!arialOnly(font.inline))){carriersOk=false;missing.push(`text ${JSON.stringify(font.text)} has inline/computed font-family ${font.inline||'(inherited)'} / ${font.computed}; expected single-family Arial`);}
  checks.push(pass('lini-native-carriers',sourceSha256,carriersOk,carriersOk?`All ${maps.length} mapped native identities own their visible Lini carriers; all ${dom?.fontFamilies.length??0} rendered text nodes use computed single-family Arial.`:`Missing or altered native-owned carriers: ${missing.join('; ')||'the inserted SVG is not a Lini SVG'}.`));
 
- let endpointOk=!!dom?.svg;const endpointProblems:string[]=[];
+ let endpointOk=!!dom?.svg;const endpointProblems:string[]=[],routingObservations:string[]=[];
  const endpoint=(nodeId:string,fieldName?:string,fieldId?:string,portId?:string):EndpointProof|undefined=>{
   const node=visual.nodes?.find(item=>item.id===nodeId);if(!node)return;
   const parentGroups=groupChain(visual,plan,nodeId),nodeNative=nativeFor(plan,'entity',nodeId)??nativeFor(plan,'node',nodeId);if(!nodeNative)return;
@@ -241,15 +247,26 @@ export async function verifyLiniPresentationQuality(
  };
  for(let index=0;index<(visual.edges??[]).length;index++){
   const edge=visual.edges![index]!,item=maps.find(candidate=>candidate.kind==='edge'&&candidate.logicalId===edge.id);
-  if(item)verifyLink(item,edge.from,undefined,undefined,edge.to,undefined,undefined,edge.directed!==false,undefined,undefined,undefined,undefined,edge.label??'',edge.fromPort,edge.toPort);
+  if(item){verifyLink(item,edge.from,undefined,undefined,edge.to,undefined,undefined,edge.directed!==false,undefined,undefined,undefined,undefined,edge.label??'',edge.fromPort,edge.toPort);if(edge.routing){const link=linkFor(item),line=link?.line,sourcePath=at(`/edges/${index}/routing`),policy=plan.approximations.filter(entry=>entry.sourcePath===sourcePath),groups=visual.groups??[],chain=(nodeId:string)=>{const node=visual.nodes?.find(candidate=>candidate.id===nodeId),result:string[]=[];let current=groups.find(group=>group.id===node?.group);while(current){result.unshift(current.id);current=current.parent?groups.find(group=>group.id===current!.parent):undefined;}return result;},fromChain=chain(edge.from),toChain=chain(edge.to);let common=0;while(common<fromChain.length&&common<toChain.length&&fromChain[common]===toChain[common])common++;const scope=common?fromChain[common-1]:undefined,scopeEdges=(visual.edges??[]).filter(candidate=>{const a=chain(candidate.from),b=chain(candidate.to);let shared=0;while(shared<a.length&&shared<b.length&&a[shared]===b[shared])shared++;return(shared?a[shared-1]:undefined)===scope&&candidate.routing;}),routeKinds=[...new Set(scopeEdges.flatMap(candidate=>candidate.routing?[candidate.routing.kind]:[]))],conflict=routeKinds.length>1,containerNative=scope?nativeFor(plan,'group',scope):'visual',lineSource=plan.source.split('\n').find(value=>value.trimStart().startsWith(`|group#${containerNative}|`))??'',declared=/(?:^|[;{ ])routing:\s*(natural|straight);/u.exec(lineSource)?.[1],expected=edge.routing.kind==='curved'?'natural':'straight',modeOk=conflict?declared===undefined:declared===expected,approximation=policy[0],hasCurve=!!line&&/[CcQqSsAa]/u.test(line.d),deviation=line?.curveDeviation??Infinity;
+    const scopeLayout=scope?groups.find(candidate=>candidate.id===scope)?.layout:visual.layout,hasExplicitGrid=scopeLayout?.kind==='grid'&&scopeLayout.columns>1,inferable=edge.routing.kind==='curved'&&!edge.fromPort&&!edge.toPort&&!hasExplicitGrid,expectedCode=conflict?'ROUTING_SCOPE_CONFLICT':edge.routing.kind==='curved'&&!inferable?'ROUTING_NATIVE_INTERPOLATION':undefined;
+    if(policy.length!==1){endpointOk=false;endpointProblems.push(`${edge.id}: route needs exactly one source-located realization record`);}
+    else if(approximation?.code!==expectedCode){endpointOk=false;endpointProblems.push(`${edge.id}: routing realization code does not match its actual Lini scope and anchor constraints`);}
+    if(conflict){if(!modeOk){endpointOk=false;endpointProblems.push(`${edge.id}: mixed intent in its connection scope is not honestly preserved as a route conflict`);}}
+    else{
+     if(!modeOk){endpointOk=false;endpointProblems.push(`${edge.id}: its exact native container does not declare routing: ${expected}`);}
+     if(edge.routing.kind==='curved'&&(!hasCurve||deviation<2)&&!(expectedCode==='ROUTING_NATIVE_INTERPOLATION'&&approximation?.code===expectedCode&&deviation<1.5)){endpointOk=false;endpointProblems.push(`${edge.id}: requested curved routing lacks a native curved segment with visible non-collinearity (${deviation.toFixed(1)}px deviation)`);}
+     if(edge.routing.kind==='straight'&&deviation>1.5){endpointOk=false;endpointProblems.push(`${edge.id}: requested straight routing deviates ${deviation.toFixed(1)}px from a straight chord`);}
+    }
+    if(policy.length===1&&approximation?.code&&line){const geometryKind=deviation<1.5?'collinear':hasCurve&&deviation>=2?'curved':'bent-polyline';routingObservations.push(`${edge.id} requested ${edge.routing.kind}; observed ${geometryKind} native path with ${deviation.toFixed(1)}px chord deviation; admitted ${approximation.code}.`);}
+   }}
  }
  for(let index=0;index<(visual.structure?.references??[]).length;index++){
   const reference=visual.structure!.references![index]!,item=maps.find(candidate=>candidate.kind==='reference'&&candidate.logicalId===reference.id);
   if(item)verifyLink(item,reference.from.node,reference.from.field,reference.from.fieldId,reference.to.node,reference.to.field,reference.to.fieldId,false,reference.fromCardinality,reference.fromMultiplicity,reference.toCardinality,reference.toMultiplicity,expectedReferenceLabel(reference),reference.from.portId,reference.to.portId);
  }
- checks.push(pass('lini-connection-endpoints',sourceSha256,endpointOk,endpointOk?'Every link retains its mapped identity, full source/target path, owned label, native endpoint geometry, and authored direction/cardinality marks.':endpointProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
+ checks.push(pass('lini-connection-endpoints',sourceSha256,endpointOk,endpointOk?'Every link retains its mapped identity, full source/target path, owned label, native endpoint geometry, and authored direction/cardinality marks.'+(routingObservations.length?' Routing observations: '+routingObservations.join(' '):''):endpointProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
 
- let containmentOk=!!dom?.svg;const containmentProblems:string[]=[],stackCaptionClearances:string[]=[];
+ let containmentOk=!!dom?.svg;const containmentProblems:string[]=[],stackCaptionClearances:string[]=[],nestedCaptionClearances:string[]=[];
  const visualGroups=visual.groups??[];
  const expectedGroups=(nodeId:string)=>groupChain(visual,plan,nodeId);
  const contains=containsBox;
@@ -258,11 +275,19 @@ export async function verifyLiniPresentationQuality(
   if(!found){containmentOk=false;containmentProblems.push(`node ${node.id} carrier missing`);continue;}
   const expected=expectedGroups(node.id),actual=found.groups.filter(id=>maps.some(item=>item.kind==='group'&&item.nativeId===id));
   if(JSON.stringify(actual)!==JSON.stringify(expected)){containmentOk=false;containmentProblems.push(`node ${node.id} is outside its authored group path`);}
-  for(const groupId of expected){const parent=carrier(groupId,'lini-group');if(!parent||!contains(parent.bounds,found.bounds)){containmentOk=false;containmentProblems.push(`group ${groupId} does not contain node ${node.id}`);}}
+  for(const groupId of expected){const parent=carrier(groupId,'lini-group');if(!parent||!contains(parent.containerBounds,found.containerBounds)){containmentOk=false;containmentProblems.push(`group ${groupId} does not contain node ${node.id}`);}}
  }
  for(const group of visualGroups){
   const id=nativeFor(plan,'group',group.id),child=carrier(id??'','lini-group');if(!child){containmentOk=false;containmentProblems.push(`group ${group.id} carrier missing`);continue;}
-  if(group.parent){const parentId=nativeFor(plan,'group',group.parent),parent=carrier(parentId??'','lini-group');if(!parent||!contains(parent.bounds,child.bounds)){containmentOk=false;containmentProblems.push(`nested group ${group.id} is outside its parent`);}}
+  if(group.parent){
+   const parentId=nativeFor(plan,'group',group.parent),parent=carrier(parentId??'','lini-group');
+   if(!parent||!contains(parent.containerBounds,child.containerBounds)){containmentOk=false;containmentProblems.push(`nested group ${group.id} is outside its parent`);}
+   const caption=dom?.carriers.find(candidate=>candidate.classes.includes('lini-caption')&&candidate.parentId===id&&candidate.texts.includes(norm(group.label)));
+   const topClearance=parent&&caption?caption.bounds.y-parent.containerBounds.y:-Infinity;
+   const childClearance=caption?child.containerBounds.y-(caption.bounds.y+caption.bounds.height):-Infinity;
+   if(Number.isFinite(topClearance)&&Number.isFinite(childClearance))nestedCaptionClearances.push(`${group.id} ${topClearance.toFixed(2)}px parent / ${childClearance.toFixed(2)}px child`);
+   if(!caption||topClearance<4||childClearance<4){containmentOk=false;containmentProblems.push(`nested group ${group.id} caption must clear its parent top boundary and child frame by 4 CSS px (measured ${Number.isFinite(topClearance)?topClearance.toFixed(2):'missing'}px / ${Number.isFinite(childClearance)?childClearance.toFixed(2):'missing'}px)`);}
+  }
  }
  type LayoutMember={id:string;carrier:Carrier};
  const layoutSequence=(scope:string,layout:NonNullable<Visual['layout']>,members:LayoutMember[],defaultDirection:'LR'|'TB')=>{
@@ -309,13 +334,13 @@ export async function verifyLiniPresentationQuality(
     if(Number.isFinite(clearance))stackCaptionClearances.push(`${layer.id} ${clearance.toFixed(2)}px`);
     if(!caption||clearance<4){containmentOk=false;containmentProblems.push(`layer ${layer.id} caption does not clear the preceding native layer boundary by 4 CSS px (measured ${Number.isFinite(clearance)?clearance.toFixed(2):'missing'}px)`);}
    }
-   for(const node of (visual.nodes??[]).filter(item=>item.layer===layer.id)){const nodeId=nativeFor(plan,'node',node.id),nodeBox=nodeId?carrier(nodeId)?.bounds:undefined;if(!nodeBox||!contains(group.bounds,nodeBox)){containmentOk=false;containmentProblems.push(`layer ${layer.id} does not contain node ${node.id}`);}}
+    for(const node of (visual.nodes??[]).filter(item=>item.layer===layer.id)){const nodeId=nativeFor(plan,'node',node.id),nodeBox=nodeId?carrier(nodeId)?.containerBounds:undefined;if(!nodeBox||!contains(group.containerBounds,nodeBox)){containmentOk=false;containmentProblems.push(`layer ${layer.id} does not contain node ${node.id}`);}}
    const nodeMembers=(visual.nodes??[]).filter(node=>node.layer===layer.id).map(node=>layoutMember('node',node.id)).filter((item):item is LayoutMember=>!!item);
    if(nodeMembers.length>1)layoutSequence(`layer ${layer.id} nodes`,{kind:'grid',columns:1,order:visual.layout?.order?.filter(id=>nodeMembers.some(item=>item.id===id))},nodeMembers,'TB');
    previousGroup=group;
   }
  }
- checks.push(pass('lini-containment-and-order',sourceSha256,containmentOk,containmentOk?`Native group/layer bounds contain their authored members and stack layers retain authored order${stackCaptionClearances.length?`; native stack caption clearance from preceding layer boundary: ${stackCaptionClearances.join(', ')}.`:'.'}`:containmentProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
+ checks.push(pass('lini-containment-and-order',sourceSha256,containmentOk,containmentOk?`Native group/layer bounds contain their authored members; nested group captions clear both parent and child boundaries${nestedCaptionClearances.length?` (${nestedCaptionClearances.join(', ')})`:''}; stack layers retain authored order${stackCaptionClearances.length?`; native stack caption clearance from preceding layer boundary: ${stackCaptionClearances.join(', ')}.`:'.'}`:containmentProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
 
  let fieldsOk=!!dom?.svg;const fieldProblems:string[]=[];
  for(let entityIndex=0;entityIndex<(visual.structure?.entities??[]).length;entityIndex++){

@@ -13,14 +13,15 @@ import {loadPresentationLini,renderPresentationLini} from './lini-runtime';
 import {visualPayloadYaml} from './payload-source';
 
 const root=resolve(import.meta.dir,'../..');
-const sourceManifestPath='fixtures/showcase/showcase-sources.json';
-const outputPath='dist-site/showcase.json';
+const defaultSourceManifestPath='fixtures/showcase/showcase-sources.json';
+const defaultOutputPath='dist-site/showcase.json';
 const sha=(data:string|Uint8Array)=>createHash('sha256').update(data).digest('hex');
 const posix=(s:string)=>s.split(sep).join('/');
 const safe=(s:string)=>s.replace(/[^a-zA-Z0-9_-]+/g,'-');
 const errorText=(e:unknown)=>e instanceof Error?e.message:String(e);
 
-interface SourceExample {id:string;title:string;description:string;kind:string;form:string;definitionPath:string;definitionSha256:string;sources:unknown[];}
+interface PublishedAsset {path:string;sha256:string;outputPath:string;mediaType?:string;description?:string;}
+interface SourceExample {id:string;title:string;description:string;kind:string;form:string;definitionPath:string;definitionSha256:string;sources:unknown[];publishedAssets?:PublishedAsset[];}
 interface SourceManifest {schemaVersion:1;examples:SourceExample[];}
 interface QualityCheck {check:string;sourceSha256:string;result:'pass'|'fail';details:string;}
 interface RenderRow {backend:PresentationBackend;engine:string;nativeVersion:string;nativeSourcePath:string;nativeSourceSha256:string;svgPath:string;svgSha256:string;pngPath:string;pngSha256:string;width:number;height:number;elementMap:unknown[];omissions:unknown[];approximations:unknown[];status:'qualified'|'unsupported'|'failed'|'unqualified';quality:{evidence:QualityCheck[]};diagnostics?:unknown[];error?:string;}
@@ -121,7 +122,7 @@ export async function screenshotSvg(browser:Browser,svg:string,dest:string):Prom
   await page.setContent('<!doctype html><meta charset="utf-8"><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#f7f9f9}#frame{width:1600px;height:900px;display:flex;align-items:center;justify-content:center}#frame svg{display:block;width:100%;height:100%;}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
   await page.locator('#frame').evaluate((frame,markup)=>{frame.innerHTML=markup;},svg);
   if(!(await page.locator('#frame svg').count()))throw Error('The standalone SVG could not be inserted for screenshot capture.');
-  await page.locator('#frame svg').evaluate(x=>{(x as SVGSVGElement).style.width='100%';(x as SVGSVGElement).style.height='100%';});
+  await page.locator('#frame svg').evaluate(x=>{const svg=x as SVGSVGElement;svg.style.maxWidth='none';svg.style.maxHeight='none';svg.style.width='100%';svg.style.height='100%';});
   const png=await page.screenshot({type:'png',fullPage:false});await mkdir(dirname(dest),{recursive:true});await writeFile(dest,png);
   return {width:1600,height:900};
  }finally{await page.close();}
@@ -132,6 +133,7 @@ async function verifyNativeSvg(browser:Browser,svg:string,tokens:string[]):Promi
  try{
   await page.setContent('<!doctype html><meta charset="utf-8"><style>#svg{width:1200px;height:800px}#svg svg{width:100%;height:100%}</style><body><div id="svg"></div></body>',{waitUntil:'domcontentloaded'});
   await page.locator('#svg').evaluate((container,markup)=>{container.innerHTML=markup;},svg);
+  await page.locator('#svg svg').evaluate(x=>{const element=x as SVGSVGElement;element.style.maxWidth='none';element.style.maxHeight='none';element.style.width='100%';element.style.height='100%';});
   const result=await page.locator('#svg svg').evaluate(svgElement=>{
    const svg=svgElement as SVGSVGElement,rect=svg.getBoundingClientRect();const text=[...svg.querySelectorAll('text,foreignObject *')].map(x=>({text:(x.textContent??'').replace(/\s+/g,' ').trim(),r:(()=>{const b=x.getBoundingClientRect();return{x:b.x-rect.x,y:b.y-rect.y,width:b.width,height:b.height};})()})).filter(x=>x.text);
    const overflow=text.filter(t=>t.r.x<0||t.r.y<0||t.r.x+t.r.width>rect.width||t.r.y+t.r.height>rect.height);
@@ -146,10 +148,10 @@ async function verifyNativeSvg(browser:Browser,svg:string,tokens:string[]):Promi
  }finally{await page.close();}
 }
 
-async function buildRender(example:SourceExample,doc:Document,backend:PresentationBackend,browser:Browser,versions:{graphviz:string;mermaid:string;lini:string;chromium:string}):Promise<RenderRow>{
+async function buildRender(example:SourceExample,doc:Document,backend:PresentationBackend,browser:Browser,versions:{graphviz:string;mermaid:string;lini:string;chromium:string},assetDirectory:string):Promise<RenderRow>{
  const plan=compilePresentation(doc,{backend,theme:'presentation/1'});
  if(!plan.ok){const refused=plan.diagnostics.every(d=>d.code==='PRESENTATION_FORM'||d.code==='PRESENTATION_BACKEND_SUBSET'||d.code==='PRESENTATION_MERMAID_FIELD'||d.code==='PRESENTATION_MERMAID_CARDINALITY'||d.code==='PRESENTATION_MERMAID_RELATIONSHIP');return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath:'',nativeSourceSha256:'',svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:[],omissions:[],approximations:[],status:refused?'unsupported':'failed',quality:{evidence:[]},diagnostics:plan.diagnostics};}
- const extension=backend==='graphviz'?'dot':backend==='lini'?'lini':'mmd',base=`showcase/${safe(example.id)}/${backend}`,diskBase=`dist-site/${base}`;
+ const extension=backend==='graphviz'?'dot':backend==='lini'?'lini':'mmd',base=`${assetDirectory}/${safe(example.id)}/${backend}`,diskBase=`dist-site/${base}`;
  const nativeSourcePath=`${base}/source.${extension}`,svgPath=`${base}/diagram.svg`,pngPath=`${base}/diagram.png`;
  assertRelative(nativeSourcePath,'Native source path');assertRelative(svgPath,'SVG path');assertRelative(pngPath,'PNG path');
  const nativeBytes=Buffer.from(plan.source,'utf8'),nativeSourceSha256=sha(nativeBytes);await mkdir(join(root,diskBase),{recursive:true});await writeFile(join(root,'dist-site',nativeSourcePath),nativeBytes);
@@ -181,9 +183,32 @@ async function buildRender(example:SourceExample,doc:Document,backend:Presentati
  }catch(error){return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath,nativeSourceSha256,svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:plan.elementMap,omissions:plan.omissions,approximations:plan.approximations,status:'failed',quality:{evidence:[]},error:errorText(error)};}
 }
 
-export async function buildShowcase():Promise<{outputPath:string;examples:number;qualified:number;failed:number}>{
+export interface BuildShowcaseOptions {manifestPath?:string;outputPath?:string;assetDirectory?:string;}
+export async function buildShowcase(options:BuildShowcaseOptions={}):Promise<{outputPath:string;examples:number;qualified:number;failed:number}>{
+ const sourceManifestPath=options.manifestPath??defaultSourceManifestPath,outputPath=options.outputPath??defaultOutputPath,assetDirectory=options.assetDirectory??'showcase';
+ assertRelative(sourceManifestPath,'Source manifest path');assertRelative(outputPath,'Output path');
+ if(!/^[a-z][a-z0-9-]*$/.test(assetDirectory)||assetDirectory==='dist-site')throw new Error('Asset directory must be a safe lowercase namespace such as showcase or reviews.');
  const manifestRaw=await readFile(join(root,sourceManifestPath),'utf8'),manifest=JSON.parse(manifestRaw) as SourceManifest;
- if(manifest.schemaVersion!==1||!Array.isArray(manifest.examples))throw Error('Unsupported or malformed presentation source manifest.');
+ if(manifest.schemaVersion!==1||!Array.isArray(manifest.examples)||!manifest.examples.length)throw Error('Unsupported or malformed presentation source manifest.');
+ const seenIds=new Set<string>();
+ for(const example of manifest.examples){
+  if(!example||typeof example.id!=='string'||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(example.id)||seenIds.has(example.id))throw Error('Source manifest contains a malformed or duplicate example id.');seenIds.add(example.id);
+ }
+ for(const example of manifest.examples){
+  if(!example.title||!example.description||!example.definitionPath||!Array.isArray(example.sources))throw Error('Source manifest contains an incomplete example.');
+  assertRelative(example.definitionPath,'Definition path');
+  const definitionBytes=await readFile(join(root,example.definitionPath));if(sha(definitionBytes)!==example.definitionSha256)throw Error(`Definition hash mismatch for ${example.id}.`);
+  for(const source of example.sources as any[]){
+   if(!source||typeof source.path!=='string'||typeof source.sha256!=='string'||typeof source.pointer!=='string'||typeof source.description!=='string')throw Error(`Source reference is malformed for ${example.id}.`);
+   assertRelative(source.path,'Source snapshot path');if(sha(await readFile(join(root,source.path)))!==source.sha256)throw Error(`Source snapshot hash mismatch for ${example.id} at ${source.path}.`);
+  }
+  for(const asset of example.publishedAssets??[]){
+   if(!asset||typeof asset.path!=='string'||typeof asset.sha256!=='string'||typeof asset.outputPath!=='string')throw Error(`Published asset reference is malformed for ${example.id}.`);
+   assertRelative(asset.path,'Published asset source path');assertRelative(asset.outputPath,'Published asset output path');
+   if(!asset.outputPath.startsWith(assetDirectory+'/'))throw Error(`Published asset output must be inside ${assetDirectory}/ for ${example.id}.`);
+   if(sha(await readFile(join(root,asset.path)))!==asset.sha256)throw Error(`Published asset hash mismatch for ${example.id} at ${asset.path}.`);
+  }
+ }
  const graphviz=await version(['dot','-V'],/graphviz version\s+([^\s(]+)/i,'Graphviz');
  const lini=(await loadPresentationLini()).version;
  if(typeof mermaidPackage.version!=='string')throw Error('Mermaid package version is unavailable.');
@@ -192,7 +217,7 @@ export async function buildShowcase():Promise<{outputPath:string;examples:number
   nativeProbes={mermaidEscapedLabel:await probeMermaidLabelEscapes(browser)};
   // This subtree belongs to this build. Refused or removed outputs must not
   // leave previously generated downloads in a subsequent site artifact.
-  await rm(join(root,'dist-site/showcase'),{recursive:true,force:true});
+  await rm(join(root,'dist-site',assetDirectory),{recursive:true,force:true});
   for(const example of manifest.examples){
    if(!example.id||!example.title||!example.description||!example.definitionPath||!Array.isArray(example.sources))throw Error('Showcase source example is malformed.');
    assertRelative(example.definitionPath,'Definition path');
@@ -205,11 +230,18 @@ export async function buildShowcase():Promise<{outputPath:string;examples:number
     if(sourceHash!==source.sha256)throw Error(`Source snapshot hash mismatch for ${example.id} at ${source.path}.`);
     if(source.originPath){assertRelative(source.originPath,'Source origin path');if(source.originSha256!==sourceHash)throw Error(`Source origin hash does not identify the preserved snapshot for ${example.id} at ${source.originPath}.`);}
    }
+   for(const asset of example.publishedAssets??[]){
+    if(!asset||typeof asset.path!=='string'||typeof asset.sha256!=='string'||typeof asset.outputPath!=='string')throw Error(`Published asset reference is malformed for ${example.id}.`);
+    assertRelative(asset.path,'Published asset source path');assertRelative(asset.outputPath,'Published asset output path');
+    if(!asset.outputPath.startsWith(assetDirectory+'/'))throw Error(`Published asset output must be inside ${assetDirectory}/ for ${example.id}.`);
+    const bytes=await readFile(join(root,asset.path));if(sha(bytes)!==asset.sha256)throw Error(`Published asset hash mismatch for ${example.id} at ${asset.path}.`);
+    const target=join(root,'dist-site',asset.outputPath);await mkdir(dirname(target),{recursive:true});await writeFile(target,bytes);
+   }
    const raw=definitionBytes.toString('utf8'),doc=jsonDocument(raw),visual=visualOf(doc);
    if(visual.id!==example.id.replace(/^umf-/,'' )&&visual.id!==example.id)throw Error(`Definition id ${visual.id} does not match showcase id ${example.id}.`);
    if(visual.kind!==example.kind||visual.form!==example.form)throw Error(`Definition kind/form does not match manifest for ${example.id}.`);
    const renders:RenderRow[]=[];
-   for(const backend of ['graphviz','mermaid','lini'] as const)renders.push(await buildRender(example,doc,backend,browser,{graphviz,mermaid:mermaidPackage.version,lini,chromium:chromiumVersion}));
+   for(const backend of ['graphviz','mermaid','lini'] as const)renders.push(await buildRender(example,doc,backend,browser,{graphviz,mermaid:mermaidPackage.version,lini,chromium:chromiumVersion},assetDirectory));
    rows.push({...example,definition:JSON.parse(raw),visualPayloadYaml:visualPayloadYaml(doc),renders});
   }
  }finally{await browser.close();}

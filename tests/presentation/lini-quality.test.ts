@@ -29,6 +29,90 @@ async function recheck(page:Page,document:ReturnType<typeof doc>,plan:Presentati
 function expectAll(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>){expect(checks.map(check=>check.check)).toEqual(required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw new Error(JSON.stringify(failed));}
 
 describe('pinned Lini presentation quality',()=>{
+ it('renders curved edge intent with a native cubic path and rejects a straightened mutation',async()=>{
+  const document=createVisualDocument({id:'curved-edge-proof',kind:'flow',form:'network',question:'Which boundary does this path cross?',groups:[{id:'outer',label:'Outer environment',role:'boundary'},{id:'inner',label:'Inner environment',role:'boundary',parent:'outer'}],nodes:[{id:'store',label:'Data store',group:'inner',shape:'cylinder'},{id:'process',label:'Process outside',role:'process',detail:'Process'}],edges:[{id:'connects',from:'process',to:'store',label:'connects to',routing:{kind:'curved'}}]},'test:curved-edge-proof','1.4.0');
+  const good=await renderDocument(document);
+  try{
+   expect(good.plan.source).toContain('routing: natural;');
+   expect(good.plan.source).toContain('n2:right -> g1.g2.n1:bottom');
+   expect(good.plan.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/edges/0/routing')?.code).toBeUndefined();
+   expect(result(good.checks,'lini-connection-endpoints')).toBe('pass');
+   const visual=getVisual(document),groups=visual.groups??[],targetGroup=groups.find(group=>group.id===visual.nodes?.find(node=>node.id==='store')?.group),ancestorIds:string[]=[];let ancestor=targetGroup;while(ancestor){ancestorIds.unshift(ancestor.id);ancestor=ancestor.parent?groups.find(group=>group.id===ancestor!.parent):undefined;}
+   const ancestorNativeIds=ancestorIds.map(id=>good.plan.elementMap.find(item=>item.kind==='group'&&item.logicalId===id)?.nativeId).filter((id):id is string=>!!id);
+   const labelPlacement=await good.page.evaluate(nativeIds=>{
+    const rect=(selector:string)=>{const element=globalThis.document.querySelector(selector);if(!element)return null;const box=element.getBoundingClientRect();return{left:box.left,right:box.right,top:box.top,bottom:box.bottom};};
+    return{label:rect('g.lini-link.lini-style-e1 > text.lini-link-label'),frames:nativeIds.map(id=>rect(`g.lini-node[data-id="${id}"] > rect`))};
+   },ancestorNativeIds);
+   expect(labelPlacement.label).not.toBeNull();expect(labelPlacement.frames).toHaveLength(ancestorNativeIds.length);expect(ancestorNativeIds.length).toBeGreaterThan(0);
+   if(labelPlacement.label&&labelPlacement.frames.length){
+    const {label,frames}=labelPlacement,overlaps=(frame:NonNullable<typeof frames[number]>)=>{const vertical=(x:number)=>label.left<=x+1&&label.right>=x-1&&label.bottom>=frame.top&&label.top<=frame.bottom,horizontal=(y:number)=>label.top<=y+1&&label.bottom>=y-1&&label.right>=frame.left&&label.left<=frame.right;return vertical(frame.left)||vertical(frame.right)||horizontal(frame.top)||horizontal(frame.bottom);};
+    expect(label.right).toBeLessThan(frames[0]!.left);for(const frame of frames)if(frame)expect(overlaps(frame)).toBe(false);else expect(frame).not.toBeNull();
+   }
+   const legacyNative=await renderPresentationLini(good.plan.source.replace('along: 0.1;','along: 0.35;')),legacyPage=await browser.newPage({viewport:{width:1600,height:900}});
+   try{
+    await legacyPage.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>');
+    await legacyPage.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},legacyNative.svg);
+    const legacyPlacement=await legacyPage.evaluate(nativeIds=>{const label=globalThis.document.querySelector('g.lini-link.lini-style-e1 > text.lini-link-label')?.getBoundingClientRect(),frames=nativeIds.map(id=>globalThis.document.querySelector(`g.lini-node[data-id="${id}"] > rect`)?.getBoundingClientRect());return label&&frames.every(Boolean)?{label:{left:label.left,right:label.right,top:label.top,bottom:label.bottom},frames:frames.map(frame=>({left:frame!.left,right:frame!.right,top:frame!.top,bottom:frame!.bottom}))}:null;},ancestorNativeIds);
+    expect(legacyPlacement).not.toBeNull();
+    if(legacyPlacement){const deepest=legacyPlacement.frames.at(-1)!;expect(legacyPlacement.label.left<=deepest.left+1&&legacyPlacement.label.right>=deepest.left-1&&legacyPlacement.label.bottom>=deepest.top&&legacyPlacement.label.top<=deepest.bottom).toBe(true);}
+   }finally{await legacyPage.close();}
+   const link=good.page.locator('g.lini-link.lini-style-e1 > path:not(.lini-marker)');
+   const original=await link.getAttribute('d');expect(original).toMatch(/[CcQqSsAa]/);
+   await link.evaluate(path=>{const line=path as SVGPathElement,length=line.getTotalLength(),start=line.getPointAtLength(0),end=line.getPointAtLength(length);line.setAttribute('d',`M ${start.x} ${start.y} L ${end.x} ${end.y}`);});
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   const forged={...good.plan,approximations:good.plan.approximations.map(item=>item.sourcePath==='/extensions/umf.visual/edges/0/routing'?{...item,code:'ROUTING_NATIVE_INTERPOLATION' as const}:item)};
+   expect(result(await verifyLiniPresentationQuality(good.page,{document:good.document,plan:forged,nativeAst:good.nativeAst}),'lini-connection-endpoints')).toBe('fail');
+  }finally{await good.page.close();}
+ },{timeout:45_000});
+
+ it('records observed native geometry for a located Lini routing-scope fallback',async()=>{
+  const document=createVisualDocument({id:'routing-scope-observation',kind:'flow',form:'network',question:'Which paths are drawn?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'},{id:'c',label:'C'}],edges:[{id:'curve',from:'a',to:'b',routing:{kind:'curved'}},{id:'line',from:'b',to:'c',routing:{kind:'straight'}}]},'test:routing-scope-observation','1.4.0');
+  const native=await renderDocument(document);
+  try{const details=native.checks.find(check=>check.check==='lini-connection-endpoints')?.details??'';expect(result(native.checks,'lini-connection-endpoints')).toBe('pass');expect(details).toContain('observed');expect(details).toContain('px chord deviation');expect(details).toContain('admitted ROUTING_SCOPE_CONFLICT');}
+  finally{await native.page.close();}
+ },{timeout:45_000});
+
+ it('maps every node role, keeps shape independent, and labels process activity on all presentation backends',async()=>{
+  const roles=['actor','own','platform','external','store','document','process'] as const;
+  const source=createVisualDocument({id:'role-conventions',kind:'flow',form:'network',question:'Which roles are shown?',nodes:roles.map(role=>({id:role,label:role,role,...(role==='process'?{shape:'rectangle' as const}:{})}))},'test:role-conventions','1.4.0');
+  for(const backend of ['graphviz','mermaid','lini'] as const){
+   const plan=compilePresentation(source,{backend});expect(plan.ok).toBe(true);if(!plan.ok)continue;
+   for(const [index,role]of roles.entries())expect(plan.approximations.some(item=>item.sourcePath===`/extensions/umf.visual/nodes/${index}/role`&&item.requested===`Node role ${role}`)).toBe(true);
+   expect(plan.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/nodes/6/role')?.representation).toContain('depicted process/activity');
+   expect(plan.source).toContain('Process');
+   if(backend==='graphviz')expect(plan.source).toContain('shape=box');
+   if(backend==='mermaid'){expect(plan.source).toContain('role_process fill:#f4eef4');expect(plan.source).toContain('shape: rect');expect(plan.source).toContain('shape: cyl');expect(plan.source).toContain('shape: circle');}
+   if(backend==='lini'){expect(plan.source).toContain('|box#n7|');expect(plan.source).toContain('|cell#role| "Process"');expect(plan.source).toContain('--rose-deep');expect(plan.source).toContain('|cyl#n5|');}
+  }
+  const native=await renderDocument(source);
+  try{
+   expectAll(native.checks);
+   const processCaption=native.page.locator('g.lini-node[data-id="n7"] > g.lini-node.lini-cell[data-id="role"] text.lini-text');
+   expect(await processCaption.textContent()).toBe('Process');
+   await processCaption.evaluate(element=>{element.textContent='Activity';});
+   expect(result(await recheck(native.page,native.document,native.plan,native.nativeAst),'lini-native-carriers')).toBe('fail');
+  }finally{await native.page.close();}
+  const deduplicated=createVisualDocument({id:'process-caption-dedup',kind:'flow',form:'network',question:'Which activity?',nodes:[{id:'activity',label:'Activity',detail:'Process',role:'process'}]},'test:process-caption-dedup','1.4.0');
+  for(const backend of ['graphviz','mermaid','lini'] as const){const plan=compilePresentation(deduplicated,{backend});expect(plan.ok).toBe(true);if(plan.ok)expect(plan.source.match(/Process/g)).toHaveLength(1);}
+ });
+
+ it('keeps nested group captions inside the parent frame and clear of the child frame',async()=>{
+  const nested=await render({id:'nested-caption-clearance',kind:'flow',form:'network',question:'Which boundary contains the store?',groups:[{id:'outer',label:'Environment A',role:'boundary'},{id:'inner',label:'Environment B',parent:'outer',role:'boundary'}],nodes:[{id:'store',label:'Data store',role:'store',group:'inner'},{id:'outside',label:'Outside process'}],edges:[{id:'connects',from:'outside',to:'store',label:'connects to'}]});
+  try{
+   expectAll(nested.checks);
+   const geometry=async()=>nested.page.evaluate(()=>{
+    const rect=(selector:string)=>{const element=document.querySelector(selector);if(!element)return undefined;const b=element.getBoundingClientRect();return{top:b.top,bottom:b.bottom};};
+    return{parent:rect('g.lini-node[data-id="g1"] > rect'),child:rect('g.lini-node[data-id="g2"] > rect'),caption:rect('g.lini-node[data-id="g2"] > g.lini-node.lini-caption text.lini-text')};
+   });
+   const clear=(value:Awaited<ReturnType<typeof geometry>>)=>!!value.parent&&!!value.child&&!!value.caption&&value.caption.top>value.parent.top+2&&value.caption.bottom<value.child.top-2;
+   const measured=await geometry();expect(clear(measured)).toBe(true);
+   // Negative control: move the parent top border through the child title.
+   await nested.page.locator('g.lini-node[data-id="g1"] > rect').evaluate(element=>{const rect=element as SVGRectElement;rect.setAttribute('y',String(Number(rect.getAttribute('y'))+30));});
+   expect(clear(await geometry())).toBe(false);
+   expect(result(await recheck(nested.page,nested.document,nested.plan,nested.nativeAst),'lini-containment-and-order')).toBe('fail');
+  }finally{await nested.page.close();}
+ });
+
  it('binds native identities, visible labels, nested group membership and directed network links',async()=>{
   const good=await render({id:'nested-flow',kind:'flow',form:'network',question:'Where does a record travel?',title:'Record route',groups:[{id:'platform',label:'Platform',detail:'Owned API boundary',role:'boundary'},{id:'storage',label:'Storage',parent:'platform',role:'zone'}],nodes:[{id:'api',label:'Public API',detail:'Stable client surface',group:'platform'},{id:'store',label:'Record store',group:'storage'}],edges:[{id:'write',from:'api',to:'store',label:'Write record'}]});
   try{

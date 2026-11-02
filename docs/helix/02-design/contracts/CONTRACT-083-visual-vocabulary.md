@@ -17,7 +17,7 @@ ddx:
 
 # CONTRACT-083: Visual vocabulary
 
-**Profiles:** frozen `umf.visual` 1.0.0/1.1.0/1.2.0, plus additive 1.3.0 below. **Native representation:** UMF
+**Profiles:** frozen `umf.visual` 1.0.0/1.1.0/1.2.0/1.3.0, plus additive 1.4.0 below. **Native representation:** UMF
 JSON/YAML with the visual package registered. No renderer, layout or Mermaid output is claimed.
 
 ## Purpose
@@ -253,9 +253,9 @@ Native adapter subset limits and loss policies are independent of vocabulary siz
 |---|---|
 | `visualRegistry()` | Registry with structural and semantic validation |
 | `inspectVisual(document)` | `{valid, complete, diagnostics, advice}` |
-| `readVisualDocument(text, format)` | Requires declared vocabulary 1.0.0, 1.1.0, 1.2.0 or 1.3.0 and a payload (`VISUAL_PROFILE`); rejects invalid visuals (`VISUAL_DOCUMENT`) |
+| `readVisualDocument(text, format)` | Requires declared vocabulary 1.0.0, 1.1.0, 1.2.0, 1.3.0 or 1.4.0 and a payload (`VISUAL_PROFILE`); rejects invalid visuals (`VISUAL_DOCUMENT`) |
 | `writeVisualDocument(document, format)` | Same checks, then serializes |
-| `createVisualDocument(visual, id?, version?)` | Wraps a payload in a document (`id` defaults to `visual:<visual id>`); version defaults to frozen 1.0.0, with explicit 1.1.0/1.2.0/1.3.0 opt-in; rejects an invalid result |
+| `createVisualDocument(visual, id?, version?)` | Wraps a payload in a document (`id` defaults to `visual:<visual id>`); version defaults to frozen 1.0.0, with explicit 1.1.0/1.2.0/1.3.0/1.4.0 opt-in; rejects an invalid result |
 | `getVisual(document)` | A copy of the payload |
 | `editVisual(document, update)` | Requires complete interpretation before and after (`UNSAFE_EDIT`, `INVALID_EDIT`); input unchanged |
 | `visualForms` | The kind-to-forms table |
@@ -300,9 +300,9 @@ approximation, or refuse the affected mapping. A metadata appendix or retained
 source alone MUST NOT qualify it as interpreted. Released interchange profiles
 retain their declared model-version scope until their mappings are qualified.
 
-The authored latest schema and generated shapes describe 1.3.0. Explicit
-1.0.0, 1.1.0 and 1.2.0 schema/manifest exports point to frozen snapshots;
-1.3.0 has its own exports. Default authoring and unversioned schema/manifest
+The authored latest schema and generated shapes describe 1.4.0. Explicit
+1.0.0, 1.1.0, 1.2.0 and 1.3.0 schema/manifest exports point to frozen snapshots;
+1.4.0 has its own exports. Default authoring and unversioned schema/manifest
 exports remain 1.0.0. `upgradeVisualDocument(document)` still selects 1.1.0;
 `upgradeVisualDocument(document, '1.2.0')` explicitly selects the new model.
 Downgrading through that operation MUST refuse.
@@ -332,6 +332,37 @@ Version 1.2.0 keeps its exact unknown-content behavior for these new fields.
 An undirected edge retains its endpoint identifiers for stable authoring, but
 MUST NOT acquire a causal direction or native arrowhead from their `from`/`to`
 field names. Parallel edges and self-edges retain separate identities.
+
+### Additive visual 1.4.0 process role and routing intent
+
+Draft, unreleased explicit 1.4.0 adds `process` to the shared `node.role` and
+sequence `participant.role` enum: an authored diagram process or
+activity, independent of geometric shape. It MUST NOT imply an operating-system
+process, executable behavior, deployment placement or ownership. A rectangle or
+label alone MUST NOT cause inference of this role. Source adapters may map an
+explicit process stencil identity with a source-bound qualification.
+
+The inspected 1.3.0 node-role enum lacks process identity; reuse the existing
+role property with this bounded addition instead of encoding typed meaning only
+in `detail`. Earlier profiles retain their prior known/unknown-field behavior.
+Default authoring and no-argument upgrading remain unchanged; selecting 1.4.0 is
+explicit. Interpreters MUST render a declared process convention, report a located
+approximation, or refuse. Metadata retention alone is not interpretation.
+
+Optional `edge.routing` is `{kind: 'curved' | 'straight'}`. It expresses authored
+visual route intent for that edge, independently of relation kind, direction,
+endpoint identity and attachment. Absence leaves routing unspecified; it MUST NOT
+mean straight. Curved requests visibly curved, non-collinear geometry; straight requests
+a direct line between endpoint attachments. Neither requests exact native control
+points, source coordinates, bend count or original placement. This bounded enum
+is grounded in the synthetic curved cross-boundary and straight network witnesses;
+no orthogonal mode is asserted. Existing 1.3.0 handling remains frozen.
+
+An interpreter MUST realize each declared route, report a located approximation,
+or refuse. A backend-wide switch MUST NOT silently override another edge's
+contradictory intent. Native path evidence MUST distinguish an actual curve from
+a nominal curve command whose points are collinear. Exact native geometry remains
+preserved separately; shared intent does not qualify pixel-identical reproduction.
 
 ## Non-Normative Notes
 

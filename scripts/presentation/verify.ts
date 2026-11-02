@@ -20,7 +20,7 @@ export type ArtifactReader=(path:string)=>Promise<Uint8Array>;
 
 /** Explicit proof obligations; a renderer load or arbitrary passing check cannot replace them. */
 export function requiredPresentationChecks(backend:PresentationBackend,visual:Visual):string[]{
- const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
+ const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-svg-fit','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
  if(backend==='graphviz')checks.push('graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order');
  else if(backend==='lini')checks.push(...(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
   ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']
@@ -31,7 +31,9 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
 }
 
 /** Receipt/asset admission. The CLI additionally replays the actual native SVG checks. */
-export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:ArtifactReader):Promise<ShowcaseVerification>{
+export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:ArtifactReader,options:{assetDirectory?:string}={}):Promise<ShowcaseVerification>{
+ const assetDirectory=options.assetDirectory??'showcase';
+ if(!/^[a-z][a-z0-9-]*$/.test(assetDirectory)||assetDirectory==='dist-site')throw Error('Asset directory must be a safe lowercase namespace such as showcase or reviews.');
  if(manifest?.schemaVersion!==1||receipt?.schemaVersion!==1||!Array.isArray(manifest.examples)||!manifest.examples.length||!Array.isArray(receipt.examples))throw Error('Showcase manifests must use schemaVersion 1 and contain nonempty examples arrays.');
  const rendered=new Map<string,any>();for(const item of receipt.examples){if(!item||typeof item.id!=='string'||rendered.has(item.id))throw Error('Rendered showcase contains a malformed or duplicate example id.');rendered.set(item.id,item);}
  const expectedIds=new Set<string>();let qualified=0,unsupported=0,assets=0;
@@ -40,11 +42,17 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
   const output=rendered.get(example.id);if(!output)throw Error(`Rendered showcase is missing ${example.id}.`);
   for(const field of ['title','description','kind','form','definitionPath','definitionSha256'] as const)if(output[field]!==example[field])throw Error(`${example.id} rendered ${field} differs from its source manifest.`);
   if(!same(output.sources,example.sources)||!Array.isArray(example.sources)||!example.sources.length)throw Error(`${example.id} rendered source provenance differs from its source manifest.`);
+  if(!same(output.publishedAssets,example.publishedAssets))throw Error(`${example.id} rendered published assets differ from its source manifest.`);
   if(!relative(example.definitionPath))throw Error(`${example.id} definition path is unsafe.`);
   const definitionBytes=await readArtifact(example.definitionPath);if(sha(definitionBytes)!==example.definitionSha256)throw Error(`${example.id} definition hash is stale.`);
   for(const source of example.sources){
    if(!relative(source.path))throw Error(`${example.id} source snapshot path is unsafe.`);
    const sourceBytes=await readArtifact(source.path);if(sha(sourceBytes)!==source.sha256||source.originPath&&source.originSha256!==sha(sourceBytes))throw Error(`${example.id} source snapshot hash is stale at ${source.path}.`);
+  }
+  for(const asset of example.publishedAssets??[]){
+   if(!asset||!relative(asset.path)||!relative(asset.outputPath)||!asset.outputPath.startsWith(assetDirectory+'/')||typeof asset.sha256!=='string'||!/^[a-f0-9]{64}$/.test(asset.sha256))throw Error(`${example.id} published asset reference is malformed or unsafe.`);
+   const sourceBytes=await readArtifact(asset.path),publishedBytes=await readArtifact(asset.outputPath);
+   if(sha(sourceBytes)!==asset.sha256||sha(publishedBytes)!==asset.sha256)throw Error(`${example.id} published asset hash is stale at ${asset.path}.`);
   }
   const raw=new TextDecoder('utf-8',{fatal:true}).decode(definitionBytes),document=readVisualDocument(raw,'json');
   if(!same(output.definition,JSON.parse(raw)))throw Error(`${example.id} rendered definition differs from its hashed definition artifact.`);
@@ -69,7 +77,7 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
    if(!same(checks.map((check:any)=>check.check).sort(),requiredPresentationChecks(backend,visual)))throw Error(`${example.id}/${backend} is missing required native quality checks or includes duplicate/unknown checks.`);
    if(row.width!==1600||row.height!==900)throw Error(`${example.id}/${backend} is not a 1600×900 presentation asset.`);
    for(const [assetPath,expectedHash,label] of [[row.nativeSourcePath,row.nativeSourceSha256,'native source'],[row.svgPath,row.svgSha256,'SVG'],[row.pngPath,row.pngSha256,'PNG']] as const){
-    const prefix=`showcase/${example.id}/${backend}/`;
+    const prefix=`${assetDirectory}/${example.id}/${backend}/`;
     if(!relative(assetPath)||!assetPath.startsWith(prefix)||typeof expectedHash!=='string'||!/^[a-f0-9]{64}$/.test(expectedHash))throw Error(`${example.id}/${backend} has an unsafe or unhashed ${label} path.`);
     const bytes=Buffer.from(await readArtifact(assetPath));if(sha(bytes)!==expectedHash)throw Error(`${example.id}/${backend} ${label} hash mismatch.`);assets++;
     if(label==='native source'&&new TextDecoder('utf-8',{fatal:true}).decode(bytes)!==plan.source)throw Error(`${example.id}/${backend} native source bytes differ from the current compiler.`);
@@ -85,11 +93,14 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
  return {examples:expectedIds.size,qualified,unsupported,assets};
 }
 
-export async function verifyShowcase():Promise<ShowcaseVerification>{
- const manifest=JSON.parse(await readFile(join(root,'fixtures/showcase/showcase-sources.json'),'utf8'));
- const receipt=JSON.parse(await readFile(join(root,'dist-site/showcase.json'),'utf8'));
- const readArtifact:ArtifactReader=path=>readFile(join(root,path.startsWith('showcase/')?'dist-site':'',path));
- const summary=await verifyShowcaseData(manifest,receipt,readArtifact);
+export interface VerifyShowcaseOptions {manifestPath?:string;receiptPath?:string;assetDirectory?:string;}
+export async function verifyShowcase(options:VerifyShowcaseOptions={}):Promise<ShowcaseVerification>{
+ const manifestPath=options.manifestPath??'fixtures/showcase/showcase-sources.json',receiptPath=options.receiptPath??'dist-site/showcase.json',assetDirectory=options.assetDirectory??'showcase';
+ if(!/^[a-z][a-z0-9-]*$/.test(assetDirectory)||assetDirectory==='dist-site')throw Error('Asset directory must be a safe lowercase namespace such as showcase or reviews.');
+ const manifest=JSON.parse(await readFile(join(root,manifestPath),'utf8'));
+ const receipt=JSON.parse(await readFile(join(root,receiptPath),'utf8'));
+ const readArtifact:ArtifactReader=path=>readFile(join(root,path.startsWith(assetDirectory+'/')?'dist-site':'',path));
+ const summary=await verifyShowcaseData(manifest,receipt,readArtifact,{assetDirectory});
  const browser=await chromium.launch({headless:true});let replayed=0;
  try{
   for(const example of receipt.examples){
@@ -115,7 +126,7 @@ export async function verifyShowcase():Promise<ShowcaseVerification>{
      const checks=await verifyPresentationQuality(page,{svg,document,plan,nativeAst});
      if(!same(checks.map(check=>check.check).sort(),requiredPresentationChecks(row.backend,visual))||checks.some(check=>check.result!=='pass'||check.sourceSha256!==row.nativeSourceSha256))throw Error(`${example.id}/${row.backend} failed independent native SVG replay: ${checks.filter(check=>check.result!=='pass').map(check=>check.details).join('; ')}`);
     }finally{await page.close();}
-    const pngPath=join(root,'.cache/presentation/replay',example.id,row.backend+'.png');
+    const pngPath=join(root,'.cache/presentation/replay',assetDirectory,example.id,row.backend+'.png');
     await screenshotSvg(browser,svg,pngPath);
     if(sha(await readFile(pngPath))!==row.pngSha256)throw Error(`${example.id}/${row.backend} PNG does not match the native SVG derivative.`);
     replayed++;

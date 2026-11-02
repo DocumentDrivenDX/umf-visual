@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "examples": [
+    {
+      "id": "miro-nested-environments",
+      "title": "Nested environments",
+      "description": "A source-derived review of nested boundaries, a data store and a process that connects across those boundaries.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/reviews/definitions/miro-nested-environments.json",
+      "definitionSha256": "2ffe683799fedde88f4b1bdbffd8da6289186139faec96c858b9c8e4019d18af",
+      "sources": [
+        {
+          "path": "fixtures/integrations/complex-miro/common/nested-environments.json",
+          "sha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34",
+          "pointer": "/extensions/umf.visual",
+          "description": "Synthetic shared-model witness containing labels, process/store connection and nested boundary relation."
+        },
+        {
+          "path": "fixtures/integrations/complex-miro/native/nested-environments.json",
+          "sha256": "14a3cc615d889f12f36e25b2ef1e42406f34e5988f7495b3ca45ef57de619fb8",
+          "pointer": "/items and /notes",
+          "description": "Synthetic Miro-style witness; its process symbol and exact geometry/routing details are fixture-authored, not a private board capture."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/renderers/miro/assets/nested-environments-d751a8bc935e694d.jpg",
+          "sha256": "d751a8bc935e694d88e60826364ca0611a3db54fbd4b6f82cb66911b1959692c",
+          "outputPath": "reviews/miro-nested-environments/original-capture.jpg",
+          "mediaType": "image/jpeg",
+          "description": "Actual Miro renderer output captured from the qualified synthetic document."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "synthetic-integration-witness",
+        "integrationManifestPath": "fixtures/integrations/complex-miro/manifest.json",
+        "integrationManifestSha256": "8f27e9b47b74bc1c638f39f1dc105fc641f3bda2b91c89e39e998ab3e30e5a58",
+        "integrationCaseId": "nested-environments",
+        "classification": "synthetic-witness",
+        "commonDocumentPath": "fixtures/integrations/complex-miro/common/nested-environments.json",
+        "commonDocumentSha256": "bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34",
+        "nativeWitnessPath": "fixtures/integrations/complex-miro/native/nested-environments.json",
+        "nativeWitnessSha256": "14a3cc615d889f12f36e25b2ef1e42406f34e5988f7495b3ca45ef57de619fb8",
+        "previewReceiptPath": "fixtures/renderers/miro/preview-receipt.json",
+        "previewReceiptSha256": "db234c735ca203de0fb75a9f8e709a40050794a8f1a8065efdb79dce95b13109",
+        "rendererId": "miro",
+        "rendererProfileId": "umf.visual.miro.editable-network/1",
+        "modelVersion": "1.0.0",
+        "mappingVersion": "1",
+        "nativeVersion": "Miro observed service 1.105564.0 / Web SDK v2 (unpinned)",
+        "stage": "restored-original",
+        "captureDigestSha256": "fadc2c4739ea8acdfa33ed06ccbfd0c767e8d6ce8efbaa81fb9e7b49dbed61e1",
+        "capturePath": "reviews/miro-nested-environments/original-capture.jpg",
+        "captureSourcePath": "fixtures/renderers/miro/assets/nested-environments-d751a8bc935e694d.jpg",
+        "captureSha256": "d751a8bc935e694d88e60826364ca0611a3db54fbd4b6f82cb66911b1959692c",
+        "captureMediaType": "image/jpeg",
+        "knownOmissions": [
+          "The original rendered Miro output does not show the authored Environment A and Environment B boundaries or their nesting; the preview receipt records both groups as unrepresented.",
+          "The Data store role and data-edge kind are present in the common binding source but have no corresponding editable Miro slots, as recorded by retained-only projection diagnostics.",
+          "The synthetic native witness records shape-boundary endpoint attachments and exact control points; these are witness facts, not claims about an original private Miro board."
+        ],
+        "scope": "The witnesses are synthetic and do not establish deployment semantics. The JPEG is actual output from Miro for the synthetic document, not a capture of an original private board."
+      }
+    }
+  ]
+}

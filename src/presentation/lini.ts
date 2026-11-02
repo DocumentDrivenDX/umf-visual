@@ -14,6 +14,13 @@ const ordered=<T extends {id:string}>(items:T[],order:string[]|undefined):T[]=>{
  if(!order)return items;const rank=new Map(order.map((id,index)=>[id,index]));
  return items.map((item,index)=>({item,index})).sort((a,b)=>(rank.get(a.item.id)??Number.MAX_SAFE_INTEGER)-(rank.get(b.item.id)??Number.MAX_SAFE_INTEGER)||a.index-b.index).map(row=>row.item);
 };
+const stableRoutedOrder=<T extends {id:string}>(items:T[],relations:Array<[string,string]>):T[]=>{
+ const outgoing=new Map(items.map(item=>[item.id,new Set<string>()])),indegree=new Map(items.map(item=>[item.id,0]));
+ for(const[from,to]of relations)if(from!==to&&outgoing.has(from)&&outgoing.has(to)&&!outgoing.get(from)!.has(to)){outgoing.get(from)!.add(to);indegree.set(to,indegree.get(to)!+1);}
+ const remaining=new Set(items.map(item=>item.id)),result:T[]=[];
+ while(remaining.size){const next=items.find(item=>remaining.has(item.id)&&indegree.get(item.id)===0);if(!next)return items;remaining.delete(next.id);result.push(next);for(const target of outgoing.get(next.id)??[])indegree.set(target,indegree.get(target)!-1);}
+ return result;
+};
 const q=(value:string)=>quoteLiniProfile(value);
 const labelGroup=(group:VisualGroup)=>group.label;
 const findPort=(node:VisualNode|undefined,id:string|undefined)=>id===undefined?undefined:node?.ports?.find(port=>port.id===id);
@@ -31,6 +38,7 @@ const roles:Record<string,ColorSet>={
  external:{fill:'--gray-wash',stroke:'--gray-deep',color:'--gray-ink'},
  store:{fill:'--blue-wash',stroke:'--blue-deep',color:'--blue-ink',shape:'cyl'},
  document:{fill:'--purple-wash',stroke:'--purple-deep',color:'--purple-ink',shape:'note'},
+ process:{fill:'--rose-wash',stroke:'--rose-deep',color:'--rose-ink'},
 };
 const statuses:Record<string,string>={built:'--green-deep',placeholder:'--amber-deep',decided:'--sky-deep',unknown:'--gray-deep'};
 const groupColors:Record<string,ColorSet>={
@@ -53,7 +61,7 @@ function nodeStyle(node:VisualNode):{type:string;properties:string[];approximati
  const portWidth=portLabels.length?Math.max(320,Math.max(...portLabels)*8+190):240;
  const props=[fill?property('fill',fill):undefined,stroke?property('stroke',stroke):undefined,color?property('color',color):undefined,node.emphasis==='focus'?property('stroke-width',3):node.emphasis==='muted'?property('opacity',0.55):undefined,node.shape==='rectangle'?property('radius',0):undefined,property('width',portWidth)];
  const approximations:Array<[string,string,string]>=[];
- if(node.role)approximations.push(['role',`Node role ${node.role}`,node.shape?`Lini role ${node.role} palette color is shown independently from the authored native ${node.shape} shape.`:`Lini node shape/color convention (${palette?.shape??'box'} with palette ${node.role}).`]);
+ if(node.role)approximations.push(['role',`Node role ${node.role}`,node.role==='process'?'Lini shows the “Process” role caption and process palette while preserving the authored shape; this denotes a depicted process/activity.':node.shape?`Lini role ${node.role} palette color is shown independently from the authored native ${node.shape} shape.`:`Lini node shape/color convention (${palette?.shape??'box'} with palette ${node.role}).`]);
  if(node.status)approximations.push(['status',`Node status ${node.status}`,'Lini fill/stroke color convention.']);
  if(node.emphasis)approximations.push(['emphasis',`Node emphasis ${node.emphasis}`,node.emphasis==='focus'?'Lini uses a heavier native stroke.':'Lini uses reduced native opacity.']);
  const nativeShape:Record<NonNullable<VisualNode['shape']>,string>={rectangle:'box','rounded-rectangle':'box',ellipse:'oval',diamond:'diamond',hexagon:'hex',cylinder:'cyl','folded-corner':'note',parallelogram:'slant'};
@@ -75,7 +83,7 @@ function groupProperties(group:VisualGroup|undefined,layout:VisualLayout|undefin
  return [
   ...layoutProperties(layout,fallback,defaultColumns,defaultDirection),
   `gap: ${layoutKind==='flow'?52:24};`,
-  `padding: ${layoutKind==='flow'?26:22};`,
+  `padding: ${layoutKind==='flow'?40:22};`,
   property('fill',statusFill??palette?.fill??'--gray-wash'),
   property('stroke',statusStroke??palette?.stroke??'--gray-deep'),
   property('color',palette?.color??statusStroke??'--gray-deep'),
@@ -87,7 +95,7 @@ function nodeDeclaration(node:VisualNode,nativeId:string):string{
  const style=nodeStyle(node);
  const caption=node.label;
  const symbol=node.icon?liniIcon(node.icon):undefined;
- const children=[node.detail?`|cell#detail| ${q(node.detail)}`:undefined,symbol?`|icon| { symbol: ${symbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:node.icon?`|cell#icon| ${q('Icon: '+node.icon)}`:undefined,...(node.ports??[]).map((port,index)=>`|cell#p${index+1}| ${q(portCaption(port))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`)].filter((item):item is string=>!!item);
+ const children=[node.detail?`|cell#detail| ${q(node.detail)}`:undefined,node.role==='process'&&node.detail!=='Process'?`|cell#role| ${q('Process')}`:undefined,symbol?`|icon| { symbol: ${symbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:node.icon?`|cell#icon| ${q('Icon: '+node.icon)}`:undefined,...(node.ports??[]).map((port,index)=>`|cell#p${index+1}| ${q(portCaption(port))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`)].filter((item):item is string=>!!item);
  const properties=style.properties;
  return `|${style.type}#${nativeId}| ${q(caption)}${properties.length?` { ${properties.join(' ')} }`:''}${children.length?` [\n${children.map(item=>'  '+item).join('\n')}\n]`:''}`;
 }
@@ -130,7 +138,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
  const add=(logicalId:string,sourcePath:string,nativeId:string,kind:PresentationElement['kind'])=>map.push({logicalId,sourcePath,nativeId,kind});
  const mapPorts=(node:VisualNode,index:number,nativeId:string)=>node.ports?.forEach((port,portIndex)=>add(port.id,path('/nodes/'+index+'/ports/'+portIndex),nativeId+'.p'+(portIndex+1),'port'));
  const omit=(sourcePath:string,reason:string)=>omissions.push({sourcePath,reason});
- const approx=(sourcePath:string,requested:string,representation:string)=>approximations.push({sourcePath,requested,representation});
+ const approx=(sourcePath:string,requested:string,representation:string,code?:PresentationPlan['approximations'][number]['code'])=>approximations.push({sourcePath,requested,representation,...(code?{code}:{})});
  const path=(part:string)=>at(part);
  const title=visual.title??visual.question;
  try{
@@ -162,6 +170,22 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
    const descendants=(parent:string|undefined)=>groups.filter(group=>group.parent===parent);
    const members=(group:string|undefined)=>nodes.filter(node=>node.group===group);
    const groupChain=(groupId:string|undefined):VisualGroup[]=>{if(!groupId)return[];const group=groups.find(item=>item.id===groupId);return group?[...groupChain(group.parent),group]:[];};
+   const rootItems=ordered([...descendants(undefined),...members(undefined)],rootLayout?.order);
+   const componentAtScope=(nodeId:string,scope?:string)=>{const node=nodes.find(item=>item.id===nodeId),chain=groupChain(node?.group);if(scope===undefined)return chain[0]?.id??nodeId;const index=chain.findIndex(group=>group.id===scope);return index>=0?chain[index+1]?.id??nodeId:nodeId;};
+   const directionAtScope=(scope?:string)=>{if(scope===undefined)return (rootLayout as {direction?:'LR'|'TB'}|undefined)?.direction??direction;const layout=groups.find(item=>item.id===scope)?.layout as {direction?:'LR'|'TB'}|undefined;return layout?.direction??'TB';};
+   const routeKindsByScope=new Map<string|undefined,Set<'curved'|'straight'>>();
+   for(const edge of edges)if(edge.routing){const fromGroups=groupChain(nodes.find(node=>node.id===edge.from)?.group),toGroups=groupChain(nodes.find(node=>node.id===edge.to)?.group);let common=0;while(common<fromGroups.length&&common<toGroups.length&&fromGroups[common]!.id===toGroups[common]!.id)common++;const scope=common?fromGroups[common-1]!.id:undefined,kinds=routeKindsByScope.get(scope)??new Set<'curved'|'straight'>();kinds.add(edge.routing.kind);routeKindsByScope.set(scope,kinds);}
+   if(!rootLayout?.order&&routeKindsByScope.get(undefined)?.size===1&&routeKindsByScope.get(undefined)?.has('curved')){
+    const relations=edges.filter(edge=>edge.routing?.kind==='curved'&&edge.directed!==false).map(edge=>[componentAtScope(edge.from),componentAtScope(edge.to)] as [string,string]);
+    rootItems.splice(0,rootItems.length,...stableRoutedOrder(rootItems,relations));
+   }
+   const routeScopeItems=(scope:string)=>{
+    const group=groups.find(item=>item.id===scope),order=group?.layout?.order,items=ordered([...descendants(scope),...members(scope)],order);
+    if(order||routeKindsByScope.get(scope)?.size!==1||!routeKindsByScope.get(scope)?.has('curved'))return items;
+    const relations:Array<[string,string]>=[];
+    for(const edge of edges)if(edge.routing?.kind==='curved'&&edge.directed!==false){const fromGroups=groupChain(nodes.find(item=>item.id===edge.from)?.group),toGroups=groupChain(nodes.find(item=>item.id===edge.to)?.group);let common=0;while(common<fromGroups.length&&common<toGroups.length&&fromGroups[common]!.id===toGroups[common]!.id)common++;if((common?fromGroups[common-1]!.id:undefined)===scope)relations.push([componentAtScope(edge.from,scope),componentAtScope(edge.to,scope)]);}
+    return stableRoutedOrder(items,relations);
+   };
    const edgeRowsByScope=new Map<string|undefined,string[]>();
    const straightRoutingGroups=new Set<string>();let straightRootRouting=false;
    for(let i=0;i<edges.length;i++){
@@ -171,29 +195,32 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     const fromGroups=groupChain(fromNode?.group),toGroups=groupChain(toNode?.group);let common=0;while(common<fromGroups.length&&common<toGroups.length&&fromGroups[common]!.id===toGroups[common]!.id)common++;
     const scope=common?fromGroups[common-1]!.id:undefined;
     if(fromPort?.side==='north'||fromPort?.side==='south'||toPort?.side==='north'||toPort?.side==='south'){if(scope)straightRoutingGroups.add(scope);else straightRootRouting=true;}
-    const source=[...fromGroups.slice(common).map(group=>groupIds.get(group.id)!),from+(fromPort?'.p'+(fromNode!.ports!.indexOf(fromPort)+1)+(fromPort.side?':'+portSide[fromPort.side]:''):'')].join('.');
-    const target=[...toGroups.slice(common).map(group=>groupIds.get(group.id)!),to+(toPort?'.p'+(toNode!.ports!.indexOf(toPort)+1)+(toPort.side?':'+portSide[toPort.side]:''):'')].join('.'),className=safeId('e',i);
+    const scopedItems=scope?routeScopeItems(scope):rootItems,routeDirection=directionAtScope(scope),sourceOrder=scopedItems.findIndex(item=>item.id===componentAtScope(edge.from,scope)),targetOrder=scopedItems.findIndex(item=>item.id===componentAtScope(edge.to,scope)),sourceAfterTarget=sourceOrder>=0&&targetOrder>=0&&sourceOrder>targetOrder,scopeLayout=scope?groups.find(group=>group.id===scope)?.layout:rootLayout,hasExplicitGrid=scopeLayout?.kind==='grid'&&scopeLayout.columns>1;
+    const inferNaturalSide=edge.routing?.kind==='curved'&&!fromPort&&!toPort&&!hasExplicitGrid,fromNaturalSide=inferNaturalSide?(routeDirection==='LR'?(sourceAfterTarget?'bottom':'right'):(sourceAfterTarget?'right':'bottom')):undefined,toNaturalSide=inferNaturalSide?(routeDirection==='LR'?(sourceAfterTarget?'right':'bottom'):(sourceAfterTarget?'bottom':'right')):undefined;
+    const source=[...fromGroups.slice(common).map(group=>groupIds.get(group.id)!),from+(fromPort?'.p'+(fromNode!.ports!.indexOf(fromPort)+1)+(fromPort.side?':'+portSide[fromPort.side]:''):(fromNaturalSide?':'+fromNaturalSide:''))].join('.');
+    const target=[...toGroups.slice(common).map(group=>groupIds.get(group.id)!),to+(toPort?'.p'+(toNode!.ports!.indexOf(toPort)+1)+(toPort.side?':'+portSide[toPort.side]:''):(toNaturalSide?':'+toNaturalSide:''))].join('.'),className=safeId('e',i);
     add(edge.id,path('/edges/'+i),className,'edge');
     const label=edge.label??'',style:string[]=[];
     if(edge.kind==='data')style.push(property('stroke-style','dashed'));else if(edge.kind==='control')style.push(property('stroke-style','dotted'));else if(edge.kind==='return')style.push(property('stroke-style','double'));
     if(edge.status)style.push(property('stroke',statuses[edge.status]??'--gray-deep'));
     if(edge.emphasis==='focus')style.push(property('stroke-width',3));else if(edge.emphasis==='muted')style.push(property('opacity',0.55));
     styleRules.push(`.${className} { ${style.length?style.join(' '):'stroke: --teal-deep;'} }`);
-    const along=[0.35,0.5,0.65][i%3]!;
+    const fromGroupPath=groupChain(fromNode?.group).map(group=>group.id),toGroupPath=groupChain(toNode?.group).map(group=>group.id),isPrefix=(outer:string[],inner:string[])=>outer.length<inner.length&&outer.every((id,index)=>id===inner[index]),crossingCaptionAlong=isPrefix(fromGroupPath,toGroupPath)?0.1:isPrefix(toGroupPath,fromGroupPath)?0.9:undefined,along=crossingCaptionAlong??[0.35,0.5,0.65][i%3]!;
     const rows=edgeRowsByScope.get(scope)??[],operator=edge.directed===false?'---':'->';rows.push(`${source} ${operator} ${target}${label?' '+quoteChecked(label,path('/edges/'+i+'/label')):''} .${className} { along: ${along}; }`);edgeRowsByScope.set(scope,rows);
     for(const field of ['why','evidence'] as const)if(edge[field]!==undefined)omit(path('/edges/'+i+'/'+field),field==='why'?'Lini link hints do not appear on the native link SVG; rationale remains in the source document.':'Evidence locators remain in UMF and are not drawn.');
     if(edge.kind)approx(path('/edges/'+i+'/kind'),'Connection kind '+edge.kind,edge.kind==='data'?'Dashed Lini line style.':edge.kind==='control'?'Dotted Lini line style.':'Double Lini line style.');
+    if(edge.routing){const scopeKinds=routeKindsByScope.get(scope),applicable=scopeKinds?.size===1,selected=scopeKinds?.values().next().value,selectedSides=inferNaturalSide?' Native compass sides '+fromNaturalSide+'→'+toNaturalSide+' are chosen only because this edge has no authored named ports or sides.':'',code=applicable?(selected==='curved'&&!inferNaturalSide?'ROUTING_NATIVE_INTERPOLATION':undefined):'ROUTING_SCOPE_CONFLICT';approx(path('/edges/'+i+'/routing'),'Edge routing '+edge.routing.kind,applicable?'Lini applies native routing: '+(selected==='curved'?'natural':'straight')+' to this connection scope; '+(inferNaturalSide?'native compass anchors are selected to produce a curved path without overriding named ports or sides.':'natural routing may remain straight when the layout is collinear.')+selectedSides+' Exact control points and endpoint attachment coordinates remain native.':'Lini routing is set on a container, not per edge; this scope mixes curved and straight intent, so no requested route is selected and this edge geometry is not guaranteed.',code);}
     if(edge.status)approx(path('/edges/'+i+'/status'),'Connection status '+edge.status,'Lini stroke palette convention.');
     if(edge.emphasis)approx(path('/edges/'+i+'/emphasis'),'Connection emphasis '+edge.emphasis,edge.emphasis==='focus'?'Lini uses a heavier native stroke.':'Lini uses reduced native opacity.');
    }
    const renderGroup=(group:VisualGroup,indent=''):string=>{
     const index=groups.indexOf(group),id=groupIds.get(group.id)!,childRows:string[]=[];
     add(group.id,path('/groups/'+index),id,'group');
-    const items=ordered([...descendants(group.id),...members(group.id)],group.layout?.order);
+   const items=routeScopeItems(group.id);
     for(const item of items){if(groups.includes(item as VisualGroup))childRows.push(renderGroup(item as VisualGroup,indent+'  '));else childRows.push(nodeDeclaration(item as VisualNode,nodeIds.get(item.id)!));}
     if(group.detail)childRows.unshift(`|cell#detail| ${quoteChecked(group.detail,path('/groups/'+index+'/detail'))}`);
     childRows.push(...(edgeRowsByScope.get(group.id)??[]));
-    const props=groupProperties(group,group.layout,'flow',items.length,'TB');if(straightRoutingGroups.has(group.id))props.push('routing: straight;');
+    const props=groupProperties(group,group.layout,'flow',items.length,'TB'),routeKinds=routeKindsByScope.get(group.id);if(routeKinds?.size===1){const route=routeKinds.values().next().value;props.push('routing: '+(route==='curved'?'natural':'straight')+';');}else if(!routeKinds&&straightRoutingGroups.has(group.id))props.push('routing: straight;');
     if(group.layout?.kind==='grid'&&group.layout.columns===1)approx(path('/groups/'+index+'/layout'),'Grid layout with one column','Lini 1.1 represents a one-column grid with native column flow; requested node order and single-column containment are preserved.');
     if(group.role)approx(path('/groups/'+index+'/role'),'Group role '+group.role,'Lini applies the role palette convention to the native group boundary; this is a presentation styling choice, not an intrinsic Lini group semantic.');
     if(group.status)approx(path('/groups/'+index+'/status'),'Group status '+group.status,'Lini renders status through the native boundary fill and stroke color convention.');
@@ -201,10 +228,9 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     if(group.tier!==undefined)omit(path('/groups/'+index+'/tier'),'Tier remains in the UMF source; Lini group rendering has no persistent tier carrier.');
     return groupDeclaration(id,labelGroup(group),props,childRows,indent);
    };
-   const rootItems=ordered([...descendants(undefined),...members(undefined)],rootLayout?.order);
    for(const item of rootItems){if(groups.includes(item as VisualGroup))children.push(renderGroup(item as VisualGroup));else children.push(nodeDeclaration(item as VisualNode,nodeIds.get(item.id)!));}
    children.push(...(edgeRowsByScope.get(undefined)??[]));
-   if(straightRootRouting)rootProperties.push('routing: straight;');
+   const rootRouteKinds=routeKindsByScope.get(undefined);if(rootRouteKinds?.size===1){const route=rootRouteKinds.values().next().value;rootProperties.push('routing: '+(route==='curved'?'natural':'straight')+';');}else if(!rootRouteKinds&&straightRootRouting)rootProperties.push('routing: straight;');
    if(rootLayout?.kind==='flow'&&rootLayout.order)approx(path('/layout/order'),'Explicit root component order','Declarations follow the requested order; native graph layout can still route links around that order.');
    for(const key of ['layers','entities','references'] as const)if(visual.structure?.[key])omit(path('/structure/'+key),'Structure metadata is outside the flow/network view.');
   }else if(visual.form==='stack'){

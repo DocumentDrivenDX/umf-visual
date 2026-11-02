@@ -165,3 +165,49 @@ stack layers, entity fields and references are the authored semantics. No new
 renderer-specific payload schema is introduced. Source references pin actual architecture
 or schema facts; a conceptual metamodel E/R view MUST NOT invent SQL keys or
 conflate required presence with non-nullability.
+
+
+## Source-derived review presentations
+
+Presentation inputs MAY explicitly select visual 1.4.0, including its process
+role and per-edge curved/straight routing intent. A process convention MUST remain visible and its renderer mapping explicit;
+rectangle geometry alone does not establish process meaning.
+
+A review manifest MUST bind the derived definition and every semantic source by
+exact relative path/hash, including common and native witnesses when both inform
+the definition. Review output reuses the presentation receipt and quality model,
+exact YAML and source downloads. Native-only content and unresolved interpretation
+MUST remain explicit. Original host evidence and derived portable renderings MUST
+show separate source/model/profile/native versions. Existing captures MUST remain
+byte-identical and MUST NOT qualify the changed definition. Missing or unsupported
+outputs remain visible. Review verification MUST reject stale source or evidence
+joins; source authorship MUST distinguish synthetic witnesses from captures.
+
+
+For explicit edge routing, native qualification MUST bind the drawn path to its
+actual edge identity and endpoint carriers. Curved proof requires non-collinear
+geometry, not just a cubic-path token; straight proof requires a direct route.
+Negative controls MUST replace or straighten an owned curve while retaining its
+label and endpoints. Mixed edge intents require faithful per-edge mapping or
+located approximations/refusals for affected source paths. Exact native control
+points remain outside this shared-intent qualification.
+
+
+A `PresentationApproximation` MAY include optional stable `code` alongside its
+existing source path, requested meaning and representation text. This is renderer
+result metadata, not a field in the authored visual vocabulary. Routing uses
+`ROUTING_SCOPE_CONFLICT` when incompatible per-edge requests share a native
+routing scope, and `ROUTING_NATIVE_INTERPOLATION` when a native curve request
+cannot guarantee curved geometry for its layout points. Free prose MUST NOT
+control qualification.
+
+Quality verification MUST validate an allowed code against the exact edge source
+pointer, its single matching located approximation, backend capability and actual
+source constraint. A scope-conflict code requires conflicting declarations in
+that backend's routing scope; an interpolation code requires the qualified native
+interpolation limitation. Unsupported, misplaced or duplicate fallback codes MUST
+NOT waive geometry checks. Without a valid located fallback, actual curved
+segments plus non-collinear geometry, or direct straight geometry, are mandatory.
+With a valid fallback, evidence MUST report observed geometry and the remaining
+approximation. Native carrier ownership, labels, endpoint attachment, direction
+and identity checks remain mandatory in every case.

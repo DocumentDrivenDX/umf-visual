@@ -9,7 +9,7 @@ export interface PresentationOptions {backend:PresentationBackend;direction?:'LR
 export interface PresentationDiagnostic {code:string;path:string;message:string;severity:'error'|'warning';}
 export interface PresentationElement {logicalId:string;sourcePath:string;nativeId:string;kind:'visual'|'group'|'node'|'edge'|'layer'|'entity'|'field'|'port'|'reference'|'participant'|'message'|'note';}
 export interface PresentationOmission {sourcePath:string;reason:string;}
-export interface PresentationApproximation {sourcePath:string;requested:string;representation:string;}
+export interface PresentationApproximation {sourcePath:string;requested:string;representation:string;code?:'ROUTING_SCOPE_CONFLICT'|'ROUTING_NATIVE_INTERPOLATION';}
 export interface PresentationPlan {
  ok:true;profileId:'umf.visual.presentation/1';backend:PresentationBackend;nativeFormat:'dot'|'mermaid'|'lini';source:string;
  elementMap:PresentationElement[];omissions:PresentationOmission[];approximations:PresentationApproximation[];
@@ -37,6 +37,7 @@ const shapeOptions:Record<NonNullable<VisualNode['shape']>,{dot:string;mermaid:s
 const nativePortId=(nodeId:string,portIndex:number)=>nodeId+'.p'+(portIndex+1);
 const findPort=(node:VisualNode|undefined,id:string|undefined)=>id===undefined?undefined:node?.ports?.find(port=>port.id===id);
 const portRows=(node:VisualNode)=>node.ports??[];
+const processRoleCaption=(node:VisualNode)=>node.role==='process'&&node.detail!=='Process'?'Process':undefined;
 const mermaidHeader=(visual:Visual)=>['---','title: '+JSON.stringify(displayTitle(visual)),'---'];
 const diag=(code:string,path:string,message:string):PresentationDiagnostic=>({code,path,message,severity:'error'});
 const path=(part:string)=>BASE+(part.startsWith('/')?part:'/'+part);
@@ -93,7 +94,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  const edgeIds=new Map(edges.map((e,i)=>[e.id,safeId('e',i)]));
  const layerIds=new Map((visual.structure?.layers??[]).map((l,i)=>[l.id,safeId('l',i)]));
  const wrap=(text:string,limit=22)=>text.split('\n').flatMap(line=>{const words=line.split(/\s+/);const out:string[]=[];let current='';for(const word of words){if(current&&current.length+1+word.length>limit){out.push(current);current=word;}else current=current?current+' '+word:word;}if(current)out.push(current);return out;}).join('\n');
- const labelNode=(n:VisualNode)=>[n.icon?wrap('Icon: '+n.icon):undefined,wrap(n.label),n.detail?wrap(n.detail,38):undefined,...(n.ports??[]).map(port=>wrap('Port '+port.id+(port.label?' · '+port.label:'')+(port.side?' · '+port.side:''),32))].filter(Boolean).join('\n');
+ const labelNode=(n:VisualNode)=>[n.icon?wrap('Icon: '+n.icon):undefined,wrap(n.label),n.detail?wrap(n.detail,38):undefined,processRoleCaption(n),...(n.ports??[]).map(port=>wrap('Port '+port.id+(port.label?' · '+port.label:'')+(port.side?' · '+port.side:''),32))].filter(Boolean).join('\n');
  const labelGroup=(g:VisualGroup)=>[wrap(g.label),g.detail?wrap(g.detail,38):undefined].filter(Boolean).join('\n');
  const labelLayer=(layer:{label:string;detail?:string})=>[wrap(layer.label),layer.detail?wrap(layer.detail,38):undefined].filter(Boolean).join('\n');
  const mapPorts=(node:VisualNode,index:number)=>node.ports?.forEach((port,portIndex)=>{
@@ -285,14 +286,20 @@ export function compilePresentation(document:Document,options:PresentationOption
  }
 
  // Flow family.
+ const requestedRoutes=[...new Set(edges.flatMap(edge=>edge.routing?[edge.routing.kind]:[]))];
+ const routeMode=requestedRoutes.length===1?requestedRoutes[0]:undefined;
+ const mixedRouteIntent=requestedRoutes.length>1;
+ const routeApproximation=(i:number,edge:NonNullable<Visual['edges']>[number],backendName:string,applicable:boolean,code?:PresentationApproximation['code'])=>{const reason=applicable?backendName:`${backendName} cannot apply both curved and straight edge intent per edge; this edge keeps the backend's default route and its requested ${edge.routing!.kind} geometry is not guaranteed.`;approximations.push({sourcePath:path('/edges/'+i+'/routing'),requested:'Edge routing '+edge.routing!.kind,representation:reason,...(code?{code}:{})});};
  if(backend==='graphviz'){
   const rootLayout=visual.layout,flowDirection=layoutDirection(rootLayout,rootLayout?.kind==='stack'||rootLayout?.kind==='grid'?'TB':dir);
-  const lines=['digraph UMFPresentation {','  graph [rankdir='+dot(flowDirection)+', bgcolor="transparent", pad="0.34", nodesep="0.46", ranksep="0.62", splines=true, overlap=false, compound=true, fontname="Arial", fontsize=22, fontcolor="#203746", labelloc="t", label='+dot(displayTitle(visual))+'];','  node [shape=box, style="rounded,filled", fillcolor="#e8f2f3", color="#577782", penwidth=1.7, fontname="Arial", fontsize=16, fontcolor="#203746", margin="0.22,0.17", width=2.35, height=1.08];','  edge [fontname="Arial", fontsize=12, color="#617984", fontcolor="#304652", penwidth=1.7, arrowsize=0.85];'];
+  const splines=routeMode==='curved'&&!mixedRouteIntent?'curved':routeMode==='straight'&&!mixedRouteIntent?'line':'true';
+  const lines=['digraph UMFPresentation {','  graph [rankdir='+dot(flowDirection)+', bgcolor="transparent", pad="0.34", nodesep="0.46", ranksep="0.62", splines='+splines+', overlap=false, compound=true, fontname="Arial", fontsize=22, fontcolor="#203746", labelloc="t", label='+dot(displayTitle(visual))+'];','  node [shape=box, style="rounded,filled", fillcolor="#e8f2f3", color="#577782", penwidth=1.7, fontname="Arial", fontsize=16, fontcolor="#203746", margin="0.22,0.17", width=2.35, height=1.08];','  edge [fontname="Arial", fontsize=12, color="#617984", fontcolor="#304652", penwidth=1.7, arrowsize=0.85];'];
   const nodeStatement=(n:VisualNode):string=>{
    const id=nodeIds.get(n.id)!;
    if(!n.ports?.length)return '  '+id+' [label='+dot(labelNode(n))+nodeStyle(n)+shapeOverride(n)+'];';
    const portHtml=n.ports.map((port,portIndex)=>`<TR><TD PORT="p${portIndex+1}" ALIGN="LEFT" CELLPADDING="4" BORDER="1" COLOR="#c8d6da"><FONT COLOR="#536e78" POINT-SIZE="11">${dotHtml(port.label??port.id)} · ${port.id}${port.side?' · '+port.side:''}</FONT></TD></TR>`).join('');
-   return '  '+id+' [label=< <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD ALIGN="LEFT" CELLPADDING="8"><B>'+dotHtml(n.label)+'</B>'+(n.detail?'<BR/><FONT POINT-SIZE="11">'+dotHtml(n.detail)+'</FONT>':'')+'</TD></TR>'+portHtml+'</TABLE> >'+nodeStyle(n)+shapeOverride(n)+'];';
+   const roleCaption=processRoleCaption(n)?'<BR/><FONT POINT-SIZE="11">Process</FONT>':'';
+   return '  '+id+' [label=< <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD ALIGN="LEFT" CELLPADDING="8"><B>'+dotHtml(n.label)+'</B>'+(n.detail?'<BR/><FONT POINT-SIZE="11">'+dotHtml(n.detail)+'</FONT>':'')+roleCaption+'</TD></TR>'+portHtml+'</TABLE> >'+nodeStyle(n)+shapeOverride(n)+'];';
   };
   const representative=(id:string):string|undefined=>{
    const node=nodes.find(n=>n.id===id);if(node)return nodeIds.get(id);
@@ -327,10 +334,14 @@ export function compilePresentation(document:Document,options:PresentationOption
    const fromNode=nodes.find(n=>n.id===e.from),toNode=nodes.find(n=>n.id===e.to),fromPort=findPort(fromNode,e.fromPort),toPort=findPort(toNode,e.toPort);
    if((e.fromPort&&!fromPort)||(e.toPort&&!toPort)){errors.push(diag('PRESENTATION_PORT',path('/edges/'+i),'A flow edge port reference does not resolve within its endpoint node.'));return;}
    const style=e.kind==='data'?'dashed':e.kind==='control'?'dotted':e.kind==='return'?'bold':'solid';
-   const attrs=[e.label?'label='+dot(e.label):undefined,e.why?'tooltip='+dot(e.why):undefined,'style='+dot(style),e.directed===false?'dir=none':undefined,e.status==='placeholder'?'color="#ba8745"':e.status==='built'?'color="#668f78"':undefined,e.emphasis==='focus'?'penwidth=2.8':e.emphasis==='muted'?'color="#b8c4c7"':undefined].filter(Boolean).join(', ');
+   const inferredBoundarySides=e.routing?.kind==='curved'&&!mixedRouteIntent&&!fromPort&&!toPort;
+   const graphUsesCurvedSplines=routeMode==='curved'&&!mixedRouteIntent;
+   const attrs=[e.label?(graphUsesCurvedSplines?'xlabel':'label')+'='+dot(e.label):undefined,e.why?'tooltip='+dot(e.why):undefined,'style='+dot(style),e.directed===false?'dir=none':undefined,inferredBoundarySides?'tailport=e, headport=s':undefined,e.status==='placeholder'?'color="#ba8745"':e.status==='built'?'color="#668f78"':undefined,e.emphasis==='focus'?'penwidth=2.8':e.emphasis==='muted'?'color="#b8c4c7"':undefined].filter(Boolean).join(', ');
    const sideCode={north:'n',east:'e',south:'s',west:'w'} as const;
-   const fromNative=nodeIds.get(e.from)!+(fromPort?':p'+(fromNode!.ports!.indexOf(fromPort)+1)+(fromPort.side?':'+sideCode[fromPort.side]:''):''),toNative=nodeIds.get(e.to)!+(toPort?':p'+(toNode!.ports!.indexOf(toPort)+1)+(toPort.side?':'+sideCode[toPort.side]:''):'');
+   const fromNative=nodeIds.get(e.from)!+(fromPort?':p'+(fromNode!.ports!.indexOf(fromPort)+1)+(fromPort.side?':'+sideCode[fromPort.side]:''):inferredBoundarySides?':e':''),toNative=nodeIds.get(e.to)!+(toPort?':p'+(toNode!.ports!.indexOf(toPort)+1)+(toPort.side?':'+sideCode[toPort.side]:''):inferredBoundarySides?':s':'');
    lines.push('  '+fromNative+' -> '+toNative+' [id='+dot(edgeIds.get(e.id)!) +(attrs?', '+attrs:'')+'];');
+   if(e.routing){const routeApplicable=!mixedRouteIntent&&routeMode===e.routing.kind,routeCode=routeApplicable?(e.routing.kind==='curved'&&!inferredBoundarySides?'ROUTING_NATIVE_INTERPOLATION':undefined):'ROUTING_SCOPE_CONFLICT';routeApproximation(i,e,'Graphviz routing is graph-wide; the homogeneous declaration selects native splines='+routeMode+'.'+(inferredBoundarySides?' Native boundary compass sides east→south are selected because no named ports or sides were authored.':'')+' Exact control points and endpoint attachment coordinates remain native.',routeApplicable,routeCode);}
+   if(graphUsesCurvedSplines&&e.label)approx(path('/edges/'+i+'/label'),'Edge label '+e.label,'Graphviz curved splines use the native external xlabel carrier because Graphviz does not support normal edge labels with splines=curved.');
    if(e.kind)approx(path('/edges/'+i+'/kind'),'Connection kind '+e.kind,'Rendered by the presentation/1 convention: action solid, data dashed, control dotted, return bold.');
    if(e.emphasis)approx(path('/edges/'+i+'/emphasis'),'Connection emphasis '+e.emphasis,'Rendered by the presentation/1 stroke weight/color convention.');
    if(e.status)approx(path('/edges/'+i+'/status'),'Connection status '+e.status,'Rendered by the presentation/1 status color convention.');
@@ -338,7 +349,7 @@ export function compilePresentation(document:Document,options:PresentationOption
   if(errors.length)return {ok:false,diagnostics:errors};
   for(let i=0;i<nodes.length;i++){
    const n=nodes[i]!;
-   if(n.role)approx(path('/nodes/'+i+'/role'),'Node role '+n.role,'Rendered with the presentation/1 role shape/color convention.');
+   if(n.role)approx(path('/nodes/'+i+'/role'),'Node role '+n.role,n.role==='process'?'Rendered with the presentation/1 process color convention and visible “Process” caption; this names a depicted process/activity only.':'Rendered with the presentation/1 role shape/color convention.');
    if(n.status)approx(path('/nodes/'+i+'/status'),'Node status '+n.status,'Rendered with the presentation/1 status color convention.');
    if(n.emphasis)approx(path('/nodes/'+i+'/emphasis'),'Node emphasis '+n.emphasis,'Rendered with the presentation/1 stroke weight/color convention.');
   }
@@ -351,7 +362,7 @@ export function compilePresentation(document:Document,options:PresentationOption
   return {ok:true,profileId:'umf.visual.presentation/1',backend,nativeFormat:'dot',source:lines.join('\n')+'\n',elementMap:map,omissions,approximations};
  }
  const rootLayout=visual.layout,flowDirection=layoutDirection(rootLayout,rootLayout?.kind==='stack'||rootLayout?.kind==='grid'?'TB':dir);
-  const lines=[...mermaidHeader(visual),'flowchart '+flowDirection];
+ const lines=[...mermaidHeader(visual),'flowchart '+flowDirection];
  let mermaidLinkIndex=0;
  const children=(id:string)=>groups.filter(g=>g.parent===id),members=(id:string)=>nodes.filter(n=>n.group===id&&!n.parent);
  const emitGroup=(g:VisualGroup,indent:string)=>{
@@ -375,7 +386,8 @@ export function compilePresentation(document:Document,options:PresentationOption
  edges.forEach((e,i)=>{
   const fromNode=nodes.find(n=>n.id===e.from),toNode=nodes.find(n=>n.id===e.to),fromPort=findPort(fromNode,e.fromPort),toPort=findPort(toNode,e.toPort);
   if((e.fromPort&&!fromPort)||(e.toPort&&!toPort)){errors.push(diag('PRESENTATION_PORT',path('/edges/'+i),'A flow edge port reference does not resolve within its endpoint node.'));return;}
-  const label=e.label,operator=e.directed===false?'---':'-->';lines.push('  '+nodeIds.get(e.from)+' '+operator+(label?'|"'+mermaidText(label)+'"|':'')+' '+nodeIds.get(e.to));
+  const label=e.label,operator=e.directed===false?'---':'-->',edgeNativeId=edgeIds.get(e.id)!;lines.push('  '+nodeIds.get(e.from)+(e.routing?' '+edgeNativeId+'@':' ')+operator+(label?'|"'+mermaidText(label)+'"|':'')+' '+nodeIds.get(e.to));
+  if(e.routing){const curve=e.routing.kind==='curved'?'natural':'linear';lines.push('  '+edgeNativeId+'@{ curve: '+curve+' }');routeApproximation(i,e,'Mermaid 12.2 edge-ID configuration requests native curve: '+curve+'. The pinned renderer may still emit a straight segment when its layout points are collinear; exact control points and endpoint attachment coordinates remain native.',true,'ROUTING_NATIVE_INTERPOLATION');}
   if(fromPort)approx(path('/edges/'+i+'/fromPort'),'From port '+fromPort.id,'The port ID, label, and side appear on the host node; Mermaid has no distinct named port carrier and does not attach this link to it.');
   if(toPort)approx(path('/edges/'+i+'/toPort'),'To port '+toPort.id,'The port ID, label, and side appear on the host node; Mermaid has no distinct named port carrier and does not attach this link to it.');
   const edgeStyle=e.kind==='data'?'stroke-dasharray: 5 5':e.kind==='control'?'stroke-dasharray: 2 5':e.kind==='return'?'stroke-width: 3':e.emphasis==='focus'?'stroke-width: 3':e.emphasis==='muted'?'stroke:#b8c4c7':'';
@@ -387,18 +399,18 @@ export function compilePresentation(document:Document,options:PresentationOption
   if(e.status)omit(path('/edges/'+i+'/status'),'Mermaid flow has no per-link status style in the presentation/1 convention.');
  });
  if(errors.length)return {ok:false,diagnostics:errors};
- for(const style of ['role_actor fill:#fff4dc,stroke:#be8741,stroke-width:2px','role_store fill:#e8efff,stroke:#637cae,stroke-width:2px','role_document fill:#f2ecfb,stroke:#8b72a6,stroke-width:2px','role_own fill:#e8f2ec,stroke:#668f78,stroke-width:2px','role_platform fill:#e8f2f3,stroke:#577782,stroke-width:2px','role_external fill:#f5f4ef,stroke:#96988e,stroke-width:2px','status_built fill:#e8f2ec,stroke:#668f78','status_placeholder fill:#fff5e4,stroke:#ba8745','status_decided fill:#edf2f8,stroke:#71869b','status_unknown fill:#f2f3f3,stroke:#98a3a6','emphasis_focus stroke-width:3px','emphasis_muted opacity:0.55'])lines.push('  classDef '+style);
+ for(const style of ['role_actor fill:#fff4dc,stroke:#be8741,stroke-width:2px','role_store fill:#e8efff,stroke:#637cae,stroke-width:2px','role_document fill:#f2ecfb,stroke:#8b72a6,stroke-width:2px','role_own fill:#e8f2ec,stroke:#668f78,stroke-width:2px','role_platform fill:#e8f2f3,stroke:#577782,stroke-width:2px','role_external fill:#f5f4ef,stroke:#96988e,stroke-width:2px','role_process fill:#f4eef4,stroke:#8c6b87,stroke-width:2px','status_built fill:#e8f2ec,stroke:#668f78','status_placeholder fill:#fff5e4,stroke:#ba8745','status_decided fill:#edf2f8,stroke:#71869b','status_unknown fill:#f2f3f3,stroke:#98a3a6','emphasis_focus stroke-width:3px','emphasis_muted opacity:0.55'])lines.push('  classDef '+style);
  nodes.forEach(n=>{const classes=[n.role?'role_'+n.role:undefined,n.status?'status_'+n.status:undefined,n.emphasis?'emphasis_'+n.emphasis:undefined].filter(Boolean);if(classes.length)lines.push('  class '+nodeIds.get(n.id)+' '+classes.join(',')+';');});
  if(visual.steps)omit(path('/steps'),'Walkthrough steps are not part of the architecture graph view.');
  if(visual.audience)omit(path('/audience'),'Audience metadata is retained in UMF but not drawn.');
- nodes.forEach((n,i)=>{if(n.role)approx(path('/nodes/'+i+'/role'),'Node role '+n.role,'Rendered with the presentation/1 Mermaid role color convention.');if(n.status)approx(path('/nodes/'+i+'/status'),'Node status '+n.status,'Rendered with the presentation/1 Mermaid status color convention.');if(n.emphasis)approx(path('/nodes/'+i+'/emphasis'),'Node emphasis '+n.emphasis,'Rendered with the presentation/1 Mermaid emphasis stroke convention.');});
+ nodes.forEach((n,i)=>{if(n.role)approx(path('/nodes/'+i+'/role'),'Node role '+n.role,n.role==='process'?'Rendered with the presentation/1 process color convention and visible “Process” caption; this names a depicted process/activity only.':'Rendered with the presentation/1 Mermaid role color convention.');if(n.status)approx(path('/nodes/'+i+'/status'),'Node status '+n.status,'Rendered with the presentation/1 Mermaid status color convention.');if(n.emphasis)approx(path('/nodes/'+i+'/emphasis'),'Node emphasis '+n.emphasis,'Rendered with the presentation/1 Mermaid emphasis stroke convention.');});
  groups.forEach((g,i)=>{for(const key of ['role','tier','status','emphasis'] as const)if(g[key]!==undefined)omit(path('/groups/'+i+'/'+key),'Group label and containment are visible; this metadata is not rendered by Mermaid presentation/1.');});
  return {ok:true,profileId:'umf.visual.presentation/1',backend,nativeFormat:'mermaid',source:lines.join('\n')+'\n',elementMap:map,omissions,approximations};
 }
 
 function nodeStyle(n:VisualNode):string {
  const shape=n.role==='actor'?'shape=ellipse, ':n.role==='store'?'shape=cylinder, ':n.role==='document'?'shape=note, ':'';
- const roleColor=n.role==='actor'?'fillcolor="#fff4dc", color="#be8741"':n.role==='store'?'fillcolor="#e8efff", color="#637cae"':n.role==='document'?'fillcolor="#f2ecfb", color="#8b72a6"':n.role==='own'?'fillcolor="#e8f2ec", color="#668f78"':n.role==='platform'?'fillcolor="#e8f2f3", color="#577782"':n.role==='external'?'fillcolor="#f5f4ef", color="#96988e"':'';
+ const roleColor=n.role==='actor'?'fillcolor="#fff4dc", color="#be8741"':n.role==='store'?'fillcolor="#e8efff", color="#637cae"':n.role==='document'?'fillcolor="#f2ecfb", color="#8b72a6"':n.role==='own'?'fillcolor="#e8f2ec", color="#668f78"':n.role==='platform'?'fillcolor="#e8f2f3", color="#577782"':n.role==='external'?'fillcolor="#f5f4ef", color="#96988e"':n.role==='process'?'fillcolor="#f4eef4", color="#8c6b87"':'';
  const status=n.status==='placeholder'?'fillcolor="#fff5e4", color="#ba8745"':n.status==='built'?'fillcolor="#e8f2ec", color="#668f78"':n.status==='decided'?'fillcolor="#edf2f8", color="#71869b"':n.status==='unknown'?'fillcolor="#f2f3f3", color="#98a3a6"':'';
  const emphasis=n.emphasis==='focus'?'penwidth=3.2, ':n.emphasis==='muted'?'color="#b8c4c7", fontcolor="#718087", ':'';
  const attributes=[shape.trim().replace(/,$/u,''),emphasis.trim().replace(/,$/u,''),status||roleColor].filter(Boolean).join(', ');
@@ -413,8 +425,10 @@ function shapeOverride(node:VisualNode):string {
 function mermaidNodeDeclaration(node:VisualNode,nativeId:string,encode:(value:string)=>string):string {
  const wrap=(text:string,limit:number)=>text.split('\n').flatMap(line=>{const words=line.split(/\s+/),out:string[]=[];let current='';for(const word of words){if(current&&current.length+1+word.length>limit){out.push(current);current=word;}else current=current?current+' '+word:word;}if(current)out.push(current);return out;}).join('\n');
  const portText=portRows(node).map(port=>wrap('Port '+port.id+(port.label?' · '+port.label:'')+(port.side?' · '+port.side:''),32)).join('\n');
- const label=encode([node.icon?wrap('Icon: '+node.icon,22):undefined,wrap(node.label,22),node.detail?wrap(node.detail,38):undefined,portText].filter(Boolean).join('\n'));
- return node.shape?`  ${nativeId}@{ shape: ${shapeOptions[node.shape]!.mermaid}, label: "${label}" }`:`  ${nativeId}["${label}"]`;
+ const label=encode([node.icon?wrap('Icon: '+node.icon,22):undefined,wrap(node.label,22),node.detail?wrap(node.detail,38):undefined,processRoleCaption(node),portText].filter(Boolean).join('\n'));
+ const roleShape=node.role==='actor'?'ellipse':node.role==='store'?'cylinder':node.role==='document'?'folded-corner':undefined;
+ const shape=node.shape??roleShape;
+ return shape?`  ${nativeId}@{ shape: ${shapeOptions[shape]!.mermaid}, label: "${label}" }`:`  ${nativeId}["${label}"]`;
 }
 function multiplicityText(m:VisualMultiplicity|undefined,cardinality?:'zero-or-one'|'exactly-one'|'zero-or-many'|'one-or-many'):string {
  if(!m){if(cardinality==='zero-or-one')return '0..1';if(cardinality==='exactly-one')return '1';if(cardinality==='one-or-many')return '1..*';if(cardinality==='zero-or-many')return '0..*';return '';}

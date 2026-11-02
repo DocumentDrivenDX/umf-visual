@@ -35,7 +35,8 @@ await Bun.write(join(consumer,'consumer.mjs'),`import {createVisualDocument,getV
 import legacySchema from '@documentdrivendx/umf-visual/schema' with {type:'json'};
 import modernSchema from '@documentdrivendx/umf-visual/schema/1.1.0' with {type:'json'};
 import expressiveSchema from '@documentdrivendx/umf-visual/schema/1.2.0' with {type:'json'};
-import gallerySchema from '@documentdrivendx/umf-visual/schema/1.3.0' with {type:'json'};
+import frozenGallerySchema from '@documentdrivendx/umf-visual/schema/1.3.0' with {type:'json'};
+import gallerySchema from '@documentdrivendx/umf-visual/schema/1.4.0' with {type:'json'};
 import {planMiroExport} from '@documentdrivendx/umf-visual/miro';
 import {exportPowerPoint,importPowerPoint} from '@documentdrivendx/umf-visual/powerpoint';
 import {observeGoogleSlides,planGoogleSlidesExport} from '@documentdrivendx/umf-visual/google-slides';
@@ -54,13 +55,18 @@ const ppt=await exportPowerPoint(doc,{mode:'report'});const pptBack=await import
 const snapshot={presentationId:'consumer-presentation',revisionId:'consumer-rev-1',pageSize:{width:{magnitude:720,unit:'PT'},height:{magnitude:405,unit:'PT'}},slides:[{objectId:'consumer-slide',pageElements:[]}]};
 const observed=await observeGoogleSlides(snapshot);await admitHostObservation({resource:{host:'google-slides',documentId:'consumer-presentation'},revision:{kind:'host-revision',value:'consumer-rev-1'},captureDigestSha256:observed.captureDigestSha256,payload:snapshot});
 const slides=await planGoogleSlidesExport(doc,observed,{question:{x:20,y:20,width:400,height:50},nodes:{n:{x:100,y:120,width:180,height:80}}},{namespace:'consumer'});if(slides.batch.writeControl.requiredRevisionId!=='consumer-rev-1')throw Error('Installed Google Slides entrypoint failed');
-if(legacySchema.$id!=='urn:umf:visual:1.0.0'||modernSchema.$id!=='urn:umf:visual:1.1.0'||latestVisualPackage.version!=='1.3.0'||expressiveSchema.$id!=='urn:umf:visual:1.2.0'||gallerySchema.$id!=='urn:umf:visual:1.3.0'||'icon' in expressiveSchema.$defs.node.properties||!gallerySchema.$defs.node.properties.icon)throw Error('Versioned package assets failed');
+if(legacySchema.$id!=='urn:umf:visual:1.0.0'||modernSchema.$id!=='urn:umf:visual:1.1.0'||latestVisualPackage.version!=='1.4.0'||expressiveSchema.$id!=='urn:umf:visual:1.2.0'||frozenGallerySchema.$id!=='urn:umf:visual:1.3.0'||gallerySchema.$id!=='urn:umf:visual:1.4.0'||'icon' in expressiveSchema.$defs.node.properties||!frozenGallerySchema.$defs.node.properties.icon||frozenGallerySchema.$defs.node.properties.role.enum.includes('process')||!gallerySchema.$defs.node.properties.role.enum.includes('process')||'routing' in frozenGallerySchema.$defs.edge.properties||!gallerySchema.$defs.edge.properties.routing?.properties?.kind?.enum?.includes('curved'))throw Error('Versioned package assets failed');
 if(!inspectVisual(upgradeVisualDocument(doc)).complete||doc.vocabularies['umf.visual'].version!=='1.0.0')throw Error('Installed upgrade failed');
 const rich=createVisualDocument({id:'rich',kind:'flow',form:'network',question:'Which ports?',layout:{kind:'flow',direction:'LR',order:['client','api']},nodes:[{id:'client',label:'Client',shape:'ellipse',ports:[{id:'out',side:'east'}]},{id:'api',label:'API',shape:'hexagon',ports:[{id:'in',side:'west'}]}],edges:[{id:'request',from:'client',to:'api',fromPort:'out',toPort:'in'}]},'visual:rich','1.2.0');
 if(!inspectVisual(rich).complete||!compilePresentation(editVisual(rich,v=>({...v,title:'Reviewed ports'})),{backend:'lini'}).ok)throw Error('Installed expressive model authoring failed');
 const tree=createVisualDocument({id:'installed-tree',kind:'structure',form:'tree',question:'Which parts?',layout:{kind:'tree',direction:'bilateral',order:['root']},nodes:[{id:'root',label:'Root'},{id:'child',label:'Child',parent:'root',icon:'rocket'}]},undefined,'1.3.0');
 const sequence=createVisualDocument({id:'installed-sequence',kind:'sequence',form:'lifelines',question:'What happens?',sequence:{participants:[{id:'a',label:'A'},{id:'b',label:'B',shape:'parallelogram'}],messages:[{id:'m',from:'a',to:'b',label:'call'}],notes:[{id:'note',text:'before call',participants:['a'],before:'m'}]}},undefined,'1.3.0');
 for(const value of [tree,sequence])if(!inspectVisual(value).complete||!compilePresentation(value,{backend:'lini'}).ok)throw Error('Installed gallery model authoring failed');
+const processDoc=createVisualDocument({id:'installed-process-role',kind:'flow',form:'network',question:'Which process connects to the data store?',groups:[{id:'env-a',label:'Environment A',role:'boundary'},{id:'env-b',label:'Environment B',role:'boundary',parent:'env-a'}],nodes:[{id:'process',label:'Process outside A',detail:'Process',role:'process',shape:'rectangle'},{id:'store',label:'Data store',role:'store',shape:'cylinder',group:'env-b'}],edges:[{id:'connects',from:'process',to:'store',kind:'data',label:'connects to',routing:{kind:'curved'}}]},'visual:installed-process-role','1.4.0');
+if(!inspectVisual(processDoc).complete)throw Error('Installed 1.4 process role is incomplete');
+/** @type {Array<'graphviz'|'mermaid'|'lini'>} */ const processBackends=['graphviz','mermaid','lini'];
+const processNodes=getVisual(processDoc).nodes||[];
+for(const backend of processBackends){const plan=compilePresentation(processDoc,{backend});if(!plan.ok||!plan.source?.trim()||!plan.elementMap.length)throw Error('Installed process presentation compilation failed: '+backend);for(const[index,node]of processNodes.entries()){const sourcePath='/extensions/umf.visual/nodes/'+index;if(!plan.elementMap.some(element=>element.kind==='node'&&element.logicalId===node.id&&(element.sourcePath===sourcePath||element.sourcePath.startsWith(sourcePath+'/'))))throw Error('Installed process node mapping is missing for '+backend+': '+node.id);}}
 const report=inspectVisual(doc);if(!report.valid||!report.complete)throw Error('Installed package rejected valid data');
 for(const format of ['dot','mermaid','lini']){
  const output=exportVisual(doc,{format});if(!output.ok)throw Error('Installed export failed '+format);
@@ -100,7 +106,7 @@ for(const entry of profileCases.filter(p=>p.format==='mermaid'||p.document.exten
 }
 let unknownProfileRefused=false;try{unknownProfileRefused=!exportVisual(profileCases[2].document,{format:'mermaid',profile:'umf.visual.mermaid.unknown/999'}).ok;}catch{unknownProfileRefused=true;}
 if(!unknownProfileRefused)throw Error('Unknown packed-consumer profile was accepted');
-console.log(JSON.stringify({installed:true,valid:report.valid,complete:report.complete,interchange:['dot','mermaid','lini'],portableAdapters:['powerpoint','google-slides','reconciliation','miro/editable'],fullProfileCases:fullCases.length,annotatedProfiles:profileCases.map(p=>p.profile),annotatedSources:['helix-request','catalog-canary-flow'],unknownProfileRefused:true}));`);
+console.log(JSON.stringify({installed:true,valid:report.valid,complete:report.complete,interchange:['dot','mermaid','lini'],portableAdapters:['powerpoint','google-slides','reconciliation','miro/editable'],fullProfileCases:fullCases.length,annotatedProfiles:profileCases.map(p=>p.profile),annotatedSources:['helix-request','catalog-canary-flow'],processRoleVersion:'1.4.0',unknownProfileRefused:true}));`);
 const types=Bun.spawn([resolve('node_modules/.bin/tsc'),'--ignoreConfig','--allowJs','--checkJs','--noEmit','--module','ESNext','--moduleResolution','Bundler','--target','ES2022','--skipLibCheck','consumer.mjs'],{cwd:consumer,stdout:'inherit',stderr:'inherit'});
 if(await types.exited)throw Error('Installed consumer declarations failed');
 for(const runtime of [process.execPath,'node']){

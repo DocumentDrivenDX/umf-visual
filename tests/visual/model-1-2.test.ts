@@ -33,7 +33,7 @@ test('1.2 schema and manifest remain frozen while latest is additive 1.3',()=>{
  const schema=JSON.parse(readFileSync('spec/extensions/visual/1.2.0/schema.json','utf8'));
  const manifest=JSON.parse(readFileSync('spec/extensions/visual/1.2.0/package.json','utf8'));
  expect(schema.$id).toBe('urn:umf:visual:1.2.0');expect(manifest.version).toBe('1.2.0');expect(manifest.schema).toEqual(schema);
- expect(VISUAL_VERSION).toBe('1.0.0');expect(LATEST_VISUAL_VERSION).toBe('1.3.0');expect(latestVisualPackage.version).toBe('1.3.0');
+ expect(VISUAL_VERSION).toBe('1.0.0');expect(LATEST_VISUAL_VERSION).toBe('1.4.0');expect(latestVisualPackage.version).toBe('1.4.0');
 });
 
 test('1.2 models explicit node shapes, node-local ports, endpoint bindings and exact JSON/YAML round trips',()=>{

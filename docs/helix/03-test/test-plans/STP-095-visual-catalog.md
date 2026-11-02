@@ -251,3 +251,25 @@ policy; it MUST NOT claim direct strict-CSP import of the current core library.
 | forms | covered | US-095-AC4 | Labelled search and filter controls |
 | data-states | covered | US-095-AC3, US-095-AC4, US-095-AC10, US-095-AC11, US-095-AC12 | Projection/render/cycle, current loss, unsupported, unavailable, stale, empty and loaded states |
 | destructive-actions | not-applicable | Static read-only catalog has no mutation/destruction action | Source review |
+
+
+## Source-derived review qualification
+
+Verify exact definition/common/native hashes, unchanged capture bytes, synthetic
+source attribution, exact YAML copy and downloads, and stale/forged evidence join
+refusal. Recompile each portable variant and replay native geometry/image checks.
+Visually inspect every emitted original and derived output at presentation size
+and mobile width; verify nesting, carrier labels and connector attachment.
+Unsupported targets and retained-only host meaning remain visible rather than
+being promoted by new portable output. Exercise generic viewer selection and
+keyboard controls; reject fixture-specific renderer branches in interface review.
+For explicit 1.4.0, verify typed node/participant process role and independent shape, frozen 1.3.0
+schema/manifest behavior, explicit upgrading and unchanged authoring defaults.
+
+
+Draft 1.4.0 routing checks cover optional curved/straight edge intent, unspecified
+absence, frozen 1.3.0 behavior and JSON/YAML persistence. Native checks bind each
+route to its own connector and endpoints, distinguish non-collinear curves from
+straight paths, and reject straightened-curve mutations. Include mixed-intent
+inputs so global renderer settings cannot silently flatten edge distinctions.
+Exact control points are preserved native evidence, not common-model equality.

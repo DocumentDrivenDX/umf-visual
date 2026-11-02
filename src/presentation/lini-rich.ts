@@ -79,12 +79,14 @@ export function compileLiniSequence(visual:Visual):PresentationPlan|Presentation
   const shape=participant.shape==='parallelogram'?'slant':participant.shape==='cylinder'?'cyl':participant.shape==='ellipse'?'oval':participant.shape==='hexagon'?'hex':participant.shape==='diamond'?'diamond':participant.shape==='folded-corner'?'note':participant.shape==='rounded-rectangle'?'box':participant.shape==='rectangle'?'box':'box';
   const requestedIcon=participant.icon??(participant.role==='actor'?'user':undefined),icon=requestedIcon?iconToken(requestedIcon):undefined;
   if(requestedIcon&&!icon)approximations.push({sourcePath:path('/sequence/participants/'+index+'/icon'),requested:'Icon '+requestedIcon,representation:'The icon name is retained visibly as a text caption because it is outside the pinned Lini Phosphor symbol subset.'});
+  if(participant.role==='process')approximations.push({sourcePath:path('/sequence/participants/'+index+'/role'),requested:'Participant role process',representation:'The native participant owns a visible “Process” caption; this denotes a depicted process/activity and does not change the authored shape.'});
   const props:string[]=[];
   if(icon)props.push('symbol: '+icon+';');
-  const style=participant.role==='actor'?'--rose-deep':participant.role==='own'?'--teal-deep':participant.role==='platform'?'--sky-deep':participant.role==='external'?'--gray-deep':participant.role==='store'?'--blue-deep':participant.role==='document'?'--purple-deep':'--blue-deep';
+  const style=participant.role==='actor'?'--rose-deep':participant.role==='own'?'--teal-deep':participant.role==='platform'?'--sky-deep':participant.role==='external'?'--gray-deep':participant.role==='store'?'--blue-deep':participant.role==='document'?'--purple-deep':participant.role==='process'?'--rose-deep':'--blue-deep';
   props.push('stroke: '+style+';');
-  const iconChild=icon?` [ |icon| { symbol: ${icon}; width: 18; height: 18; fill: none; stroke: ${style}; } ]`:'';
-  const line=`|${shape}#${nativeId}| ${quoteText(participant.label+(requestedIcon&&!icon?' (icon: '+requestedIcon+')':''),path('/sequence/participants/'+index+'/label'))} { ${props.filter(value=>!value.startsWith('symbol:')).join(' ')} }${iconChild}`;
+  const children=[participant.role==='process'?`|cell#role| ${quoteText('Process',path('/sequence/participants/'+index+'/role'))}`:undefined,icon?`|icon| { symbol: ${icon}; width: 18; height: 18; fill: none; stroke: ${style}; }`:undefined].filter((item):item is string=>!!item);
+  const childSource=children.length?' [\n    '+children.join('\n    ')+'\n  ]':'';
+  const line=`|${shape}#${nativeId}| ${quoteText(participant.label+(requestedIcon&&!icon?' (icon: '+requestedIcon+')':''),path('/sequence/participants/'+index+'/label'))} { ${props.filter(value=>!value.startsWith('symbol:')).join(' ')} }${childSource}`;
   for(const field of ['detail','evidence','status','emphasis'] as const)if(participant[field]!==undefined)omissions.push({sourcePath:path('/sequence/participants/'+index+'/'+field),reason:'Retained in UMF; this Lini sequence profile does not render the participant field.'});
   return line;
  });

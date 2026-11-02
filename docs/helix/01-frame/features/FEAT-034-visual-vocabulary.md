@@ -160,3 +160,19 @@ Core extension registration (CONTRACT-001), document read/write and validation.
 Rendering, layout, theming and the role-to-token mapping (`@ux-builder/visuals`); producing
 visuals from models and checking evidence (documentor); deciding when a visual earns its place
 (HELIX catalog); Mermaid emission; a Python or Rust implementation of the semantic checks.
+
+
+## Explicit process identity
+
+Draft, unreleased visual 1.4.0 adds a typed diagram process/activity role
+for nodes and sequence participants for sources that explicitly
+declare that identity. Shape and explanatory text remain independent. Earlier
+versions, including released 1.3.0, remain frozen; opt-in does not broaden older
+adapter qualifications. Unresolved containment purpose remains unspecified.
+
+
+Explicit draft 1.4.0 also carries per-edge curved/straight routing intent, grounded
+in authored native witness routes. Unspecified routing stays unspecified. Exact
+native coordinates and control points remain preservation content; interpreters
+must realize, explicitly approximate or refuse authored intent rather than
+silently selecting one global route policy for mixed requests.

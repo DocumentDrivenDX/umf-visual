@@ -983,3 +983,166 @@ PowerPoint tests pass (144 assertions); Sol independently passed 22 tests and
 preservation. Captured host archives remain copied bytes. CI now repeats the
 complete catalog/integration build and verifies every source, render and
 evidence asset rather than excluding the unstable hashes.
+
+
+## Sequential source and presentation review — 2026-11-02
+
+The owner authorizes example-by-example improvement, starting with complex Miro
+integration witnesses, then the evidence library. CONTRACT-083 governs meaning,
+CONTRACT-085/086 evidence and loss, and CONTRACT-089 presentation. Retain existing
+release/host evidence as historical qualifications of its exact source/profile.
+
+The inventory has 68 review cycles: five common/native Miro witnesses, one opaque
+native-only witness, 53 catalog documents and nine distinct showcase definitions.
+There are 67 common-document cycles. Miro corpus witnesses are synthetic, not
+original captured boards. Opaque review qualifies preservation/refusal without
+inventing common meaning. Catalog order matches builder lexical fixture order
+excluding index.json; showcase order follows its manifest.
+
+### Execution contract
+
+Complete and commit one document before starting the next. Parallel packages may
+work inside that document only. Each cycle audits source meaning, strengthens the
+shared model when justified, renders and visually evaluates every output, updates
+site coverage and reviews touched interfaces for modularity and encapsulation.
+No example-ID conditionals or dedicated renderers qualify completion.
+
+Parameterize the existing presentation builder with manifest/output/asset paths,
+retaining showcase defaults. Reuse its native renderers, quality checks, verifier,
+exact YAML and downloads. Bind definition and all semantic sources by exact hash;
+common and native witnesses both belong when both supply meaning. A generic
+secondary review viewer separates original evidence from derived portable output;
+link it quietly from navigation. Preserve historical source/model/profile/native
+identities and capture bytes. Never certify enriched input by replacing old hashes.
+
+Gate each cycle on focused model/native/browser/package checks appropriate to the
+change, source-bound geometry/image proofs and actual visual inspection at
+presentation/mobile sizes. Check containment/order, label ownership, role
+conventions, attachment and captions. `bun run check:source` remains the boundary
+gate. Review generic interfaces and dropped-meaning negative controls. Record
+remaining limitations and the cycle commit here before advancing. A closed review
+with explicit host limitations does not claim all six targets improved.
+
+Semantic additions use explicit 1.4.0 and freeze 1.3.0 schema/manifest/meaning;
+defaults remain unchanged. New host capability requires newly qualified mappings
+and actual native conformance. Renderer policy and native versions stay separate.
+
+### First-cycle closeout — nested environments
+
+Cycle 1 implementation and verification are complete. Its commit follows in this
+change; source control is authoritative for that commit identity. Cycle 2 MUST
+NOT start before the commit. The other 67 cycles remain pending. No publication
+or expanded live-host qualification is claimed by this closeout.
+
+The derived definition has SHA-256
+`2ffe683799fedde88f4b1bdbffd8da6289186139faec96c858b9c8e4019d18af`.
+Draft 1.4.0 carries source-authored process identity and per-edge curved/straight
+intent; shape remains independent and absent routing stays unspecified. Known
+parentage/membership remains typed while containment purpose stays unresolved.
+Graphviz and Lini draw qualified curves; Mermaid retains a located, coded native
+interpolation approximation when its layout is collinear. Exact coordinates and
+control points remain native evidence. All three reviewed native sources and
+SVG/PNG derivatives pass independent replay: three variants, nine assets.
+
+Sol's independent source/interface review approves the bounded shared model and
+renderer changes: 55 tests pass with 716 assertions across seven files. These
+cover native geometry, forged routing-code controls, caption clearance,
+scope/order/port behavior, frozen model boundaries, unknown-content preservation,
+released-profile refusal and generic provenance/asset safeguards. Fallback
+receipts record requested route, observed geometry, chord deviation and admitted
+code independently of prose. Review found no example-specific renderer dispatch.
+
+Root's quiet final `bun test --timeout 60000` run passes 622 tests, zero failures
+and 19,052 assertions across 89 files in 300.10 seconds. The earlier concurrent
+browser-close timeout is resolved by this successful quiet run with its explicit
+60-second test budget. Source checks, TypeScript, browser checks (one review, two
+round trips, three presentation plans in model 1.4.0), and fresh packed Bun/Node
+consumers pass, including frozen 1.3.0 and the new routing boundary. Native
+Graphviz 16.1.0 and pinned Lini 1.1.0 canaries pass.
+
+The unchanged 53-document catalog verifies 532 assets, 159 full-profile pairs and
+22 forms with zero semantic losses and native diagnostics in that qualified
+population. Nine showcase examples verify 20 native and 20 PNG replays across
+60 assets. All three site-browser gates pass, including the 375px evidence-site
+view, native URLs, download hashes, exact YAML/copy, selection races, corruption
+refusal and modal controls. Root approves the final three native review diagrams
+and desktop/mobile views. Historical Miro, PowerPoint (LibreOffice-converted)
+and Slides images were also inspected: their missing boundary/store conventions
+remain explicit old 1.0.0 qualifications, not new 1.4.0 host support.
+
+### Ordered cycle inventory
+
+Cycle 1 implementation and verification are complete; its commit follows in this
+change. Cycles 2–68 remain pending. Source control supplies commit identity; no
+self-referential commit hash is embedded here.
+
+| Cycle | Identity | Source population |
+| --- | --- | --- |
+| 1 | `nested-environments` | `synthetic common/native` |
+| 2 | `process-documents-store` | `synthetic common/native` |
+| 3 | `network-16x24` | `synthetic common/native` |
+| 4 | `frames-headings-annotations` | `synthetic common/native` |
+| 5 | `curved-caption-cross-boundary` | `synthetic common/native` |
+| 6 | `opaque-stencils` | `synthetic native-only` |
+| 7 | `catalog-canary-entities` | `fixtures/catalog/canary-entities.json` |
+| 8 | `catalog-canary-flow` | `fixtures/catalog/canary-flow.json` |
+| 9 | `catalog-canary-supported-flow` | `fixtures/catalog/canary-supported-flow.json` |
+| 10 | `helix-authoring-state` | `fixtures/visual/forms/helix-authoring-state.json` |
+| 11 | `helix-releases` | `fixtures/visual/forms/helix-releases.json` |
+| 12 | `helix-request-ladder` | `fixtures/visual/forms/helix-request-ladder.json` |
+| 13 | `layout-engines` | `fixtures/visual/forms/layout-engines.json` |
+| 14 | `umf-ac-coverage` | `fixtures/visual/forms/umf-ac-coverage.json` |
+| 15 | `umf-ac-satisfied` | `fixtures/visual/forms/umf-ac-satisfied.json` |
+| 16 | `umf-ac-status` | `fixtures/visual/forms/umf-ac-status.json` |
+| 17 | `umf-ac-trend` | `fixtures/visual/forms/umf-ac-trend.json` |
+| 18 | `umf-extensions` | `fixtures/visual/forms/umf-extensions.json` |
+| 19 | `umf-releases` | `fixtures/visual/forms/umf-releases.json` |
+| 20 | `visuals-before-after` | `fixtures/visual/forms/visuals-before-after.json` |
+| 21 | `visuals-roadmap` | `fixtures/visual/forms/visuals-roadmap.json` |
+| 22 | `beacon-ci-ci` | `fixtures/visual/inventory/beacon-ci-ci.json` |
+| 23 | `beacon-ci-nightly` | `fixtures/visual/inventory/beacon-ci-nightly.json` |
+| 24 | `beacon-ci-preview` | `fixtures/visual/inventory/beacon-ci-preview.json` |
+| 25 | `beacon-containers` | `fixtures/visual/inventory/beacon-containers.json` |
+| 26 | `beacon-context` | `fixtures/visual/inventory/beacon-context.json` |
+| 27 | `beacon-deployment` | `fixtures/visual/inventory/beacon-deployment.json` |
+| 28 | `beacon-estate-landscape` | `fixtures/visual/inventory/beacon-estate-landscape.json` |
+| 29 | `beacon-estate` | `fixtures/visual/inventory/beacon-estate.json` |
+| 30 | `beacon-field-guide` | `fixtures/visual/inventory/beacon-field-guide.json` |
+| 31 | `beacon-integrations` | `fixtures/visual/inventory/beacon-integrations.json` |
+| 32 | `beacon-overview` | `fixtures/visual/inventory/beacon-overview.json` |
+| 33 | `beacon-reply-draft` | `fixtures/visual/inventory/beacon-reply-draft.json` |
+| 34 | `beacon-reply-presentation` | `fixtures/visual/inventory/beacon-reply-presentation.json` |
+| 35 | `beacon-schema-tickets` | `fixtures/visual/inventory/beacon-schema-tickets.json` |
+| 36 | `beacon-schema-workspace` | `fixtures/visual/inventory/beacon-schema-workspace.json` |
+| 37 | `beacon-stack` | `fixtures/visual/inventory/beacon-stack.json` |
+| 38 | `beacon-ticket-lifecycle` | `fixtures/visual/inventory/beacon-ticket-lifecycle.json` |
+| 39 | `documentor-pipeline` | `fixtures/visual/inventory/documentor-pipeline.json` |
+| 40 | `helix-activities` | `fixtures/visual/inventory/helix-activities.json` |
+| 41 | `helix-adr-options` | `fixtures/visual/inventory/helix-adr-options.json` |
+| 42 | `helix-containers` | `fixtures/visual/inventory/helix-containers.json` |
+| 43 | `helix-context` | `fixtures/visual/inventory/helix-context.json` |
+| 44 | `helix-deployment` | `fixtures/visual/inventory/helix-deployment.json` |
+| 45 | `helix-field-guide` | `fixtures/visual/inventory/helix-field-guide.json` |
+| 46 | `helix-overview-map` | `fixtures/visual/inventory/helix-overview-map.json` |
+| 47 | `helix-parts` | `fixtures/visual/inventory/helix-parts.json` |
+| 48 | `helix-request` | `fixtures/visual/inventory/helix-request.json` |
+| 49 | `helix-solution-overview` | `fixtures/visual/inventory/helix-solution-overview.json` |
+| 50 | `tpl-arch-components` | `fixtures/visual/inventory/tpl-arch-components.json` |
+| 51 | `tpl-arch-containers` | `fixtures/visual/inventory/tpl-arch-containers.json` |
+| 52 | `tpl-arch-context` | `fixtures/visual/inventory/tpl-arch-context.json` |
+| 53 | `tpl-arch-dataflow` | `fixtures/visual/inventory/tpl-arch-dataflow.json` |
+| 54 | `tpl-arch-deployment` | `fixtures/visual/inventory/tpl-arch-deployment.json` |
+| 55 | `tpl-design-investigation` | `fixtures/visual/inventory/tpl-design-investigation.json` |
+| 56 | `tpl-design-process` | `fixtures/visual/inventory/tpl-design-process.json` |
+| 57 | `tpl-sd-components` | `fixtures/visual/inventory/tpl-sd-components.json` |
+| 58 | `tpl-sd-domain` | `fixtures/visual/inventory/tpl-sd-domain.json` |
+| 59 | `tpl-so-map` | `fixtures/visual/inventory/tpl-so-map.json` |
+| 60 | `umf-engine-target-architecture` | `fixtures/showcase/definitions/umf-engine-target-architecture.json` |
+| 61 | `umf-native-interchange-architecture` | `fixtures/showcase/definitions/umf-native-interchange-architecture.json` |
+| 62 | `umf-architecture-stack` | `fixtures/showcase/definitions/umf-architecture-stack.json` |
+| 63 | `umf-logical-metamodel` | `fixtures/showcase/definitions/umf-logical-metamodel.json` |
+| 64 | `beacon-relational-core` | `fixtures/showcase/definitions/beacon-relational-core.json` |
+| 65 | `umf-logical-interface-architecture` | `fixtures/showcase/definitions/umf-logical-interface-architecture.json` |
+| 66 | `lini-gallery-checkout-sequence` | `fixtures/showcase/definitions/lini-gallery-checkout-sequence.json` |
+| 67 | `lini-gallery-product-mindmap` | `fixtures/showcase/definitions/lini-gallery-product-mindmap.json` |
+| 68 | `lini-gallery-commerce-entities` | `fixtures/showcase/definitions/lini-gallery-commerce-entities.json` |

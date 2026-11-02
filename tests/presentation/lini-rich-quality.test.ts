@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {afterAll,beforeAll,describe,expect,it} from 'bun:test';
 import {chromium,type Browser,type Page} from 'playwright';
-import {readVisualDocument} from '../../src/extensions/visual';
+import {createVisualDocument,readVisualDocument} from '../../src/extensions/visual';
 import {compilePresentation,type PresentationPlan} from '../../src/presentation';
 import {renderPresentationLini} from '../../scripts/presentation/lini-runtime';
 import {verifyLiniPresentationQuality} from '../../scripts/presentation/lini-quality';
@@ -25,6 +25,23 @@ async function recheck(page:Page,document:Awaited<ReturnType<typeof render>>['do
 function expectPass(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>){expect(names(checks)).toEqual(required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw Error(JSON.stringify(failed));}
 
 describe('pinned Lini rich layouts',()=>{
+ it('renders and owns the sequence process role caption',async()=>{
+  const document=createVisualDocument({id:'sequence-process-role',kind:'sequence',form:'lifelines',question:'Which activity is depicted?',sequence:{participants:[{id:'activity',label:'Reconcile records',detail:'Apply authored rules',role:'process'},{id:'shop',label:'Storefront',role:'own'},{id:'pay',label:'Payments',role:'platform'},{id:'store',label:'Records',role:'store',shape:'parallelogram'}],messages:[{id:'place',from:'activity',to:'shop',label:'place order',kind:'call'},{id:'charge',from:'shop',to:'pay',label:'charge amount',kind:'call'},{id:'verify',from:'pay',to:'pay',label:'verify card',kind:'call'},{id:'receipt',from:'pay',to:'shop',label:'receipt',kind:'return'},{id:'write',from:'shop',to:'store',label:'write order',kind:'call'},{id:'stored',from:'store',to:'shop',label:'stored',kind:'return'},{id:'finish',from:'shop',to:'activity',label:'order accepted',kind:'return'},{id:'track',from:'activity',to:'shop',label:'track order',kind:'async'}]}},'test:sequence-process-role','1.4.0');
+  const plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+  expect(plan.source).toContain('|cell#role| "Process"');
+  expect(plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/sequence/participants/0/role'&&item.representation.includes('depicted process/activity'))).toBe(true);
+  const native=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900}});
+  await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden;background:#fff}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
+  await page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},native.svg);
+  try{
+   const checks=await verifyLiniPresentationQuality(page,{document,plan,nativeAst:native.nativeAst});expectPass(checks);
+   const caption=page.locator('g.lini-node[data-id="p1"] > g.lini-node.lini-cell[data-id="role"] text.lini-text');
+   expect(await caption.textContent()).toBe('Process');
+   await caption.evaluate(element=>{element.textContent='Activity';});
+   expect(status(await recheck(page,document,plan,native.nativeAst),'lini-rich-svg-ownership-geometry')).toBe('fail');
+  }finally{await page.close();}
+ },{timeout:30_000});
+
  it('proves the 4-participant, 8-message checkout sequence in native syntax and SVG geometry',async()=>{
   const good=await render('lini-gallery-checkout-sequence');
   try{

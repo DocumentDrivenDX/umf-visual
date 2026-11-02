@@ -19,6 +19,31 @@ try{
    roundTrips++;
   }
  }
+ const reviewedDefinitions=await fetch('/reviews').then(r=>r.json()) as unknown[];
+ let reviewedRoundTrips=0,reviewedPresentationPlans=0;
+ const reviewedModelVersions=new Set<string>();
+ for(const input of reviewedDefinitions){
+  const review=readVisualDocument(JSON.stringify(input),'json');
+  const checked=inspectVisual(review);if(!checked.valid||!checked.complete)throw Error('Reviewed definition is not complete in the browser consumer.');
+  const payload=getVisual(review);
+  const modelVersion=review.vocabularies['umf.visual']?.version;if(modelVersion)reviewedModelVersions.add(modelVersion);
+  for(const format of ['json','yaml'] as const){const back=readVisualDocument(writeVisualDocument(review,format),format);if(JSON.stringify(back)!==JSON.stringify(review))throw Error(`Reviewed definition ${format} round trip differs.`);reviewedRoundTrips++;}
+  let compiledBackends=0;
+  for(const backend of ['graphviz','mermaid','lini'] as const){
+   const plan=compilePresentation(review,{backend,theme:'presentation/1'});
+   if(!plan.ok){if(!plan.diagnostics.length)throw Error(`Reviewed visual refusal is not explicit for ${backend}.`);continue;}
+   if(!plan.source?.trim()||!plan.elementMap.length)throw Error(`Reviewed visual presentation is incomplete for ${backend}.`);
+   compiledBackends++;
+   reviewedPresentationPlans++;
+   for(const[index,node]of (payload.nodes??[]).entries()){
+    const nodePointer=`/extensions/umf.visual/nodes/${index}`;
+    const validPointers=[nodePointer,nodePointer+'/id'];
+    for(const[entityIndex,entity]of (payload.structure?.entities??[]).entries())if(entity.node===node.id){const entityPointer=`/extensions/umf.visual/structure/entities/${entityIndex}`;validPointers.push(entityPointer,entityPointer+'/node');}
+    if(!plan.elementMap.some(element=>(element.kind==='node'||element.kind==='entity')&&element.logicalId===node.id&&validPointers.includes(element.sourcePath)))throw Error(`Reviewed visual node/entity mapping is missing for ${backend}: ${node.id}.`);
+   }
+  }
+  if(compiledBackends===0)throw Error('No reviewed backend qualified for the shared browser compiler.');
+ }
  const doc=readVisualDocument(JSON.stringify(fixtures[0]),'json');
  const before=JSON.stringify(doc);
  const edited=editVisual(doc,v=>({...v,takeaway:'Browser consumer edit'}));
@@ -65,5 +90,5 @@ try{
  }
  if(wave2.length!==16)throw Error('Expected 11 grouped flows and 5 sequences in browser');
  const interchange=await runInterchangeBrowserChecks();
- window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true,model12:true,model13:true},presentationPlans:presentationPlans.length,wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),full:runFullBrowserChecks(fixtures),miro:await exerciseMiroBrowser(),portableAdapters:await runPortableAdaptersBrowserChecks()};
+ window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,reviewedDefinitions:reviewedDefinitions.length,reviewedRoundTrips,reviewedPresentationPlans,reviewedModelVersions:[...reviewedModelVersions],atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true,model12:true,model13:true},presentationPlans:presentationPlans.length,wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),full:runFullBrowserChecks(fixtures),miro:await exerciseMiroBrowser(),portableAdapters:await runPortableAdaptersBrowserChecks()};
 }catch(error){window.visualResult={ok:false,error:String(error)};}

@@ -12,12 +12,13 @@ const ui = {
   payload: $('visual-payload'), visualVersion: $('visual-version'), programmaticCode: $('programmatic-code'),
   compileTargetNote: $('compile-target-note'),
 };
-const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, objectUrls: new Set(), currentVariant: null, currentImageUrl: null};
+const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, historicalToken: 0, historicalUrl: null, objectUrls: new Set(), currentVariant: null, currentImageUrl: null};
 const HASH = /^[a-f0-9]{64}$/i;
-const SAFE_ASSET = /^showcase\/[A-Za-z0-9._/-]+$/;
+const pageConfig = {manifest: document.body.dataset.manifest || 'showcase.json', assetPrefix: document.body.dataset.assetPrefix || 'showcase', legacyRedirect: document.body.dataset.legacyRedirect !== 'false', selectionParam: document.body.dataset.selectionParam || 'id'};
 const LEGACY_HASHES = new Set(['#coverage', '#six-target-section', '#integrations', '#examples', '#language', '#kind-reference-grid']);
 
 function redirectLegacyLinks() {
+  if (!pageConfig.legacyRedirect) return false;
   const url = new URL(location.href);
   const legacyQuery = ['id', 'target', 'profile', 'view'].some(key => url.searchParams.has(key));
   if (!legacyQuery && !LEGACY_HASHES.has(url.hash)) return false;
@@ -26,7 +27,7 @@ function redirectLegacyLinks() {
 }
 
 function safeAssetPath(path, extension) {
-  return typeof path === 'string' && SAFE_ASSET.test(path) && !path.split('/').includes('..') && path.endsWith(extension);
+  return typeof path === 'string' && /^[A-Za-z0-9._/-]+$/.test(path) && path.startsWith(`${pageConfig.assetPrefix}/`) && !path.split('/').includes('..') && path.endsWith(extension);
 }
 
 function variantQualified(variant) {
@@ -127,6 +128,53 @@ function renderCitations(example) {
   }
 }
 
+async function renderOriginalEvidence(example) {
+  const token = ++state.historicalToken;
+  const panel = $('review-evidence');
+  const disclosure = $('review-evidence-disclosure');
+  if (!panel) return;
+  const evidence = example.originalEvidence;
+  const image = $('historical-capture');
+  const status = $('historical-identity');
+  const omissions = $('historical-omissions');
+  const download = $('historical-capture-download');
+  if (state.historicalUrl) { URL.revokeObjectURL(state.historicalUrl); state.objectUrls.delete(state.historicalUrl); state.historicalUrl = null; }
+  image.hidden = true; image.removeAttribute('src');
+  download.href = '#'; download.removeAttribute('download'); download.setAttribute('aria-disabled', 'true');
+  panel.hidden = !evidence;
+  if (disclosure) disclosure.hidden = !evidence;
+  if (!evidence) return;
+  status.textContent = `${safeText(evidence.rendererId).toUpperCase()} · ${safeText(evidence.rendererProfileId)} · model ${safeText(evidence.modelVersion)} · mapping ${safeText(evidence.mappingVersion)} · ${safeText(evidence.nativeVersion)} · ${safeText(evidence.stage)}`;
+  $('historical-scope').textContent = safeText(evidence.scope);
+  $('historical-sources').replaceChildren(
+    formatSourcePath(evidence.commonDocumentPath, evidence.commonDocumentSha256),
+    document.createTextNode(' · '),
+    formatSourcePath(evidence.nativeWitnessPath, evidence.nativeWitnessSha256),
+    document.createTextNode(' · '),
+    formatSourcePath(evidence.previewReceiptPath, evidence.previewReceiptSha256),
+  );
+  omissions.replaceChildren();
+  for (const omission of evidence.knownOmissions || []) { const item = document.createElement('li'); item.textContent = safeText(omission); omissions.append(item); }
+  try {
+    const captureUrl = await loadVerifiedAsset(evidence.capturePath, evidence.captureSha256);
+    if (token !== state.historicalToken || state.selectedId !== example.id) { URL.revokeObjectURL(captureUrl); return; }
+    state.objectUrls.add(captureUrl);
+    state.historicalUrl = captureUrl;
+    image.src = captureUrl;
+    image.alt = `Historical ${safeText(evidence.rendererId)} capture for ${safeText(evidence.integrationCaseId)}`;
+    await image.decode();
+    if (token !== state.historicalToken || state.selectedId !== example.id) { URL.revokeObjectURL(captureUrl); state.objectUrls.delete(captureUrl); state.historicalUrl = null; return; }
+    image.hidden = false;
+    download.href = captureUrl;
+    download.download = pathLabel(evidence.capturePath);
+    download.setAttribute('aria-disabled', 'false');
+  } catch (error) {
+    if (token !== state.historicalToken || state.selectedId !== example.id) return;
+    status.textContent += ` · Capture unavailable: ${error instanceof Error ? error.message : String(error)}`;
+    download.href = '#'; download.removeAttribute('download'); download.setAttribute('aria-disabled', 'true');
+  }
+}
+
 function renderSource(example, variant, nativeSource = '') {
   ui.definitionPath.replaceChildren(formatSourcePath(example.definitionPath, example.definitionSha256));
   ui.definition.textContent = JSON.stringify(example.definition, null, 2);
@@ -190,6 +238,8 @@ export function editAndCompile(payload: Visual) {
 }
 
 async function loadVerifiedAsset(path, expectedHash) {
+  const extension = typeof path === 'string' ? /\.(svg|png|jpe?g)$/i.exec(path)?.[0].toLowerCase() : '';
+  if (!extension || !safeAssetPath(path, extension)) throw new Error('Asset path is outside the configured presentation namespace');
   const response = await fetch(`./${path}`, {cache: 'no-store'});
   if (!response.ok) throw new Error(`Asset request failed (${response.status})`);
   const bytes = await response.arrayBuffer();
@@ -199,6 +249,7 @@ async function loadVerifiedAsset(path, expectedHash) {
 }
 
 async function loadVerifiedText(path, expectedHash) {
+  if (!['.dot', '.mmd', '.lini'].some(extension => safeAssetPath(path, extension))) throw new Error('Native source path is outside the configured presentation namespace');
   const response = await fetch(`./${path}`, {cache: 'no-store'});
   if (!response.ok) throw new Error(`Native source request failed (${response.status})`);
   const bytes = await response.arrayBuffer();
@@ -238,7 +289,8 @@ async function renderSelected() {
     ui.caveat.hidden = true;
     const unavailable = getVariant(example, state.backend);
     const diagnostics = unavailable?.diagnostics?.map(item => safeText(item.message)).filter(Boolean).join(' ');
-    const explanation = `No qualified ${state.backend === 'graphviz' ? 'Graphviz' : 'Mermaid'} render is recorded for this example. ${safeText(unavailable?.error) || diagnostics || ''}`.trim();
+    const renderer = state.backend === 'graphviz' ? 'Graphviz' : state.backend === 'mermaid' ? 'Mermaid' : 'Lini';
+    const explanation = `No qualified ${renderer} render is recorded for this example. ${safeText(unavailable?.error) || diagnostics || ''}`.trim();
     setState(explanation, 'error');
     return;
   }
@@ -269,6 +321,9 @@ async function renderSelected() {
     const caveats = [];
     if (example.form === 'stack') caveats.push('The bands are an authored reading order, not an execution sequence.');
     if (state.backend === 'mermaid' && example.form === 'entities') caveats.push('Mermaid connects entities; field bindings are labelled rather than shown as field-port attachments.');
+    const approximationCodes = new Set((variant.approximations || []).map(item => item?.code).filter(Boolean));
+    if (approximationCodes.has('ROUTING_SCOPE_CONFLICT')) caveats.push('This renderer uses one routing style for the connection scope, so conflicting per-edge route requests cannot all be represented.');
+    if (approximationCodes.has('ROUTING_NATIVE_INTERPOLATION')) caveats.push('This renderer may approximate the requested route; the selected native preview does not guarantee visibly curved geometry or exact control points.');
     ui.caveat.hidden = !caveats.length;
     ui.caveat.textContent = caveats.join(' ');
     ui.svg.href = svgUrl;
@@ -294,11 +349,13 @@ async function renderSelected() {
   }
 }
 
-function selectExample(id) {
+function selectExample(id,updateHistory=true) {
   if (!getExample(id)) return;
   state.selectedId = id;
+  if (updateHistory) { const url = new URL(location.href);url.searchParams.set(pageConfig.selectionParam,id);history.pushState({exampleId:id},'',url); }
   document.querySelectorAll('.scenario-button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.exampleId === id)));
   renderSelected();
+  renderOriginalEvidence(getExample(id));
 }
 
 function toast(message) {
@@ -316,7 +373,7 @@ async function copyText(text) {
 async function initialize() {
   if (redirectLegacyLinks()) return;
   try {
-    const response = await fetch('./showcase.json', {cache: 'no-store'});
+    const response = await fetch(`./${pageConfig.manifest}`, {cache: 'no-store'});
     if (!response.ok) throw new Error(`Showcase catalogue request failed (${response.status})`);
     const data = await response.json();
     if (data.schemaVersion !== 1 || !Array.isArray(data.examples) || data.examples.length === 0) throw new Error('Showcase catalogue does not contain the curated authored examples.');
@@ -327,10 +384,14 @@ async function initialize() {
       throw new Error('Showcase catalogue contains an invalid example receipt.');
     }
     createScenarioList();
-    state.selectedId = state.examples[0].id;
-    const liniAvailable = qualifiedVariant(state.examples[0], 'lini');
-    const graphvizAvailable = qualifiedVariant(state.examples[0], 'graphviz');
-    const mermaidAvailable = qualifiedVariant(state.examples[0], 'mermaid');
+    const requestedId = new URL(location.href).searchParams.get(pageConfig.selectionParam);
+    state.selectedId = state.examples.some(example => example.id === requestedId) ? requestedId : state.examples[0].id;
+    if (!pageConfig.legacyRedirect && requestedId !== state.selectedId) { const url = new URL(location.href);url.searchParams.set(pageConfig.selectionParam,state.selectedId);history.replaceState({exampleId:state.selectedId},'',url); }
+    document.querySelectorAll('.scenario-button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.exampleId === state.selectedId)));
+    const selected = getExample(state.selectedId);
+    const liniAvailable = qualifiedVariant(selected, 'lini');
+    const graphvizAvailable = qualifiedVariant(selected, 'graphviz');
+    const mermaidAvailable = qualifiedVariant(selected, 'mermaid');
     state.backend = liniAvailable ? 'lini' : graphvizAvailable ? 'graphviz' : mermaidAvailable ? 'mermaid' : 'graphviz';
     document.querySelectorAll('[data-backend]').forEach(button => button.addEventListener('click', () => {
       if (button.disabled) return;
@@ -338,12 +399,15 @@ async function initialize() {
       renderSelected();
     }));
     await renderSelected();
+    await renderOriginalEvidence(selected);
   } catch (error) {
     $('showcase-error').hidden = false;
     $('showcase-error').textContent = `The authored presentation examples could not be loaded. ${error instanceof Error ? error.message : String(error)} Open the evidence library for the underlying catalogue.`;
     setState('No verified showcase image is available.', 'error');
   }
 }
+
+window.addEventListener('popstate',()=>{const requested=new URL(location.href).searchParams.get(pageConfig.selectionParam);const id=state.examples.some(example=>example.id===requested)?requested:state.examples[0]?.id;if(id)selectExample(id,false);});
 
 ui.enlarge.addEventListener('click', () => { if (state.currentVariant) ui.viewer.showModal(); });
 $('close-viewer').addEventListener('click', () => ui.viewer.close());

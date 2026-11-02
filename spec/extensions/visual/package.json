@@ -1,12 +1,12 @@
 {
   "id": "umf.visual",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "coreVersion": "0.10.0",
   "description": "Renderer-neutral visual declarations: shared geometric shapes, named ports, relationships, walkthroughs and container layout intent; rendering themes remain separate",
   "schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "urn:umf:visual:1.3.0",
-    "title": "UMF visual vocabulary 1.3.0",
+    "$id": "urn:umf:visual:1.4.0",
+    "title": "UMF visual vocabulary 1.4.0",
     "type": "object",
     "required": [
       "id",
@@ -267,7 +267,8 @@
               "platform",
               "external",
               "store",
-              "document"
+              "document",
+              "process"
             ]
           },
           "status": {
@@ -339,7 +340,8 @@
               "platform",
               "external",
               "store",
-              "document"
+              "document",
+              "process"
             ]
           },
           "status": {
@@ -402,6 +404,20 @@
               "control",
               "return"
             ]
+          },
+          "routing": {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "curved",
+                  "straight"
+                ]
+              }
+            }
           },
           "status": {
             "$ref": "#/$defs/status"
@@ -1374,7 +1390,7 @@
       }
     }
   },
-  "semantics": "CONTRACT-083 plus explicit renderer-neutral 1.2 shape, port, identification, and layout vocabulary. Layout order is declarative; it is validated against direct children and does not add coordinates, colors, or renderer styles. Port identifiers are node-local and are not inferred from entity field keys.",
+  "semantics": "CONTRACT-083 plus explicit renderer-neutral 1.2 shape, port, identification, and layout vocabulary and the 1.4 process role. Process names a depicted process/activity in a diagram; it does not assert an operating-system process or executable behavior. Geometry and renderer styling remain independent. Layout order is declarative; it is validated against direct children and does not add coordinates, colors, or renderer styles. Port identifiers are node-local and are not inferred from entity field keys.",
   "scopes": [
     "document"
   ],
@@ -1386,8 +1402,8 @@
     ],
     "native": {
       "system": "UMF-authored visual vocabulary",
-      "version": "1.3.0",
-      "subset": "Versioned declarations in UMF JSON/YAML; 1.3 tree layout, generic participant icons and anchored sequence notes; no renderer, layout engine or Mermaid compatibility claimed"
+      "version": "1.4.0",
+      "subset": "Versioned declarations in UMF JSON/YAML; 1.4 adds a renderer-neutral process diagram role while preserving 1.3 layout, shape, port and note vocabulary; no renderer, layout engine or Mermaid compatibility claimed"
     },
     "evidence": [
       "tests/visual/vocabulary.test.ts"

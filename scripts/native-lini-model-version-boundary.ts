@@ -15,7 +15,7 @@ const input=await readFile(resolve(fixture)),digest=(value:Uint8Array|string)=>n
 if(digest(input)!==fixtureHash)throw new Error('UMF visual 1.1 boundary fixture changed from its pin');
 const document=JSON.parse(input.toString()) as Document,visual=document.extensions?.['umf.visual'] as any;
 if(document.vocabularies['umf.visual']?.version!=='1.1.0'||visual.nodes?.length!==16||visual.edges?.length!==24)throw new Error('Expected the explicit UMF visual 1.1 network 16x24 fixture');
-if(VISUAL_VERSION!=='1.0.0'||LATEST_VISUAL_VERSION!=='1.3.0'||liniAdapter.version!=='0.3.0')throw new Error('Unexpected UMF/Lini adapter mapping versions');
+if(VISUAL_VERSION!=='1.0.0'||LATEST_VISUAL_VERSION!=='1.4.0'||liniAdapter.version!=='0.3.0')throw new Error('Unexpected UMF/Lini adapter mapping versions');
 const verified=await verifyLiniRuntime();if(verified.version!=='1.1.0'||pin.version!==verified.version)throw new Error('Pinned Lini runtime is not 1.1.0');
 const runtimePath=resolve(liniDirectory,'lini_wasm.js'),wasmPath=resolve(liniDirectory,'lini_wasm_bg.wasm');
 const runtime=await import(pathToFileURL(runtimePath).href) as {default(options:{module_or_path:Uint8Array}):Promise<void>;version?:()=>string;diagnostics(source:string,options:unknown):string;compile(source:string,options:unknown):string};

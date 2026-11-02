@@ -60,6 +60,7 @@ export async function verifyPresentationQuality(
  await page.setViewportSize({width:1600,height:900});
  await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden;background:#fff}#frame{width:1600px;height:900px;display:flex;align-items:center;justify-content:center}#frame svg{display:block;max-width:1600px;max-height:900px;width:auto;height:auto}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
  await page.locator('#frame').evaluate((el,markup)=>{el.innerHTML=markup;},svg);
+ await page.locator('#frame svg').evaluate(root=>{const element=root as SVGSVGElement;element.style.maxWidth='none';element.style.maxHeight='none';element.style.width='100%';element.style.height='100%';});
  const dom=await page.locator('#frame svg').evaluate((root)=>{
   const s=root as SVGSVGElement,view=s.viewBox.baseVal,rootRect=s.getBoundingClientRect();
   const normalize=(s:string)=>s.replace(/\s+/g,' ').trim();
@@ -84,6 +85,7 @@ export async function verifyPresentationQuality(
    return normalize(collect(el));
   };
   const box=(el:Element)=>{const r=el.getBoundingClientRect();return{x:r.x-rootRect.x,y:r.y-rootRect.y,width:r.width,height:r.height};};
+  const curveDeviation=(path:SVGPathElement)=>{const length=path.getTotalLength();if(length<=0)return 0;const point=(at:number)=>{const p=path.getPointAtLength(at),matrix=path.getScreenCTM();return matrix?new DOMPoint(p.x,p.y).matrixTransform(matrix):p;},a=point(0),b=point(length),dx=b.x-a.x,dy=b.y-a.y,span=Math.hypot(dx,dy)||1;let deviation=0;for(let index=1;index<12;index++){const p=point(length*index/12);deviation=Math.max(deviation,Math.abs(dy*p.x-dx*p.y+b.x*a.y-b.y*a.x)/span);}return deviation;};
   const titleOf=(g:Element)=>normalize(g.querySelector(':scope > title')?.textContent??'');
   const carriers=[...s.querySelectorAll('g.node,g.cluster,g.edge')].map(g=>({
    cls:g.getAttribute('class')??'',title:titleOf(g),id:g.getAttribute('id')??'',
@@ -95,7 +97,7 @@ export async function verifyPresentationQuality(
    polygons:[...g.querySelectorAll(':scope > polygon')].map(box),
    paths:[...g.querySelectorAll(':scope > path')].map(p=>{
     const path=p as SVGPathElement,point=(at:number)=>{try{const q=path.getPointAtLength(at),screen=new DOMPoint(q.x,q.y).matrixTransform(path.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};}catch{return null;}};
-    const length=path.getTotalLength();return{d:path.getAttribute('d')??'',markerEnd:path.getAttribute('marker-end'),bounds:box(p),start:point(0),end:point(length)};
+    const length=path.getTotalLength();return{d:path.getAttribute('d')??'',markerEnd:path.getAttribute('marker-end'),bounds:box(p),start:point(0),end:point(length),curveDeviation:curveDeviation(path)};
    }),
    arrow:g.querySelector(':scope > polygon')!==null,
    arrowPoints:(()=>{const polygon=g.querySelector(':scope > polygon') as SVGPolygonElement|null;if(!polygon||polygon.points.numberOfItems<3)return[];return[...polygon.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(polygon.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};});})(),
@@ -104,7 +106,7 @@ export async function verifyPresentationQuality(
   const allText=[...s.querySelectorAll('text,foreignObject')].map(el=>({value:visibleText(el),bounds:box(el),size:el instanceof SVGTextElement?parseFloat(getComputedStyle(el).fontSize):parseFloat(getComputedStyle(el).fontSize),owner:(el.closest('g.node,g.cluster,g.edge')?.querySelector(':scope > title')?.textContent??'').trim()})).filter(x=>x.value);
   const paths=[...s.querySelectorAll('path[data-edge="true"]')].map(p=>{
    const path=p as SVGPathElement,point=(at:number)=>{try{const q=path.getPointAtLength(at),screen=new DOMPoint(q.x,q.y).matrixTransform(path.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};}catch{return null;}};
-   return{id:path.getAttribute('id')??'',dataId:path.getAttribute('data-id')??'',className:path.getAttribute('class')??'',d:path.getAttribute('d')??'',markerStart:path.getAttribute('marker-start'),markerEnd:path.getAttribute('marker-end'),start:point(0),end:point(path.getTotalLength())};
+   return{id:path.getAttribute('id')??'',dataId:path.getAttribute('data-id')??'',className:path.getAttribute('class')??'',d:path.getAttribute('d')??'',markerStart:path.getAttribute('marker-start'),markerEnd:path.getAttribute('marker-end'),start:point(0),end:point(path.getTotalLength()),curveDeviation:curveDeviation(path)};
   });
   const edgeLabels=[...s.querySelectorAll('g.edgeLabel')].map(el=>({id:el.querySelector('g.label')?.getAttribute('data-id')??'',text:visibleText(el)})).filter(x=>x.text);
   return {viewBox:{x:view.x,y:view.y,width:view.width,height:view.height},root:{width:rootRect.width,height:rootRect.height},carriers,allText,paths,edgeLabels};
@@ -147,6 +149,10 @@ export async function verifyPresentationQuality(
    if(visual.kind==='flow')for(const node of visual.nodes??[]){
     const id=nativeIdForNode(plan,node.id),nodeSvg=id?carrier('node',id):undefined;
     if(!nodeSvg||!norm(nodeSvg.ownText.join(' ')).includes(norm(node.label)))missing.push(`node label ${node.id}`);
+    if(node.role==='process'){
+     const expected=norm([node.label,node.detail,node.detail==='Process'?undefined:'Process'].filter(Boolean).join(' '));
+     if(!nodeSvg||!norm(nodeSvg.ownText.join(' ')).includes(expected))missing.push(`node ${node.id} process caption is not owned by its native carrier`);
+    }
    }
    if(visual.kind==='flow')for(const group of visual.groups??[]){
     const id=plan.elementMap.find(e=>e.kind==='group'&&e.logicalId===group.id)?.nativeId;
@@ -161,7 +167,8 @@ export async function verifyPresentationQuality(
    checks.push(pass('graphviz-native-carriers',sourceSha256,missing.length===0&&astNodeMissing.length===0,
     missing.length||astNodeMissing.length?`Missing native carriers: ${[...missing,...astNodeMissing.map(x=>'AST '+x)].join(', ')}.`:`${expectedNodeElements.length} nodes/entities and all mapped groups, layers, and authored edges have their own Graphviz SVG carrier.`));
 
-   const expectedEdges:{id:string;from:string;to:string;fromPort?:string;toPort?:string;directed:boolean;sourcePath:string}[]=[];
+   const endpointFailures:string[]=[];
+   const expectedEdges:{id:string;from:string;to:string;fromPort?:string;toPort?:string;fromAttachmentSide?:'n'|'e'|'s'|'w';toAttachmentSide?:'n'|'e'|'s'|'w';directed:boolean;sourcePath:string;routing?:'curved'|'straight';routeIntent?:'curved'|'straight'}[]=[];
    if(visual.kind==='flow'){
     visual.edges?.forEach((e,i)=>{
      const mapped=elementFor(plan,'edge',`/extensions/umf.visual/edges/${i}`),from=nativeIdForNode(plan,e.from),to=nativeIdForNode(plan,e.to);
@@ -171,7 +178,12 @@ export async function verifyPresentationQuality(
       const side={north:'n',east:'e',south:'s',west:'w'} as const;
       return index<0?undefined:'p'+(index+1)+(port?.side?':'+side[port.side]:'');
      };
-     if(mapped&&from&&to)expectedEdges.push({id:mapped.nativeId,from,to,fromPort:namedPort(e.from,e.fromPort),toPort:namedPort(e.to,e.toPort),directed:e.directed!==false,sourcePath:mapped.sourcePath});
+     const declaredRoutes=[...new Set((visual.edges??[]).flatMap(edge=>edge.routing?[edge.routing.kind]:[]))],uniformRoute=declaredRoutes.length===1?declaredRoutes[0]:undefined,compiledRoute=plan.source.match(/splines=(curved|line|true)/u)?.[1],policy=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${i}/routing`),routeConfigOk=uniformRoute?compiledRoute===(uniformRoute==='curved'?'curved':'line'):compiledRoute==='true',routing=e.routing&&e.routing.kind===uniformRoute&&routeConfigOk?e.routing.kind:undefined,inferred=routing==='curved'&&!e.fromPort&&!e.toPort;
+     const expectedRouteCode=e.routing?(!uniformRoute?'ROUTING_SCOPE_CONFLICT':e.routing.kind==='curved'&&!inferred?'ROUTING_NATIVE_INTERPOLATION':undefined):undefined;
+     if(e.routing&&policy.length!==1)endpointFailures.push(`${e.id} needs exactly one source-located routing realization record`);
+     if(e.routing&&policy.length===1&&policy[0]?.code!==expectedRouteCode)endpointFailures.push(`${e.id} routing realization code does not match Graphviz's actual scope and anchor constraints`);
+     if(e.routing&&!routeConfigOk)endpointFailures.push(`${e.id} native Graphviz splines setting does not implement the homogeneous route intent`);
+     if(mapped&&from&&to)expectedEdges.push({id:mapped.nativeId,from,to,fromPort:namedPort(e.from,e.fromPort)??(inferred?'e':undefined),toPort:namedPort(e.to,e.toPort)??(inferred?'s':undefined),fromAttachmentSide:inferred?'e':undefined,toAttachmentSide:inferred?'s':undefined,directed:e.directed!==false,sourcePath:mapped.sourcePath,routing,routeIntent:e.routing?.kind});
     });
    }else if(visual.form==='entities'){
     visual.structure?.references?.forEach((r,i)=>{const from=nativeIdForNode(plan,r.from.node),to=nativeIdForNode(plan,r.to.node);if(from&&to)expectedEdges.push({id:`reference-${i+1}`,from,to,fromPort:portFor(plan,r.from.node,r.from.fieldId??r.from.field,visual),toPort:portFor(plan,r.to.node,r.to.fieldId??r.to.field,visual),directed:false,sourcePath:`/extensions/umf.visual/structure/references/${i}`});});
@@ -180,9 +192,9 @@ export async function verifyPresentationQuality(
    const semanticEdges=edges.filter(e=>{
     const style=text(e.style);return style!=='invis'&&!(Array.isArray(e.style)&&e.style.includes('invis'));
    });
-   const endpointFailures:string[]=[];
    const usedSvgEdges=new Set<string>();
    const usedAstEdges=new Set<Record<string,unknown>>();
+   const routingObservations:string[]=[];
    for(const exp of expectedEdges){
     let edge=edges.find(e=>!usedAstEdges.has(e)&&text(e.id)===exp.id);
     if(!edge&&plan.nativeFormat==='dot'&&visual.form==='entities'){
@@ -197,6 +209,9 @@ export async function verifyPresentationQuality(
     if(svgEdge)usedSvgEdges.add(svgEdge.id||svgEdge.title);
     const drawn=svgEdge?.paths.find(p=>p.d.trim()&&p.start&&p.end);
     if(!svgEdge||!drawn||(exp.directed&&!svgEdge.arrow))endpointFailures.push(`${exp.id} has no native SVG path${exp.directed?' and arrow':''}`);
+    if(exp.routeIntent&&drawn){const sourceIndex=visual.edges?.findIndex(candidate=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===candidate.id)??-1,records=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${sourceIndex}/routing`),record=records.length===1?records[0]:undefined;if(record?.code){const nativeCurve=/[CcQqSsAa]/u.test(drawn.d),geometryKind=drawn.curveDeviation<1.5?'collinear':nativeCurve&&drawn.curveDeviation>=2?'curved':'bent-polyline';routingObservations.push(`${exp.id} requested ${exp.routeIntent}; observed ${geometryKind} native path with ${drawn.curveDeviation.toFixed(1)}px chord deviation; admitted ${record.code}.`);}}
+    if(exp.routing==='curved'&&(!drawn||!/[CcQqSsAa]/u.test(drawn.d)||drawn.curveDeviation<2)){const sourceIndex=visual.edges?.findIndex(edge=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===edge.id)??-1,policy=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${sourceIndex}/routing`),edge=visual.edges?.[sourceIndex],hasInferredSides=!!edge&&!edge.fromPort&&!edge.toPort,declaredRoutes=[...new Set((visual.edges??[]).flatMap(item=>item.routing?[item.routing.kind]:[]))],expectedCode=declaredRoutes.length>1?'ROUTING_SCOPE_CONFLICT':hasInferredSides?undefined:'ROUTING_NATIVE_INTERPOLATION';if(!(drawn&&drawn.curveDeviation<1.5&&policy.length===1&&policy[0]?.code===expectedCode&&expectedCode==='ROUTING_NATIVE_INTERPOLATION'))endpointFailures.push(`${exp.id} requested curved routing but its owned Graphviz path lacks a native curved segment with visible non-collinearity (${drawn?.curveDeviation.toFixed(1)??'missing'}px deviation)`);}
+    if(exp.routing==='straight'&&drawn&&drawn.curveDeviation>1.5)endpointFailures.push(`${exp.id} requested straight routing but its owned Graphviz path deviates ${drawn.curveDeviation.toFixed(1)}px from a straight chord`);
     if(!exp.directed&&svgEdge?.arrow)endpointFailures.push(`${exp.id} is undirected but has a native arrowhead`);
     const authoredLabel=visual.kind==='flow'?visual.edges?.find(e=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===e.id)?.label:visual.structure?.references?.[Number(exp.sourcePath.split('/').at(-1))]?.label;
     if(authoredLabel&&!svgEdge?.ownText.some(t=>norm(t)===norm(authoredLabel)))endpointFailures.push(`${exp.id} label is not owned by its native edge carrier`);
@@ -213,8 +228,12 @@ export async function verifyPresentationQuality(
      const nodeByTitle=(id:string)=>{const found=dom.carriers.find(c=>c.cls.split(/\s+/).includes('node')&&c.title===id);return found?.polygon??found?.bounds;};
      const sourceBox=nodeByTitle(exp.from),targetBox=nodeByTitle(exp.to);
      const distance=(p:{x:number;y:number}|null,b:any)=>!p||!b?Infinity:Math.hypot(Math.max(b.x-p.x,0,p.x-(b.x+b.width)),Math.max(b.y-p.y,0,p.y-(b.y+b.height)));
-     const sourceDistance=distance(drawn.start,sourceBox),targetDistance=distance(drawn.end,targetBox);
-     if(sourceDistance>32||targetDistance>32)endpointFailures.push(`${exp.id} SVG path is detached from its mapped endpoint shapes (start ${sourceDistance.toFixed(1)}px at ${JSON.stringify(drawn.start)} vs ${JSON.stringify(sourceBox)}, end ${targetDistance.toFixed(1)}px at ${JSON.stringify(drawn.end)} vs ${JSON.stringify(targetBox)})`);
+     const sourceDistance=distance(drawn.start,sourceBox),arrowTip=exp.directed&&svgEdge.arrowPoints.length?svgEdge.arrowPoints.reduce((best,point)=>distance(point,targetBox)<distance(best,targetBox)?point:best,svgEdge.arrowPoints[0]!):drawn.end,targetDistance=distance(arrowTip,targetBox);
+     const arrowGap=exp.directed&&svgEdge.arrowPoints.length&&drawn.end?Math.min(...svgEdge.arrowPoints.map((a,index)=>{const b=svgEdge.arrowPoints[(index+1)%svgEdge.arrowPoints.length]!,dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((drawn.end!.x-a.x)*dx+(drawn.end!.y-a.y)*dy)/(dx*dx+dy*dy||1)));return Math.hypot(drawn.end!.x-(a.x+t*dx),drawn.end!.y-(a.y+t*dy));})):0;
+     if(sourceDistance>32||targetDistance>32||arrowGap>8)endpointFailures.push(`${exp.id} SVG path is detached from its mapped endpoint shapes (start ${sourceDistance.toFixed(1)}px vs source shape, arrow tip ${targetDistance.toFixed(1)}px vs target shape, path/arrow gap ${arrowGap.toFixed(1)}px)`);
+     const sideAttachment=(point:{x:number;y:number}|null,box:any,side:'n'|'e'|'s'|'w')=>{if(!point||!box)return false;const horizontal=side==='e'||side==='w',boundary=side==='n'?box.y:side==='s'?box.y+box.height:side==='w'?box.x:box.x+box.width,along=horizontal?point.y:point.x,low=horizontal?box.y:box.x,high=low+(horizontal?box.height:box.width);return Math.abs((horizontal?point.x:point.y)-boundary)<=8&&along>=low-4&&along<=high+4;};
+     if(exp.fromAttachmentSide&&!sideAttachment(drawn.start,sourceBox,exp.fromAttachmentSide))endpointFailures.push(`${exp.id} source endpoint does not meet inferred native ${exp.fromAttachmentSide} shape boundary`);
+     if(exp.toAttachmentSide&&!sideAttachment(arrowTip,targetBox,exp.toAttachmentSide))endpointFailures.push(`${exp.id} target arrow tip does not meet inferred native ${exp.toAttachmentSide} shape boundary`);
      const portRowOk=(point:{x:number;y:number}|null,nodeId:string,port:string|undefined,target=false)=>{
       if(!port)return true;
       if(port.startsWith('p')&&point){
@@ -237,12 +256,12 @@ export async function verifyPresentationQuality(
       const halfBand=Math.max(4,row.bounds.height/2+3),center=row.bounds.y+row.bounds.height/2;
       return point.y>=center-halfBand&&point.y<=center+halfBand;
      };
-     if(exp.fromPort&&!portRowOk(drawn.start,exp.from,exp.fromPort))endpointFailures.push(`${exp.id} path source does not attach at the SVG row for port ${exp.fromPort}`);
-     if(exp.toPort&&!portRowOk(drawn.end,exp.to,exp.toPort,true))endpointFailures.push(`${exp.id} path target does not attach at the SVG row for port ${exp.toPort}`);
+     if(exp.fromPort&&!exp.fromAttachmentSide&&!portRowOk(drawn.start,exp.from,exp.fromPort))endpointFailures.push(`${exp.id} path source does not attach at the SVG row for port ${exp.fromPort}`);
+     if(exp.toPort&&!exp.toAttachmentSide&&!portRowOk(drawn.end,exp.to,exp.toPort,true))endpointFailures.push(`${exp.id} path target does not attach at the SVG row for port ${exp.toPort}`);
     }
    }
    const expectCount=expectedEdges.length,astConnectionPass=endpointFailures.length===0&&semanticEdges.length===expectCount;
-   checks.push(pass('graphviz-edge-endpoints-and-paths',sourceSha256,astConnectionPass,endpointFailures.length?endpointFailures.join('; '):`${expectCount} authored connections match exact Graphviz tail/head${visual.form==='entities'?' ports':''}; each has a drawn SVG path${visual.form==='entities'?' (entity references are nondirected)':' and arrowhead'}. Invisible layout constraints are excluded.`));
+   checks.push(pass('graphviz-edge-endpoints-and-paths',sourceSha256,astConnectionPass,endpointFailures.length?endpointFailures.join('; '):`${expectCount} authored connections match exact Graphviz tail/head${visual.form==='entities'?' ports':''}; each has a drawn SVG path${visual.form==='entities'?' (entity references are nondirected)':' and arrowhead'}. Invisible layout constraints are excluded.${routingObservations.length?' Routing observations: '+routingObservations.join(' '):''}`));
 
    if(visual.form==='entities'){
     const problems:string[]=[];
@@ -263,7 +282,8 @@ export async function verifyPresentationQuality(
        const matchingRows=nodeCarrier.ownTextDetails.filter(t=>t.value.split('·').some(part=>norm(part)===marker));
        const rowCenter=fieldRow?fieldRow.bounds.y+fieldRow.bounds.height/2:NaN;
        const markerRow=matchingRows.sort((a,b)=>fieldRow?Math.abs((a.bounds.y+a.bounds.height/2)-rowCenter)-Math.abs((b.bounds.y+b.bounds.height/2)-rowCenter):0)[0];
-       if(!markerRow||!fieldRow||!matchingRows.some(row=>Math.abs((row.bounds.y+row.bounds.height/2)-rowCenter)<=2))problems.push(`${entity.node}.${field.name} ${marker} marker is not present in its own native field-cell row`);
+       const sameRow=(row:typeof matchingRows[number])=>!!fieldRow&&Math.min(row.bounds.y+row.bounds.height,fieldRow.bounds.y+fieldRow.bounds.height)-Math.max(row.bounds.y,fieldRow.bounds.y)>0;
+       if(!markerRow||!fieldRow||!matchingRows.some(sameRow))problems.push(`${entity.node}.${field.name} ${marker} marker is not present in its own native field-cell row`);
        if(fieldRow&&markerRow&&Math.abs((fieldRow.bounds.y+fieldRow.bounds.height/2)-(markerRow.bounds.y+markerRow.bounds.height/2))>20)problems.push(`${entity.node}.${field.name} ${marker} marker is not aligned with its field row (${Math.abs((fieldRow.bounds.y+fieldRow.bounds.height/2)-(markerRow.bounds.y+markerRow.bounds.height/2)).toFixed(1)}px)`);
       }
       const astLabel=text(byName.get(nodeId!)?.label),portPattern=new RegExp(`<TD\\b(?=[^>]*\\bPORT=["']${escRe(port??'')}["'])[^>]*>([\\s\\S]*?)<\\/TD>`,'i');
@@ -306,12 +326,16 @@ export async function verifyPresentationQuality(
   const expectedNodeLabels=plan.elementMap.filter(e=>e.kind==='node'||e.kind==='entity').map(e=>{
    const index=Number(e.sourcePath.split('/').at(-1));
    const label=e.kind==='entity'?visual.structure?.entities?.[index]?visual.nodes?.find(n=>n.id===visual.structure!.entities![index]!.node)?.label:undefined:visual.nodes?.[index]?.label;
-   return{nativeId:e.nativeId,label:label??''};
+   const nodeId=e.kind==='entity'?visual.structure?.entities?.[index]?.node:e.logicalId;
+   const node=visual.nodes?.find(n=>n.id===nodeId);
+   const requiredText=node?.role==='process'?norm([label,node.detail,node.detail==='Process'?undefined:'Process'].filter(Boolean).join(' ')):label??'';
+   return{nativeId:e.nativeId,label:label??'',requiredText,processRole:node?.role==='process'};
   });
-  const ownLabelsMissing=expectedNodeLabels.filter(({nativeId,label})=>{
+  const ownLabelsMissing=expectedNodeLabels.filter(({nativeId,label,requiredText,processRole})=>{
    const expectedCarrier=dom.carriers.find(c=>c.id.includes(`flowchart-${nativeId}-`)||c.id.includes(`entity-${nativeId}-`)||c.title===nativeId);
-   return !label||!expectedCarrier||!normLabel(expectedCarrier.ownText.join(' ')).includes(normLabel(label));
-  }).map(x=>`${x.nativeId}:${x.label}`);
+   const owned=expectedCarrier?normLabel(expectedCarrier.ownText.join(' ')):'';
+   return !label||!expectedCarrier||!owned.includes(normLabel(label))||(processRole&&!owned.includes(normLabel(requiredText)));
+  }).map(x=>`${x.nativeId}:${x.processRole?'process role caption / ':''}${x.label}`);
   checks.push(pass('mermaid-native-node-carriers',sourceSha256,missing.length===0&&ownLabelsMissing.length===0,missing.length||ownLabelsMissing.length?`Missing native node carriers: ${[...missing,...ownLabelsMissing.map(x=>'label '+x)].join(', ')}.`:`${expectedNodeLabels.length} source labels appear in their exact ID-mapped Mermaid node/entity carriers.`));
   if(visual.form==='entities'){
    // Mermaid ER has entity-level relationship endpoints, never field-port attachment.
@@ -343,12 +367,25 @@ export async function verifyPresentationQuality(
    checks.push(pass('mermaid-er-fields-and-relations',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${visual.structure?.entities?.reduce((n,e)=>n+e.fields.length,0)??0} fields are scoped to entity carriers and ${relationCount} relationships have native paths with cardinality markers. Mermaid ER endpoints are entity-level; this check makes no field-port claim.`));
   }else if(visual.kind==='flow'){
    const failures:string[]=[];
+   const routeFallbacks:string[]=[];
    const usedPaths=new Set<string>();
    visual.edges?.forEach(edge=>{
     const from=nativeIdForNode(plan,edge.from),to=nativeIdForNode(plan,edge.to),mapped=plan.elementMap.find(item=>item.kind==='edge'&&item.logicalId===edge.id);
     const candidates=dom.paths.filter(p=>!usedPaths.has(p.id||p.dataId)&&p.d&&!p.className.includes('invisible')&&(p.dataId===mapped?.nativeId||p.id===mapped?.nativeId||p.dataId.startsWith(`L_${from}_${to}_`)));
     const path=candidates.find(p=>!edge.label||dom.edgeLabels.some(label=>label.id===p.dataId&&label.text===norm(edge.label!)))??candidates[0];
     if(!path||!path.d){failures.push(`${edge.id} has no Mermaid path ${from} to ${to}`);return;}
+    if(edge.routing){
+     const curve=edge.routing.kind==='curved'?'natural':'linear',config=new RegExp(`^[ \\t]*${mapped?.nativeId}@\\{\\s*curve:\\s*${curve}\\s*\\}$`,'mu');
+     const routePolicy=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${visual.edges!.indexOf(edge)}/routing`);
+     if(routePolicy.length!==1||routePolicy[0]?.code!=='ROUTING_NATIVE_INTERPOLATION')failures.push(`${edge.id} needs exactly one Mermaid ROUTING_NATIVE_INTERPOLATION record for its per-edge curve request`);
+     if(!mapped||!config.test(plan.source))failures.push(`${edge.id} native edge has no owned Mermaid ${curve} curve configuration`);
+     const hasNativeCurve=/[CcQqSsAa]/u.test(path.d);
+     if(edge.routing.kind==='curved'&&(!hasNativeCurve||path.curveDeviation<2)){
+      if(path.curveDeviation<1.5&&routePolicy.length===1&&routePolicy[0]?.code==='ROUTING_NATIVE_INTERPOLATION')routeFallbacks.push(`${edge.id} native layout is collinear; the located natural-curve approximation is retained (${path.curveDeviation.toFixed(1)}px deviation)`);
+      else failures.push(`${edge.id} requested curved routing but its owned Mermaid path lacks a native curved segment or visible non-collinearity (${path.curveDeviation.toFixed(1)}px deviation)`);
+     }
+     if(edge.routing.kind==='straight'&&(hasNativeCurve||path.curveDeviation>1.5))failures.push(`${edge.id} requested straight routing but its owned Mermaid path is curved or deviates ${path.curveDeviation.toFixed(1)}px from a straight chord`);
+    }
     if(edge.directed!==false&&!path.markerEnd)failures.push(`${edge.id} has no directed target marker`);
     if(edge.directed===false&&(path.markerStart||path.markerEnd))failures.push(`${edge.id} is undirected but has a native arrow marker`);
     usedPaths.add(path.id||path.dataId);
@@ -357,7 +394,7 @@ export async function verifyPresentationQuality(
     if(distance(path.start,sourceCarrier?.bounds)>32||distance(path.end,targetCarrier?.bounds)>32)failures.push(`${edge.id} path is detached from its mapped Mermaid node shapes`);
     if(edge.label&&!dom.edgeLabels.some(l=>l.text===norm(edge.label!)&&l.id===path.dataId))failures.push(`${edge.id} label is not owned by its native Mermaid edge-label carrier`);
    });
-   checks.push(pass('mermaid-flow-paths',sourceSha256,failures.length===0,failures.length?failures.join('; '):`${visual.edges?.length??0} authored flow connections have native SVG paths with exact mapped endpoint IDs and their declared direction.`));
+   checks.push(pass('mermaid-flow-paths',sourceSha256,failures.length===0,failures.length?failures.join('; '):`${visual.edges?.length??0} authored flow connections have native SVG paths with exact mapped endpoint IDs and their declared direction.${routeFallbacks.length?' Located routing fallback: '+routeFallbacks.join('; ')+'.':''}`));
   }
   if(visual.kind==='flow'||(visual.kind==='structure'&&visual.form==='stack')){
    const problems:string[]=[];
@@ -432,8 +469,10 @@ export async function verifyPresentationQuality(
    const ix=Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x),iy=Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y);
    if(ix>2&&iy>2)overlaps.push(`${a.value.slice(0,36)} / ${b.value.slice(0,36)}`);
   }
-  return{width:r.width,height:r.height,texts:texts.length,out:out.map(x=>x.value),small:small.map(x=>x.value),overlaps:overlaps.slice(0,12)};
+  return{width:r.width,height:r.height,viewWidth:s.viewBox.baseVal.width,viewHeight:s.viewBox.baseVal.height,texts:texts.length,out:out.map(x=>x.value),small:small.map(x=>x.value),overlaps:overlaps.slice(0,12)};
  });
+ const svgFitsFrame=fit.width>=1598&&fit.width<=1602&&fit.height>=898&&fit.height<=902;
+ checks.push(pass('presentation-svg-fit',sourceSha256,svgFitsFrame,svgFitsFrame?`The host SVG root fills the 1600×900 presentation frame (viewBox ${fit.viewWidth}×${fit.viewHeight}); intrinsic drawing aspect ratio remains governed by the SVG viewBox.`:`The SVG root measures ${fit.width}×${fit.height}px in a 1600×900 presentation frame; it must fill both frame dimensions within 2px.`));
  checks.push(pass('presentation-clipping',sourceSha256,fit.out.length===0,fit.out.length?`SVG text exceeds the rendered viewport: ${fit.out.join(' | ')}.`:`${fit.texts} visible text carriers fit within the 1600×900 presentation viewport.`));
  checks.push(pass('presentation-font-legibility',sourceSha256,fit.small.length===0,fit.small.length?`Text falls below 10 CSS px when fitted: ${fit.small.join(' | ')}.`:'All measured text remains at least 10 CSS px when fitted to 1600×900.'));
  checks.push(pass('presentation-text-overlap',sourceSha256,fit.overlaps.length===0,fit.overlaps.length?`Intersecting text bounds: ${fit.overlaps.join('; ')}.`:'No measured text bounds overlap at the presentation viewport.'));

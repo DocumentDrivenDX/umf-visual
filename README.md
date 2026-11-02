@@ -32,8 +32,12 @@ Default authoring remains `umf.visual` 1.0.0 and the core envelope 0.10.0. The
 compilers, and a separate browser Lini runtime with distributable assets. Earlier
 editable interchange profiles retain their qualified model versions.
 Core comes from the pinned released SDK `umf-v0.5.7`; only its public APIs are used.
-The authored latest schema generates the 1.3.0 manifest and TypeScript shapes;
-1.0.0, 1.1.0 and 1.2.0 assets and interpretation remain frozen. Unversioned
+The authored latest schema generates the draft, unreleased 1.4.0 manifest and
+TypeScript shapes, adding a typed diagram process/activity role for nodes and
+sequence participants plus optional `edge.routing: {kind: "curved" | "straight"}`
+visual intent. Absence leaves routing unspecified; exact native control points
+remain separate evidence. Versions 1.0.0, 1.1.0, 1.2.0 and 1.3.0 assets and
+interpretation remain frozen. Unversioned
 schema/manifest and authoring defaults remain 1.0.0; new versions require opt-in.
 
 ```sh
@@ -106,8 +110,9 @@ pinned to Lini v1.1.0 with their original MIT license. Shared model 1.3.0 adds
 symbolic icons, parallelograms, tree composition, positioned sequence notes and
 explicit `edge.directed: false` associations. Colors and pixel positions remain
 theme/layout decisions. A node's parent and ordered message records remain data,
-not native Lini snippets. `upgradeVisualDocument(document, '1.3.0')` selects the
-latest model; omitting the target still selects 1.1.0.
+not native Lini snippets. `upgradeVisualDocument(document, '1.3.0')` explicitly selects the
+released 1.3.0 model; target `'1.4.0'` selects the draft process-role and routing additions.
+Omitting the target still selects 1.1.0.
 
 ```ts
 import {renderLiniPresentation} from '@documentdrivendx/umf-visual/renderers/lini';
@@ -140,7 +145,7 @@ Native node carriers expose `data-id`; link identities are classes such as
 assuming every native link has a DOM `id` attribute.
 
 Existing editable interchange/host profiles keep their qualified model-version
-scope and refuse 1.2.0/1.3.0 until their new mappings are qualified. Presentation
+scope and refuse 1.2.0/1.3.0/1.4.0 until their new mappings are qualified. Presentation
 output does not claim editable round trips merely because the original payload
 is available beside it.
 

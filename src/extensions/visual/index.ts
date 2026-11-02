@@ -2,6 +2,7 @@
 import {inspectVisual as inspectLegacy} from './legacy-1-0.js';
 import {visualRegistry as visualRegistry11, inspectVisual as inspectVisual11} from './legacy-1-1.js';
 import {visualRegistry as visualRegistry12, inspectVisual as inspectVisual12} from './legacy-1-2.js';
+import {visualRegistry as visualRegistry13, inspectVisual as inspectVisual13} from './legacy-1-3.js';
 import legacyManifest from '../../../spec/extensions/visual/1.0.0/package.json';
 import manifest from '../../../spec/extensions/visual/package.json';
 import {Registry,validateDocument,copyJson,readDocument,writeDocument,UmfError,pointer,type Document,type Json,type Diagnostic,type ExtensionPackage,type Validation} from '@umf/core';
@@ -9,8 +10,8 @@ import type {VisualDefs,VisualShape} from './generated';
 export const VISUAL_EXTENSION='umf.visual';
 // Preserve released authoring defaults; 1.1.0 is an explicit opt-in.
 export const VISUAL_VERSION='1.0.0';
-export const LATEST_VISUAL_VERSION='1.3.0';
-export type VisualVersion=typeof VISUAL_VERSION|'1.1.0'|'1.2.0'|typeof LATEST_VISUAL_VERSION;
+export const LATEST_VISUAL_VERSION='1.4.0';
+export type VisualVersion=typeof VISUAL_VERSION|'1.1.0'|'1.2.0'|'1.3.0'|typeof LATEST_VISUAL_VERSION;
 export const visualPackage=legacyManifest as unknown as ExtensionPackage;
 export const latestVisualPackage=manifest as unknown as ExtensionPackage;
 export type {VisualDefs,VisualShape} from './generated';
@@ -369,18 +370,18 @@ function advise(payload:unknown):Diagnostic[]{
  if(Array.isArray(participants)&&participants.length>ADVISED_PARTICIPANTS)out.push({code:'VISUAL_DENSITY',path:at+'/sequence/participants',message:participants.length+' participants; a sequence reads best with eight or fewer',severity:'warning'});
  return out;
 }
-export function visualRegistry():Registry{return visualRegistry12().register(latestVisualPackage,semantics);}
+export function visualRegistry():Registry{return visualRegistry13().register(latestVisualPackage,semantics);}
 // Registration compiles the payload schema; the API reuses one registry, which nothing mutates after registration.
 let shared:Registry|undefined;
 const registry=()=>shared??=visualRegistry();
 export function inspectVisual(document:Document):VisualInspection {
  const version=document.vocabularies[VISUAL_EXTENSION]?.version;
- const advice=version==='1.0.0'?inspectLegacy(document).advice:version==='1.1.0'?inspectVisual11(document).advice:version==='1.2.0'?inspectVisual12(document).advice:advise(document.extensions?.[VISUAL_EXTENSION]);
+ const advice=version==='1.0.0'?inspectLegacy(document).advice:version==='1.1.0'?inspectVisual11(document).advice:version==='1.2.0'?inspectVisual12(document).advice:version==='1.3.0'?inspectVisual13(document).advice:advise(document.extensions?.[VISUAL_EXTENSION]);
  return {...validateDocument(document,registry()),advice};
 }
 function requireProfile(doc:Document):void {
  const payload=doc.extensions?.[VISUAL_EXTENSION];
- if(![VISUAL_VERSION,'1.1.0','1.2.0',LATEST_VISUAL_VERSION].includes(doc.vocabularies[VISUAL_EXTENSION]?.version??'')||!payload||typeof payload!=='object'||Array.isArray(payload))throw new UmfError('VISUAL_PROFILE','Expected umf.visual 1.0.0, 1.1.0, 1.2.0 or 1.3.0 and a document-level visual');
+ if(![VISUAL_VERSION,'1.1.0','1.2.0','1.3.0',LATEST_VISUAL_VERSION].includes(doc.vocabularies[VISUAL_EXTENSION]?.version??'')||!payload||typeof payload!=='object'||Array.isArray(payload))throw new UmfError('VISUAL_PROFILE','Expected umf.visual 1.0.0, 1.1.0, 1.2.0, 1.3.0 or 1.4.0 and a document-level visual');
 }
 function requireValid(doc:Document):void {const result=inspectVisual(doc);if(!result.valid)throw new UmfError('VISUAL_DOCUMENT',JSON.stringify(result.diagnostics));}
 export function readVisualDocument(text:string,format:'json'|'yaml'='yaml'):Document{const doc=readDocument(text,format);requireProfile(doc);requireValid(doc);return doc;}
@@ -402,11 +403,12 @@ export function editVisual(doc:Document,update:(visual:Visual)=>Visual):Document
 }
 
 /** Explicit opt-in to corrected 1.1 semantics or the additive 1.2 vocabulary; never rewrites native companions. */
-export function upgradeVisualDocument(document:Document,targetVersion:'1.1.0'|'1.2.0'|'1.3.0'='1.1.0'):Document {
- if(targetVersion!=='1.1.0'&&targetVersion!=='1.2.0'&&targetVersion!=='1.3.0')throw new UmfError('VISUAL_UPGRADE_TARGET','Choose upgrade target 1.1.0, 1.2.0 or 1.3.0');
+export function upgradeVisualDocument(document:Document,targetVersion:'1.1.0'|'1.2.0'|'1.3.0'|'1.4.0'='1.1.0'):Document {
+ if(targetVersion!=='1.1.0'&&targetVersion!=='1.2.0'&&targetVersion!=='1.3.0'&&targetVersion!=='1.4.0')throw new UmfError('VISUAL_UPGRADE_TARGET','Choose upgrade target 1.1.0, 1.2.0, 1.3.0 or 1.4.0');
  requireProfile(document);
  const currentVersion=document.vocabularies[VISUAL_EXTENSION]?.version;
- if((currentVersion==='1.2.0'&&targetVersion==='1.1.0')||(currentVersion==='1.3.0'&&targetVersion!=='1.3.0'))throw new UmfError('VISUAL_DOWNGRADE','A visual document cannot be downgraded by upgradeVisualDocument');
+ const rank:Record<string,number>={'1.0.0':0,'1.1.0':1,'1.2.0':2,'1.3.0':3,'1.4.0':4};
+ if((rank[currentVersion??'']??-1)>(rank[targetVersion]??-1))throw new UmfError('VISUAL_DOWNGRADE','A visual document cannot be downgraded by upgradeVisualDocument');
  const result=copyJson(document) as unknown as Document;
  result.vocabularies[VISUAL_EXTENSION]={...result.vocabularies[VISUAL_EXTENSION],version:targetVersion};
  requireValid(result);return result;
