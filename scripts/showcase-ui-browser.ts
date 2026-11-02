@@ -81,6 +81,18 @@ try{
   }
   checks.push('scenario selection switches among all source-bound definitions and real previews');
 
+  for(let index=0;index<showcase.examples.length;index++){
+    const example=showcase.examples[index];
+    for(const render of example.renders.filter((entry:any)=>entry.status==='unsupported')){
+      await selected.nth(index).click();await page.locator(`[data-backend="${render.backend}"]`).click();
+      await page.waitForFunction(()=>document.querySelector('#diagram-status')?.textContent?.includes('No qualified'));
+      if(await page.locator('#diagram-image').isVisible())throw new Error(`${example.id}/${render.backend} displays a stale qualified preview after refusal.`);
+      for(const id of ['download-svg','download-png','download-native-source'])if(await page.locator(`#${id}`).getAttribute('aria-disabled')!=='true')throw new Error(`${example.id}/${render.backend} exposes a download after refusal.`);
+      for(const diagnostic of render.diagnostics||[])if(diagnostic.message&&!(await page.locator('#diagram-status').innerText()).includes(diagnostic.message))throw new Error(`${example.id}/${render.backend} hides its specific refusal reason.`);
+    }
+  }
+  checks.push('unsupported renderer choices hide stale previews and downloads and explain the source-bound refusal');
+
   const stackIndex=showcase.examples.findIndex((example:any)=>example.id==='umf-architecture-stack');
   if(stackIndex<0)throw new Error('The authored stack example is absent from the showcase manifest.');
   await selected.nth(stackIndex).click();

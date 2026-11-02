@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 /** Execute the browser-pure presentation plans and assemble source-bound showcase receipts. */
 import {createHash} from 'node:crypto';
-import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,rm,writeFile} from 'node:fs/promises';
 import {dirname,join,resolve,sep} from 'node:path';
 import {chromium,type Browser,type Page} from 'playwright';
 import mermaidPackage from 'mermaid/package.json';
@@ -185,6 +185,9 @@ export async function buildShowcase():Promise<{outputPath:string;examples:number
  const browser=await chromium.launch({headless:true});const chromiumVersion=browser.version();const rows=[];let nativeProbes;
  try{
   nativeProbes={mermaidEscapedLabel:await probeMermaidLabelEscapes(browser)};
+  // This subtree belongs to this build. Refused or removed outputs must not
+  // leave previously generated downloads in a subsequent site artifact.
+  await rm(join(root,'dist-site/showcase'),{recursive:true,force:true});
   for(const example of manifest.examples){
    if(!example.id||!example.title||!example.description||!example.definitionPath||!Array.isArray(example.sources))throw Error('Showcase source example is malformed.');
    assertRelative(example.definitionPath,'Definition path');
