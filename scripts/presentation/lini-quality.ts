@@ -12,7 +12,7 @@ type Carrier={id:string;classes:string[];texts:string[];title:string;bounds:Box;
 type Vector={x:number;y:number};
 type Link={classes:string[];from:string|null;to:string|null;labels:string[];bounds:Box;line:{start:Vector;end:Vector;startTangent:Vector;endTangent:Vector}|null;markers:Array<{classes:string[];tag:string;d:string;length:number;center:Vector;orientation:Vector|null;points:Vector[];bounds:Box}>;arrows:number};
 type EndpointProof={path:string;carrier:Carrier;host:Carrier;side?:string};
-type NativeDom={svg:boolean;carriers:Carrier[];links:Link[]};
+type NativeDom={svg:boolean;carriers:Carrier[];links:Link[];fontFamilies:Array<{text:string;inline:string;computed:string}>};
 const sha=(value:string)=>createHash('sha256').update(Buffer.from(value,'utf8')).digest('hex');
 const norm=(value:string)=>value.replace(/\s+/gu,' ').trim();
 const pass=(check:string,sourceSha256:string,ok:boolean,details:string):PresentationQualityCheck=>({check,sourceSha256,result:ok?'pass':'fail',details});
@@ -114,7 +114,8 @@ export async function verifyLiniPresentationQuality(
     const markerElements=[...group.querySelectorAll('.lini-marker')];
     return{classes:[...group.classList],from:group.getAttribute('data-from'),to:group.getAttribute('data-to'),labels:[...group.querySelectorAll(':scope > text.lini-link-label')].map(text=>normalize(text.textContent??'')).filter(Boolean),bounds:box(group),line:start&&end&&line?{start,end,startTangent:tangent(line,0,length)??{x:0,y:0},endTangent:tangent(line,length,length)??{x:0,y:0}}:null,markers:markerElements.map(marker=>{const graphics=marker as SVGGraphicsElement,b=box(marker),matrix=graphics.getScreenCTM(),vertices=marker instanceof SVGPolygonElement?[...marker.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(matrix!);return{x:screen.x-origin.x,y:screen.y-origin.y};}):[],markerPath=marker instanceof SVGPathElement?marker:undefined,markerLength=markerPath?.getTotalLength()??0,orientation=markerPath&&markerLength>0?tangent(markerPath,0,markerLength):null;return{classes:[...marker.classList],tag:marker.tagName.toLowerCase(),d:marker.getAttribute('d')??'',length:markerLength,center:{x:b.x+b.width/2,y:b.y+b.height/2},orientation,points:vertices,bounds:b};}),arrows:group.querySelectorAll('.lini-marker-arrow').length};
    });
-   return{svg:svg.matches('svg.lini'),carriers,links};
+   const fontFamilies=[...svg.querySelectorAll('text')].map(element=>({text:normalize(element.textContent??''),inline:(element as SVGTextElement).style.fontFamily,computed:getComputedStyle(element).fontFamily}));
+   return{svg:svg.matches('svg.lini'),carriers,links,fontFamilies};
   });
  }catch{/* emitted evidence below */}
 
@@ -165,7 +166,9 @@ export async function verifyLiniPresentationQuality(
   const expected=port?.label&&port.label!==port.id?`${port.label} · ${port.id}`:port?.id??'';
   if(!found||!expected||!found.texts.some(text=>norm(text)===norm(expected))){carriersOk=false;missing.push(`port ${item.logicalId} (${item.nativeId}) lacks its own labeled native cell`);}
  }
- checks.push(pass('lini-native-carriers',sourceSha256,carriersOk,carriersOk?`All ${maps.length} mapped native identities own their visible Lini carriers.`:`Missing or altered native-owned carriers: ${missing.join('; ')||'the inserted SVG is not a Lini SVG'}.`));
+ const arialOnly=(value:string)=>!value.includes(',')&&value.trim().replace(/^['"]|['"]$/gu,'').toLowerCase()==='arial';
+ for(const font of dom?.fontFamilies??[])if(!arialOnly(font.computed)||(font.inline&&!arialOnly(font.inline))){carriersOk=false;missing.push(`text ${JSON.stringify(font.text)} has inline/computed font-family ${font.inline||'(inherited)'} / ${font.computed}; expected single-family Arial`);}
+ checks.push(pass('lini-native-carriers',sourceSha256,carriersOk,carriersOk?`All ${maps.length} mapped native identities own their visible Lini carriers; all ${dom?.fontFamilies.length??0} rendered text nodes use computed single-family Arial.`:`Missing or altered native-owned carriers: ${missing.join('; ')||'the inserted SVG is not a Lini SVG'}.`));
 
  let endpointOk=!!dom?.svg;const endpointProblems:string[]=[];
  const endpoint=(nodeId:string,fieldName?:string,fieldId?:string,portId?:string):EndpointProof|undefined=>{

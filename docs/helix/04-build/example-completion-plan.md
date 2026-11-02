@@ -156,6 +156,14 @@ mapped layer identity. Negative caption movement and repeated root/layer labels
 are covered. The revised native quality suite passes eight tests (72 assertions)
 and Sol's independent spacing review has no remaining findings.
 
+The first Linux showcase gate rejected overlapping entity field/type text under
+Lini's platform-dependent default font stack. The interpreter now emits native
+Arial styling for text; compiled layout remains Lini's bundled proportional
+metrics. Qualification requires actual text bounds to pass on each tested host,
+without claiming identical font bytes across operating systems. CI runs native
+showcase qualification immediately after renderer setup for early feedback;
+all existing compatibility and reproducibility gates remain required.
+
 ## Shared Constraints
 
 - Preserve the released visual 1.0.0 schema, manifest and interpretation.

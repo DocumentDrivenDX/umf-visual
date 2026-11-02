@@ -118,7 +118,7 @@ function fieldReference(nodeId:string,fieldName:string|undefined,fieldId:string|
 /** Emit a deterministic, readable Lini source view; renderer effects stay in Lini. */
 export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):PresentationPlan|PresentationFailure{
  const map:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];
- const styleRules:string[]=['.lini-caption { translate: 0 -30; font-scale: 14 16; }'];
+ const styleRules:string[]=['.lini-block { font-family: Arial; }','.lini-caption { translate: 0 -30; font-scale: 14 16; }'];
  const add=(logicalId:string,sourcePath:string,nativeId:string,kind:PresentationElement['kind'])=>map.push({logicalId,sourcePath,nativeId,kind});
  const mapPorts=(node:VisualNode,index:number,nativeId:string)=>node.ports?.forEach((port,portIndex)=>add(port.id,path('/nodes/'+index+'/ports/'+portIndex),nativeId+'.p'+(portIndex+1),'port'));
  const omit=(sourcePath:string,reason:string)=>omissions.push({sourcePath,reason});

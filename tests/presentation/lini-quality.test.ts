@@ -37,6 +37,14 @@ describe('pinned Lini presentation quality',()=>{
    const wrongLabel=await recheck(good.page,good.document,good.plan,good.nativeAst);
    expect(result(wrongLabel,'lini-native-carriers')).toBe('fail');
    await good.page.locator('g.lini-node[data-id="n1"] > text.lini-text').first().evaluate(element=>{element.textContent='Public API';});
+   const firstText=good.page.locator('g.lini-node[data-id="n1"] > text.lini-text').first();
+   await firstText.evaluate(element=>{(element as SVGTextElement).style.fontFamily='Helvetica';});
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-native-carriers')).toBe('fail');
+   await firstText.evaluate(element=>{(element as SVGTextElement).style.removeProperty('font-family');});
+   const edgeLabel=good.page.locator('g.lini-link.lini-style-e1 > text.lini-link-label');
+   await edgeLabel.evaluate(element=>{(element as SVGTextElement).style.fontFamily='Helvetica';});
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-native-carriers')).toBe('fail');
+   await edgeLabel.evaluate(element=>{(element as SVGTextElement).style.removeProperty('font-family');});
    const sourceAttrs=await good.page.locator('g.lini-link.lini-style-e1').evaluate(element=>({from:element.getAttribute('data-from'),to:element.getAttribute('data-to')}));
    await good.page.locator('g.lini-link.lini-style-e1 > path:not(.lini-marker)').evaluate(element=>{element.setAttribute('d','M 10000 10000 L 10100 10100');});
    const detached=await recheck(good.page,good.document,good.plan,good.nativeAst);
