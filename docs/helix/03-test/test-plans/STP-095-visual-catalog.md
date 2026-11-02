@@ -52,6 +52,30 @@ covering test must cite its AC using the indicated `@covers` annotation.
 
 ## Executable Proof
 
+### Presentation showcase gate
+
+CAT-16–CAT-18 and CONTRACT-089 add a separate visual-quality gate. Validate each
+sourced showcase document using its declared vocabulary version; verify pinned
+source snapshots and claimed architecture/schema relationships. Keep logical
+metamodel containment distinct from database keys and nullability.
+
+Exercise the public presentation compiler in packed consumers and Chromium.
+Render its exact output through the named Graphviz/Mermaid runtime. Verify
+labels on their own drawn objects, connection endpoints, group containment,
+ordered stack membership, E/R field ports and exact multiplicities within each
+backend's declared scope. Fail claims for clipping, obstructive overlap or
+unreadable output at presentation size. Inspect the SVG and high-resolution PNG
+artifacts, not a typed metadata appendix. Unknown native/visual content must
+refuse or remain explicitly excluded from the visible view.
+
+Build and verify `showcase.json` independently of the unchanged 53-example
+catalog. The browser gate checks large diagram selection, backend switching,
+exact DSL inspection, SVG/PNG downloads, keyboard access, mobile layout and
+load/render failure states. Existing example/profile/hash links must reach the
+same selection on `evidence.html`. Preserve all prior evidence checks there.
+Visual review covers the primary diagrams and downloaded artifacts; structural
+readback success alone cannot satisfy this gate.
+
 ### Active full-format gate
 
 INT-10/11 and CAT-15 supersede the earlier suitable-target completion ceiling.

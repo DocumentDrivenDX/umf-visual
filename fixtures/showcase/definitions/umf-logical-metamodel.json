@@ -1,0 +1,68 @@
+{
+  "umf": "0.10.0",
+  "id": "showcase:umf-logical-metamodel",
+  "vocabularies": { "umf.visual": { "version": "1.1.0" } },
+  "extensions": {
+    "umf.visual": {
+      "id": "umf-logical-metamodel",
+      "kind": "structure",
+      "form": "entities",
+      "title": "The logical UMF metamodel",
+      "question": "How do Document, Module, Element and Relationship fit in the authored UMF language?",
+      "takeaway": "These are logical records and fields from the metamodel source. They do not assert relational primary keys, foreign keys or database nullability.",
+      "audience": "developer",
+      "source": {
+        "path": "fixtures/showcase/sources/umf/metamodel.yaml",
+        "view": "modules[umf].elements[document|module|element|relationship]",
+        "digest": "sha256:1e406ee49b0c4c08b8eb996bb1fcb6e96fa8d6f4673f0877aa1800986b2dbbce"
+      },
+      "nodes": [
+        { "id": "document", "label": "Document" },
+        { "id": "module", "label": "Module" },
+        { "id": "element", "label": "Element" },
+        { "id": "relationship", "label": "Relationship" }
+      ],
+      "structure": {
+        "entities": [
+          { "node": "document", "fields": [
+            { "id": "document-id", "name": "id", "type": "link<id>" },
+            { "id": "document-vocabularies", "name": "vocabularies", "type": "object<versioned vocabulary entries>" },
+            { "id": "document-modules", "name": "modules", "type": "sequence<link<Module>>" },
+            { "id": "document-extensions", "name": "extensions", "type": "extension content" },
+            { "id": "document-title", "name": "title", "type": "string" }
+          ] },
+          { "node": "module", "fields": [
+            { "id": "module-id", "name": "id", "type": "link<id>" },
+            { "id": "module-namespace", "name": "namespace", "type": "string" },
+            { "id": "module-elements", "name": "elements", "type": "sequence<link<Element>>" },
+            { "id": "module-relationships", "name": "relationships", "type": "sequence<link<Relationship>>" }
+          ] },
+          { "node": "element", "fields": [
+            { "id": "element-id", "name": "id", "type": "link<id>" },
+            { "id": "element-name", "name": "name", "type": "string" },
+            { "id": "element-kind", "name": "kind", "type": "text" },
+            { "id": "element-scalar-type", "name": "scalarType", "type": "link<scalarType>" },
+            { "id": "element-members", "name": "members", "type": "sequence<link<keyFieldReference>>" },
+            { "id": "element-references", "name": "references", "type": "sequence<link<reference>>" },
+            { "id": "element-keys", "name": "keys", "type": "sequence<link<key>>" }
+          ] },
+          { "node": "relationship", "fields": [
+            { "id": "relationship-id", "name": "id", "type": "link<id>" },
+            { "id": "relationship-name", "name": "name", "type": "link<id>" },
+            { "id": "relationship-source", "name": "source", "type": "sequence<link<relationshipEndpoint>>" },
+            { "id": "relationship-target", "name": "target", "type": "sequence<link<relationshipTarget>>" },
+            { "id": "relationship-source-multiplicity", "name": "sourceMultiplicity", "type": "relationshipMultiplicity" },
+            { "id": "relationship-target-multiplicity", "name": "targetMultiplicity", "type": "relationshipMultiplicity" },
+            { "id": "relationship-directed", "name": "directed", "type": "boolean" }
+          ] }
+        ],
+        "references": [
+          { "id": "document-modules", "from": { "node": "document", "field": "modules", "fieldId": "document-modules" }, "to": { "node": "module", "field": "id", "fieldId": "module-id" }, "label": "modules" },
+          { "id": "module-elements", "from": { "node": "module", "field": "elements", "fieldId": "module-elements" }, "to": { "node": "element", "field": "id", "fieldId": "element-id" }, "label": "elements" },
+          { "id": "module-relationships", "from": { "node": "module", "field": "relationships", "fieldId": "module-relationships" }, "to": { "node": "relationship", "field": "id", "fieldId": "relationship-id" }, "label": "relationships" }
+        ]
+      }
+    }
+  },
+  "modules": []
+}

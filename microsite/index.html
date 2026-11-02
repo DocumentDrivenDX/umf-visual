@@ -3,126 +3,104 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f5f2">
-  <meta name="description" content="A reference for the typed umf.visual language, with sample documents and bounded DOT, Mermaid, and Lini interchange evidence.">
-  <title>umf.visuals — language reference</title>
-  <link rel="stylesheet" href="./styles.css">
-  <link rel="stylesheet" href="./integrations.css">
-  <script type="module" src="./app.js"></script>
+  <meta name="theme-color" content="#f4f2ec">
+  <meta name="description" content="Explore readable diagrams composed from the shared umf.visual language and rendered by native diagram engines.">
+  <title>umf.visuals — diagrams from a shared model</title>
+  <link rel="stylesheet" href="./showcase.css">
+  <script type="module" src="./showcase.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#language">Skip to language reference</a>
+  <a class="skip-link" href="#showcase">Skip to diagrams</a>
   <header class="topbar">
     <a class="brand" href="./" aria-label="umf.visuals home"><span class="brand-mark" aria-hidden="true">u<span>·</span>v</span><span>umf.visuals</span></a>
-    <nav aria-label="Primary"><a href="#language" class="active">Language</a><a href="#examples">Examples</a><a href="#integrations">Integrations</a><a href="https://github.com/DocumentDrivenDX/umf-visual" target="_blank" rel="noreferrer">Repository <span aria-hidden="true">↗</span></a></nav>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Use dark color theme" title="Toggle color theme">◐</button>
+    <nav aria-label="Primary navigation">
+      <a href="#showcase">Diagrams</a>
+      <a href="#composition">How it composes</a>
+      <a href="./evidence.html">Evidence library <span aria-hidden="true">↗</span></a>
+      <a href="https://github.com/DocumentDrivenDX/umf-visual" target="_blank" rel="noreferrer">Repository <span aria-hidden="true">↗</span></a>
+    </nav>
+    <span class="version-chip">PRESENTATION / 1</span>
   </header>
 
   <main>
-    <section class="intro" aria-labelledby="page-title">
-      <div class="intro-copy">
-        <p class="eyebrow"><span class="live-dot"></span> UMF VISUAL VOCABULARY <span class="eyebrow-sep">/</span> INTERCHANGE</p>
-        <h1 id="page-title">A shared visual model.<br><span>Many native tools.</span></h1>
-        <p class="lede">A typed language for semantic producers to author visual meaning, with adapters that interchange bounded subsets with native formats.</p>
-        <p class="architecture-line"><span>SEMANTIC PRODUCER</span><b aria-hidden="true">→</b><strong>umf.visual</strong><b aria-hidden="true">→</b><span>NATIVE TARGETS</span></p>
-        <p class="model-note">Native diagrams and readable typed-property fallbacks preserve authored meaning; visual approximations and round-trip evidence remain inspectable per example.</p>
-        <p class="scope-note"><strong>Read the evidence per example.</strong> Whole-document readback, visual approximations, native render results, and available round-trip receipts are reported separately.</p>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> A SHARED VISUAL LANGUAGE</p>
+        <h1 id="hero-title">One model<br><em>for diagrams.</em></h1>
       </div>
-      <aside class="intro-aside" aria-label="Language shape">
-        <div class="aside-label">LANGUAGE SHAPE</div>
-        <div class="snapshot-number" id="kind-count">—</div>
-        <div class="snapshot-label">kind families</div>
-        <div class="aside-rule"></div>
-        <div class="form-count"><strong id="form-count">—</strong><span>forms</span></div>
-        <a class="text-link" href="#language">Explore the vocabulary <span aria-hidden="true">↓</span></a>
-      </aside>
-      <div class="intro-grid-mark" aria-hidden="true"></div>
-    </section>
-
-    <section class="language-section" id="language" aria-labelledby="language-title">
-      <div class="section-head"><div><p class="eyebrow">THE LANGUAGE</p><h2 id="language-title">Typed meaning, composed from shared parts</h2></div><p class="section-description">This reference is rendered from the vocabulary schema and kind/form declarations in the repository.</p></div>
-      <div class="language-provenance" id="language-provenance"></div>
-      <div class="language-overview">
-        <article class="language-panel"><p class="eyebrow">DOCUMENT SHAPE</p><h3>Shared document fields</h3><div id="document-fields" class="schema-fields"></div></article>
-        <article class="language-panel"><p class="eyebrow">REUSABLE ELEMENTS</p><h3>Common typed content</h3><div id="shared-elements" class="schema-fields"></div></article>
-        <article class="language-panel"><p class="eyebrow">KIND-SPECIFIC DATA</p><h3>Payload families</h3><div id="kind-payloads" class="schema-fields"></div></article>
+      <div class="hero-context">
+        <p class="lede">Describe relationships, layers, and records once. Render each view with a native diagram engine.</p>
+        <p class="path-line"><span>SEMANTIC SOURCE</span><b aria-hidden="true">→</b><strong>umf.visual</strong><b aria-hidden="true">→</b><span>NATIVE DIAGRAM</span></p>
+        <a class="text-link" href="#showcase">Explore the diagrams <span aria-hidden="true">↓</span></a>
       </div>
-      <div class="type-details-wrap"><details class="type-details"><summary>Inspect schema type definitions</summary><div id="type-definitions" class="type-definition-grid"></div></details></div>
-      <div class="kind-reference-head"><div><p class="eyebrow">CANONICAL KINDS & FORMS</p><h3>Seven kind families, twenty-two forms</h3></div><p>Names below come from the package's <code>visualForms</code> declaration.</p></div>
-      <div class="kind-reference-grid" id="kind-reference-grid"></div>
-      <p class="vocabulary-limits"><strong>Current vocabulary limits.</strong> A question is required. Visual 1.0.0 graph kinds are limited to 15 nodes; Visual 1.1.0 validation permits up to 500 nodes and 10,000 items in each connection list. Individual adapter profiles may impose narrower bounds. Inherited architecture roles and status values remain under review; they are not universal diagram requirements.</p>
     </section>
 
-    <section class="coverage-section" id="coverage" aria-labelledby="coverage-title">
-      <div class="section-head compact-head"><div><p class="eyebrow">INTERCHANGE EVIDENCE · SAMPLE INSTANCES</p><h2 id="coverage-title">Measured interchange routes</h2></div><p class="section-description">Each count describes example outcomes under a named profile. Full routes, visual approximations, reported semantic losses, and ordinary baselines stay distinct.</p></div>
-      <article id="full-profile-coverage" class="release-coverage full-profile-coverage" aria-live="polite"><div class="release-coverage-head"><div><p class="eyebrow">FULL INTERCHANGE · STRICT READBACK · NATIVE RENDER</p><h3>Canonical full-profile routes</h3></div><p>A candidate counts as qualified only after strict export, exact whole-document import readback, and complete plus focused native renders. Approximate presentation geometry is listed separately and does not count as semantic loss.</p></div><div id="full-profile-coverage-grid" class="coverage-grid full-profile-coverage-grid"></div></article>
-      <article id="release-coverage" class="release-coverage" aria-live="polite"><div class="release-coverage-head"><div><p class="eyebrow">ANNOTATION PROFILE CHOICES · EXAMPLE/FORM COVERAGE</p><h3>Established annotation-profile choices</h3></div><p>Historical preferred annotation choices remain independently recorded. They do not replace full-profile outcomes or ordinary native defaults.</p></div><div id="release-coverage-stats" class="release-coverage-stats"></div><div id="release-form-coverage" class="release-form-coverage" role="list" aria-label="Preferred annotation-profile coverage by form"></div></article>
-      <details class="baseline-coverage-details">
-        <summary>Released native subsets (compatibility)</summary>
-        <p>These are narrower, frozen native profiles. Their counts are separate from the canonical full-profile routes above.</p>
-        <div class="coverage-grid baseline-coverage-grid" id="coverage-grid" aria-live="polite" aria-label="Released ordinary native subset outcomes"></div>
-        <p class="coverage-footnote"><span class="legend-dot supported"></span> Supported <span class="legend-dot loss"></span> Reported loss <span class="legend-dot unsupported"></span> Unsupported <span class="legend-dot unevaluated"></span> Not evaluated</p>
-      </details>
-    </section>
-
-    <section class="catalogue-section" id="examples" aria-labelledby="catalogue-title">
-      <div class="section-head catalogue-heading"><div><p class="eyebrow">SAMPLE DOCUMENTS</p><h2 id="catalogue-title">Examples of the language in use</h2></div><p class="section-description">These are example instances, not language definitions. Form examples lead; open the secondary gallery for application and canary samples.</p></div>
-      <details id="secondary-gallery" class="secondary-gallery"><summary id="secondary-gallery-summary">Show application and canary examples</summary><p id="sample-scope-note" class="sample-scope-note"></p></details>
-      <div class="browse-layout">
-        <aside class="filter-panel" aria-label="Example filters">
-          <div class="filter-top"><span class="filter-title">FILTERS</span><button id="reset-filters" class="reset-button" type="button">Reset</button></div>
-          <label class="search-label" for="search">Search</label>
-          <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Name, question, ID…" autocomplete="off"></div>
-          <fieldset><legend>Kind</legend><div id="kind-filters" class="checkbox-list"></div></fieldset>
-          <fieldset><legend>Form</legend><div id="form-filters" class="checkbox-list"></div></fieldset>
-          <fieldset><legend>Target</legend><div id="target-filters" class="checkbox-list"></div></fieldset>
-          <fieldset><legend>Target status</legend><div id="status-filters" class="checkbox-list"></div></fieldset>
-          <div class="filter-foot"><span class="mini-spark" aria-hidden="true">✳</span> A fixture is an example document, not a type definition.</div>
+    <section class="showcase-section" id="showcase" aria-labelledby="showcase-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">SOURCED DIAGRAMS · DISTINCT QUESTIONS</p><h2 id="showcase-title">Architecture and data from one model.</h2></div>
+        <p>Switch scenarios and renderers. The authored definition remains the same while the native drawing changes.</p>
+      </div>
+      <div class="showcase-layout">
+        <aside class="scenario-rail" aria-label="Diagram scenarios">
+          <p class="rail-label">SCENARIO</p>
+          <div id="scenario-list" class="scenario-list" role="group" aria-label="Choose a diagram scenario">
+            <p class="loading-message">Loading source examples…</p>
+          </div>
+          <div class="rail-foot"><span class="rail-dot" aria-hidden="true"></span><span id="scenario-provenance">Diagrams are built from checked-in UMF definitions.</span></div>
         </aside>
 
-        <div class="results-column">
-          <div class="results-toolbar"><p id="result-count" aria-live="polite">Loading examples…</p><label for="sort-select">Sort <select id="sort-select"><option value="title">Name A–Z</option><option value="kind">Kind</option><option value="form">Form</option></select></label></div>
-          <div class="definition-list" id="definition-list" aria-label="Example documents"></div>
-          <div class="empty-state" id="empty-state" hidden><span aria-hidden="true">⌕</span><h3>No examples match</h3><p>Try clearing a filter or searching for a broader term.</p><button class="button-secondary" id="empty-reset" type="button">Clear filters</button></div>
-          <div class="load-error" id="load-error" hidden role="alert">The catalogue could not be loaded. Try refreshing this page.</div>
-        </div>
-      </div>
-    </section>
-    <section class="integration-section" id="integrations" aria-labelledby="integration-title">
-      <div id="integration-catalog" aria-live="polite"><p class="integration-loading">Loading synthetic integration evidence…</p></div>
-      <section class="six-target-section" id="six-target-section" aria-labelledby="six-target-title">
-        <div class="section-head"><div><p class="eyebrow">SAME SOURCE · SIX DESTINATIONS</p><h2 id="six-target-title">Cross-target capability and preview matrix</h2></div><p class="section-description">Export, native rendering, edited readback, and retained-only coverage are separate evidence. A preview appears only when its receipt matches this case’s source and profile hashes.</p></div>
-        <label class="six-target-case-label" for="six-target-case-select">Integration example</label>
-        <select id="six-target-case-select" aria-controls="six-target-matrix"></select>
-        <div id="six-target-matrix" class="six-target-grid" aria-live="polite"><p class="integration-loading">Loading six-target receipts…</p></div>
-      </section>
-    </section>
-    <footer><span class="brand-mark small" aria-hidden="true">u<span>·</span>v</span><span>UMF visual language reference</span><a href="https://github.com/DocumentDrivenDX/umf-visual" target="_blank" rel="noreferrer">Source and evidence <span aria-hidden="true">↗</span></a><span class="footer-version" id="catalog-version">CATALOGUE V—</span></footer>
-  </main>
-
-  <dialog id="detail-dialog" aria-labelledby="detail-title">
-    <div class="detail-shell">
-      <header class="detail-header"><div><p class="eyebrow" id="detail-kicker">EXAMPLE INSTANCE</p><h2 id="detail-title"></h2></div><button class="close-button" id="close-detail" aria-label="Close details" type="button">×</button></header>
-      <div class="detail-meta" id="detail-meta"></div>
-      <p class="detail-question" id="detail-question"></p>
-      <div class="detail-grid">
-        <section class="source-pane"><details id="sample-document-details"><summary><span><span class="eyebrow">UMF EXAMPLE</span><strong>Sample document JSON and provenance</strong></span><span class="sample-source-actions"><button class="icon-button" id="copy-umf" type="button">Copy JSON</button><button class="icon-button" id="download-umf" type="button">Download</button></span></summary><div class="provenance" id="provenance"></div><pre class="code-block"><code id="umf-source"></code></pre></details></section>
-        <section class="target-pane"><div class="pane-heading"><div><p class="eyebrow">TARGET PROFILE</p><h3>Native evidence</h3></div></div>
-          <div id="qualified-profile-controls" class="qualified-profile-controls" hidden>
-            <label for="profile-select">Native baseline or qualified annotation</label>
-            <select id="profile-select" aria-describedby="profile-description"></select>
-            <p id="profile-description" class="profile-description"></p>
-            <div id="profile-view-switch" class="profile-view-switch" role="tablist" aria-label="Annotated profile view" hidden>
-              <button id="view-diagram" type="button" role="tab" aria-selected="true" aria-controls="target-panel" tabindex="0">Diagram</button>
-              <button id="view-complete" type="button" role="tab" aria-selected="false" aria-controls="target-panel" tabindex="-1">Complete annotated view</button>
+        <div class="diagram-column">
+          <div class="diagram-toolbar">
+            <div class="diagram-heading"><p class="eyebrow" id="diagram-kicker">NATIVE PRESENTATION</p><h3 id="diagram-title">Loading diagram…</h3><p id="diagram-description" class="diagram-description"></p></div>
+            <div class="backend-switch" role="group" aria-label="Native renderer">
+              <span class="backend-label">RENDERER</span>
+              <div id="backend-options" class="backend-options"><button type="button" data-backend="graphviz" aria-pressed="true">Graphviz</button><button type="button" data-backend="mermaid" aria-pressed="false">Mermaid</button></div>
             </div>
           </div>
-          <p id="baseline-label" class="baseline-label">Native baseline profile</p>
-          <div class="target-tabs" role="tablist" aria-label="Target format"><button role="tab" id="tab-dot" aria-controls="target-panel" data-target="dot" type="button">DOT</button><button role="tab" id="tab-mermaid" aria-controls="target-panel" data-target="mermaid" type="button">Mermaid</button><button role="tab" id="tab-lini" aria-controls="target-panel" data-target="lini" type="button">Lini</button></div>
-          <div id="target-panel" role="tabpanel" tabindex="0" aria-labelledby="tab-dot"></div>
-        </section>
+          <div class="diagram-frame" id="diagram-frame">
+            <div id="diagram-status" class="diagram-status" role="status">Loading a native-rendered example…</div>
+            <img id="diagram-image" alt="" hidden>
+            <button id="enlarge-diagram" class="enlarge-button" type="button" hidden aria-label="Enlarge diagram">↗ <span>Enlarge</span></button>
+            <div class="frame-caption"><span id="engine-caption">NATIVE ENGINE · SELECT A VARIANT</span><span id="quality-caption">SOURCE-BOUND EXAMPLE</span></div>
+          </div>
+          <p id="render-caveat" class="render-caveat" hidden></p>
+          <div class="diagram-actions">
+            <div class="download-actions"><a id="download-svg" class="button-primary" href="#" download>Download SVG</a><a id="download-png" class="button-secondary" href="#" download>Download PNG</a></div>
+            <p class="dimension-note" id="dimension-note">Vector and high-resolution image files from this render.</p>
+          </div>
+          <details class="source-details" id="source-details">
+            <summary><span>Inspect the authored definition and native source</span><span class="summary-arrow" aria-hidden="true">＋</span></summary>
+            <div class="source-columns">
+              <section class="source-block"><div class="source-head"><div><span class="source-type">UMF DEFINITION</span><span class="source-path" id="definition-path"></span></div><button id="download-definition" class="text-button" type="button">Download JSON</button></div><pre><code id="definition-source"></code></pre></section>
+              <section class="source-block"><div class="source-head"><div><span class="source-type" id="native-source-type">NATIVE SOURCE</span><span class="source-path" id="native-source-path"></span></div><a id="download-native-source" class="text-button" href="#" download>Download source</a></div><pre><code id="native-source"></code></pre></section>
+            </div>
+            <div class="source-citations" id="source-citations"></div>
+            <details class="rendering-notes" id="rendering-notes" hidden><summary>Rendering notes</summary><ul id="rendering-notes-list"></ul></details>
+          </details>
+        </div>
       </div>
-    </div>
+      <div id="showcase-error" class="load-error" hidden role="alert">The presentation examples could not be loaded. Open the evidence library to inspect the source catalogue.</div>
+    </section>
+
+    <section class="composition-section" id="composition" aria-labelledby="composition-title">
+      <div class="composition-intro"><p class="eyebrow">SHARED DIAGRAM ELEMENTS</p><h2 id="composition-title">A few shared pieces.<br><em>Different questions.</em></h2><p>The same typed language can describe connected systems, ordered layers, and entities with fields and references. A renderer chooses how those relationships appear on the page.</p></div>
+      <div class="composition-list">
+        <article><span class="composition-number">01</span><div><h3>Connect systems</h3><p>Nodes, directed links and nested groups show participants, dependencies and boundaries.</p></div><a href="./evidence.html#kind-reference-grid" aria-label="Read about flow forms">↗</a></article>
+        <article><span class="composition-number">02</span><div><h3>Order the parts</h3><p>Layers express a stack’s authored order and membership without turning it into a dependency graph.</p></div><a href="./evidence.html#kind-reference-grid" aria-label="Read about structure forms">↗</a></article>
+        <article><span class="composition-number">03</span><div><h3>Describe records</h3><p>Entities, typed fields, keys and references make record structure and multiplicity visible.</p></div><a href="./evidence.html#kind-reference-grid" aria-label="Read about entity and relationship forms">↗</a></article>
+      </div>
+      <p class="composition-footnote">These are examples of the shared model. Presentation layout is a separate projection; the original definition and complete interchange evidence remain inspectable.</p>
+    </section>
+
+    <section class="reference-callout" aria-label="Continue exploring">
+      <div><p class="eyebrow">FROM A DIAGRAM TO ITS EVIDENCE</p><h2>See what the model preserves.</h2><p>Open the full reference for the shared vocabulary, worked examples, and deeper technical evidence.</p></div>
+      <a class="button-light" href="./evidence.html">Open the evidence library <span aria-hidden="true">↗</span></a>
+    </section>
+    <footer class="site-footer"><a class="brand" href="./"><span class="brand-mark" aria-hidden="true">u<span>·</span>v</span><span>umf.visuals</span></a><span>One visual definition · native renderers</span><a href="https://github.com/DocumentDrivenDX/umf-visual" target="_blank" rel="noreferrer">Source on GitHub ↗</a></footer>
+  </main>
+
+  <dialog id="diagram-viewer" aria-labelledby="viewer-title">
+    <div class="viewer-shell"><header class="viewer-header"><div><p class="eyebrow">NATIVE DIAGRAM</p><h2 id="viewer-title"></h2></div><button id="close-viewer" class="viewer-close" type="button" aria-label="Close enlarged diagram">×</button></header><div class="viewer-image-frame"><img id="viewer-image" alt=""></div><div class="viewer-footer"><span id="viewer-caption"></span><a id="viewer-svg-download" class="button-primary" href="#" download>Download SVG</a></div></div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>

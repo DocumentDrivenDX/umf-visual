@@ -6,7 +6,7 @@ import {join,resolve,sep,extname} from 'node:path';
 const TARGETS=['dot','mermaid','lini'];
 const fullNativeClean=(render:any)=>Boolean(render?.ok&&render.svgPath&&/^[a-f0-9]{64}$/.test(render.svgSha256||'')&&!(render.nativeDiagnostics?.length));
 const siteRoot=resolve('dist-site');
-const baseUrl='https://umf.local/';
+const baseUrl='https://umf.local/evidence.html';
 const catalog=await Bun.file(join(siteRoot,'catalog.json')).json() as {schemaVersion:number;items:Array<any>;capabilities:Array<{format:string;profile:string;version:string}>;language:{schema:{sourcePath:string;sourceSha256:string;schema:any};forms:{sourcePath:string;sourceSha256:string;kinds:Array<{kind:string;forms:string[]}>}}};
 const integrationCatalog=await Bun.file(join(siteRoot,'integrations.json')).json() as {schemaVersion:number;complete:boolean;counts:Record<string,number>;cases:Array<any>;hostConformance:Array<any>};
 if(catalog.schemaVersion!==1||!Array.isArray(catalog.items)||catalog.items.length===0||!catalog.language?.schema?.schema||!catalog.language?.forms?.kinds)throw new Error('Build the site first; dist-site/catalog.json is missing or invalid.');

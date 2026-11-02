@@ -4,6 +4,7 @@ import {runInterchangeBrowserChecks} from './interchange/browser-checks';
 import {runAnnotatedBrowserChecks} from './interchange/annotated-browser-checks';
 import {runPortableAdaptersBrowserChecks} from './portable-adapters-browser';
 import {runFullBrowserChecks} from './interchange/full-browser-checks';
+import {compilePresentation} from '../src/presentation/index';
 declare global {interface Window {visualResult?:unknown;}}
 try{
  const fixtures=await fetch('/fixtures').then(r=>r.json()) as unknown[];
@@ -34,6 +35,9 @@ try{
  if(!inspectVisual(early).valid)throw Error('Modern early-year date failed');
  const entity=createVisualDocument({id:'browser-entity',kind:'structure',form:'entities',question:'What refers?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{id:'stable',name:'key'}]},{node:'b',fields:[{name:'fk'}]}],references:[{id:'ref',from:{node:'a',fieldId:'stable'},to:{node:'b',field:'fk'},fromMultiplicity:{min:1,max:1},toMultiplicity:{min:2,max:5,text:'2..5'}}]}},undefined,'1.1.0');
  if(!inspectVisual(entity).complete)throw Error('Modern entity semantics incomplete');
+ const presentationFlow=createVisualDocument({id:'presentation-browser',kind:'flow',form:'network',question:'Which tool draws?',nodes:[{id:'schema',label:'Schema <π>'},{id:'renderer',label:'Renderer & output'}],edges:[{id:'draw',from:'schema',to:'renderer',label:'author → draw'}]});
+ const presentationPlans=[compilePresentation(presentationFlow,{backend:'graphviz'}),compilePresentation(presentationFlow,{backend:'mermaid'}),compilePresentation(entity,{backend:'graphviz'})];
+ for(const plan of presentationPlans)if(!plan.ok||plan.profileId!=='umf.visual.presentation/1'||!plan.source||!plan.elementMap.length)throw Error('Browser presentation compiler failed');
  entity.vocabularies['umf.visual']!.version='1.0.0';
  if(inspectVisual(entity).complete)throw Error('Legacy validator interpreted new fields');
  const wave2=[];
@@ -56,5 +60,5 @@ try{
  }
  if(wave2.length!==16)throw Error('Expected 11 grouped flows and 5 sequences in browser');
  const interchange=await runInterchangeBrowserChecks();
- window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true},wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),full:runFullBrowserChecks(fixtures),miro:await exerciseMiroBrowser(),portableAdapters:await runPortableAdaptersBrowserChecks()};
+ window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true},presentationPlans:presentationPlans.length,wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),full:runFullBrowserChecks(fixtures),miro:await exerciseMiroBrowser(),portableAdapters:await runPortableAdaptersBrowserChecks()};
 }catch(error){window.visualResult={ok:false,error:String(error)};}

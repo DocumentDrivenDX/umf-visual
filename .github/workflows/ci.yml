@@ -53,8 +53,11 @@ jobs:
       - run: bun run report:loss
       - run: bun run report:loss:wave2
       - run: bun run report:loss:ledger --release
+      - run: bun run build:showcase
+      - run: bun run test:showcase
       - run: bun run build:site
       - run: bun run test:site
+      - run: bun run test:site:showcase
       - run: bun run test:site:profiles
       - uses: actions/upload-artifact@v4
         if: ${{ always() && !cancelled() }}
@@ -85,6 +88,11 @@ jobs:
             .cache/loss-ledger.json
             .cache/catalog-profile-ui-browser.json
             .cache/catalog-profile-*.png
+            .cache/presentation/**
+            .cache/showcase-ui*.json
+            .cache/showcase-*.png
+            dist-site/showcase.json
+            dist-site/showcase/**
             fixtures/renderers/powerpoint/preview-receipt.json
             fixtures/renderers/powerpoint/assets/*.png
           include-hidden-files: true

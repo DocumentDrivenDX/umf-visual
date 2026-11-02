@@ -24,6 +24,8 @@ ddx:
       kind: informed_by
     - id: CONTRACT-088
       kind: informed_by
+    - id: CONTRACT-089
+      kind: informed_by
     - id: STP-095
       kind: informed_by
 ---
@@ -54,6 +56,45 @@ FEAT-035/036, CONTRACT-083/084/085/086, STP-095, project test plan, build plan a
 wave-two evidence. Integration inputs are SPIKE-094 PowerPoint, SPIKE-001 Google
 Slides, SPIKE-011 Miro and its reduced counterexamples. The installed HELIX
 0.20.0 graph and implementation-plan contract supply this document's structure.
+
+## Presentation Showcase Continuation
+
+The 2026-11-01 user direction adds CAT-16–CAT-18 and CONTRACT-089 after v0.4.0.
+The earlier loss-reduction evidence remains scoped to interchange. This slice
+separates presentation qualification from readback and makes the homepage a
+small diagram showcase. Sol owns planning/review; parallel Luna packages own
+source-grounded fixtures, portable presentation compilation/native evidence,
+and the primary/evidence site split. Root owns shared build/package integration.
+
+Delivery requires sourced UMF dependency and stack views, logical metamodel and
+relational E/R examples, actual Graphviz/Mermaid artifacts within declared scope,
+SVG/high-resolution PNG downloads, exact definition inspection and explicit
+visual exclusions. Presentation quality is checked through native object/port
+geometry and human inspection. Existing 53-example identities, raw diagnostics,
+host captures and deep links remain unchanged. Main CI and live Pages checks
+gate publication; local success alone is not deployed evidence.
+
+Local presentation qualification now covers five immutable, source-grounded
+definitions: the UMF engine-target architecture, native interchange pipeline,
+authored stack reading order, logical metamodel and Beacon relational core.
+Graphviz renders all five; Mermaid renders the three architecture/stack views.
+Mermaid E/R relationships remain refused because the source model does not
+declare identifying semantics. No renderer convention is inferred into the DSL.
+
+All eight native SVGs pass object, relationship, containment/order and scoped
+field-row checks, including exact Graphviz field-port attachment and visible
+multiplicity on its own relationship. The publication verifier recompiles each
+source, reruns native SVG checks and reproduces each 1600 × 900 PNG from that
+SVG. Missing checks, stale maps, rehashed stale source and altered PNG dimensions
+are rejected. The homepage gate exercises five scenarios, eight qualified
+outputs and all sixteen SVG/PNG previews, download hashes and legacy links.
+
+The final local suite passes 535 tests across 75 files with 17,737 assertions.
+TypeScript, generated-source/public-boundary checks, browser ESM/declarations,
+fresh packed Bun/Node consumers and real Chromium library checks also pass.
+Sol independently passed 33 tests with 306 assertions and reviewed the compact
+desktop/mobile homepage. No blocking finding remains in that bounded review;
+exact-head CI and served Pages identity remain publication gates.
 
 ## Shared Constraints
 

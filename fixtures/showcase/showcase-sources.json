@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "examples": [
+    {
+      "id": "umf-engine-target-architecture",
+      "title": "UMF access across engine boundaries",
+      "description": "The documented UMF access design connects clients to Truss protected paths and Ashlar resolver-pinned reads. This is an ownership view, not a deployment or uniform capability claim.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/showcase/definitions/umf-engine-target-architecture.json",
+      "definitionSha256": "6d36dad240aa9b88904ba05a74de02adc5ec78b7f8fd427ea63423debe30247f",
+      "sources": [
+        {
+          "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
+          "sha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
+          "originRepository": "DocumentDrivenDX/umf",
+          "originPath": "docs/helix/02-design/solution-designs/SD-031-engine-target-adapters.md",
+          "originSha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
+          "pointer": "Domain Model; Solution Approaches; Scope",
+          "description": "Exact source snapshot of the documented engine-adapter design; the five connections match its domain model."
+        }
+      ]
+    },
+    {
+      "id": "umf-native-interchange-architecture",
+      "title": "From native sources to native targets",
+      "description": "The documented UMF container diagram: native input, importer, shared model, explicit projection, exporter and fidelity evidence.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/showcase/definitions/umf-native-interchange-architecture.json",
+      "definitionSha256": "bdab026d978f400b0bbebbf3debed991ff2e710a7eed6b559387c4eeeb5992b0",
+      "sources": [
+        {
+          "path": "fixtures/showcase/sources/umf/architecture.md",
+          "sha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
+          "originPath": "docs/helix/02-design/architecture.md",
+          "originSha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
+          "pointer": "Level 2: Container Diagram",
+          "description": "Exact public architecture document snapshot; the nodes and connections follow its container diagram."
+        }
+      ]
+    },
+    {
+      "id": "umf-architecture-stack",
+      "title": "Layers around the UMF model",
+      "description": "A reading-order stack of the documented authoring, adapter, library, vocabulary and native-tool components; no directed dependencies are added.",
+      "kind": "structure",
+      "form": "stack",
+      "definitionPath": "fixtures/showcase/definitions/umf-architecture-stack.json",
+      "definitionSha256": "c2b689e760568953d82e3fbb37b3fd8a182875a88f470bdcb788aee7893730c5",
+      "sources": [
+        {
+          "path": "fixtures/showcase/sources/umf/architecture.md",
+          "sha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
+          "originPath": "docs/helix/02-design/architecture.md",
+          "originSha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
+          "pointer": "Level 2: Container Diagram; Level 3: Component Diagram",
+          "description": "The documented units and their named responsibilities. The vertical arrangement is authored for presentation and does not assert execution order."
+        }
+      ]
+    },
+    {
+      "id": "umf-logical-metamodel",
+      "title": "The logical UMF metamodel",
+      "description": "Document, Module, Element and Relationship records with selected authored fields from the public UMF metamodel source.",
+      "kind": "structure",
+      "form": "entities",
+      "definitionPath": "fixtures/showcase/definitions/umf-logical-metamodel.json",
+      "definitionSha256": "7bb3b9096f1af8206e301a1880e454bc515f2ed58302567c321ef970047a2990",
+      "sources": [
+        {
+          "path": "fixtures/showcase/sources/umf/metamodel.yaml",
+          "sha256": "1e406ee49b0c4c08b8eb996bb1fcb6e96fa8d6f4673f0877aa1800986b2dbbce",
+          "originRepository": "DocumentDrivenDX/umf",
+          "originPath": "spec/metamodel/umf.yaml",
+          "originSha256": "1e406ee49b0c4c08b8eb996bb1fcb6e96fa8d6f4673f0877aa1800986b2dbbce",
+          "pointer": "modules[id=umf].elements[id in document, module, element, relationship]",
+          "description": "Exact public metamodel YAML snapshot. Only declared logical records and fields are shown; SQL key and nullability concepts are not inferred."
+        }
+      ]
+    },
+    {
+      "id": "beacon-relational-core",
+      "title": "Beacon's relational core",
+      "description": "Five related tables from the Beacon workspace and ticket migrations, including only SQL-declared keys, foreign keys and nullability.",
+      "kind": "structure",
+      "form": "entities",
+      "definitionPath": "fixtures/showcase/definitions/beacon-relational-core.json",
+      "definitionSha256": "ec5d648e2ef6db90831fa8a41fc83f9e998017c2fd22919be52188d733b98556",
+      "sources": [
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0001_workspace.sql",
+          "sha256": "a73f69ed5ae7d99fdd29d1a9bb77ec8b2c0efd10eb79f2d12450b5a3bcc10c93",
+          "originPath": "fixtures/visual/sources/beacon/migrations/0001_workspace.sql",
+          "originSha256": "a73f69ed5ae7d99fdd29d1a9bb77ec8b2c0efd10eb79f2d12450b5a3bcc10c93",
+          "pointer": "CREATE TABLE workspaces",
+          "description": "Workspace columns and constraints, copied unchanged from the Beacon source migration."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0002_tickets.sql",
+          "sha256": "943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7",
+          "originPath": "fixtures/visual/sources/beacon/migrations/0002_tickets.sql",
+          "originSha256": "943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7",
+          "pointer": "CREATE TABLE customers, tickets, messages, attachments",
+          "description": "Selected relational tables and foreign-key constraints, copied unchanged from the Beacon source migration."
+        }
+      ]
+    }
+  ]
+}

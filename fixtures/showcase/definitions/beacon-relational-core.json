@@ -1,0 +1,69 @@
+{
+  "umf": "0.10.0",
+  "id": "showcase:beacon-relational-core",
+  "vocabularies": { "umf.visual": { "version": "1.1.0" } },
+  "extensions": {
+    "umf.visual": {
+      "id": "beacon-relational-core",
+      "kind": "structure",
+      "form": "entities",
+      "title": "Beacon's relational core",
+      "question": "Which primary keys, foreign keys and nullable columns link the core Beacon tables?",
+      "takeaway": "This source-based view includes workspace, customer, ticket, message and attachment migrations; SQL nullability is shown only where declared.",
+      "audience": "developer",
+      "source": {
+        "path": "fixtures/showcase/sources/beacon/0002_tickets.sql",
+        "view": "CREATE TABLE customers, tickets, messages, attachments; plus workspaces from 0001_workspace.sql",
+        "digest": "sha256:943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7"
+      },
+      "nodes": [
+        { "id": "workspaces", "label": "workspaces", "role": "store" },
+        { "id": "customers", "label": "customers", "role": "store" },
+        { "id": "tickets", "label": "tickets", "role": "store" },
+        { "id": "messages", "label": "messages", "role": "store" },
+        { "id": "attachments", "label": "attachments", "role": "store" }
+      ],
+      "structure": {
+        "entities": [
+          { "node": "workspaces", "fields": [
+            { "id": "workspaces-id", "name": "id", "type": "uuid", "keys": ["pk"], "nullable": false },
+            { "id": "workspaces-name", "name": "name", "type": "text", "nullable": false },
+            { "id": "workspaces-created-at", "name": "created_at", "type": "timestamptz", "nullable": false }
+          ] },
+          { "node": "customers", "fields": [
+            { "id": "customers-id", "name": "id", "type": "uuid", "keys": ["pk"], "nullable": false },
+            { "id": "customers-workspace-id", "name": "workspace_id", "type": "uuid", "keys": ["fk"], "nullable": false },
+            { "id": "customers-external-ref", "name": "external_ref", "type": "text", "nullable": false }
+          ] },
+          { "node": "tickets", "fields": [
+            { "id": "tickets-id", "name": "id", "type": "uuid", "keys": ["pk"], "nullable": false },
+            { "id": "tickets-customer-id", "name": "customer_id", "type": "uuid", "keys": ["fk"], "nullable": false },
+            { "id": "tickets-workspace-id", "name": "workspace_id", "type": "uuid", "keys": ["fk"], "nullable": false },
+            { "id": "tickets-phase", "name": "phase", "type": "text", "nullable": false },
+            { "id": "tickets-opened-at", "name": "opened_at", "type": "timestamptz", "nullable": false }
+          ] },
+          { "node": "messages", "fields": [
+            { "id": "messages-id", "name": "id", "type": "uuid", "keys": ["pk"], "nullable": false },
+            { "id": "messages-ticket-id", "name": "ticket_id", "type": "uuid", "keys": ["fk"], "nullable": false },
+            { "id": "messages-author", "name": "author", "type": "text", "nullable": false },
+            { "id": "messages-sent-at", "name": "sent_at", "type": "timestamptz", "nullable": false }
+          ] },
+          { "node": "attachments", "fields": [
+            { "id": "attachments-id", "name": "id", "type": "uuid", "keys": ["pk"], "nullable": false },
+            { "id": "attachments-message-id", "name": "message_id", "type": "uuid", "keys": ["fk"], "nullable": false },
+            { "id": "attachments-object-key", "name": "object_key", "type": "text", "nullable": false },
+            { "id": "attachments-bytes", "name": "bytes", "type": "bigint", "nullable": true }
+          ] }
+        ],
+        "references": [
+          { "id": "workspaces-customers", "from": { "node": "workspaces", "field": "id", "fieldId": "workspaces-id" }, "to": { "node": "customers", "field": "workspace_id", "fieldId": "customers-workspace-id" }, "label": "workspace_id", "fromCardinality": "exactly-one", "toCardinality": "zero-or-many" },
+          { "id": "customers-tickets", "from": { "node": "customers", "field": "id", "fieldId": "customers-id" }, "to": { "node": "tickets", "field": "customer_id", "fieldId": "tickets-customer-id" }, "label": "customer_id", "fromCardinality": "exactly-one", "toCardinality": "zero-or-many" },
+          { "id": "workspaces-tickets", "from": { "node": "workspaces", "field": "id", "fieldId": "workspaces-id" }, "to": { "node": "tickets", "field": "workspace_id", "fieldId": "tickets-workspace-id" }, "label": "workspace_id", "fromCardinality": "exactly-one", "toCardinality": "zero-or-many" },
+          { "id": "tickets-messages", "from": { "node": "tickets", "field": "id", "fieldId": "tickets-id" }, "to": { "node": "messages", "field": "ticket_id", "fieldId": "messages-ticket-id" }, "label": "ticket_id", "fromCardinality": "exactly-one", "toCardinality": "zero-or-many" },
+          { "id": "messages-attachments", "from": { "node": "messages", "field": "id", "fieldId": "messages-id" }, "to": { "node": "attachments", "field": "message_id", "fieldId": "attachments-message-id" }, "label": "message_id", "fromCardinality": "exactly-one", "toCardinality": "zero-or-many" }
+        ]
+      }
+    }
+  },
+  "modules": []
+}

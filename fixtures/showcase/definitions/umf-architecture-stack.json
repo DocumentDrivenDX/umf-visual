@@ -1,0 +1,38 @@
+{
+  "umf": "0.10.0",
+  "id": "showcase:umf-architecture-stack",
+  "vocabularies": { "umf.visual": { "version": "1.0.0" } },
+  "extensions": {
+    "umf.visual": {
+      "id": "umf-architecture-stack",
+      "kind": "structure",
+      "form": "stack",
+      "title": "Layers around the UMF model",
+      "question": "Which documented components surround the UMF programmatic model?",
+      "takeaway": "The bands organize named architecture components; their vertical placement is a reading order, not a runtime sequence.",
+      "audience": "developer",
+      "source": {
+        "path": "fixtures/showcase/sources/umf/architecture.md",
+        "view": "Level 2: Container Diagram; Level 3: Component Diagram",
+        "digest": "sha256:b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db"
+      },
+      "nodes": [
+        { "id": "authoring-tools", "label": "Schema authors and tooling", "detail": "Create, inspect, validate, compare and transform artifacts", "layer": "authors" },
+        { "id": "native-adapters", "label": "Native adapters", "detail": "Pair native parsers and serializers around explicit projections", "layer": "adapters" },
+        { "id": "umf-library", "label": "UMF library / tooling", "detail": "Model access, operations and diagnostics", "layer": "library" },
+        { "id": "vocabulary-packages", "label": "Vocabulary packages", "detail": "Versioned structural definitions and semantic specifications", "layer": "vocabularies" },
+        { "id": "native-ecosystems", "label": "Native ecosystem tools", "detail": "Selected native parsers, compilers and serializers", "layer": "ecosystems" }
+      ],
+      "structure": {
+        "layers": [
+          { "id": "authors", "label": "Authoring and consumers" },
+          { "id": "adapters", "label": "Adapter boundary" },
+          { "id": "library", "label": "Portable library" },
+          { "id": "vocabularies", "label": "Versioned definitions" },
+          { "id": "ecosystems", "label": "Native ecosystems" }
+        ]
+      }
+    }
+  },
+  "modules": []
+}

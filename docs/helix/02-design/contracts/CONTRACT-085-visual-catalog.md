@@ -57,8 +57,11 @@ Its sourcePath is `spec/extensions/visual/schema.json`. Forms sourcePath is
 from the actual exported visualForms table. Both hashes identify exact source
 bytes. The builder MUST check kind/form enum agreement with the schema, while
 qualifying that semantic pairing rules live in TypeScript rather than the flat
-schema enums. The browser MUST present this language reference before the
-secondary example gallery and MUST distinguish its counts from example counts.
+schema enums. The detailed evidence page MUST present this language reference
+before its secondary example gallery and MUST distinguish its counts from
+example counts. CAT-16–CAT-18 and CONTRACT-089 place the curated diagram showcase
+on the primary homepage; the complete reference and conformance interface lives
+at `evidence.html`. Existing example/profile links retain their intent there.
 
 The primary schema reference currently exposes explicit latest version 1.1.0;
 the original example documents and public default aliases remain frozen 1.0.0.

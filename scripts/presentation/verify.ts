@@ -1,0 +1,117 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+/** Verify current compiler output, mandatory native checks and exact showcase assets. */
+import {createHash} from 'node:crypto';
+import {readFile} from 'node:fs/promises';
+import {join,resolve} from 'node:path';
+import {compilePresentation,type PresentationBackend} from '../../src/presentation';
+import {readVisualDocument,type Visual} from '../../src/extensions/visual';
+import {chromium} from 'playwright';
+import {verifyPresentationQuality} from './quality';
+import {screenshotSvg} from './build';
+
+const root=resolve(import.meta.dir,'../..');
+const sha=(data:string|Uint8Array)=>createHash('sha256').update(data).digest('hex');
+const relative=(value:unknown):value is string=>typeof value==='string'&&/^[A-Za-z0-9._/-]+$/.test(value)&&!value.startsWith('/')&&!value.split('/').includes('..');
+const same=(a:unknown,b:unknown)=>JSON.stringify(a)===JSON.stringify(b);
+export interface ShowcaseVerification {examples:number;qualified:number;unsupported:number;assets:number;nativeReplayed?:number;pngReplayed?:number;}
+export type ArtifactReader=(path:string)=>Promise<Uint8Array>;
+
+/** Explicit proof obligations; a renderer load or arbitrary passing check cannot replace them. */
+export function requiredPresentationChecks(backend:PresentationBackend,visual:Visual):string[]{
+ const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
+ if(backend==='graphviz')checks.push('graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order');
+ else checks.push('mermaid-native-node-carriers',...(visual.form==='entities'?['mermaid-er-fields-and-relations']:[...(visual.kind==='flow'?['mermaid-flow-paths']:[]),'mermaid-containment-and-order']));
+ return checks.sort();
+}
+
+/** Receipt/asset admission. The CLI additionally replays the actual native SVG checks. */
+export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:ArtifactReader):Promise<ShowcaseVerification>{
+ if(manifest?.schemaVersion!==1||receipt?.schemaVersion!==1||!Array.isArray(manifest.examples)||!manifest.examples.length||!Array.isArray(receipt.examples))throw Error('Showcase manifests must use schemaVersion 1 and contain nonempty examples arrays.');
+ const rendered=new Map<string,any>();for(const item of receipt.examples){if(!item||typeof item.id!=='string'||rendered.has(item.id))throw Error('Rendered showcase contains a malformed or duplicate example id.');rendered.set(item.id,item);}
+ const expectedIds=new Set<string>();let qualified=0,unsupported=0,assets=0;
+ for(const example of manifest.examples){
+  if(!example||typeof example.id!=='string'||!/^[a-z0-9-]+$/.test(example.id)||expectedIds.has(example.id))throw Error('Source manifest contains a malformed or duplicate example id.');expectedIds.add(example.id);
+  const output=rendered.get(example.id);if(!output)throw Error(`Rendered showcase is missing ${example.id}.`);
+  for(const field of ['title','description','kind','form','definitionPath','definitionSha256'] as const)if(output[field]!==example[field])throw Error(`${example.id} rendered ${field} differs from its source manifest.`);
+  if(!same(output.sources,example.sources)||!Array.isArray(example.sources)||!example.sources.length)throw Error(`${example.id} rendered source provenance differs from its source manifest.`);
+  if(!relative(example.definitionPath))throw Error(`${example.id} definition path is unsafe.`);
+  const definitionBytes=await readArtifact(example.definitionPath);if(sha(definitionBytes)!==example.definitionSha256)throw Error(`${example.id} definition hash is stale.`);
+  for(const source of example.sources){
+   if(!relative(source.path))throw Error(`${example.id} source snapshot path is unsafe.`);
+   const sourceBytes=await readArtifact(source.path);if(sha(sourceBytes)!==source.sha256||source.originPath&&source.originSha256!==sha(sourceBytes))throw Error(`${example.id} source snapshot hash is stale at ${source.path}.`);
+  }
+  const raw=new TextDecoder('utf-8',{fatal:true}).decode(definitionBytes),document=readVisualDocument(raw,'json');
+  if(!same(output.definition,JSON.parse(raw)))throw Error(`${example.id} rendered definition differs from its hashed definition artifact.`);
+  const visual=document.extensions!['umf.visual'] as unknown as Visual;
+  if(visual.kind!==example.kind||visual.form!==example.form||visual.id!==example.id)throw Error(`${example.id} classification differs from its definition.`);
+  if(!Array.isArray(output.renders))throw Error(`${example.id} has no render rows.`);
+  const rows=new Map<string,any>();for(const row of output.renders){if(!row||!['graphviz','mermaid'].includes(row.backend)||rows.has(row.backend))throw Error(`${example.id} has a malformed or duplicate backend row.`);rows.set(row.backend,row);}
+  for(const backend of ['graphviz','mermaid'] as const){
+   const row=rows.get(backend);if(!row)throw Error(`${example.id} is missing ${backend} render evidence.`);
+   if(row.engine!==backend||typeof row.nativeVersion!=='string'||!row.nativeVersion.trim()||row.nativeVersion.includes('unknown'))throw Error(`${example.id}/${backend} has no exact native engine version.`);
+   const plan=compilePresentation(document,{backend,theme:'presentation/1'});
+   if(row.status==='unsupported'){
+    if(plan.ok||!same(row.diagnostics,plan.diagnostics)||row.nativeSourcePath||row.svgPath||row.pngPath||row.quality?.evidence?.length)throw Error(`${example.id}/${backend} is mislabeled unsupported.`);
+    unsupported++;continue;
+   }
+   if(row.status!=='qualified'||!plan.ok)throw Error(`${example.id}/${backend} is not qualified by the current presentation compiler.`);
+   if(!same(row.elementMap,plan.elementMap)||!same(row.omissions,plan.omissions)||!same(row.approximations,plan.approximations))throw Error(`${example.id}/${backend} has a stale presentation map or view inventory.`);
+   if(sha(plan.source)!==row.nativeSourceSha256)throw Error(`${example.id}/${backend} source is not the current compiled presentation.`);
+   const checks=row.quality?.evidence;
+   if(!Array.isArray(checks)||checks.some((check:any)=>!check||check.result!=='pass'||check.sourceSha256!==row.nativeSourceSha256||typeof check.details!=='string'||!check.details.trim()))throw Error(`${example.id}/${backend} has incomplete or failing source-bound quality evidence.`);
+   if(!same(checks.map((check:any)=>check.check).sort(),requiredPresentationChecks(backend,visual)))throw Error(`${example.id}/${backend} is missing required native quality checks or includes duplicate/unknown checks.`);
+   if(row.width!==1600||row.height!==900)throw Error(`${example.id}/${backend} is not a 1600×900 presentation asset.`);
+   for(const [assetPath,expectedHash,label] of [[row.nativeSourcePath,row.nativeSourceSha256,'native source'],[row.svgPath,row.svgSha256,'SVG'],[row.pngPath,row.pngSha256,'PNG']] as const){
+    const prefix=`showcase/${example.id}/${backend}/`;
+    if(!relative(assetPath)||!assetPath.startsWith(prefix)||typeof expectedHash!=='string'||!/^[a-f0-9]{64}$/.test(expectedHash))throw Error(`${example.id}/${backend} has an unsafe or unhashed ${label} path.`);
+    const bytes=Buffer.from(await readArtifact(assetPath));if(sha(bytes)!==expectedHash)throw Error(`${example.id}/${backend} ${label} hash mismatch.`);assets++;
+    if(label==='native source'&&new TextDecoder('utf-8',{fatal:true}).decode(bytes)!==plan.source)throw Error(`${example.id}/${backend} native source bytes differ from the current compiler.`);
+    if(label==='PNG'&&(bytes.length<24||!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))||bytes.readUInt32BE(16)!==row.width||bytes.readUInt32BE(20)!==row.height))throw Error(`${example.id}/${backend} PNG artifact or dimensions are malformed.`);
+    if(label==='SVG'&&!bytes.toString('utf8').includes('<svg'))throw Error(`${example.id}/${backend} SVG artifact is malformed.`);
+   }
+   const suffix=backend==='graphviz'?'.dot':'.mmd';if(!row.nativeSourcePath.endsWith(suffix))throw Error(`${example.id}/${backend} native source has the wrong extension.`);
+   qualified++;
+  }
+  if(!['graphviz','mermaid'].some(backend=>rows.get(backend)?.status==='qualified'))throw Error(`${example.id} has no qualified presentation backend.`);
+ }
+ if(rendered.size!==expectedIds.size||[...rendered.keys()].some(id=>!expectedIds.has(id)))throw Error('Rendered showcase has unexpected or missing examples.');
+ return {examples:expectedIds.size,qualified,unsupported,assets};
+}
+
+export async function verifyShowcase():Promise<ShowcaseVerification>{
+ const manifest=JSON.parse(await readFile(join(root,'fixtures/showcase/showcase-sources.json'),'utf8'));
+ const receipt=JSON.parse(await readFile(join(root,'dist-site/showcase.json'),'utf8'));
+ const readArtifact:ArtifactReader=path=>readFile(join(root,path.startsWith('showcase/')?'dist-site':'',path));
+ const summary=await verifyShowcaseData(manifest,receipt,readArtifact);
+ const browser=await chromium.launch({headless:true});let replayed=0;
+ try{
+  for(const example of receipt.examples){
+   const document=readVisualDocument(new TextDecoder().decode(await readArtifact(example.definitionPath)),'json');
+   const visual=document.extensions!['umf.visual'] as unknown as Visual;
+   for(const row of example.renders.filter((entry:any)=>entry.status==='qualified')){
+    const plan=compilePresentation(document,{backend:row.backend,theme:'presentation/1'});
+    if(!plan.ok)throw Error('Current compiler refused an admitted presentation.');
+    let nativeAst:unknown;
+    if(row.backend==='graphviz'){
+     const child=Bun.spawn(['dot','-Tjson'],{stdin:'pipe',stdout:'pipe',stderr:'pipe'});
+     child.stdin.write(plan.source);child.stdin.end();
+     const [output,error,code]=await Promise.all([new Response(child.stdout).text(),new Response(child.stderr).text(),child.exited]);
+     if(code!==0||error.trim())throw Error(`Graphviz replay failed: ${error}`);
+     nativeAst=JSON.parse(output);
+    }
+    const svg=new TextDecoder('utf-8',{fatal:true}).decode(await readArtifact(row.svgPath));
+    const page=await browser.newPage();
+    try{
+     const checks=await verifyPresentationQuality(page,{svg,document,plan,nativeAst});
+     if(!same(checks.map(check=>check.check).sort(),requiredPresentationChecks(row.backend,visual))||checks.some(check=>check.result!=='pass'||check.sourceSha256!==row.nativeSourceSha256))throw Error(`${example.id}/${row.backend} failed independent native SVG replay: ${checks.filter(check=>check.result!=='pass').map(check=>check.details).join('; ')}`);
+    }finally{await page.close();}
+    const pngPath=join(root,'.cache/presentation/replay',example.id,row.backend+'.png');
+    await screenshotSvg(browser,svg,pngPath);
+    if(sha(await readFile(pngPath))!==row.pngSha256)throw Error(`${example.id}/${row.backend} PNG does not match the native SVG derivative.`);
+    replayed++;
+   }
+  }
+ }finally{await browser.close();}
+ return {...summary,nativeReplayed:replayed,pngReplayed:replayed};
+}
+if(import.meta.main)console.log(JSON.stringify(await verifyShowcase(),null,2));

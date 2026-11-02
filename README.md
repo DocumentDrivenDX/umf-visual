@@ -1,9 +1,10 @@
 # umf-visual
 
 A system library for `umf.visual`: visual meaning carried as a versioned UMF
-extension, consumed by producers and independent renderers. The microsite references the language schema and its shared types separately
-from its example gallery, which compares UMF sample documents, native sources, actual SVG renders,
-identity mappings and explicit losses for DOT, Mermaid and Lini.
+extension, consumed by producers and independent renderers. The microsite leads
+with sourced architecture, stack and E/R diagrams, their shared DSL definitions
+and native SVG/PNG artifacts. The secondary evidence page retains the complete
+language reference, interchange catalog, identity mappings and diagnostics.
 
 The intended model is a superset of common visual types and properties exposed
 by these tools, serving both interchange and generic authoring by semantic
@@ -18,14 +19,17 @@ read/write/inspect/create/edit APIs were extracted from
 [UMF #62](https://github.com/DocumentDrivenDX/umf/pull/62), commit
 `351c4802caf34eb7f4174e7b730f86f4befcf909`; see [provenance](UPSTREAM.json).
 
-The released package is `@documentdrivendx/umf-visual` 0.2.0, distributed as a
-[GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.2.0).
+The released package is `@documentdrivendx/umf-visual` 0.4.0, distributed as a
+[GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.4.0).
 It is not published to npm.
 
 Browse the [umf.visuals catalog](https://documentdrivendx.github.io/umf-visual/).
 Default authoring remains `umf.visual` 1.0.0 and the core envelope 0.10.0. The
-released package is 0.2.0; Linux CI and deployed preview verification pass. It adds
-opt-in vocabulary 1.1.0 and explicit readable annotation profiles.
+released package is 0.4.0; its publication receipt records Linux CI and deployed
+preview verification. It includes opt-in vocabulary 1.1.0, readable annotation
+profiles and complete portable routes. The working 0.5.0 package adds a separate
+presentation compiler; its source and visual qualification remain independent
+of the v0.4.0 release evidence.
 Core comes from the pinned released SDK `umf-v0.5.7`; only its public APIs are used.
 The authored latest schema generates the 1.1.0 manifest and TypeScript shapes;
 released 1.0.0 assets and interpretation remain frozen.
@@ -45,8 +49,11 @@ bun run test:native:full
 bun run test:browser
 bun run build:catalog     # actual DOT, Mermaid and Lini native SVG generation
 bun run test:catalog     # validate exact source and SVG hashes
+bun run build:showcase    # themed native drawings from sourced DSL definitions
+bun run test:showcase     # source/image identities and scoped visual checks
 bun run build:site        # assemble dist-site/
 bun run test:site
+bun run test:site:showcase
 bun run test:release:catalog
 bun run test:site:profiles
 ```
@@ -55,6 +62,39 @@ Serve `dist-site/` with any static HTTP server to browse the microsite. Source l
 in `microsite/`; `scripts/catalog/` derives the data from every checked-in visual
 fixture plus dedicated canaries. Generated data and SVGs are build outputs. Native
 engines are build/test dependencies; the portable library does not load them.
+
+### Presentation rendering
+
+The separate presentation compiler draws the existing DSL with renderer-owned
+themes and layout options. Graphviz and Mermaid execution stays outside the
+portable package. This is a drawing projection, with explicit omissions and
+approximations; it is separate from editable interchange and full readback.
+
+```ts
+import {createVisualDocument} from '@documentdrivendx/umf-visual';
+import {compilePresentation} from '@documentdrivendx/umf-visual/presentation';
+
+const diagram = createVisualDocument({
+  id: 'request', kind: 'flow', form: 'network', question: 'What calls the API?',
+  nodes: [{id: 'client', label: 'Client'}, {id: 'api', label: 'API'}],
+  edges: [{id: 'request', from: 'client', to: 'api', label: 'Request'}]
+});
+const plan = compilePresentation(diagram, {
+  backend: 'graphviz', direction: 'LR', theme: 'presentation/1'
+});
+if (plan.ok) {
+  console.log(plan.source); // Execute with the named native renderer.
+  console.log(plan.elementMap, plan.omissions, plan.approximations);
+}
+```
+
+Architecture dependencies, ordered stack composition and entity/relationship
+views reuse the current nodes, groups, layers, fields and references. Renderer
+support is qualified per view and backend; a successful complete interchange
+round trip does not establish presentation quality. Graphviz qualifies for all
+five showcase examples, including field-bound E/R connections. Mermaid qualifies
+for the three architecture/stack examples; E/R relationships refuse when native
+syntax would assert identifying semantics absent from the source model.
 
 ```ts
 import {

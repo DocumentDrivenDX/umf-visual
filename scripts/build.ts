@@ -6,6 +6,8 @@ for(const [entry,name]of [['miro','miro'],['miro/editable','miro-editable'],['po
  const adapter=await Bun.build({entrypoints:['src/adapters/'+entry+'/index.ts'],outdir:'dist',naming:name+'.js',target:'browser',format:'esm',external:['@umf/core']});
  if(!adapter.success)throw Error(adapter.logs.join('\n'));
 }
+const presentation=await Bun.build({entrypoints:['src/presentation/index.ts'],outdir:'dist',naming:'presentation.js',target:'browser',format:'esm',external:['@umf/core']});
+if(!presentation.success)throw Error(presentation.logs.join('\n'));
 const types=Bun.spawn([process.execPath,'node_modules/typescript/bin/tsc','--noEmit','false','--declaration','--emitDeclarationOnly','--rootDir','src','--outDir','dist','--project','tsconfig.build.json'],{stdout:'inherit',stderr:'inherit'});
 if(await types.exited)throw Error('Declaration build failed');
 console.log('Built browser-compatible ESM and declarations; @umf/core stays external.');
