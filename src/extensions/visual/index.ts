@@ -40,6 +40,7 @@ export type VisualEmphasis=VisualDefs['emphasis'];
 export type VisualRole=NonNullable<VisualDefs['node']['role']>;
 export type VisualEvidence=VisualDefs['evidence'][number];
 export type VisualLabelled=VisualDefs['labelled'];
+export type VisualAnnotation=VisualDefs['annotation'];
 export type VisualGroup=VisualDefs['group'];
 export type VisualParticipant=VisualDefs['participant'];
 export type VisualNode=VisualDefs['node'];
@@ -63,18 +64,18 @@ export type VisualCriterion=VisualDefs['comparison']['criteria'][number];
 export type VisualValue=VisualDefs['comparison']['values'][number];
 export type VisualSeries=VisualDefs['metric']['series'][number];
 export interface VisualInspection extends Validation {advice:Diagnostic[];}
-type Content='groups'|'nodes'|'edges'|'sequence'|'structure'|'state'|'timeline'|'comparison'|'metric';
+type Content='annotations'|'groups'|'nodes'|'edges'|'sequence'|'structure'|'state'|'timeline'|'comparison'|'metric';
 // Which top-level content each kind may carry, and which it must.
 const content:Record<VisualKind,{allowed:Content[];required:Content[]}>={
- flow:{allowed:['nodes','edges','groups'],required:['nodes']},
- sequence:{allowed:['groups','sequence'],required:['sequence']},
- structure:{allowed:['nodes','groups','structure'],required:['nodes']},
- state:{allowed:['nodes','state'],required:['nodes','state']},
- timeline:{allowed:['timeline'],required:['timeline']},
- comparison:{allowed:['comparison'],required:['comparison']},
- metric:{allowed:['metric'],required:['metric']}
+ flow:{allowed:['annotations','nodes','edges','groups'],required:['nodes']},
+ sequence:{allowed:['annotations','groups','sequence'],required:['sequence']},
+ structure:{allowed:['annotations','nodes','groups','structure'],required:['nodes']},
+ state:{allowed:['annotations','nodes','state'],required:['nodes','state']},
+ timeline:{allowed:['annotations','timeline'],required:['timeline']},
+ comparison:{allowed:['annotations','comparison'],required:['comparison']},
+ metric:{allowed:['annotations','metric'],required:['metric']}
 };
-const contentKeys:Content[]=['groups','nodes','edges','sequence','structure','state','timeline','comparison','metric'];
+const contentKeys:Content[]=['annotations','groups','nodes','edges','sequence','structure','state','timeline','comparison','metric'];
 const walkthroughKinds:VisualKind[]=['flow','sequence','state','timeline'];
 const graphKinds:VisualKind[]=['flow','structure','state'];
 const sequenceRoles=['phase','loop','alternative'];
@@ -138,7 +139,7 @@ function semantics(value:Json,context:{document:Document;path:string;scope:strin
  };
  const s=v.sequence,st=v.structure,sm=v.state,t=v.timeline,c=v.comparison,m=v.metric;
  const declarations:[{id:string}[]|undefined,string,string][]=[
-  [v.groups,'group','/groups'],[v.nodes,'node','/nodes'],[v.edges,'edge','/edges'],[v.steps,'step','/steps'],
+  [v.annotations,'annotation','/annotations'],[v.groups,'group','/groups'],[v.nodes,'node','/nodes'],[v.edges,'edge','/edges'],[v.steps,'step','/steps'],
   [s?.participants,'participant','/sequence/participants'],[s?.messages,'message','/sequence/messages'],[s?.notes,'sequence note','/sequence/notes'],
   [st?.layers,'layer','/structure/layers'],[st?.references,'reference','/structure/references'],
   [sm?.transitions,'transition','/state/transitions'],

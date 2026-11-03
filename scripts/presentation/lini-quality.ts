@@ -147,10 +147,17 @@ export async function verifyLiniPresentationQuality(
   else if(item.kind==='group')expected=visual.groups?.find(group=>group.id===item.logicalId)?.label??'';
   else if(item.kind==='layer')expected=visual.structure?.layers?.find(layer=>layer.id===item.logicalId)?.label??'';
   else if(item.kind==='entity')expected=visual.nodes?.find(node=>node.id===item.logicalId)?.label??'';
+  else if(item.kind==='annotation')expected=visual.annotations?.find(annotation=>annotation.id===item.logicalId)?.text??'';
   const groupCaption=item.kind==='group'?dom?.carriers.find(candidate=>candidate.classes.includes('lini-caption')&&candidate.texts.some(text=>text.includes(norm(expected)))&&containsBox(found.bounds,candidate.bounds)):undefined;
   const visibleLabel=!!expected&&(found.texts.includes(norm(expected))||found.cells.some(cell=>norm(cell.text)===norm(expected))||!!groupCaption||!!dom?.carriers.some(candidate=>candidate.classes.includes('lini-caption')&&candidate.texts.includes(norm(expected))&&containsBox(found.bounds,candidate.bounds)));
   const shape=visual.nodes?.find(node=>node.id===item.logicalId)?.shape,visibleShapeFallback=!!shape&&found.texts.some(text=>text.startsWith(norm(expected)+' (shape: '+shape+')'));
   if(expected&&!visibleLabel&&!visibleShapeFallback){carriersOk=false;missing.push(`${item.kind} label ${item.logicalId}`);}
+  if(item.kind==='annotation'){
+   const borderless=found.classes.includes('lini-box')&&found.style.includes('fill: none')&&found.style.includes('stroke: none')&&found.style.includes('stroke-width: 0');
+   const connected=dom?.links.some(link=>[link.from,link.to].some(endpoint=>!!endpoint&&endpoint.split('.').includes(item.nativeId)));
+   if(!borderless){carriersOk=false;missing.push(`annotation ${item.logicalId} is not a borderless native text carrier`);}
+   if(connected){carriersOk=false;missing.push(`annotation ${item.logicalId} has a native graph connection`);}
+  }
   const detail=item.kind==='group'?visual.groups?.find(group=>group.id===item.logicalId)?.detail:item.kind==='node'||item.kind==='entity'?visual.nodes?.find(node=>node.id===item.logicalId)?.detail:undefined;
   if(detail){const detailRow=found.cells.find(cell=>cell.id==='detail'),captionHasDetail=item.kind==='group'&&!!groupCaption&&groupCaption.texts.some(text=>text.includes(norm(detail)));if((!detailRow||norm(detailRow.text)!==norm(detail))&&!captionHasDetail){carriersOk=false;missing.push(`${item.kind} detail ${item.logicalId}`);}}
   const explicitNode=visual.nodes?.find(node=>node.id===item.logicalId);
@@ -192,7 +199,7 @@ export async function verifyLiniPresentationQuality(
    const port=nodeWithPorts?.ports?.[portIndex];if(!port)return;
    const mapped=maps.find(item=>item.kind==='port'&&item.sourcePath===sourcePointer('nodes',nodeIndex,`ports/${portIndex}`));if(!mapped)return;
    const localId=mapped.nativeId.split('.').at(-1)!,row=dom?.carriers.find(item=>item.id===localId&&item.parentId===nodeNative&&(item.classes.includes('lini-port')||item.classes.includes('lini-cell'))),host=carrier(nodeNative);
-   return row&&host?{path:[nativeFor(plan,'visual',visual.id)??'visual',...groupChain(visual,plan,nodeId),nodeNative,localId].join('.'),carrier:row,host,side:port.side??'east'}:undefined;
+   return row&&host?{path:[...host.groups,host.id,localId].join('.'),carrier:row,host,side:port.side??'east'}:undefined;
   }
   if(fieldName!==undefined||fieldId!==undefined){
    const fieldIndex=resolveField(visual,nodeId,fieldName,fieldId);if(fieldIndex<0)return;
@@ -201,11 +208,11 @@ export async function verifyLiniPresentationQuality(
    if(!mapped)return;
    const localId=mapped.nativeId.split('.').at(-1)!;
    const row=dom?.carriers.find(item=>item.id===localId&&item.parentId===nodeNative);
-   const host=carrier(nodeNative,'lini-entity');return row&&host?{path:[nativeFor(plan,'visual',visual.id)??'visual',...parentGroups,row.parentId,localId].join('.'),carrier:row,host}:undefined;
+   const host=carrier(nodeNative,'lini-entity');return row&&host?{path:[...host.groups,host.id,localId].join('.'),carrier:row,host}:undefined;
   }
   const row=carrier(nodeNative);if(!row)return;
   const mappedAncestors=row.groups.filter(id=>maps.some(item=>item.kind==='group'&&item.nativeId===id));
-  const actualPath=[nativeFor(plan,'visual',visual.id)??'visual',...mappedAncestors,row.id].join('.');
+  const actualPath=[...row.groups,row.id].join('.');
   if(JSON.stringify(mappedAncestors)!==JSON.stringify(parentGroups))return;
   return{path:actualPath,carrier:row,host:row};
  };
@@ -251,7 +258,7 @@ export async function verifyLiniPresentationQuality(
  };
  for(let index=0;index<(visual.edges??[]).length;index++){
   const edge=visual.edges![index]!,item=maps.find(candidate=>candidate.kind==='edge'&&candidate.logicalId===edge.id);
-  if(item){verifyLink(item,edge.from,undefined,undefined,edge.to,undefined,undefined,edge.directed!==false,undefined,undefined,undefined,undefined,edge.label??'',edge.fromPort,edge.toPort);if(edge.routing){const link=linkFor(item),line=link?.line,sourcePath=at(`/edges/${index}/routing`),policy=plan.approximations.filter(entry=>entry.sourcePath===sourcePath),groups=visual.groups??[],chain=(nodeId:string)=>{const node=visual.nodes?.find(candidate=>candidate.id===nodeId),result:string[]=[];let current=groups.find(group=>group.id===node?.group);while(current){result.unshift(current.id);current=current.parent?groups.find(group=>group.id===current!.parent):undefined;}return result;},fromChain=chain(edge.from),toChain=chain(edge.to);let common=0;while(common<fromChain.length&&common<toChain.length&&fromChain[common]===toChain[common])common++;const scope=common?fromChain[common-1]:undefined,scopeEdges=(visual.edges??[]).filter(candidate=>{const a=chain(candidate.from),b=chain(candidate.to);let shared=0;while(shared<a.length&&shared<b.length&&a[shared]===b[shared])shared++;return(shared?a[shared-1]:undefined)===scope&&candidate.routing;}),routeKinds=[...new Set(scopeEdges.flatMap(candidate=>candidate.routing?[candidate.routing.kind]:[]))],conflict=routeKinds.length>1,containerNative=scope?nativeFor(plan,'group',scope):'visual',lineSource=plan.source.split('\n').find(value=>value.trimStart().startsWith(`|group#${containerNative}|`))??'',declared=/(?:^|[;{ ])routing:\s*(natural|straight);/u.exec(lineSource)?.[1],expected=edge.routing.kind==='curved'?'natural':'straight',modeOk=conflict?declared===undefined:declared===expected,approximation=policy[0],hasCurve=!!line&&/[CcQqSsAa]/u.test(line.d),deviation=line?.curveDeviation??Infinity;
+  if(item){verifyLink(item,edge.from,undefined,undefined,edge.to,undefined,undefined,edge.directed!==false,undefined,undefined,undefined,undefined,edge.label??'',edge.fromPort,edge.toPort);if(edge.routing){const link=linkFor(item),line=link?.line,sourcePath=at(`/edges/${index}/routing`),policy=plan.approximations.filter(entry=>entry.sourcePath===sourcePath),groups=visual.groups??[],chain=(nodeId:string)=>{const node=visual.nodes?.find(candidate=>candidate.id===nodeId),result:string[]=[];let current=groups.find(group=>group.id===node?.group);while(current){result.unshift(current.id);current=current.parent?groups.find(group=>group.id===current!.parent):undefined;}return result;},fromChain=chain(edge.from),toChain=chain(edge.to);let common=0;while(common<fromChain.length&&common<toChain.length&&fromChain[common]===toChain[common])common++;const scope=common?fromChain[common-1]:undefined,scopeEdges=(visual.edges??[]).filter(candidate=>{const a=chain(candidate.from),b=chain(candidate.to);let shared=0;while(shared<a.length&&shared<b.length&&a[shared]===b[shared])shared++;return(shared?a[shared-1]:undefined)===scope&&candidate.routing;}),routeKinds=[...new Set(scopeEdges.flatMap(candidate=>candidate.routing?[candidate.routing.kind]:[]))],conflict=routeKinds.length>1,fromNative=nativeFor(plan,'entity',edge.from)??nativeFor(plan,'node',edge.from),toNative=nativeFor(plan,'entity',edge.to)??nativeFor(plan,'node',edge.to),fromCarrier=fromNative?carrier(fromNative):undefined,toCarrier=toNative?carrier(toNative):undefined,fromGroups=fromCarrier?.groups??[],toGroups=toCarrier?.groups??[];let commonNative=0;while(commonNative<fromGroups.length&&commonNative<toGroups.length&&fromGroups[commonNative]===toGroups[commonNative])commonNative++;const containerNative=fromGroups[commonNative-1]??'visual',lineSource=plan.source.split('\n').find(value=>value.trimStart().startsWith(`|group#${containerNative}|`))??'',declared=/(?:^|[;{ ])routing:\s*(natural|straight);/u.exec(lineSource)?.[1],expected=edge.routing.kind==='curved'?'natural':'straight',modeOk=conflict?declared===undefined:declared===expected,approximation=policy[0],hasCurve=!!line&&/[CcQqSsAa]/u.test(line.d),deviation=line?.curveDeviation??Infinity;
     const scopeLayout=scope?groups.find(candidate=>candidate.id===scope)?.layout:visual.layout,hasExplicitGrid=scopeLayout?.kind==='grid'&&scopeLayout.columns>1,inferable=edge.routing.kind==='curved'&&!edge.fromPort&&!edge.toPort&&!hasExplicitGrid,expectedCode=conflict?'ROUTING_SCOPE_CONFLICT':edge.routing.kind==='curved'&&!inferable?'ROUTING_NATIVE_INTERPOLATION':undefined;
     if(policy.length!==1){endpointOk=false;endpointProblems.push(`${edge.id}: route needs exactly one source-located realization record`);}
     else if(approximation?.code!==expectedCode){endpointOk=false;endpointProblems.push(`${edge.id}: routing realization code does not match its actual Lini scope and anchor constraints`);}

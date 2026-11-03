@@ -303,6 +303,147 @@
         ],
         "scope": "Synthetic source witnesses and historical Visual 1.1 host outputs only. Circular placement is authored review intent; renderer support is separately qualified per Visual 1.4 output."
       }
+    },
+    {
+      "id": "miro-frames-headings-annotations",
+      "title": "Frames, headings and annotations",
+      "description": "A source-derived review preserving the common topology while expressing witnessed frame membership and unanchored free text.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/reviews/definitions/miro-frames-headings-annotations.json",
+      "definitionSha256": "2823dbf5cef09877193589fb8795e2ad96811f494e5ebfb00167cae1e2819a86",
+      "sources": [
+        {
+          "path": "fixtures/integrations/complex-miro/common/frames-headings-annotations.json",
+          "sha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa",
+          "pointer": "/extensions/umf.visual",
+          "label": "Synthetic common source model",
+          "description": "Synthetic source preserving the four node IDs/labels, three data edges, title, and question; it contains no frame or free-text records."
+        },
+        {
+          "path": "fixtures/integrations/complex-miro/native/frames-headings-annotations.json",
+          "sha256": "d4d5b56c84d42a43c78c3b1652d28d93b2785786642018518b799e1c094c41d8",
+          "pointer": "/items",
+          "label": "Synthetic native witness",
+          "description": "Synthetic witness with explicit rectangle/cylinder symbols, two titled frames and member lists, two free-text records, and straight connectors. Coordinates and native IDs do not assign heading levels or text-to-frame associations."
+        },
+        {
+          "path": "fixtures/renderers/miro/preview-receipt.json",
+          "sha256": "db234c735ca203de0fb75a9f8e709a40050794a8f1a8065efdb79dce95b13109",
+          "pointer": "/cases/frames-headings-annotations/rendererTargets/miro/preview",
+          "label": "Miro capture receipt",
+          "description": "Miro service 1.105564.0 / Web SDK v2 (unpinned), model 1.0.0 restored-original preview tied to the common source and capture digest."
+        },
+        {
+          "path": "fixtures/renderers/google-slides/preview-receipt.json",
+          "sha256": "d1ddaec6368f5f66ba86b8a2930e224fc6e096772853221b7b407cea48263fd2",
+          "pointer": "/cases/frames-headings-annotations/rendererTargets/google-slides/preview",
+          "label": "Google Slides API capture receipt",
+          "description": "Google Slides API v1 (service unpinned), model 1.0.0 restored-original output with live transport verification; it is not a browser UI screenshot."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/preview-receipt.json",
+          "sha256": "60da64410d8da8c55749b0324f2abd147808ad174911516cf380b72808809cf6",
+          "pointer": "/cases/frames-headings-annotations/rendererTargets/powerpoint/preview",
+          "label": "PowerPoint conversion receipt",
+          "description": "PowerPoint-profile model 1.0.0 PPTX preview rendered by LibreOfficeDev 26.8.0.0.alpha0."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/native-cycle-receipt.json",
+          "sha256": "77675cb00a61a841734002964f8dcea732dc7a6f587d1b861c6625cbabff57bf",
+          "pointer": "/cases/frames-headings-annotations",
+          "label": "PowerPoint preservation-cycle receipt",
+          "description": "Hash-bound native no-op, import, save, and preservation artifact records for a separate native PowerPoint cycle."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/native-ui-attestations.json",
+          "sha256": "06cec5f6099c17072049a64294db0367ae3819ff55f625f00f710c4928d654b7",
+          "pointer": "/cases/frames-headings-annotations",
+          "label": "Separate PowerPoint native-open attestation",
+          "description": "Operator-observed PowerPoint for Mac 16.114.3 open and save of the preserved PPTX artifact identified by the PowerPoint cycle receipt, without a repair prompt. This is distinct from the PowerPoint-profile PPTX converted to the preview below."
+        },
+        {
+          "path": "fixtures/renderers/miro/assets/frames-headings-annotations-52e2d44612b4bc8b.jpg",
+          "sha256": "52e2d44612b4bc8b4a0bd7ebe06f02adc7bcb067eea58785550f23a0985d47c4",
+          "pointer": "published image bytes",
+          "label": "Miro historical preview image",
+          "description": "Actual Miro output for the synthetic common document; not evidence of the additional native-witness frame and text items."
+        },
+        {
+          "path": "fixtures/renderers/google-slides/assets/frames-headings-annotations-f48012cecf4736cb.png",
+          "sha256": "f48012cecf4736cb99b4127f3dda8fef2adec2fba7ed4be97bf0329db18ae51d",
+          "pointer": "published image bytes",
+          "label": "Google Slides API preview image",
+          "description": "Captured Google Slides API output for the synthetic common document; not a browser UI screenshot."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/assets/frames-headings-annotations-afa872ecc6b83cff.pptx",
+          "sha256": "afa872ecc6b83cff6bd2a161ff581affa0ba5766831de3d6b5a8f95464dbd913",
+          "pointer": "PowerPoint-profile output artifact bytes",
+          "label": "PowerPoint-profile PPTX artifact",
+          "description": "Synthetic PowerPoint-profile export artifact converted by LibreOffice into the preview image below. The separate native-open attestation concerns another preserved PPTX artifact."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/assets/frames-headings-annotations-4aae2582e7a1b746.png",
+          "sha256": "4aae2582e7a1b746da47600b7fcf52417bc08c031ce714e90eb6a6a4a2d4b8e6",
+          "pointer": "published image bytes",
+          "label": "LibreOffice PPTX conversion (not a PowerPoint screenshot)",
+          "description": "LibreOfficeDev rendering of the exact PPTX artifact separately opened in PowerPoint."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/renderers/miro/assets/frames-headings-annotations-52e2d44612b4bc8b.jpg",
+          "sha256": "52e2d44612b4bc8b4a0bd7ebe06f02adc7bcb067eea58785550f23a0985d47c4",
+          "outputPath": "reviews/miro-frames-headings-annotations/original-capture.jpg",
+          "mediaType": "image/jpeg",
+          "description": "Actual Miro output from the synthetic common document, not a private original-board capture."
+        },
+        {
+          "path": "fixtures/renderers/google-slides/assets/frames-headings-annotations-f48012cecf4736cb.png",
+          "sha256": "f48012cecf4736cb99b4127f3dda8fef2adec2fba7ed4be97bf0329db18ae51d",
+          "outputPath": "reviews/miro-frames-headings-annotations/google-slides-capture.png",
+          "mediaType": "image/png",
+          "description": "Google Slides API output for the synthetic common document, not a browser UI screenshot."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/assets/frames-headings-annotations-4aae2582e7a1b746.png",
+          "sha256": "4aae2582e7a1b746da47600b7fcf52417bc08c031ce714e90eb6a6a4a2d4b8e6",
+          "outputPath": "reviews/miro-frames-headings-annotations/powerpoint-libreoffice-render.png",
+          "mediaType": "image/png",
+          "description": "LibreOfficeDev render of the PowerPoint-profile artifact; not a PowerPoint UI screenshot."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "synthetic-integration-witness",
+        "integrationManifestPath": "fixtures/integrations/complex-miro/manifest.json",
+        "integrationManifestSha256": "8f27e9b47b74bc1c638f39f1dc105fc641f3bda2b91c89e39e998ab3e30e5a58",
+        "integrationCaseId": "frames-headings-annotations",
+        "classification": "synthetic-witness",
+        "commonDocumentPath": "fixtures/integrations/complex-miro/common/frames-headings-annotations.json",
+        "commonDocumentSha256": "55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa",
+        "nativeWitnessPath": "fixtures/integrations/complex-miro/native/frames-headings-annotations.json",
+        "nativeWitnessSha256": "d4d5b56c84d42a43c78c3b1652d28d93b2785786642018518b799e1c094c41d8",
+        "previewReceiptPath": "fixtures/renderers/miro/preview-receipt.json",
+        "previewReceiptSha256": "db234c735ca203de0fb75a9f8e709a40050794a8f1a8065efdb79dce95b13109",
+        "rendererId": "miro",
+        "rendererProfileId": "umf.visual.miro.editable-network/1",
+        "modelVersion": "1.0.0",
+        "mappingVersion": "1",
+        "nativeVersion": "Miro observed service 1.105564.0 / Web SDK v2 (unpinned)",
+        "stage": "restored-original",
+        "captureDigestSha256": "c44972acf4958b51eb7e5d65cfa1bb05cfb46e1725d3035466113d7a6cd32c61",
+        "capturePath": "reviews/miro-frames-headings-annotations/original-capture.jpg",
+        "captureSourcePath": "fixtures/renderers/miro/assets/frames-headings-annotations-52e2d44612b4bc8b.jpg",
+        "captureSha256": "52e2d44612b4bc8b4a0bd7ebe06f02adc7bcb067eea58785550f23a0985d47c4",
+        "captureMediaType": "image/jpeg",
+        "knownOmissions": [
+          "The native witness frame bounds, free-text coordinates, and all other exact coordinates are fixture-authored native facts; this review uses membership and text only.",
+          "The two free-text strings are unanchored annotations. The witness identifier syn-heading-a does not assert a heading level, and no association with a frame or node is stated.",
+          "Historical Miro, Google Slides, and PowerPoint-profile/LibreOffice previews are tied to the common Visual 1.0 model and do not show the native-witness frame titles or text items. They are not qualification evidence for the new Visual 1.4 annotations or groups."
+        ],
+        "scope": "The common and native documents are synthetic witnesses. The published images are actual host outputs for the common source; they do not establish private-board semantics or prove the additional frame and annotation facts from the separate native witness."
+      }
     }
   ]
 }

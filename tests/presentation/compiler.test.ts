@@ -15,6 +15,30 @@ describe('presentation compiler',()=>{
   expect(JSON.stringify(d)).toBe(before);
  });
 
+ it('keeps free-text annotations as separately mapped native text carriers',()=>{
+  const d=createVisualDocument({id:'annotated',kind:'flow',form:'network',question:'Where do notes belong?',title:'Annotated network',layout:{kind:'flow',direction:'LR',order:['region-a','region-b']},groups:[{id:'region-a',label:'A',role:'region',layout:{kind:'flow',direction:'LR',order:['api','worker']}},{id:'region-b',label:'B',role:'region',layout:{kind:'flow',direction:'LR',order:['queue','database']}}],nodes:[{id:'api',label:'API',group:'region-a'},{id:'worker',label:'Worker',group:'region-a'},{id:'queue',label:'Queue',group:'region-b'},{id:'database',label:'Database',group:'region-b'}],edges:[{id:'e1',from:'api',to:'worker'},{id:'e2',from:'worker',to:'queue'},{id:'e3',from:'queue',to:'database'}],annotations:[{id:'heading',text:'Inbound path'},{id:'note',text:'Retry behavior is outside this sketch.'}]},'test:annotated','1.4.0');
+  for(const backend of ['graphviz','mermaid','lini'] as const){
+   const plan=compilePresentation(d,{backend,theme:'presentation/1'});expect(plan.ok).toBe(true);if(!plan.ok)continue;
+   expect(plan.elementMap.filter(item=>item.kind==='annotation')).toEqual([
+    {logicalId:'heading',sourcePath:'/extensions/umf.visual/annotations/0/id',nativeId:'a1',kind:'annotation'},
+    {logicalId:'note',sourcePath:'/extensions/umf.visual/annotations/1/id',nativeId:'a2',kind:'annotation'}
+   ]);
+   expect(plan.elementMap.filter(item=>item.kind==='edge')).toHaveLength(3);
+   expect(plan.source).toContain(backend==='mermaid'?'Inbound#32;path':'Inbound path');expect(plan.source).toContain(backend==='mermaid'?'Retry#32;behavior#32;is#32;outside#32;this#32;sketch.':'Retry behavior is outside this sketch.');
+   expect(plan.approximations.filter(item=>item.sourcePath.startsWith('/extensions/umf.visual/annotations/'))).toHaveLength(2);
+  }
+ });
+
+ it('refuses annotated non-network forms with a located diagnostic',()=>{
+  const d=createVisualDocument({id:'annotated-stack',kind:'structure',form:'stack',question:'Where do notes belong?',nodes:[{id:'n',label:'Node',layer:'l'}],structure:{layers:[{id:'l',label:'Layer'}]},annotations:[{id:'note',text:'Free text'}]},'test:annotated-stack','1.4.0');
+  for(const backend of ['graphviz','mermaid','lini'] as const)expect(compilePresentation(d,{backend})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_ANNOTATION_SCOPE',path:'/extensions/umf.visual/annotations'}]});
+ });
+
+ it('refuses circular layout plus unanchored annotations before backend dispatch',()=>{
+  const d=createVisualDocument({id:'circular-annotations',kind:'flow',form:'network',question:'How are these arranged?',layout:{kind:'circular',order:['a','b']},nodes:[{id:'a',label:'A',shape:'rectangle'},{id:'b',label:'B',shape:'rectangle'}],edges:[{id:'link',from:'a',to:'b',routing:{kind:'straight'}}],annotations:[{id:'note',text:'Detached text'}]},'test:circular-annotations','1.4.0');
+  for(const backend of ['graphviz','mermaid','lini'] as const)expect(compilePresentation(d,{backend})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_ANNOTATION_CIRCULAR',path:'/extensions/umf.visual/annotations'}]});
+ });
+
  it('renders an ordered stack as containment with no authored arrows',()=>{
   const d=document({id:'stack',kind:'structure',form:'stack',question:'How are layers ordered?',nodes:[{id:'api',label:'Public API',layer:'interface'},{id:'engine',label:'Compiler engine',layer:'compiler'},{id:'schema',label:'Schema package',layer:'vocabulary'}],structure:{layers:[{id:'interface',label:'Public interface'},{id:'compiler',label:'Compiler'},{id:'vocabulary',label:'Vocabulary packages'}]}});
   const plan=compilePresentation(d,{backend:'graphviz'});expect(plan.ok).toBe(true);if(!plan.ok)return;

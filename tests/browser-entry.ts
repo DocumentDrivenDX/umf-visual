@@ -41,6 +41,10 @@ try{
     for(const[entityIndex,entity]of (payload.structure?.entities??[]).entries())if(entity.node===node.id){const entityPointer=`/extensions/umf.visual/structure/entities/${entityIndex}`;validPointers.push(entityPointer,entityPointer+'/node');}
     if(!plan.elementMap.some(element=>(element.kind==='node'||element.kind==='entity')&&element.logicalId===node.id&&validPointers.includes(element.sourcePath)))throw Error(`Reviewed visual node/entity mapping is missing for ${backend}: ${node.id}.`);
    }
+   for(const[index,annotation]of (payload.annotations??[]).entries()){
+    const pointer=`/extensions/umf.visual/annotations/${index}/id`;
+    if(!plan.elementMap.some(element=>element.kind==='annotation'&&element.logicalId===annotation.id&&element.sourcePath===pointer&&typeof element.nativeId==='string'&&element.nativeId.length>0))throw Error(`Reviewed visual annotation carrier mapping is missing for ${backend}: ${annotation.id}.`);
+   }
   }
   if(compiledBackends===0)throw Error('No reviewed backend qualified for the shared browser compiler.');
  }

@@ -399,6 +399,26 @@ a backend's initial root-network subset MUST NOT narrow this shared definition.
 Earlier model versions retain their exact interpretation and unknown-content
 behavior. Draft 1.4.0 remains unreleased.
 
+### Draft 1.4.0 plain-text annotations
+
+Optional root `annotations` is a nonempty array of `{id: Id, text: string}` with
+nonempty plain text. It is admitted across all seven diagram kinds. Annotation
+IDs share the existing declaration namespace (`VISUAL_ID` on collision) and may
+be referenced by walkthrough focus wherever walkthroughs are already admitted.
+They MUST NOT become node/group identities, graph edge endpoints or container
+layout/order members; incompatible references remain `VISUAL_REFERENCE` or
+`VISUAL_LAYOUT`. Existing sequence notes retain their participant/message
+anchoring semantics and are not migrated or aliased to these annotations.
+
+Each record supplies independent text, including authored line breaks, without
+heading level, business role, node/frame ownership or spatial anchor. Neither
+content, identifier spelling nor nearby coordinates may infer those meanings.
+Array order is retained as authored data and does not imply execution or temporal
+order. Native source coordinates and item-kind semantics remain separate from
+this unanchored shared text concept. Unknown annotation content follows the
+existing retain/report-incomplete/edit-refusal rules; frozen earlier versions
+retain their own interpretation.
+
 ## Non-Normative Notes
 
 The renderer, layout engines, theme mapping and checks of the drawing (clipped text, crossings,

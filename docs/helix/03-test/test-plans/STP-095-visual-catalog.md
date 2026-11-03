@@ -323,3 +323,17 @@ Compare unrequested compass anchors with natural boundary clipping; preserve
 authored ports and curved-route policies. Circular Lini output replaces
 only linear-order proof with circular-order proof; ownership, attachment and
 containment checks remain in force.
+
+
+## Fourth-cycle annotation checks
+
+Verify optional annotations across all diagram kinds, exact JSON/YAML text editing,
+shared identity collisions, walkthrough focus where already supported, and refusal
+as graph endpoints/layout members. Preserve sequence-note semantics and frozen
+1.3.0 unknown annotation behavior. Native annotation maps must bind stable source
+IDs to their own exact text carriers; removal, changed text and matching text in
+a different carrier must fail. Inspect readable text placement independently of
+node/group membership and native frame identity. Recheck primary endpoints,
+scoped routing and containment after any drawing wrapper/layout change. Unsupported
+annotation forms/combinations must refuse or disclose omission explicitly;
+source admission alone is not native support.

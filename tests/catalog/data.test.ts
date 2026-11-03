@@ -32,10 +32,12 @@ describe('visual interchange catalogue data', () => {
     });
     const schemaDefinition = JSON.parse(await readFile('spec/extensions/visual/schema.json', 'utf8')) as any;
     expect(catalog.language.schema.schema).toEqual(schemaDefinition);
-    expect(Object.keys(schemaDefinition.$defs)).toHaveLength(22);
+    expect(Object.keys(schemaDefinition.$defs)).toHaveLength(23);
     expect(schemaDefinition.$id).toBe('urn:umf:visual:1.4.0');
     expect(schemaDefinition.$defs.multiplicity).toBeDefined();
     expect(schemaDefinition.$defs.layout).toBeDefined();
+    expect(schemaDefinition.$defs.annotation).toBeDefined();
+    expect(schemaDefinition.properties.annotations).toMatchObject({type:'array',minItems:1});
     expect(schemaDefinition.$defs.layout.oneOf.some((layout: any) => layout.properties?.kind?.const === 'circular')).toBe(true);
     expect(schemaDefinition.$defs.port).toBeDefined();
     expect(schemaDefinition.$defs.node.properties.shape).toBeDefined();

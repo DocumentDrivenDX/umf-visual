@@ -1220,11 +1220,80 @@ for their original 1.1.0 sources, and Mermaid's measured coded native-grid
 approximation remains explicit. No new host qualification or publication follows
 from this closeout.
 
+### Fourth-cycle scope — frames, headings and annotations
+
+Cycle 3 is committed as `aa6a093`; cycle 4 implementation and verification are
+complete. Preserve the common
+1.0.0 source's four node IDs/labels, three data edges and explicit title/question.
+Its hash is `55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa`;
+the synthetic native witness hash is
+`d4d5b56c84d42a43c78c3b1652d28d93b2785786642018518b799e1c094c41d8`.
+The witness additionally declares two titled frames with member IDs and two
+independent free-text records. Historical host output does not establish those
+witness items or deployed system meaning; its selected API color is not a role.
+
+The approved bounded annotation model is a root collection of stable `{id,text}`
+records, admitted across diagram kinds and sharing the visual identity namespace
+and walkthrough focus. Plain-text content has no inferred heading level, role,
+frame association or coordinate-derived anchor. Annotations are not graph nodes,
+edge endpoints or container layout members. Preserve existing sequence notes
+without migration. Native renderers must own actual text carriers and record their
+annotation identity/source path, or disclose/refuse unsupported interpretation.
+
+Existing region groups may explicitly review-interpret frame memberships as
+presentation regions while retaining exact native frame identity/geometry
+separately. Explicit native rectangle/cylinder identities support node shapes;
+labels and native item names do not infer queue/store/business roles. Keep both
+free-text strings verbatim without promoting them into nodes, title/question,
+node detail or steps. The shared annotation contract governs
+implementation; qualify generic text/group/title carriers, overlap and
+attachment evidence, public/browser/package/version boundaries and all original
+host comparisons. Commit the completed fourth cycle before beginning cycle 5.
+The cycle 4 commit follows in this change; no expanded host qualification or
+publication is claimed.
+
+### Fourth-cycle closeout — ready for commit
+
+Sol approves the bounded shared annotation model and native renderer interfaces.
+Independent checks pass 55 tests with 640 assertions across five files, including
+actual Graphviz/Mermaid/Lini text-carrier ownership and moved-text controls,
+borderless annotation drawing, strict endpoint/routing checks after Lini wrappers,
+group membership, prior native shape/curve regressions, all-kind model admission,
+frozen 1.3.0 behavior and explicit unsupported presentation refusals. The reviewed
+definition hash is
+`2823dbf5cef09877193589fb8795e2ad96811f494e5ebfb00167cae1e2819a86`.
+
+The source preserves four common node IDs and three data edges, explicitly maps
+witnessed rectangle/cylinder shapes, interprets native frame membership as reviewed
+presentation regions, and retains both independent free-text strings. It infers
+no business role, heading level or spatial annotation anchor. Renderer-owned
+plaintext objects/layout constraints are separate from logical node/edge counts.
+Lini endpoint paths retain full actual native ancestry while semantic group
+checks remain independently source-bound; routing selects the correct common
+native container. No fixture-specific renderer dispatch is part of this change.
+Four review definitions now have twelve qualified portable variants and 36
+native-source/SVG/PNG assets, with twelve actual native SVG and twelve PNG replays.
+The quiet final suite passes 657 tests, zero failures and 19,534 assertions across
+96 files in 145.64 seconds (`.cache/cycle04-full-tests.log`). All source,
+TypeScript, build, native, catalog, showcase, review, public-browser, fresh packed
+Bun/Node and three site-UI gates pass. Root approves all three refreshed native
+images and confirms production presentation/site code contains no fixture IDs or
+labels. The resulting drawings show two horizontal regions and separate plain
+text on Graphviz/Mermaid, and a borderless trailing text footer on Lini.
+
+Implementation and verification are complete; the cycle 4 commit follows in this
+change and MUST precede cycle 5. Draft 1.4.0 remains unreleased. Historical host
+receipts retain their original 1.0.0 qualification; reviewed regions/annotations
+infer no business roles, heading levels or spatial text anchors. Annotated
+non-network and circular presentation combinations remain unqualified and refuse
+explicitly; broad shared-model admission does not promote those renderer scopes.
+No new host support or publication follows from this closeout.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
-Cycle 3 is verified and ready for the commit that follows in this change;
-cycles 4–68 remain pending.
+Cycle 3 is committed as `aa6a093`. Cycle 4 is verified and ready for the commit
+that follows in this change; cycles 5–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

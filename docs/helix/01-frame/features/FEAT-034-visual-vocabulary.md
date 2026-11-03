@@ -195,3 +195,12 @@ and temporal meaning. The shared model reuses existing composition scopes;
 interpreter limitations require explicit approximation/refusal, not narrowing
 meaning to the first reviewed network. Source-native coordinates and review-authored
 presentation choices retain separate provenance.
+
+
+## Independent diagram annotations
+
+Draft 1.4.0 adds stable, plain-text annotations across diagram kinds. They remain
+independent of graph nodes, container membership and participant-anchored sequence
+notes. Producers preserve text and identity without inferring heading level,
+business role or spatial ownership. Interpreters expose actual text carriers,
+located omissions or refusals within separately qualified presentation scopes.

@@ -306,3 +306,24 @@ from exact circular placement. Native data-line styling belongs in controlled
 emitted Mermaid target configuration, not hidden host source-sniffing patches;
 downloaded source and declared execution instructions must reproduce the qualified
 style or disclose the remaining host-configuration requirement.
+
+
+## Plain-text annotation presentation
+
+Draft annotations are first-class source text independent of semantic graph nodes.
+A presentation MUST draw each admitted annotation on an owned native text carrier,
+report its located omission, or refuse the affected scope. Native plaintext
+objects and invisible placement constraints MAY implement drawing/layout, but
+MUST NOT invent logical nodes, calls, semantic edges or annotation anchors.
+Each drawn item MUST have an `elementMap` entry of kind `annotation` binding its
+logical ID and exact source pointer to its native carrier.
+
+Annotation placement, typography and spacing are renderer policy. Carriers MUST
+own the exact text/line content and remain readable without clipping, overlap or
+false association with a node/group. Textual heading semantics MUST NOT be inferred
+from an identifier or short line. Native checks MUST reject missing or changed annotation text, or text moved to
+an unrelated carrier, even if matching text survives elsewhere.
+Broader shared-model admission does not qualify every form/backend combination;
+unsupported annotation scopes MUST be explicit before a successful render claim.
+Region groups authored as a reviewed frame interpretation preserve declared
+membership without asserting equivalence to a host's frame item identity or geometry.

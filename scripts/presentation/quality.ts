@@ -269,8 +269,17 @@ export async function verifyPresentationQuality(
      if(exp.toPort&&!exp.toAttachmentSide&&!portRowOk(drawn.end,exp.to,exp.toPort,true))endpointFailures.push(`${exp.id} path target does not attach at the SVG row for port ${exp.toPort}`);
     }
    }
+   const annotationFailures:string[]=[];
+   for(let i=0;i<(visual.annotations??[]).length;i++){
+    const annotation=visual.annotations![i]!,mapped=elementFor(plan,'annotation',`/extensions/umf.visual/annotations/${i}/id`),native=mapped?byName.get(mapped.nativeId):undefined,owner=mapped?carrier('node',mapped.nativeId):undefined;
+    if(!mapped||!native||text(native.shape)!=='plaintext'||!owner||!owner.ownText.some(value=>norm(value)===norm(annotation.text))||decodeDotLabel(text(native.label))!==annotation.text)annotationFailures.push(`annotation ${annotation.id} text is not owned by its exact Graphviz plaintext carrier`);
+    const gvid=mapped?objectGvid.get(mapped.nativeId):undefined,incident=gvid===undefined?[]:edges.filter(edge=>Number(edge.tail)===gvid||Number(edge.head)===gvid);
+    if(incident.some(edge=>text(edge.style)!=='invis'))annotationFailures.push(`annotation ${annotation.id} has a visible native graph connection`);
+    if(plan.elementMap.some(item=>item.kind==='edge'&&item.logicalId===annotation.id))annotationFailures.push(`annotation ${annotation.id} is incorrectly mapped as a semantic edge`);
+   }
+   endpointFailures.push(...annotationFailures);
    const expectCount=expectedEdges.length,astConnectionPass=endpointFailures.length===0&&semanticEdges.length===expectCount;
-   checks.push(pass('graphviz-edge-endpoints-and-paths',sourceSha256,astConnectionPass,endpointFailures.length?endpointFailures.join('; '):`${expectCount} authored connections match exact Graphviz tail/head${visual.form==='entities'?' ports':''}; each has a drawn SVG path${visual.form==='entities'?' (entity references are nondirected)':' and arrowhead'}. Invisible layout constraints are excluded.${routingObservations.length?' Routing observations: '+routingObservations.join(' '):''}`));
+   checks.push(pass('graphviz-edge-endpoints-and-paths',sourceSha256,astConnectionPass,endpointFailures.length?endpointFailures.join('; '):`${expectCount} authored connections match exact Graphviz tail/head${visual.form==='entities'?' ports':''}; each has a drawn SVG path${visual.form==='entities'?' (entity references are nondirected)':' and arrowhead'}. Invisible layout constraints are excluded; ${(visual.annotations??[]).length} annotations, when present, are owned by separate plaintext carriers with no visible connections.${routingObservations.length?' Routing observations: '+routingObservations.join(' '):''}`));
 
    if(visual.form==='entities'){
     const problems:string[]=[];
@@ -353,7 +362,13 @@ export async function verifyPresentationQuality(
    return !label||!expectedCarrier||!owned.includes(normLabel(label))||(processRole&&!owned.includes(normLabel(requiredText)));
   }).map(x=>`${x.nativeId}:${x.processRole?'process role caption / ':''}${x.label}`);
   const processRoleMissing=expectedNodeLabels.filter(({nativeId,processRole})=>{if(!processRole)return false;const owner=mermaidNodeCarrier(nativeId);return!owner?.cls.split(/\s+/u).includes('role_process');}).map(item=>`${item.nativeId}:role_process carrier class`);
-  checks.push(pass('mermaid-native-node-carriers',sourceSha256,missing.length===0&&ownLabelsMissing.length===0&&shapeFailures.length===0&&processRoleMissing.length===0,missing.length||ownLabelsMissing.length||shapeFailures.length||processRoleMissing.length?`Missing native node carriers: ${[...missing,...ownLabelsMissing.map(x=>'label '+x),...shapeFailures,...processRoleMissing].join(', ')}.`:`${expectedNodeLabels.length} source labels and all requested document shapes appear in their exact ID-mapped Mermaid node/entity carriers.`));
+  const annotationFailures:string[]=[];
+  for(let i=0;i<(visual.annotations??[]).length;i++){
+   const annotation=visual.annotations![i]!,mapped=elementFor(plan,'annotation',`/extensions/umf.visual/annotations/${i}/id`),owner=mapped?mermaidNodeCarrier(mapped.nativeId):undefined,sourceDeclaration=mapped&&plan.source.split('\n').some(line=>line.trim().startsWith(`${mapped.nativeId}@{ shape: text, label:`)),visibleIncident=mapped?dom.paths.filter(path=>path.dataId.includes(`_${mapped.nativeId}_`)).filter(path=>!path.className.includes('edge-thickness-invisible')||path.markerStart||path.markerEnd):[];
+   if(!mapped||!owner||!sourceDeclaration||normLabel(owner.ownText.join(' '))!==normLabel(annotation.text)||plan.elementMap.filter(item=>item.logicalId===annotation.id).length!==1)annotationFailures.push(`annotation ${annotation.id} text is not owned by its exact Mermaid text-shape carrier`);
+   if(visibleIncident.length)annotationFailures.push(`annotation ${annotation.id} has a visible native graph connection`);
+  }
+  checks.push(pass('mermaid-native-node-carriers',sourceSha256,missing.length===0&&ownLabelsMissing.length===0&&shapeFailures.length===0&&processRoleMissing.length===0&&annotationFailures.length===0,missing.length||ownLabelsMissing.length||shapeFailures.length||processRoleMissing.length||annotationFailures.length?`Missing native node carriers: ${[...missing,...ownLabelsMissing.map(x=>'label '+x),...shapeFailures,...processRoleMissing,...annotationFailures].join(', ')}.`:`${expectedNodeLabels.length} source labels, all requested document shapes, and ${(visual.annotations??[]).length} unanchored annotations appear in their exact ID-mapped Mermaid carriers.`));
   if(visual.form==='entities'){
    // Mermaid ER has entity-level relationship endpoints, never field-port attachment.
    const nodesWithFields=dom.carriers.filter(c=>c.cls.includes('node')&&c.ownText.length>0);

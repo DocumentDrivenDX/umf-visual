@@ -12,7 +12,7 @@ beforeAll(async()=>{browser=await chromium.launch({headless:true});},{timeout:30
 afterAll(async()=>{await browser?.close();},{timeout:30_000});
 
 const doc=(v:Visual)=>createVisualDocument(v,'quality:'+v.id,'1.1.0');
-async function dot(plan:PresentationPlan,format:'svg'|'json'){
+async function dot(plan:PresentationPlan,format:'svg'|'json'|'plain'){
  const child=Bun.spawn(['dot','-T'+format],{stdin:'pipe',stdout:'pipe',stderr:'pipe'});
  child.stdin.write(plan.source);child.stdin.end();
  const [out,err,exit]=await Promise.all([new Response(child.stdout).text(),new Response(child.stderr).text(),child.exited]);
@@ -223,6 +223,44 @@ describe('presentation native quality verifier',()=>{
    }finally{await good.page.close();}
   }
  });
+
+ it('proves free-text annotations belong to separate native carriers on Graphviz and Mermaid',async()=>{
+  const d=createVisualDocument({id:'annotation-carriers',kind:'flow',form:'network',question:'Where are notes?',nodes:[{id:'source',label:'Source'},{id:'target',label:'Target'}],edges:[{id:'link',from:'source',to:'target'}],annotations:[{id:'heading',text:'Inbound path'},{id:'note',text:'Retry is outside this sketch.'}]},'quality:annotation-carriers','1.4.0');
+  const graphviz=await check(d,'graphviz');
+  try{
+   expect(result(graphviz.checks,'graphviz-edge-endpoints-and-paths')).toBe('pass');
+   expect(graphviz.plan.elementMap.filter(item=>item.kind==='annotation').map(item=>item.sourcePath)).toEqual(['/extensions/umf.visual/annotations/0/id','/extensions/umf.visual/annotations/1/id']);
+   const moved=await graphviz.page.locator('#frame svg').evaluate(svg=>{
+    const groups=[...svg.querySelectorAll('g.node')],owner=groups.find(group=>group.querySelector(':scope > title')?.textContent==='a1'),recipient=groups.find(group=>group.querySelector(':scope > title')?.textContent==='n1'),label=owner?.querySelector(':scope > text');
+    if(!label||!recipient)throw Error('Graphviz annotation native text was not found');recipient.append(label);return svg.outerHTML;
+   });
+   expect(result(await verifyPresentationQuality(graphviz.page,{svg:moved,document:d,plan:graphviz.plan,nativeAst:JSON.parse(await dot(graphviz.plan,'json'))}),'graphviz-edge-endpoints-and-paths')).toBe('fail');
+  }finally{await graphviz.page.close();}
+  const mermaid=await check(d,'mermaid');
+  try{
+   expect(result(mermaid.checks,'mermaid-native-node-carriers')).toBe('pass');
+   expect(mermaid.plan.source).toContain('a1@{ shape: text, label: "Inbound#32;path" }');
+   const moved=await mermaid.page.locator('#frame svg').evaluate(svg=>{
+    const groups=[...svg.querySelectorAll('g.node')],owner=groups.find(group=>group.id.includes('flowchart-a1-')),recipient=groups.find(group=>group.id.includes('flowchart-n1-')),label=owner?.querySelector(':scope > g.label');
+    if(!label||!recipient)throw Error('Mermaid annotation native text was not found');recipient.append(label);return svg.outerHTML;
+   });
+   expect(result(await verifyPresentationQuality(mermaid.page,{svg:moved,document:d,plan:mermaid.plan}),'mermaid-native-node-carriers')).toBe('fail');
+  }finally{await mermaid.page.close();}
+ },{timeout:45_000});
+
+ it('keeps an authored left-to-right group chain horizontal when visible edges already provide the order',async()=>{
+  const d=createVisualDocument({id:'grouped-horizontal-annotation-layout',kind:'flow',form:'network',question:'How do regions connect?',layout:{kind:'flow',direction:'LR',order:['region-a','region-b']},groups:[{id:'region-a',label:'Request handling',role:'region',layout:{kind:'flow',direction:'LR',order:['api','worker']}},{id:'region-b',label:'Persistence',role:'region',layout:{kind:'flow',direction:'LR',order:['queue','database']}}],nodes:[{id:'api',label:'API',group:'region-a'},{id:'worker',label:'Worker',group:'region-a'},{id:'queue',label:'Queue',group:'region-b'},{id:'database',label:'Database',group:'region-b'}],edges:[{id:'api-worker',from:'api',to:'worker',routing:{kind:'straight'}},{id:'handoff',from:'worker',to:'queue',routing:{kind:'straight'}},{id:'queue-database',from:'queue',to:'database',routing:{kind:'straight'}}],annotations:[{id:'heading',text:'Inbound path'},{id:'note',text:'Detached note'}]},'quality:grouped-horizontal-annotation-layout','1.4.0');
+  const rendered=await check(d,'graphviz');
+  try{
+   expect(result(rendered.checks,'graphviz-edge-endpoints-and-paths')).toBe('pass');
+   expect(rendered.plan.source).not.toContain('n1 -> n2 [style=invis');expect(rendered.plan.source).not.toContain('n3 -> n4 [style=invis');expect(rendered.plan.source).not.toContain('n1 -> n3 [style=invis');
+   const plain=(await dot(rendered.plan,'plain')).split('\n'),annotationRow=(id:string)=>plain.find(line=>line.startsWith(`node ${id} `))?.trim().split(/\s+/u),first=annotationRow('a1'),second=annotationRow('a2');
+   expect(first).toBeDefined();expect(second).toBeDefined();expect(Number(first?.[3])).not.toBe(2.35);expect(Number(second?.[3])).not.toBe(2.35);expect(Number(first?.[4])).not.toBe(1.08);expect(Number(second?.[4])).not.toBe(1.08);
+   const centers=await rendered.page.locator('#frame svg').evaluate(svg=>[...svg.querySelectorAll('g.node')].flatMap(group=>{const id=group.querySelector(':scope > title')?.textContent??'',rect=group.getBoundingClientRect();return/^n[1-4]$/u.test(id)?[{id,y:rect.y+rect.height/2}]:[]}));
+   expect(centers.map(item=>item.id)).toEqual(['n1','n2','n3','n4']);
+   expect(Math.max(...centers.map(item=>item.y))-Math.min(...centers.map(item=>item.y))).toBeLessThan(2);
+  }finally{await rendered.page.close();}
+ },{timeout:45_000});
  it('binds graph labels and endpoints to their own native carriers and drawn geometry',async()=>{
   const d=doc({id:'flow-quality',kind:'flow',form:'network',question:'How do records move?',title:'Record path',nodes:[{id:'api',label:'Client API'},{id:'store',label:'Record store'}],edges:[{id:'request',from:'api',to:'store',label:'Submit record'}]});
   const good=await check(d);try{

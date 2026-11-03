@@ -171,6 +171,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
   const rootProperties=[...(circle?['layout: flow;','direction: row;',`width: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.width))+72)};`,`height: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.height))+90)};`]:layoutProperties(rootLayout,fallbackLayout,rootColumns??1,direction)),`gap: ${visual.form==='entities'?88:visual.form==='stack'?44:72};`,`padding: 36;`,`fill: none;`,`stroke: none;`,`stroke-width: 0;`].filter((item):item is string=>!!item);
   if(rootLayout?.kind==='grid'&&rootLayout.columns===1)approx(path('/layout'),'Grid layout with one column','Lini 1.1 represents a one-column grid with native column flow; requested component order and single-column containment are preserved.');
   let children:string[]=[];
+  let annotationFooter:string|undefined;
 
   if(visual.kind==='flow'){
     for(const node of nodes){const index=nodes.indexOf(node),id=nodeIds.get(node.id)!;add(node.id,path('/nodes/'+index+'/id'),id,'node');mapPorts(node,index,id);for(const[field,value]of [['evidence',node.evidence],['parent',node.parent]] as const)if(value!==undefined)omit(path('/nodes/'+index+'/'+field),field==='parent'?'Lini groups preserve named group membership; the node-parent containment relation has no separate native meaning in this view.':'Evidence locators remain in UMF and are not drawn.');if(node.layer)omit(path('/nodes/'+index+'/layer'),'Stack layer assignment is outside the flow/network view.');const style=nodeStyle(node);for(const [field,requested,rendered]of style.approximations)approx(path('/nodes/'+index+'/'+field),requested,rendered);if(node.detail)approx(path('/nodes/'+index+'/detail'),'Node detail','Lini renders the authored detail as a persistent secondary native cell beneath the node title.');}
@@ -239,6 +240,19 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
    children.push(...(edgeRowsByScope.get(undefined)??[]));
    const rootRouteKinds=routeKindsByScope.get(undefined);if(rootRouteKinds?.size===1){const route=rootRouteKinds.values().next().value;rootProperties.push('routing: '+(route==='curved'?'natural':'straight')+';');}else if(!rootRouteKinds&&straightRootRouting)rootProperties.push('routing: straight;');
    if(rootLayout?.kind==='flow'&&rootLayout.order)approx(path('/layout/order'),'Explicit root component order','Declarations follow the requested order; native graph layout can still route links around that order.');
+   if(visual.annotations?.length){
+    const footerChildren:string[]=[];
+    for(let i=0;i<visual.annotations.length;i++){
+     const annotation=visual.annotations[i]!,id=safeId('a',i),width=Math.max(180,Math.min(440,annotation.text.length*8.5+24));
+     add(annotation.id,path('/annotations/'+i+'/id'),id,'annotation');
+     footerChildren.push(`|box#${id}| ${quoteChecked(annotation.text,path('/annotations/'+i+'/text'))} { width: ${Math.ceil(width)}; padding: 0; fill: none; stroke: none; stroke-width: 0; font-size: 16; font-weight: 400; color: --gray-ink; }`);
+     approx(path('/annotations/'+i+'/text'),'Unanchored annotation placement','Lini places this exact text in a borderless native text carrier inside a renderer-owned trailing column. The source has no anchor or coordinates.');
+    }
+    const footerLayout:VisualLayout={kind:'flow',direction:'TB'};
+    annotationFooter=groupDeclaration('annotation-footer','',[
+     ...layoutProperties(footerLayout,'flow',1,'TB'),'gap: 8;','padding: 0;','fill: none;','stroke: none;','stroke-width: 0;'
+    ],footerChildren);
+   }
    for(const key of ['layers','entities','references'] as const)if(visual.structure?.[key])omit(path('/structure/'+key),'Structure metadata is outside the flow/network view.');
   }else if(visual.form==='stack'){
    const layers=visual.structure?.layers??[];
@@ -325,7 +339,11 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
    if(structure.layers)omit(path('/structure/layers'),'Layer placement is outside the entity relationship view.');
   }
   const stylesheet=styleRules.length?`{\n${styleRules.map(line=>'  '+line).join('\n')}\n}\n`:'';
-  const source=stylesheet+groupDeclaration('visual',title,rootProperties,children);
+  const source=stylesheet+(annotationFooter?groupDeclaration('visual',title,[
+   ...layoutProperties({kind:'flow',direction:'TB'},'flow',1,'TB'),'gap: 24;','padding: 36;','fill: none;','stroke: none;','stroke-width: 0;'
+  ],[
+   groupDeclaration('diagram-content','',rootProperties,children),annotationFooter
+  ]):groupDeclaration('visual',title,rootProperties,children));
   if(source.length>250_000)return failure('PRESENTATION_SIZE',BASE,'Generated Lini source exceeds the 250,000 UTF-16 code-unit presentation limit.');
   return{ok:true,profileId:'umf.visual.presentation/1',backend:'lini',nativeFormat:'lini',source:source+'\n',elementMap:map,omissions,approximations};
  }catch(reason){const sourcePath=reason&&typeof reason==='object'&&'sourcePath'in reason?String((reason as {sourcePath:unknown}).sourcePath):BASE;return failure('PRESENTATION_LINI_TEXT',sourcePath,reason instanceof Error?reason.message:'Lini cannot encode a text value.');}

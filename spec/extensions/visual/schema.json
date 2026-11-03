@@ -82,6 +82,14 @@
       },
       "minItems": 1
     },
+    "annotations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/annotation"
+      },
+      "minItems": 1,
+      "description": "Independent plain or multiline diagram text with stable identity. Annotation IDs share the visual namespace. Annotations are not graph actors, layout members, or inferred headings/anchors. Placement is renderer policy; array order is preserved data without temporal or causal meaning."
+    },
     "groups": {
       "type": "array",
       "items": {
@@ -187,6 +195,24 @@
           "minLength": 1
         }
       }
+    },
+    "annotation": {
+      "type": "object",
+      "required": [
+        "id",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Visible plain or multiline text. No heading level, anchor, or group association is implied."
+        }
+      },
+      "description": "A separate text carrier, not a graph node, edge endpoint, layout member, inferred heading, or anchored comment."
     },
     "group": {
       "type": "object",
@@ -404,20 +430,20 @@
             "return"
           ]
         },
-          "routing": {
-            "type": "object",
-            "required": [
-              "kind"
-            ],
-            "properties": {
-              "kind": {
-                "enum": [
-                  "curved",
-                  "straight"
-                ]
-              }
+        "routing": {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "curved",
+                "straight"
+              ]
             }
-          },
+          }
+        },
         "status": {
           "$ref": "#/$defs/status"
         },

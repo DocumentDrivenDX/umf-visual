@@ -29,6 +29,29 @@ async function recheck(page:Page,document:ReturnType<typeof doc>,plan:Presentati
 function expectAll(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>){expect(checks.map(check=>check.check)).toEqual(required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw new Error(JSON.stringify(failed));}
 
 describe('pinned Lini presentation quality',()=>{
+ it('renders unanchored annotations as borderless footer text and rejects moved carrier text',async()=>{
+  const document=createVisualDocument({id:'unanchored-annotations',kind:'flow',form:'network',question:'Where do notes belong?',layout:{kind:'flow',direction:'LR',order:['region-a','region-b']},groups:[{id:'region-a',label:'Request handling',role:'region',layout:{kind:'flow',direction:'LR',order:['api','worker']}},{id:'region-b',label:'Persistence',role:'region',layout:{kind:'flow',direction:'LR',order:['queue','database']}}],nodes:[{id:'api',label:'API',group:'region-a'},{id:'worker',label:'Worker',group:'region-a'},{id:'queue',label:'Queue',group:'region-b'},{id:'database',label:'Database',group:'region-b'}],edges:[{id:'request',from:'api',to:'worker',routing:{kind:'straight'}},{id:'handoff',from:'worker',to:'queue',routing:{kind:'straight'}},{id:'persist',from:'queue',to:'database',routing:{kind:'straight'}}],annotations:[{id:'heading',text:'Inbound path'},{id:'note',text:'Retry behavior is outside this sketch.'}]},'test:unanchored-annotations','1.4.0'),native=await renderDocument(document);
+  try{
+   expect(result(native.checks,'lini-native-carriers')).toBe('pass');
+   expect(result(native.checks,'lini-connection-endpoints')).toBe('pass');
+   expect(result(native.checks,'lini-containment-and-order')).toBe('pass');
+   expect(native.plan.elementMap.filter(item=>item.kind==='annotation').map(item=>item.nativeId)).toEqual(['a1','a2']);
+   const layout=await native.page.evaluate(()=>{
+    const box=(id:string)=>{const element=globalThis.document.querySelector(`g.lini-node[data-id="${id}"]`),rect=element?.getBoundingClientRect();return rect?{left:rect.left,top:rect.top,right:rect.right,bottom:rect.bottom}:null;};
+    const first=globalThis.document.querySelector('g.lini-node[data-id="a1"]'),second=globalThis.document.querySelector('g.lini-node[data-id="a2"]');
+    return{graph:box('diagram-content'),footer:box('annotation-footer'),firstText:first?.querySelector('text.lini-text')?.textContent?.trim()??'',secondText:second?.querySelector('text.lini-text')?.textContent?.trim()??'',firstStyle:first?.getAttribute('style')??'',secondStyle:second?.getAttribute('style')??''};
+   });
+   expect(layout.graph).not.toBeNull();expect(layout.footer).not.toBeNull();expect(layout.firstText).toBe('Inbound path');expect(layout.secondText).toBe('Retry behavior is outside this sketch.');
+   expect(layout.footer!.top).toBeGreaterThanOrEqual(layout.graph!.bottom-2);
+   for(const style of [layout.firstStyle,layout.secondStyle]){expect(style).toContain('fill: none');expect(style).toContain('stroke: none');expect(style).toContain('stroke-width: 0');}
+   const moved=await native.page.locator('g.lini-node[data-id="a1"] > text.lini-text').evaluate(label=>{
+    const recipient=globalThis.document.querySelector('g.lini-node[data-id="n1"]');if(!recipient)throw Error('Lini semantic node carrier was not found');recipient.append(label);return(globalThis.document.querySelector('svg') as SVGSVGElement).outerHTML;
+   });
+   expect(result(await recheck(native.page,native.document,native.plan,native.nativeAst),'lini-native-carriers')).toBe('fail');
+   expect(moved).toContain('Inbound path');
+  }finally{await native.page.close();}
+ },{timeout:45_000});
+
  it('renders curved edge intent with a native cubic path and rejects a straightened mutation',async()=>{
   const document=createVisualDocument({id:'curved-edge-proof',kind:'flow',form:'network',question:'Which boundary does this path cross?',groups:[{id:'outer',label:'Outer environment',role:'boundary'},{id:'inner',label:'Inner environment',role:'boundary',parent:'outer'}],nodes:[{id:'store',label:'Data store',group:'inner',shape:'cylinder'},{id:'process',label:'Process outside',role:'process',detail:'Process'}],edges:[{id:'connects',from:'process',to:'store',label:'connects to',routing:{kind:'curved'}}]},'test:curved-edge-proof','1.4.0');
   const good=await renderDocument(document);

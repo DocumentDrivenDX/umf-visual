@@ -9,7 +9,7 @@ export type PresentationBackend='graphviz'|'mermaid'|'lini';
 export interface PresentationOptions {backend:PresentationBackend;direction?:'LR'|'TB';theme?:'presentation/1';}
 export interface PresentationDiagnostic {code:string;path:string;message:string;severity:'error'|'warning';}
 export interface PresentationExecution {runtime:'graphviz';layoutEngine:'neato';nodePositions:'fixed';}
-export interface PresentationElement {logicalId:string;sourcePath:string;nativeId:string;kind:'visual'|'group'|'node'|'edge'|'layer'|'entity'|'field'|'port'|'reference'|'participant'|'message'|'note';}
+export interface PresentationElement {logicalId:string;sourcePath:string;nativeId:string;kind:'visual'|'group'|'node'|'edge'|'layer'|'entity'|'field'|'port'|'reference'|'participant'|'message'|'note'|'annotation';}
 export interface PresentationOmission {sourcePath:string;reason:string;}
 export interface PresentationApproximation {sourcePath:string;requested:string;representation:string;code?:'ROUTING_SCOPE_CONFLICT'|'ROUTING_NATIVE_INTERPOLATION'|'CIRCULAR_NATIVE_GRID';}
 export interface PresentationPlan {
@@ -80,6 +80,8 @@ export function compilePresentation(document:Document,options:PresentationOption
  const strings:{value:string;path:string}[]=[];const pending:{value:unknown;path:string}[]=[{value:visual,path:BASE}];
  while(pending.length){const current=pending.pop()!;if(typeof current.value==='string'){strings.push({value:current.value,path:current.path});continue;}if(Array.isArray(current.value)){for(let i=0;i<current.value.length;i++)pending.push({value:current.value[i],path:current.path+'/'+i});}else if(current.value&&typeof current.value==='object'){for(const[k,v]of Object.entries(current.value))pending.push({value:v,path:current.path+'/'+ptr(k)});}}
  for(const item of strings){for(let i=0;i<item.value.length;i++){const code=item.value.charCodeAt(i);if(code===13||code===0||(code<32&&code!==9&&code!==10)){return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Carriage returns and control characters other than tab/newline cannot be represented by the presentation renderers.') ]};}if(code>=0xD800&&code<=0xDBFF){const next=item.value.charCodeAt(i+1);if(!(next>=0xDC00&&next<=0xDFFF))return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Unpaired UTF-16 surrogates cannot be represented by the presentation renderers.') ]};i++;}else if(code>=0xDC00&&code<=0xDFFF)return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Unpaired UTF-16 surrogates cannot be represented by the presentation renderers.') ]};}}
+ if(visual.annotations?.length&&(visual.kind!=='flow'||visual.form!=='network'))return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_SCOPE',BASE+'/annotations','Free-text annotations are currently qualified only for flow/network diagrams; this renderer does not silently drop them from another presentation form.')]};
+ if(visual.annotations?.length&&visual.layout?.kind==='circular')return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_CIRCULAR',BASE+'/annotations','Circular layout with free-text annotations is not yet qualified: the native fixed-position flow currently has no reviewed placement policy for unanchored text.')]};
  const unsupportedCircularGroup=visual.groups?.find(group=>group.layout?.kind==='circular');
  if(unsupportedCircularGroup)return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/groups/'+visual.groups!.indexOf(unsupportedCircularGroup)+'/layout','Circular placement is not qualified for nested group scopes; no grid or flow fallback is selected.')]};
  if(visual.layout?.kind==='circular'&&(visual.kind!=='flow'||visual.form!=='network'))return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/layout','Circular placement is currently qualified only for a root flow/network presentation.')]};
@@ -107,6 +109,7 @@ export function compilePresentation(document:Document,options:PresentationOption
 
  const nodes=visual.nodes??[],groups=visual.groups??[],edges=visual.edges??[];
  const nodeIds=new Map(nodes.map((n,i)=>[n.id,safeId('n',i)]));
+ const annotationIds=new Map((visual.annotations??[]).map((annotation,i)=>[annotation.id,safeId('a',i)]));
  const groupIds=new Map(groups.map((g,i)=>[g.id,safeId('g',i)]));
  const edgeIds=new Map(edges.map((e,i)=>[e.id,safeId('e',i)]));
  const layerIds=new Map((visual.structure?.layers??[]).map((l,i)=>[l.id,safeId('l',i)]));
@@ -338,10 +341,21 @@ export function compilePresentation(document:Document,options:PresentationOption
   };
   const layoutConstraints=(layout:VisualDefs['layout']|undefined,indent:string,layoutPath:string)=>{
    if(!layout?.order)return;
-   const targets=layout.order.map(representative).filter((id):id is string=>!!id);
-   for(let i=0;i<targets.length-1;i++)lines.push(indent+targets[i]+' -> '+targets[i+1]+' [style=invis, weight=100];');
+   const componentNodes=(id:string):Set<string>=>{
+    if(nodes.some(node=>node.id===id))return new Set([id]);
+    const direct=nodes.filter(node=>node.group===id&&!node.parent).map(node=>node.id),nested=groups.filter(group=>group.parent===id).flatMap(group=>[...componentNodes(group.id)]);
+    return new Set([...direct,...nested]);
+   };
+   for(let i=0;i<layout.order.length-1;i++){
+    const from=layout.order[i]!,to=layout.order[i+1]!,sourceNodes=componentNodes(from),targetNodes=componentNodes(to),alreadyOrdered=edges.some(edge=>edge.directed!==false&&sourceNodes.has(edge.from)&&targetNodes.has(edge.to));
+    if(alreadyOrdered)continue;
+    const source=representative(from),target=representative(to);if(source&&target)lines.push(indent+source+' -> '+target+' [style=invis, weight=100];');
+   }
    if(layout.kind==='grid')approx(layoutPath,'Grid layout with '+layout.columns+' columns','Graphviz preserves component order with invisible constraints; fixed grid rows are not native semantics and rank grouping can conflict with routed edges.');
   };
+  const rootComponents=[...groups.filter(group=>!group.parent),...nodes.filter(node=>!node.group&&!node.parent)];
+  const lastRootComponent=rootLayout?.order?.at(-1)??rootComponents.at(-1)?.id;
+  const annotationAnchor=lastRootComponent?representative(lastRootComponent):undefined;
   const children=(id:string)=>groups.filter(g=>g.parent===id),members=(id:string)=>nodes.filter(n=>n.group===id&&!n.parent);
   const emitGroup=(g:VisualGroup,indent:string)=>{
    const layout=g.layout,orientation=layout?layoutDirection(layout,'TB'):undefined;
@@ -359,6 +373,17 @@ export function compilePresentation(document:Document,options:PresentationOption
    const parent=nodeIds.get(n.parent),nid=nodeIds.get(n.id);if(parent&&nid){lines.push('  '+nid+' [label='+dot(labelNode(n))+nodeStyle(n)+shapeOverride(n)+'];');approx(path('/nodes/'+nodes.indexOf(n)+'/parent'),'Nested node parent','Parent relation shown as a dotted hierarchy connector.');lines.push('  '+parent+' -> '+nid+' [style=dotted, arrowhead=none, color="#aab9bd", constraint=false];');}
   }
   if(!circle)layoutConstraints(rootLayout,'  ',path('/layout'));
+  if(visual.annotations?.length){
+   lines.push('  subgraph { rank=sink;');
+   for(let i=0;i<visual.annotations.length;i++){
+    const annotation=visual.annotations[i]!,id=annotationIds.get(annotation.id)!;
+    addMap(annotation.id,path('/annotations/'+i+'/id'),id,'annotation');
+    lines.push('    '+id+' [shape=plaintext, style="", label='+dot(annotation.text)+', fontname="Arial", fontsize=14, fontcolor="#304652", color=none, fillcolor=none, penwidth=0, margin=0, width=0, height=0, fixedsize=false];');
+    approx(path('/annotations/'+i+'/text'),'Unanchored annotation text','Graphviz emits a native plaintext carrier at the trailing rank. Its placement is renderer policy because the source provides no anchor or coordinates.');
+   }
+   lines.push('  }');
+   if(annotationAnchor){let from=annotationAnchor;for(const annotation of visual.annotations){const to=annotationIds.get(annotation.id)!;lines.push('  '+from+' -> '+to+' [style=invis, weight=100, constraint=true];');from=to;}}
+  }
   edges.forEach((e,i)=>{
    const fromNode=nodes.find(n=>n.id===e.from),toNode=nodes.find(n=>n.id===e.to),fromPort=findPort(fromNode,e.fromPort),toPort=findPort(toNode,e.toPort);
    if((e.fromPort&&!fromPort)||(e.toPort&&!toPort)){errors.push(diag('PRESENTATION_PORT',path('/edges/'+i),'A flow edge port reference does not resolve within its endpoint node.'));return;}
@@ -439,6 +464,24 @@ export function compilePresentation(document:Document,options:PresentationOption
   for(const n of ordered(nodes.filter(n=>!n.group&&!n.parent),rootLayout?.order))lines.push(mermaidNodeDeclaration(n,nodeIds.get(n.id)!,mermaidText));
   if(rootLayout?.kind==='grid')approx(path('/layout'),'Grid layout with '+rootLayout.columns+' columns','Mermaid preserves requested source ordering but has no native fixed grid column count.');
   if(rootLayout?.order){for(let i=0;i<rootLayout.order.length-1;i++){const from=rootLayout.order[i]!,to=rootLayout.order[i+1]!,mappedFrom=nodeIds.get(from)??groupIds.get(from),mappedTo=nodeIds.get(to)??groupIds.get(to);if(!mappedFrom||!mappedTo)continue;const alreadyOrdered=edges.some(edge=>edge.routing&&edge.directed!==false&&edge.from===from&&edge.to===to);if(!alreadyOrdered){lines.push('  '+mappedFrom+' ~~~ '+mappedTo);mermaidLinkIndex++;}}}
+  if(visual.annotations?.length){
+   const representative=(id:string):string|undefined=>{
+    const node=nodes.find(item=>item.id===id);if(node)return nodeIds.get(id);
+    const group=groups.find(item=>item.id===id);if(!group)return;
+    const items=ordered([...groups.filter(item=>item.parent===id),...nodes.filter(item=>item.group===id&&!item.parent)],group.layout?.order),last=items.at(-1);
+    return last?representative(last.id):undefined;
+   };
+   const rootComponents=ordered([...groups.filter(group=>!group.parent),...nodes.filter(node=>!node.group&&!node.parent)],rootLayout?.order),last=rootLayout?.order?.at(-1)??rootComponents.at(-1)?.id;
+   let previous=last?representative(last):undefined;
+   for(let i=0;i<visual.annotations.length;i++){
+    const annotation=visual.annotations[i]!,id=annotationIds.get(annotation.id)!;
+    addMap(annotation.id,path('/annotations/'+i+'/id'),id,'annotation');
+    lines.push('  '+id+'@{ shape: text, label: "'+mermaidText(annotation.text)+'" }');
+    if(previous){lines.push('  '+previous+' ~~~ '+id);mermaidLinkIndex++;}
+    previous=id;
+    approx(path('/annotations/'+i+'/text'),'Unanchored annotation text','Mermaid flowchart renders a native text-only shape. Its trailing placement follows invisible renderer-owned ordering constraints because the source gives no anchor or coordinates.');
+   }
+  }
  for(const n of nodes)if(n.parent){const parent=nodeIds.get(n.parent),nid=nodeIds.get(n.id);if(parent&&nid){lines.push('  '+nid+'["'+mermaidText(labelNode(n))+'"]');lines.push('  '+parent+' -.-> '+nid);approx(path('/nodes/'+nodes.indexOf(n)+'/parent'),'Nested node parent','Parent relation shown as a dotted hierarchy connector.');}}
  edges.forEach((e,i)=>{
   const fromNode=nodes.find(n=>n.id===e.from),toNode=nodes.find(n=>n.id===e.to),fromPort=findPort(fromNode,e.fromPort),toPort=findPort(toNode,e.toPort);
