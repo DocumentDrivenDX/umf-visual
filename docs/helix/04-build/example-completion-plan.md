@@ -2217,6 +2217,63 @@ No vocabulary, strict-interchange, external-history verification or host capabil
 claim is introduced. Commit follows in this change; git history is authoritative.
 Cycle 20 remains pending until cycle 19 is committed.
 
+### Twentieth-cycle scope — authored before/after comparison
+
+Cycle 20 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/forms/visuals-before-after.json`, SHA-256
+`e4f562d672bd9560fa02affe04f7e0eb1027baba8aa0c0bfcdf977ae8d28c147`.
+Preserve Visual 1.0.0 / envelope 0.10.0, two item identities/labels, four criteria
+with text/support measures and eight exact value records. Support yes, no and
+partial remain distinct source facts. Historical PRD locator/digest and labels
+such as Today remain authored claims, not current external-source verification.
+
+A generic comparison matrix or paired-card view must join values through item
+and criterion IDs, follow declared header/criterion order and retain original
+value source pointers independent of display placement. Text stays exact; absent
+values do not become no/zero. No axes, scores, ranking, inferred recommendation,
+causal transformation or source enrichment are needed. Reuse the existing authored
+comparison context and private native composition helpers where appropriate.
+
+Qualify native ownership/containment/readability with reordered values and mutated
+cell/header/support controls. Runtime projection changes require AGENTS public/
+native/catalog commands and affected comparison regressions; exact source and
+review inventory retain their own provenance/UI/consumer gates. Commit cycle 20
+before starting cycle 21; no portable vocabulary change is anticipated.
+
+### Twentieth-cycle integration checkpoint — 2026-11-03
+
+The bounded native Lini before/after table preserves exact source joins and typed
+text/support values, with original-index maps and neutral styling. Criterion
+measure governs typed value cells through explicit view disclosure rather than
+repeated enum captions. Native long/multiline text uses visibly identified owner
+blocks; independent AST/visible-text reconstruction retains full authored content.
+Whole-row/column swaps, hidden text and truncation controls pass their negatives.
+No source/model changes or per-example implementation branches were introduced.
+
+Integrated reviews cover 19 documents, 41 qualified variants, 16 unsupported
+variants, 123 assets and 41 SVG/PNG native replays, comprising five captured and
+14 authoritative-source reviews. Showcase remains nine examples/23 qualified/
+four unsupported/69 assets/23 SVG/PNG replays. Public-browser checks pass 53
+fixtures/106 round trips plus 19 reviewed definitions/38 round trips/41 plans
+without errors. Graphviz 16.1/Lini 1.1 native gates, packed Bun/Node consumers,
+source/type checks and all 19 review UI examples pass. Final shared catalog UI passes all 214 native SVGs; showcase UI passes nine
+examples/23 qualified variants/46 SVG/PNG previews. Both report no errors in
+Chromium 153.
+
+### Twentieth-cycle closeout — 2026-11-03
+
+The isolated full suite passes **821 tests, zero failures, 22,168 assertions
+across 135 files in 188.98 seconds** (`.cache/cycle20/full-tests.log`). All
+required native/corpus/review/UI, public-browser, packed-consumer, source/type/build
+and actual visual/model/interface/modularity audits pass. Exact Visual 1.0.0
+source, item/criterion/value identities and historical PRD locator limits remain
+unchanged. The bounded Lini projection preserves typed values, declared row/column
+order, complete wrapped content and source-owned optional metadata. Core incomplete
+matrix and empty-text validation remain authoritative; no missing support, score,
+winner, current-state verification, vocabulary change or host-support expansion
+is invented. Commit follows in this change; git history is authoritative.
+Cycle 21 remains pending until cycle 20 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2228,8 +2285,8 @@ Cycle 11 is committed as `5bcc704`; cycle 12 is committed as `fa45a72`.
 Cycle 13 is committed as `51405f3`; cycle 14 is committed as `c5212bf`.
 Cycle 15 is committed as `a4f89f1`; cycle 16 is committed as `fc841bd`.
 Cycle 17 is committed as `af9ba07`; cycle 18 is committed as `8b0bbe8`.
-Cycle 19 is complete and ready for commit; cycles 20–68 remain pending.
-Cycles 15–68 remain pending.
+Cycle 19 is committed as `122e5c6`; cycle 20 is complete and ready for commit.
+Cycles 21–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

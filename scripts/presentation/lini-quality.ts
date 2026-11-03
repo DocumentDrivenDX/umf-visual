@@ -14,6 +14,7 @@ import {verifyLiniMeterPresentationQuality} from './lini-meter-quality';
 import {verifyLiniStatPresentationQuality} from './lini-stat-quality';
 import {verifyLiniBarPresentationQuality} from './lini-bar-quality';
 import {verifyLiniTrendPresentationQuality} from './lini-trend-quality';
+import {verifyLiniBeforeAfterPresentationQuality} from './lini-before-after-quality';
 
 type Box={x:number;y:number;width:number;height:number};
 type Carrier={id:string;classes:string[];texts:string[];title:string;style:string;bounds:Box;containerBounds:Box;rectRadii:number[];sheetPaths:number;sheetGeometry:Array<{bounds:Box;signature:string}>;groups:string[];parentId:string|null;cells:Array<{id:string|null;text:string;bounds:Box}>};
@@ -92,6 +93,7 @@ export async function verifyLiniPresentationQuality(
  let visual:Visual|undefined;try{visual=getVisual(document);}catch{/* checked below */}
  if(visual&&(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'))return verifyLiniRichPresentationQuality(page,input);
  if(visual?.kind==='comparison'&&visual.form==='quadrant')return verifyLiniQuadrantPresentationQuality(page,input);
+ if(visual?.kind==='comparison'&&visual.form==='before-after')return verifyLiniBeforeAfterPresentationQuality(page,input);
  if(visual?.kind==='metric'&&visual.form==='meter')return verifyLiniMeterPresentationQuality(page,input);
  if(visual?.kind==='metric'&&visual.form==='stat')return verifyLiniStatPresentationQuality(page,input);
  if(visual?.kind==='metric'&&visual.form==='bar')return verifyLiniBarPresentationQuality(page,input);

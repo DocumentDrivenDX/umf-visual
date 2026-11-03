@@ -50,7 +50,7 @@ export function expectedGraphvizConnectionCount(visual:Visual):number{
  }
  return 0;
 }
-const capabilityRefusalCodes=new Set(['PRESENTATION_FORM','PRESENTATION_BACKEND_SUBSET','PRESENTATION_MERMAID_FIELD','PRESENTATION_MERMAID_CARDINALITY','PRESENTATION_MERMAID_RELATIONSHIP','PRESENTATION_CIRCULAR_SCOPE','PRESENTATION_MERMAID_CIRCULAR_SUBSET','PRESENTATION_STATE_SCOPE','PRESENTATION_STATE_COMPOSITE','PRESENTATION_STATE_ANNOTATION','PRESENTATION_STATE_STEPS','PRESENTATION_STATE_LAYOUT','PRESENTATION_STATE_LAYOUT_ORDER','PRESENTATION_STATE_NODE_PROPERTY','PRESENTATION_STATE_TRANSITION_PROPERTY','PRESENTATION_STATE_MULTILINE','PRESENTATION_STATE_AMBIGUOUS_TRANSITION','PRESENTATION_TIMELINE_SCOPE','PRESENTATION_TIMELINE_DATE','PRESENTATION_LINI_TIMELINE_SCOPE','PRESENTATION_LINI_TIMELINE_EVENTS','PRESENTATION_LINI_TIMELINE_DATE','PRESENTATION_LINI_TIMELINE_TEXT','PRESENTATION_LINI_QUADRANT_SCOPE','PRESENTATION_LINI_QUADRANT_TEXT','PRESENTATION_LINI_METER_SCOPE','PRESENTATION_LINI_METER_TEXT','PRESENTATION_LINI_STAT_SCOPE','PRESENTATION_LINI_STAT_DATE','PRESENTATION_LINI_STAT_TEXT','PRESENTATION_LINI_BAR_SCOPE','PRESENTATION_LINI_BAR_TEXT','PRESENTATION_LINI_TREND_SCOPE','PRESENTATION_LINI_TREND_DATE','PRESENTATION_LINI_TREND_TEXT']);
+const capabilityRefusalCodes=new Set(['PRESENTATION_FORM','PRESENTATION_BACKEND_SUBSET','PRESENTATION_MERMAID_FIELD','PRESENTATION_MERMAID_CARDINALITY','PRESENTATION_MERMAID_RELATIONSHIP','PRESENTATION_CIRCULAR_SCOPE','PRESENTATION_MERMAID_CIRCULAR_SUBSET','PRESENTATION_STATE_SCOPE','PRESENTATION_STATE_COMPOSITE','PRESENTATION_STATE_ANNOTATION','PRESENTATION_STATE_STEPS','PRESENTATION_STATE_LAYOUT','PRESENTATION_STATE_LAYOUT_ORDER','PRESENTATION_STATE_NODE_PROPERTY','PRESENTATION_STATE_TRANSITION_PROPERTY','PRESENTATION_STATE_MULTILINE','PRESENTATION_STATE_AMBIGUOUS_TRANSITION','PRESENTATION_TIMELINE_SCOPE','PRESENTATION_TIMELINE_DATE','PRESENTATION_LINI_TIMELINE_SCOPE','PRESENTATION_LINI_TIMELINE_EVENTS','PRESENTATION_LINI_TIMELINE_DATE','PRESENTATION_LINI_TIMELINE_TEXT','PRESENTATION_LINI_QUADRANT_SCOPE','PRESENTATION_LINI_QUADRANT_TEXT','PRESENTATION_LINI_BEFORE_AFTER_SCOPE','PRESENTATION_LINI_BEFORE_AFTER_TEXT','PRESENTATION_LINI_METER_SCOPE','PRESENTATION_LINI_METER_TEXT','PRESENTATION_LINI_STAT_SCOPE','PRESENTATION_LINI_STAT_DATE','PRESENTATION_LINI_STAT_TEXT','PRESENTATION_LINI_BAR_SCOPE','PRESENTATION_LINI_BAR_TEXT','PRESENTATION_LINI_TREND_SCOPE','PRESENTATION_LINI_TREND_DATE','PRESENTATION_LINI_TREND_TEXT']);
 /** True only for valid-source projection-scope refusals; malformed inputs remain failures. */
 export function isUnsupportedPresentationDiagnostics(diagnostics:readonly PresentationDiagnostic[]):boolean{
  return diagnostics.length>0&&diagnostics.every(item=>capabilityRefusalCodes.has(item.code));
@@ -132,6 +132,13 @@ function textTokens(v:Visual,backend:PresentationBackend):string[]{
   for(const e of v.edges??[])out.push(...(e.label?[e.label]:[]));
  }
  if(v.kind==='timeline'&&(v.form==='history'||v.form==='milestones'))for(const event of v.timeline?.events??[])out.push(event.label,event.at);
+ if(v.kind==='comparison'&&v.form==='before-after'){
+  if(v.title!==undefined&&v.question!==v.title)out.push(v.question);
+  for(const item of v.comparison?.items??[])out.push(item.label,...(item.detail?[item.detail]:[]));
+  for(const criterion of v.comparison?.criteria??[])out.push(criterion.label,...(criterion.detail?[criterion.detail]:[]),...(criterion.low?[criterion.low]:[]),...(criterion.high?[criterion.high]:[]),...(criterion.max===undefined?[]:[String(criterion.max)]));
+  for(const value of v.comparison?.values??[])out.push(...(value.text===undefined?[]:[value.text]),...(value.support===undefined?[]:[value.support]),...(value.note===undefined?[]:[value.note]));
+  out.push(...(v.takeaway?[v.takeaway]:[]),...(v.omissions??[]),...(v.annotations??[]).map(annotation=>annotation.text));
+ }
  if(v.form==='stack'){
   for(const l of v.structure?.layers??[])out.push(l.label);
   for(const n of v.nodes??[])out.push(n.label,...(n.detail?[n.detail]:[]));

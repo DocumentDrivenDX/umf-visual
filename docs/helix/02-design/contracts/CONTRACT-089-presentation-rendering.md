@@ -613,3 +613,22 @@ release-role or current external-history claims. Original event pointers and
 same-date identities remain distinct. Exact-axis scale width MAY adapt to native
 card/readability budgets while retaining one affine UTC-day factor and exact
 same-date equality; a fixed points-per-day choice is not portable semantics.
+
+
+## Typed before/after comparison tables
+
+A bounded before/after profile MUST resolve each value through its declared item
+and criterion IDs, retain original value pointers and preserve declared item/
+criterion display order. Exact text and yes/no/partial support values remain
+source-owned, without scores, ranking, inferred winners or current-state claims.
+Incomplete matrices retain core form-validation boundaries; missing values MUST
+NOT become no. Criterion measure MAY govern typed cell representation without
+printing its enum literal, provided the mapping/view disclosure is explicit.
+
+Long text, details and notes MAY use native wrapped blocks outside the matrix.
+Each block MUST visibly identify its item/criterion owner and retain exact source
+pointers. Full authored content MUST survive display line breaks without ellipsis
+or truncation. Native proof MUST independently reconstruct actual AST and visible
+text against source content, not rely solely on the compiler's wrapping oracle.
+Native row/column order and cell ownership require separate structural and actual
+rendered-geometry evidence. Unsupported subsets remain located target limitations.

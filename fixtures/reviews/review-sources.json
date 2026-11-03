@@ -884,6 +884,44 @@
       }
     },
     {
+      "id": "visuals-before-after",
+      "title": "Visuals before and after",
+      "description": "An exact review of the authored before-and-after comparison, preserving item and criterion IDs, value types, text, support values, and source order.",
+      "kind": "comparison",
+      "form": "before-after",
+      "definitionPath": "fixtures/visual/forms/visuals-before-after.json",
+      "definitionSha256": "e4f562d672bd9560fa02affe04f7e0eb1027baba8aa0c0bfcdf977ae8d28c147",
+      "sources": [
+        {
+          "path": "fixtures/visual/forms/visuals-before-after.json",
+          "sha256": "e4f562d672bd9560fa02affe04f7e0eb1027baba8aa0c0bfcdf977ae8d28c147",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The checked-in Visual 1.0.0 fixture JSON is the complete definition and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/forms/visuals-before-after.json",
+          "sha256": "e4f562d672bd9560fa02affe04f7e0eb1027baba8aa0c0bfcdf977ae8d28c147",
+          "outputPath": "reviews/visuals-before-after/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/forms/visuals-before-after.json",
+        "sourceSha256": "e4f562d672bd9560fa02affe04f7e0eb1027baba8aa0c0bfcdf977ae8d28c147",
+        "documentId": "visual:visuals-before-after",
+        "visualId": "visuals-before-after",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/visuals-before-after/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. The two item IDs and labels, four criterion IDs, labels and measures, and eight text/support value records with their item and criterion references and array order are source-authored. The source path and digest are locator metadata; this review does not verify current PRD bytes, score or rank the items, infer missing support values, or add a chosen item."
+      }
+    },
+    {
       "id": "umf-ac-coverage",
       "title": "Acceptance criteria satisfied",
       "description": "An exact review of the authored meter source, preserving its single value, target, unit, direction, and number format.",

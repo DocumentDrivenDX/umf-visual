@@ -659,3 +659,27 @@ native proofs; short-range adaptive width preserves affine dates/same-date equal
 without changing tolerances or long-range behavior. Exact Visual 1.0.0 authority,
 historical tag-locator limits, portable vocabulary and strict interchange remain
 unchanged; no current external-history or host-support expansion is claimed.
+
+
+## Before/after comparison conformance
+
+Verify exact item/criterion joins with reordered value arrays, original pointers,
+text/support distinctions and immutable source. Preserve core incomplete-matrix
+validation without invented no values. Check actual native AST cell text/order and
+rendered declared header/criterion order; whole-row/column swaps, changed support,
+hidden text and forged AST cells must fail independently. Inspect typed measure
+projection disclosures and exact optional-field diagnostics. Long/multiline text,
+notes and details retain visibly identified owners, unclipped native blocks and
+full-source reconstruction from actual AST/visible lines; missing final lines or
+words must fail even when expected wrapping shares compiler utilities. Existing
+comparison and shared fit/clipping/font/overlap checks remain required.
+
+
+Cycle 20 closeout: isolated full suite passes 821 tests, zero failures and
+22,168 assertions across 135 files in 188.98 seconds. All native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual visual/model/interface
+checks pass. Typed text/support cells, declared matrix order and independently
+reconstructed complete wrapped content qualify the bounded Lini table. Core form
+validation, exact Visual 1.0.0 authority and historical PRD locator limits remain
+unchanged; no inferred winner, current-state verification, portable vocabulary
+change or host capability expansion is claimed.

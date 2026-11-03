@@ -11,6 +11,7 @@ import {compileLiniMeter} from './lini-meter';
 import {compileLiniStatPresentation} from './lini-stat';
 import {compileLiniBarPresentation} from './lini-bar';
 import {compileLiniTrendPresentation} from './lini-trend';
+import {compileLiniBeforeAfterPresentation} from './lini-before-after';
 
 export type PresentationBackend='graphviz'|'mermaid'|'lini';
 export interface PresentationOptions {backend:PresentationBackend;direction?:'LR'|'TB';theme?:'presentation/1';}
@@ -97,7 +98,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  const strings:{value:string;path:string}[]=[];const pending:{value:unknown;path:string}[]=[{value:visual,path:BASE}];
  while(pending.length){const current=pending.pop()!;if(typeof current.value==='string'){strings.push({value:current.value,path:current.path});continue;}if(Array.isArray(current.value)){for(let i=0;i<current.value.length;i++)pending.push({value:current.value[i],path:current.path+'/'+i});}else if(current.value&&typeof current.value==='object'){for(const[k,v]of Object.entries(current.value))pending.push({value:v,path:current.path+'/'+ptr(k)});}}
  for(const item of strings){for(let i=0;i<item.value.length;i++){const code=item.value.charCodeAt(i);if(code===13||code===0||(code<32&&code!==9&&code!==10)){return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Carriage returns and control characters other than tab/newline cannot be represented by the presentation renderers.') ]};}if(code>=0xD800&&code<=0xDBFF){const next=item.value.charCodeAt(i+1);if(!(next>=0xDC00&&next<=0xDFFF))return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Unpaired UTF-16 surrogates cannot be represented by the presentation renderers.') ]};i++;}else if(code>=0xDC00&&code<=0xDFFF)return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Unpaired UTF-16 surrogates cannot be represented by the presentation renderers.') ]};}}
- if(visual.annotations?.length&&(visual.kind!=='flow'||visual.form!=='network')&&visual.kind!=='state'&&!(visual.kind==='comparison'&&visual.form==='quadrant'))return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_SCOPE',BASE+'/annotations','Free-text annotations are currently qualified only for flow/network diagrams, state machines, and the bounded Lini quadrant profile; this renderer does not silently drop them from another presentation form.')]};
+ if(visual.annotations?.length&&(visual.kind!=='flow'||visual.form!=='network')&&visual.kind!=='state'&&!(visual.kind==='comparison'&&(visual.form==='quadrant'||visual.form==='before-after')))return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_SCOPE',BASE+'/annotations','Free-text annotations are currently qualified only for flow/network diagrams, state machines, and bounded Lini comparison profiles; this renderer does not silently drop them from another presentation form.')]};
  if(visual.annotations?.length&&visual.layout?.kind==='circular')return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_CIRCULAR',BASE+'/annotations','Circular layout with free-text annotations is not yet qualified: the native fixed-position flow currently has no reviewed placement policy for unanchored text.')]};
  const unsupportedCircularGroup=visual.groups?.find(group=>group.layout?.kind==='circular');
  if(unsupportedCircularGroup)return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/groups/'+visual.groups!.indexOf(unsupportedCircularGroup)+'/layout','Circular placement is not qualified for nested group scopes; no grid or flow fallback is selected.')]};
@@ -109,7 +110,7 @@ export function compilePresentation(document:Document,options:PresentationOption
   ||visual.kind==='sequence'&&(visual.form==='lifelines'||visual.form==='ladder')
   ||visual.kind==='state'&&visual.form==='machine'
   ||visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')
-  ||visual.kind==='comparison'&&visual.form==='quadrant'
+  ||visual.kind==='comparison'&&(visual.form==='quadrant'||visual.form==='before-after')
   ||visual.kind==='metric'&&(visual.form==='meter'||visual.form==='stat'||visual.form==='bar'||visual.form==='line');
  if(!supported)return {ok:false,diagnostics:[diag('PRESENTATION_FORM',BASE+'/form','No presentation projection is qualified for '+visual.kind+'/'+visual.form+'. The current flow projection covers only network diagrams.')]};
 
@@ -133,6 +134,10 @@ export function compilePresentation(document:Document,options:PresentationOption
  if(visual.kind==='comparison'&&visual.form==='quadrant'){
   if(backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This bounded native quadrant presentation is currently qualified only for the pinned Lini chart backend.')]};
   return compileLiniQuadrant(visual);
+ }
+ if(visual.kind==='comparison'&&visual.form==='before-after'){
+  if(backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This bounded before/after comparison table is currently qualified only for the pinned Lini backend.')]};
+  return compileLiniBeforeAfterPresentation(visual);
  }
  if(rich&&backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This tree or sequence presentation is currently qualified only for the native Lini backend.')]};
  if(visual.kind==='state'&&visual.form==='machine'&&backend!=='lini')return compileStatePresentation(visual,backend,dir);
