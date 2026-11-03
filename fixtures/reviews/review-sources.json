@@ -920,6 +920,44 @@
         "sourceDownloadPath": "reviews/umf-ac-satisfied/authoritative-source.json",
         "scope": "This exact UMF fixture JSON is the review definition. Its nine date/value points, series order, unit, direction, and number format are source-authored. The source path and digest are locator metadata; this review does not retrieve or verify the referenced acceptance-criteria ledger, infer growth, or treat the question as a current status claim."
       }
+    },
+    {
+      "id": "umf-ac-status",
+      "title": "Acceptance criteria by status",
+      "description": "An exact review of the authored category-axis values, preserving category order, point references, explicit zero, and source format.",
+      "kind": "metric",
+      "form": "bar",
+      "definitionPath": "fixtures/visual/forms/umf-ac-status.json",
+      "definitionSha256": "7babed0d04fdf16f520a6e8b3e00118c81b229f8275e3dcde925e835cffc21ff",
+      "sources": [
+        {
+          "path": "fixtures/visual/forms/umf-ac-status.json",
+          "sha256": "7babed0d04fdf16f520a6e8b3e00118c81b229f8275e3dcde925e835cffc21ff",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The checked-in Visual 1.0.0 fixture JSON is the complete definition and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/forms/umf-ac-status.json",
+          "sha256": "7babed0d04fdf16f520a6e8b3e00118c81b229f8275e3dcde925e835cffc21ff",
+          "outputPath": "reviews/umf-ac-status/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/forms/umf-ac-status.json",
+        "sourceSha256": "7babed0d04fdf16f520a6e8b3e00118c81b229f8275e3dcde925e835cffc21ff",
+        "documentId": "visual:umf-ac-status",
+        "visualId": "umf-ac-status",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/umf-ac-status/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. Its five category identifiers and labels, declared category order, series order, point category references, values including zero, unit, and number format are source-authored. Category labels are not interpreted as status styling or business roles. The source path and digest are locator metadata; this review does not retrieve or verify the referenced acceptance-criteria ledger, infer an aggregate, or make a current status claim."
+      }
     }
   ]
 }

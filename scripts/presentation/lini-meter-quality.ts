@@ -6,6 +6,7 @@ import type {Document} from '@umf/core';
 import {getVisual,type Visual} from '../../src/extensions/visual';
 import type {PresentationPlan} from '../../src/presentation';
 import type {PresentationQualityCheck} from './quality';
+import {calibrateNumericTicks,selectNumericTickRow} from './numeric-axis';
 
 type Box={x:number;y:number;width:number;height:number};
 type PlotText={text:string;bounds:Box;fill:string;fontSize:number;className:string;visible:boolean};
@@ -23,7 +24,7 @@ export async function verifyLiniMeterPresentationQuality(page:Page,input:{docume
  const metric=visual.metric,series=metric.series[0],point=series?.points[0];
  if(!series||!point||metric.series.length!==1||series.points.length!==1||metric.target===undefined)return[check(sourceSha256,false,'The bounded scalar meter subset is not present.')];
  const target=metric.target;
- const displayNumber=(value:number)=>metric.format?.kind==='number'&&metric.format.decimals===0?value.toFixed(0):String(value);
+ const displayNumber=(value:number)=>metric.format?.kind==='number'&&metric.format.decimals===0?String(Number(value.toFixed(0))):String(value);
  const referenceEntries=[{value:target,label:'Target '+displayNumber(target),nativeId:'metric-meter-target'},...(metric.baseline===undefined?[]:[{value:metric.baseline,label:'Baseline '+displayNumber(metric.baseline),nativeId:'metric-meter-baseline'}]),...(metric.comparison===undefined?[]:[{value:metric.comparison.value,label:metric.comparison.label+' '+displayNumber(metric.comparison.value),nativeId:'metric-meter-comparison'}])];
  const referenceOwner=(value:number)=>referenceEntries.find(entry=>entry.value===value)!.nativeId;
  const expected:Array<{sourcePath:string;logicalId:string;nativeId:string;kind:string}>=[
@@ -91,16 +92,14 @@ export async function verifyLiniMeterPresentationQuality(page:Page,input:{docume
    if(!plot.texts.some(item=>item.visible&&item.text.includes(`Target ${displayNumber(target)}`)))problems.push('native chart does not visibly label the exact target reference');
   if(!plot.texts.some(item=>item.visible&&item.text===metric.unit))problems.push('native chart does not visibly label the exact unit on its value axis');
    const bar=plot.barRects[0];if(bar&&(!(bar.height>0)||bar.width<0||bar.x<plot.bounds.x||bar.x+bar.width>plot.bounds.x+plot.bounds.width||bar.y<plot.bounds.y||bar.y+bar.height>plot.bounds.y+plot.bounds.height))problems.push('source bar geometry is invalid or clipped by the native chart');
-  const numericTexts=plot.texts.filter(item=>item.visible&&item.className.includes('lini-chart-text')&&/^-?\d+$/u.test(item.text)&&item.bounds.y+item.bounds.height/2>plot.bounds.y+plot.bounds.height*.55);
-  const byRow=new Map<number,PlotText[]>();for(const item of numericTexts){const y=Math.round((item.bounds.y+item.bounds.height/2)/2)*2,rows=byRow.get(y)??[];rows.push(item);byRow.set(y,rows);}
-  const tickTexts=[...byRow.values()].sort((a,b)=>b.length-a.length)[0]??[],orderedTicks=[...tickTexts].sort((a,b)=>a.bounds.x-b.bounds.x),tickRows=orderedTicks.map(item=>Number(item.text)),tickXs=orderedTicks.map(item=>item.bounds.x+item.bounds.width/2);
-  const zeroIndex=tickRows.indexOf(0),last=tickRows.length-1;
+  const tickRegion={x:plot.bounds.x,y:plot.bounds.y+plot.bounds.height*.55,width:plot.bounds.width,height:plot.bounds.height*.45};
+  const tickRow=selectNumericTickRow(plot.texts,tickRegion),expectedLabels=axisTicks.map(displayNumber),tickCalibration=tickRow.ok?calibrateNumericTicks(tickRow.slots,axisTicks,expectedLabels):tickRow;
+  const calibratedTicks=tickCalibration.ok?tickCalibration.ticks:[],tickFailureMessage=tickCalibration.ok?undefined:tickCalibration.reason,zeroIndex=calibratedTicks.findIndex(item=>item.value===0);
   const vertical=plot.lines.filter(line=>Math.abs(line.x2-line.x1)<1&&Math.abs(line.y2-line.y1)>plot.bounds.height*.45&&line.stroke.includes('--lini-muted'));
   if(vertical.length!==new Set(referenceEntries.map(entry=>entry.value)).size)problems.push(`native reference rule count ${vertical.length} does not match ${new Set(referenceEntries.map(entry=>entry.value)).size} distinct authored reference coordinates`);
-  const tickCalibration=axisTicks.map((value,index)=>({value,x:orderedTicks[index]?.bounds.x===undefined?NaN:orderedTicks[index]!.bounds.x+orderedTicks[index]!.bounds.width/2}));
-  if(zeroIndex<0||orderedTicks.length!==axisTicks.length||tickCalibration.some(item=>!Number.isFinite(item.x))||vertical.length===0)problems.push(`native axis tick anchors or numeric-reference rule are missing (ticks=${tickRows.join(',')}; expected=${axisTicks.join(',')}; referenceRules=${vertical.length})`);
+  if(!tickCalibration.ok||zeroIndex<0||vertical.length===0)problems.push(`native axis tick anchors or numeric-reference rule are missing (${tickFailureMessage??`ticks=${calibratedTicks.map(item=>item.label).join(',')}; expected=${expectedLabels.join(',')}`}; referenceRules=${vertical.length})`);
   else {
-   const first=tickCalibration[0]!,lastTick=tickCalibration.at(-1)!,scale=(lastTick.x-first.x)/(lastTick.value-first.value),xFor=(value:number)=>first.x+(value-first.value)*scale,expectedTarget=xFor(target),targetLine=vertical.reduce((best,line)=>Math.abs(line.x1-expectedTarget)<Math.abs(best.x1-expectedTarget)?line:best,vertical[0]!);
+   const first=tickCalibration.ticks[0]!,lastTick=tickCalibration.ticks.at(-1)!,scale=(lastTick.x-first.x)/(lastTick.value-first.value),xFor=(value:number)=>first.x+(value-first.value)*scale,expectedTarget=xFor(target),targetLine=vertical.reduce((best,line)=>Math.abs(line.x1-expectedTarget)<Math.abs(best.x1-expectedTarget)?line:best,vertical[0]!);
    if(Math.abs(targetLine.x1-expectedTarget)>3)problems.push(`target line is ${Math.abs(targetLine.x1-expectedTarget).toFixed(2)} CSS px from its source value coordinate`);
    const targetText=plot.texts.find(item=>item.visible&&item.text.includes(`Target ${displayNumber(target)}`));if(targetText&&labelRuleGap(targetText.bounds,expectedTarget)>32)problems.push('target caption is not positioned beside its own native reference rule');
    const zeroX=xFor(0),valueX=xFor(point.value),expectedLeft=Math.min(zeroX,valueX),expectedRight=Math.max(zeroX,valueX);
@@ -110,7 +109,7 @@ export async function verifyLiniMeterPresentationQuality(page:Page,input:{docume
    const otherReferences=referenceEntries.slice(1);
    for(const entry of otherReferences){const labelText=plot.texts.find(item=>item.visible&&item.text.includes(entry.label));if(!labelText){problems.push(`native chart does not visibly label authored reference ${entry.label}`);continue;}const expectedX=xFor(entry.value),nearest=vertical.reduce((best,line)=>Math.abs(line.x1-expectedX)<Math.abs(best.x1-expectedX)?line:best,vertical[0]!);if(Math.abs(nearest.x1-expectedX)>3)problems.push(`reference ${entry.label} is detached from its source coordinate`);if(labelRuleGap(labelText.bounds,expectedX)>32)problems.push(`reference caption ${entry.label} is not positioned beside its own native rule`);}
   }
-  const tickLabels=orderedTicks.map(item=>item.text);
+  const tickLabels=calibratedTicks.map(item=>item.label);
   if(metric.format?.kind==='number'&&metric.format.decimals===0&&tickLabels.some(value=>!/^[-−]?\d+$/u.test(value)))problems.push('native axis tick labels do not honor zero-decimal number formatting');
  }
  const details=problems.length?problems.join('; '):`Native SVG and desugared source bind the one logical series and point, raw ${point.value} ${metric.unit} value (visible numeric labels honor the authored format), ${metric.good===undefined?'no authored good-direction cue':`“Better: ${metric.good}”`}, and exact target ${target} to their owned carriers. The visible bar starts at zero and its endpoint and target rule match the raw numeric axis coordinates; padded axis bounds include all admitted values/references without presenting target as a maximum. `+(metric.baseline!==undefined||metric.comparison!==undefined?'Authored baseline/comparison references are present and checked against the source axis bounds.':'No baseline or comparison reference is authored.');

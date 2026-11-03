@@ -1985,11 +1985,71 @@ subset refusal while retaining a separate valid unsupported-form assertion;
 focused tests pass 14 tests / 253 assertions. Production and source were unchanged.
 Final isolated full suite passes **762 tests, zero failures, 21,000 assertions
 across 120 files in 180.53 seconds** (`.cache/cycle15-full-tests-final.log`).
-All required gates and actual visual/interface audits pass. Cycle 15 is complete
-and ready for commit; the commit follows in this change and MUST precede cycle 16.
+All required gates and actual visual/interface audits pass. Cycle 15 is committed as `a4f89f1`.
 Exact Visual 1.0.0 observations, format/good/unit and historical source limits are
 unchanged; no vocabulary change, current-ledger, growth/percentage/causation,
 host-support expansion, release or publication claim is introduced.
+
+### Sixteenth-cycle scope — categorical bar observations
+
+Cycle 16 is in progress using exact authoritative source
+`fixtures/visual/forms/umf-ac-status.json`, SHA-256
+`7babed0d04fdf16f520a6e8b3e00118c81b229f8275e3dcde925e835cffc21ff`.
+Preserve Visual 1.0.0 / envelope 0.10.0, IDs, five category identities/labels and
+source order, one series with explicit category references, values 180, 407,
+233, 0 and 17, unit criteria and number format with zero decimals. No good
+instruction, target/reference, time axis or aggregate is authored. Historical
+source locator/digest and executive audience do not imply current ledger
+verification. Category labels do not authorize business-status color semantics.
+
+Native acceptance resolves point.at to category identity rather than array-index
+zipping, follows authored category order and retains original point pointers.
+The zero-valued category must remain a visible row with exact zero text despite
+an empty fill. Verify owned category/value/unit/series/format carriers and actual
+raw numeric-axis geometry; formatting must not rewrite raw values. Use neutral
+generic styling with no inferred sorting, totals or recommendations. Permuted
+point arrays must preserve category/value pairing; admitted negative/fractional/
+default-format controls retain consistent geometry and exact source semantics.
+Missing or ambiguous category relationships require explicit faithful handling
+or located subset refusal, not an invented value.
+
+Reuse private metric numeric/format helpers where suitable, keeping target and
+runtime policy outside vocabulary and strict interchange. Existing shared metric
+context preserves exact axis/series/point records and full pointers without
+calculating aggregates. Run affected native/corpus/review/UI/browser/package/
+full-suite gates for shared changes. Commit cycle 16 before starting cycle 17.
+
+Final source/interface/native audit approves original-index category-ID joins,
+authored category order, exact zero row and neutral styling. Qualified native
+maps disclose actual chart/category and series/data slot locators instead of
+invented per-slot SVG IDs. Explicit precision and absent-default formatting keep
+raw geometry unchanged; unknown category content remains located unsupported
+content without invented typed meanings. A private numeric-axis helper shared by
+meter/bar pairs ordered raw ticks with visible CSS anchors independently of
+rounded glyphs, rejecting nonfinite or ambiguous coordinates. Native controls
+cover numeric labels, negative/fractional/all-zero values, forged maps and
+colliding category/unit text; hidden metadata cannot borrow another carrier's
+matching label. Shared baseline fit/clipping/font/overlap obligations remain.
+
+Affected native suites pass 60 tests / 734 assertions, with source/type and diff
+checks green. Native/fetch, catalog and showcase gates pass; no fixture-specific
+production dispatch is present. Integrated reviews pass **15 definitions /
+35 qualified variants / 10 explicit unsupported variants / 105 assets**, with
+35 actual SVG and 35 PNG replays. All fifteen review UI examples pass; public
+browser checks pass 53 catalog fixtures / 106 round trips plus fifteen reviewed
+definitions / thirty round trips / thirty-five plans. SDK/site and packed
+Bun/Node consumers pass. Root visually approved the final native PNG, SHA-256
+`32c8db8d801771f6887cfb16ac81f1c6eb3afa583d0f19b69f7d506d48df9655`.
+Final shared catalog/showcase UI passes on Chromium 153.0.8010.12 with no errors.
+
+Final isolated full suite passes **782 tests, zero failures, 21,218 assertions
+across 124 files in 148.18 seconds** (`.cache/cycle16-full-tests.log`). All
+required gates and actual visual/model/interface audits pass. Cycle 16 is complete
+and ready for commit; the commit follows in this change and MUST precede cycle 17.
+Exact Visual 1.0.0 categories/values/format/unit and historical source limits are
+unchanged. No inferred status palette, aggregate, recommendation, vocabulary
+change, strict-interchange change, host-support expansion, release or publication
+claim is introduced.
 
 ### Ordered cycle inventory
 

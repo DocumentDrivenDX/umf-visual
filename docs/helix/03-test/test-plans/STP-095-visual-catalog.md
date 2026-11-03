@@ -567,3 +567,25 @@ the corrected test preserves the precise subset boundary and production/source
 were unchanged. Calendar/tick geometry, duplicate/tied observations and readable
 dated summaries qualify the bounded profile without current-ledger, inferred
 growth or host-support claims; exact Visual 1.0.0 authority remains unchanged.
+
+
+## Categorical-bar conformance
+
+Verify category order and ID joins with a permuted point array, preserving
+original source pointers. Inspect exact category/unit/series/value ownership and
+a visible zero row. Test negative/fractional/explicit-precision/default-format
+controls, numeric category labels and text collisions across metadata carriers;
+hiding a required unit/series label must not pass by borrowing category text.
+Raw tick-slot calibration must remain independent of rounded glyphs and reject
+nonfinite/ambiguous/displaced anchors. Structural native locators require exact
+AST slots plus rendered row/value geometry, not fabricated SVG IDs. Unknown
+category extensions and unsupported relation subsets remain located refusals;
+shared fit/clipping/font/overlap and prior meter regressions remain required.
+
+Cycle 16 closeout: isolated full suite passes 782 tests, zero failures and
+21,218 assertions across 124 files in 148.18 seconds. All native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual visual/model/interface
+audits pass. Category-ID joins, exact zero rows, structural locators and shared
+raw-tick calibration qualify the bounded native bar profile without changing
+source values or inferring status semantics/aggregates. Exact Visual 1.0.0 source,
+strict interchange and historical locator limits remain unchanged.

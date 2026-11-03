@@ -540,3 +540,30 @@ rates or causal relationships; that distinction MUST remain visible in the
 downloadable artifact. Native title, unit, series, good-direction, format and
 admitted optional text retain exact source ownership. Unsupported formats,
 backends and metric subsets remain located refusals without vocabulary changes.
+
+
+## Categorical bar presentation
+
+A bounded category-axis bar profile MUST resolve each point.at through the
+authored category ID, follow declared category order and retain original point
+source pointers. Array position MUST NOT substitute for that relationship. A
+missing value MUST NOT become zero; an authored zero retains its visible category
+row and exact value text even when no fill rectangle is painted. Neutral target
+styling MUST NOT infer business-status colors, sorting, totals or recommendations
+from category labels.
+
+Qualified nativeId values MAY be structural chart-owner/category-slot or
+series/data-slot locators where a native engine does not assign individual SVG
+IDs. Their locator grammar and limits MUST be disclosed, with native declaration
+and actual rendered slot ownership proved separately. Numeric labels matching a
+category, unit or series label MUST NOT satisfy a different carrier's claim.
+Absent formatting/decimals remain absent source facts; explicit precision changes
+visible labels only, while raw bar geometry remains exact.
+
+Shared target-side numeric-axis sampling/calibration MAY pair ordered raw tick
+slots with visible CSS-space anchors independently of rounded glyphs. It MUST
+exclude unrelated category/value/tooltip text, reject nonfinite or ambiguous
+anchors and preserve profile-specific source/map checks. Negative and degenerate
+domains remain renderer policy, without a semantic maximum or invented aggregate.
+Unknown category extension content MUST remain preserved and receive located
+unknown/unsupported accounting, not newly inferred typed meaning.

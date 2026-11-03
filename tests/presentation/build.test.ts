@@ -57,5 +57,10 @@ test('build classifies only known valid-source projection refusals as unsupporte
  expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_STAT_SCOPE'),diagnostic('PRESENTATION_LINI_STAT_INTERNAL')])).toBe(false);
  expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_METER_UNKNOWN')])).toBe(false);
  expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_STAT_UNKNOWN')])).toBe(false);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_BAR_SCOPE')])).toBe(true);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_BAR_TEXT')])).toBe(true);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_BAR_INTERNAL')])).toBe(false);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_BAR_UNKNOWN')])).toBe(false);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_BAR_SCOPE'),diagnostic('VISUAL_INVALID')])).toBe(false);
  expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_TIMELINE_SCOPE'),diagnostic('VISUAL_INVALID')])).toBe(false);
 });
