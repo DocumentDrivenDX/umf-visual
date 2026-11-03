@@ -8,6 +8,7 @@ import mermaidPackage from 'mermaid/package.json';
 import type {Document} from '@umf/core';
 import {createVisualDocument,readVisualDocument,type Visual} from '../../src/extensions/visual';
 import {compilePresentation,type PresentationPlan,type PresentationBackend,type PresentationExecution,type PresentationDiagnostic} from '../../src/presentation';
+import {planDateHistoryEvents} from '../../src/presentation/timeline-layout';
 import {verifyPresentationQuality} from './quality';
 import {loadPresentationLini,renderPresentationLini} from './lini-runtime';
 import {visualPayloadYaml} from './payload-source';
@@ -43,9 +44,13 @@ export function expectedGraphvizConnectionCount(visual:Visual):number{
  if(visual.kind==='flow')return (visual.edges??[]).length;
  if(visual.kind==='structure'&&visual.form==='entities')return (visual.structure?.references??[]).length;
  if(visual.kind==='state'&&visual.form==='machine')return (visual.state?.transitions??[]).length+1; // renderer-owned initial marker link
+ if(visual.kind==='timeline'&&visual.form==='history'){
+  const layout=planDateHistoryEvents(visual.timeline?.events??[]);
+  return layout?.ok&&layout.firstDay!==layout.lastDay?1:0; // one unmapped, undirected date-axis guide; never an event relation
+ }
  return 0;
 }
-const capabilityRefusalCodes=new Set(['PRESENTATION_FORM','PRESENTATION_BACKEND_SUBSET','PRESENTATION_MERMAID_FIELD','PRESENTATION_MERMAID_CARDINALITY','PRESENTATION_MERMAID_RELATIONSHIP','PRESENTATION_CIRCULAR_SCOPE','PRESENTATION_MERMAID_CIRCULAR_SUBSET','PRESENTATION_STATE_SCOPE','PRESENTATION_STATE_COMPOSITE','PRESENTATION_STATE_ANNOTATION','PRESENTATION_STATE_STEPS','PRESENTATION_STATE_LAYOUT','PRESENTATION_STATE_LAYOUT_ORDER','PRESENTATION_STATE_NODE_PROPERTY','PRESENTATION_STATE_TRANSITION_PROPERTY','PRESENTATION_STATE_MULTILINE','PRESENTATION_STATE_AMBIGUOUS_TRANSITION']);
+const capabilityRefusalCodes=new Set(['PRESENTATION_FORM','PRESENTATION_BACKEND_SUBSET','PRESENTATION_MERMAID_FIELD','PRESENTATION_MERMAID_CARDINALITY','PRESENTATION_MERMAID_RELATIONSHIP','PRESENTATION_CIRCULAR_SCOPE','PRESENTATION_MERMAID_CIRCULAR_SUBSET','PRESENTATION_STATE_SCOPE','PRESENTATION_STATE_COMPOSITE','PRESENTATION_STATE_ANNOTATION','PRESENTATION_STATE_STEPS','PRESENTATION_STATE_LAYOUT','PRESENTATION_STATE_LAYOUT_ORDER','PRESENTATION_STATE_NODE_PROPERTY','PRESENTATION_STATE_TRANSITION_PROPERTY','PRESENTATION_STATE_MULTILINE','PRESENTATION_STATE_AMBIGUOUS_TRANSITION','PRESENTATION_TIMELINE_SCOPE','PRESENTATION_TIMELINE_DATE','PRESENTATION_LINI_TIMELINE_SCOPE','PRESENTATION_LINI_TIMELINE_EVENTS','PRESENTATION_LINI_TIMELINE_DATE','PRESENTATION_LINI_TIMELINE_TEXT']);
 /** True only for valid-source projection-scope refusals; malformed inputs remain failures. */
 export function isUnsupportedPresentationDiagnostics(diagnostics:readonly PresentationDiagnostic[]):boolean{
  return diagnostics.length>0&&diagnostics.every(item=>capabilityRefusalCodes.has(item.code));
@@ -126,6 +131,7 @@ function textTokens(v:Visual,backend:PresentationBackend):string[]{
   for(const n of v.nodes??[])out.push(n.label,...(n.detail?[n.detail]:[]));
   for(const e of v.edges??[])out.push(...(e.label?[e.label]:[]));
  }
+ if(v.kind==='timeline'&&v.form==='history')for(const event of v.timeline?.events??[])out.push(event.label,event.at);
  if(v.form==='stack'){
   for(const l of v.structure?.layers??[])out.push(l.label);
   for(const n of v.nodes??[])out.push(n.label,...(n.detail?[n.detail]:[]));
@@ -182,7 +188,7 @@ async function buildRender(example:SourceExample,doc:Document,backend:Presentati
   if(backend==='graphviz'){
    const [svgResult,jsonResult]=await Promise.all([renderDot(plan.source,'svg',plan.execution),renderDot(plan.source,'json',plan.execution)]);svg=svgResult.output;nativeVersion=plan.execution?versions.neato:versions.graphviz;
    const ast=JSON.parse(jsonResult.output) as {objects?:{name?:string}[];edges?:{tail?:string;head?:string;tailport?:string;headport?:string}[]};nativeAst=ast;const names=new Set((ast.objects??[]).map(o=>o.name));
-   const expectedNodes=plan.elementMap.filter(x=>x.kind==='node'||x.kind==='entity');const missingNodes=expectedNodes.filter(x=>!names.has(x.nativeId));
+   const expectedNodes=plan.elementMap.filter(x=>x.kind==='node'||x.kind==='entity'||x.kind==='event');const missingNodes=expectedNodes.filter(x=>!names.has(x.nativeId));
    if(missingNodes.length)throw Error('Graphviz JSON AST omitted expected native nodes: '+missingNodes.map(x=>x.nativeId).join(', '));
    const sourceVisual=visualOf(doc),expectedConnections=expectedGraphvizConnectionCount(sourceVisual);
    const visibleConnections=(ast.edges??[]).filter(e=>String((e as any).style??'')!=='invis');

@@ -6,6 +6,7 @@ import type {Document} from '@umf/core';
 import {getVisual,type Visual,type VisualMultiplicity} from '../../src/extensions/visual';
 import type {PresentationElement,PresentationPlan} from '../../src/presentation';
 import {stateTransitionCaption} from '../../src/presentation/state';
+import {planDateHistoryEvents} from '../../src/presentation/timeline-layout';
 import {verifyLiniPresentationQuality} from './lini-quality';
 
 export interface PresentationQualityCheck {
@@ -21,8 +22,10 @@ const sha=(s:string)=>createHash('sha256').update(Buffer.from(s,'utf8')).digest(
 const pass=(check:string,sourceSha256:string,ok:boolean,details:string):PresentationQualityCheck=>({check,sourceSha256,result:ok?'pass':'fail',details});
 const text=(v:unknown)=>typeof v==='string'?v:'';
 const norm=(s:string)=>s.replace(/\s+/g,' ').trim();
+const compact=(s:string)=>s.replace(/\s+/g,'');
 const normLabel=(s:string)=>norm(s).replace(/\s*\/\s*/g,'/');
 const mermaidStateText=(value:string)=>Array.from(value,(char)=>({' ':'#32;','#':'#35;','&':'#38;','"':'#34;','<':'#60;','>':'#62;',';':'#59;','(':'#40;',')':'#41;','[':'#91;',']':'#93;','{':'#123;','}':'#125;','\\':'#92;'} as Record<string,string>)[char]??char).join('');
+const mermaidTimelineText=(value:string)=>value.replace(/\r/g,'').split('\n').map(line=>Array.from(line,(char)=>({' ':'#32;','#':'#35;','&':'#38;','"':'#34;','<':'#60;','>':'#62;',';':'#59;','(':'#40;',')':'#41;','[':'#91;',']':'#93;','{':'#123;','}':'#125;','\\':'#92;'} as Record<string,string>)[char]??char).join('')).join('<br/>');
 const hasOffsetSheetPair=(boxes:QualityBox[])=>{const unique=boxes.filter((box,index)=>!boxes.slice(0,index).some(other=>Math.abs(box.x-other.x)<1&&Math.abs(box.y-other.y)<1&&Math.abs(box.width-other.width)<1&&Math.abs(box.height-other.height)<1));for(let i=0;i<unique.length;i++)for(let j=i+1;j<unique.length;j++){const a=unique[i]!,b=unique[j]!,offset=Math.hypot(a.x+a.width/2-b.x-b.width/2,a.y+a.height/2-b.y-b.height/2),overlapWidth=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)),overlapHeight=Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)),smaller=Math.min(a.width*a.height,b.width*b.height);if(offset>2&&overlapWidth*overlapHeight>=smaller*.45)return true;}return false;};
 const decodeDotLabel=(s:string)=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&#(\d+);/g,(_,n:string)=>String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi,(_,n:string)=>String.fromCodePoint(parseInt(n,16)));
 const escRe=(s:string)=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -160,6 +163,36 @@ export async function verifyPresentationQuality(
    }
    if(edges.length!==state.transitions.length+1)problems.push(`native edge count ${edges.length} includes a missing or extra helper/transition path`);
    checks.push(pass('graphviz-state-transitions-and-markers',sourceSha256,!!ast&&Array.isArray(ast.objects)&&Array.isArray(ast.edges)&&problems.length===0,problems.length?problems.join('; '):`${visualNodes.length} state nodes, ${state.transitions.length} item-mapped transitions, and the authored initial${(state.final??[]).length?' and final':''} marker(s) have native AST and SVG ownership.`));
+  }else if(visual.kind==='timeline'&&visual.form==='history'&&ast&&Array.isArray(ast.objects)){
+   const problems:string[]=[],layout=planDateHistoryEvents(visual.timeline?.events??[]),objects=ast.objects,edges=Array.isArray(ast.edges)?ast.edges:[],byName=new Map(objects.map(object=>[objectName(object),object])),byGvid=new Map(objects.map(object=>[Number(object._gvid),objectName(object)]));
+   if(ast.edges!==undefined&&!Array.isArray(ast.edges))problems.push('Graphviz timeline AST has a malformed non-array edge collection');
+   if(!layout?.ok){problems.push('source date-history events do not have exact valid UTC calendar-day positions');}
+   else{
+    const xs:Array<{sourceIndex:number;dayOffset:number;x:number;y:number}>=[],svgXs:Array<{sourceIndex:number;dayOffset:number;x:number;y:number}>=[],boxes:QualityBox[]=[];
+    for(const row of layout.events){
+     const sourcePath=`/extensions/umf.visual/timeline/events/${row.sourceIndex}`,mapping=elementFor(plan,'event',sourcePath),record=mapping?byName.get(mapping.nativeId):undefined,nodeCarrier=mapping?dom.carriers.find(item=>item.cls.split(/\s+/u).includes('node')&&item.title===mapping.nativeId):undefined,pos=text(record?.pos).split(/[ ,]+/u).map(Number);
+     if(!mapping||mapping.logicalId!==row.event.id||mapping.nativeId!==`event_${row.sourceIndex+1}`)problems.push(`event ${row.event.id} has no exact source-index identity map`);
+     const astLabel=norm(decodeDotLabel(text(record?.label).replace(/<[^>]*>/g,' ')));
+     if(!record||text(record?.id)!==mapping?.nativeId||!nodeCarrier||pos.length<2||pos.some(value=>!Number.isFinite(value))||!astLabel.includes(norm(row.event.label))||!astLabel.includes(row.event.at)||!norm(nodeCarrier.ownText.join(' ')).includes(norm(row.event.label))||!norm(nodeCarrier.ownText.join(' ')).includes(row.event.at))problems.push(`event ${row.event.id} exact ID, label, and date are not owned by its mapped Graphviz node`);
+     if(pos.length>=2&&pos.every(Number.isFinite))xs.push({sourceIndex:row.sourceIndex,dayOffset:row.dayOffset,x:pos[0]!,y:pos[1]!});
+     if(nodeCarrier){boxes.push(nodeCarrier.bounds);svgXs.push({sourceIndex:row.sourceIndex,dayOffset:row.dayOffset,x:nodeCarrier.bounds.x+nodeCarrier.bounds.width/2,y:nodeCarrier.bounds.y+nodeCarrier.bounds.height/2});}
+    }
+    const minimumX=Math.min(...xs.map(item=>item.x)),maximumX=Math.max(...xs.map(item=>item.x)),span=maximumX-minimumX;
+    for(const item of xs){const expected=layout.lastDay===layout.firstDay?0:(item.dayOffset/(layout.lastDay-layout.firstDay)),actual=span===0?0:(item.x-minimumX)/span;if(Math.abs(actual-expected)>.003)problems.push('Graphviz event x coordinates do not preserve the exact linear UTC-day ordering');}
+    const svgMinimumX=Math.min(...svgXs.map(item=>item.x)),svgMaximumX=Math.max(...svgXs.map(item=>item.x)),svgSpan=svgMaximumX-svgMinimumX;
+    for(const item of svgXs){const expected=layout.lastDay===layout.firstDay?0:(item.dayOffset/(layout.lastDay-layout.firstDay)),actual=svgSpan===0?0:(item.x-svgMinimumX)/svgSpan;if(Math.abs(actual-expected)>.006)problems.push('Rendered Graphviz event centers do not preserve the exact linear UTC-day positions');}
+    for(const date of new Set(layout.events.map(row=>row.event.at))){const sameDate=layout.events.filter(row=>row.event.at===date).map(row=>({ast:xs.find(position=>position.sourceIndex===row.sourceIndex),svg:svgXs.find(position=>position.sourceIndex===row.sourceIndex)}));if(sameDate.length>1&&(new Set(sameDate.map(item=>item.ast?.y)).size!==sameDate.length||new Set(sameDate.map(item=>Math.round((item.svg?.x??NaN)*10)/10)).size!==1||new Set(sameDate.map(item=>item.svg?.y)).size!==sameDate.length))problems.push(`same-date events on ${date} do not share rendered and native x while retaining distinct label tracks`);}
+    for(let left=0;left<boxes.length;left++)for(let right=left+1;right<boxes.length;right++){const a=boxes[left]!,b=boxes[right]!,overlapWidth=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)),overlapHeight=Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y));if(overlapWidth>1&&overlapHeight>1)problems.push('Graphviz event cards overlap in the rendered SVG');}
+     const axisEdges=edges.filter(edge=>text(edge.id)==='date_axis'),axisSvg=dom.carriers.find(item=>item.cls.split(/\s+/u).includes('edge')&&item.id==='date_axis');
+    if(layout.firstDay!==layout.lastDay){
+     const axis=axisEdges[0],start=byName.get('date_axis_start'),end=byName.get('date_axis_end'),startPos=text(start?.pos).split(/[ ,]+/u).map(Number),endPos=text(end?.pos).split(/[ ,]+/u).map(Number);
+     if(axisEdges.length!==1||!axis||text(axis.dir)!=='none'||text(axis.arrowhead)!=='none'||byGvid.get(Number(axis.tail))!=='date_axis_start'||byGvid.get(Number(axis.head))!=='date_axis_end'||text(start?.style)!=='invis'||text(end?.style)!=='invis'||startPos.length<2||endPos.length<2||startPos.some(value=>!Number.isFinite(value))||endPos.some(value=>!Number.isFinite(value))||Math.abs(startPos[0]!-minimumX)>.01||Math.abs(endPos[0]!-maximumX)>.01||!axisSvg||axisSvg.arrow||!axisSvg.paths.some(item=>item.d))problems.push('the undirected date-axis helper is missing, directed, or detached from the exact first/last event coordinates');
+    }else if(axisEdges.length||axisSvg||byName.has('date_axis_start')||byName.has('date_axis_end'))problems.push('single-date history invents a nonzero axis span');
+    if(edges.length!==axisEdges.length)problems.push('Graphviz contains a native event-to-event connection not present in the timeline source');
+   }
+   checks.push(pass('graphviz-timeline-events-and-axis',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${visual.timeline?.events?.length??0} exact event/date cards have source-index ownership, nonoverlapping native carriers, and linear UTC-day x positions; the axis is undirected and unmapped.`));
+  }else if(visual.kind==='timeline'&&visual.form==='history'){
+   checks.push(pass('graphviz-timeline-events-and-axis',sourceSha256,false,'Graphviz JSON AST is required to bind every date-history event and the unmapped date-axis helper.'));
   }else if(ast&&Array.isArray(ast.objects)&&Array.isArray(ast.edges)){
    const objects=ast.objects,edges=ast.edges;
    const byName=new Map(objects.map(o=>[objectName(o),o]));
@@ -405,6 +438,34 @@ export async function verifyPresentationQuality(
    const expectedPathCount=state.transitions.length+1+(state.final?.length??0);
    if(dom.paths.length!==expectedPathCount)problems.push(`native Mermaid path count ${dom.paths.length} differs from the ${state.transitions.length} authored transitions plus ${expectedPathCount-state.transitions.length} explicit marker links`);
    checks.push(pass('mermaid-state-transitions-and-markers',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${nodes.length} state nodes, ${state.transitions.length} mapped directed transitions, and authored initial/final markers are visible in their native carriers.`));
+  }else if(visual.kind==='timeline'&&visual.form==='history'){
+   const layout=planDateHistoryEvents(visual.timeline?.events??[]),problems:string[]=[];
+   if(!layout?.ok)problems.push('source event dates do not form a valid chronological ledger');
+   else{
+    const sourceLines=plan.source.split('\n'),cardPositions:Array<{sourceIndex:number;box:QualityBox}>=[],boxes:QualityBox[]=[];
+    const displayTitle=visual.title??visual.question,readingNote='Chronological order · equal dates adjacent · spacing is categorical, not elapsed time',columns=plan.source.match(/\n  columns (\d+)/u)?.[1],header=dom.carriers.find(item=>item.cls.split(/\s+/u).includes('node')&&(item.id.endsWith('-heading')||item.title==='heading')),note=dom.carriers.find(item=>item.cls.split(/\s+/u).includes('node')&&(item.id.endsWith('-ledger_note')||item.title==='ledger_note'));
+    const insideFrame=(box:QualityBox|undefined)=>!!box&&box.x>=-1&&box.y>=-1&&box.x+box.width<=dom.root.width+1&&box.y+box.height<=dom.root.height+1;
+    const headerLine=`  heading["${mermaidTimelineText(displayTitle).replace(/#32;/g,' ')}"]:${columns}`,noteLine=`  ledger_note["${mermaidTimelineText(readingNote).replace(/#32;/g,' ')}"]:${columns}`;
+    if(!header||!norm(header.ownText.join(' ')).includes(norm(displayTitle))||!sourceLines.includes(headerLine)||!insideFrame(header.bounds))problems.push('Mermaid date-ledger title has no visible, contained native header carrier');
+    if(!note||!norm(note.ownText.join(' ')).includes(norm(readingNote))||!sourceLines.includes(noteLine)||!insideFrame(note.bounds))problems.push('Mermaid date ledger does not visibly disclose reading order and categorical spacing');
+    for(const row of layout.events){
+     const sourcePath=`/extensions/umf.visual/timeline/events/${row.sourceIndex}`,mapping=elementFor(plan,'event',sourcePath),nativeId=`event_${row.sourceIndex+1}`,carrier=dom.carriers.find(item=>item.cls.split(/\s+/u).includes('node')&&(item.id.endsWith('-'+nativeId)||item.title===nativeId));
+     const expected=`  ${nativeId}["${mermaidTimelineText(row.event.label)}<br/>${mermaidTimelineText(row.event.at)}<br/>id: ${mermaidTimelineText(row.event.id)}"]`,declarationIndex=sourceLines.indexOf(expected);
+     if(!mapping||mapping.nativeId!==nativeId||mapping.logicalId!==row.event.id)problems.push(`event ${row.event.id} has no exact source-index Mermaid identity map`);
+     const expectedOwnedText=compact(`${row.event.label}${row.event.at}id: ${row.event.id}`),actualOwnedText=compact(carrier?.ownText.join(' ')??'');
+     if(declarationIndex<0||!carrier||!actualOwnedText.includes(expectedOwnedText))problems.push(`event ${row.event.id} exact ID, label, and date are not owned by its Mermaid card`);
+     if(declarationIndex<0)problems.push(`event ${row.event.id} has no exact block-beta source card`);
+     if(carrier){boxes.push(carrier.bounds);cardPositions.push({sourceIndex:row.sourceIndex,box:carrier.bounds});}
+    }
+    const chronologicalPositions=[...cardPositions].sort((a,b)=>Math.abs(a.box.y+a.box.height/2-(b.box.y+b.box.height/2))>3?(a.box.y+a.box.height/2)-(b.box.y+b.box.height/2):(a.box.x+a.box.width/2)-(b.box.x+b.box.width/2));
+    if(chronologicalPositions.length!==layout.events.length||chronologicalPositions.some((item,index)=>item.sourceIndex!==layout.events[index]!.sourceIndex))problems.push('Mermaid event cards are not arranged row-major in chronological order with stable source-order ties');
+    const eventDeclarations=sourceLines.filter(line=>/^\s+event_\d+\["/u.test(line));
+    if(eventDeclarations.length!==layout.events.length||eventDeclarations.some(line=>!layout.events.some(row=>line===`  event_${row.sourceIndex+1}["${mermaidTimelineText(row.event.label)}<br/>${mermaidTimelineText(row.event.at)}<br/>id: ${mermaidTimelineText(row.event.id)}"]`)))problems.push('Mermaid event source cards do not preserve the exact label, date, and ID payloads');
+    for(let left=0;left<boxes.length;left++)for(let right=left+1;right<boxes.length;right++){const a=boxes[left]!,b=boxes[right]!,overlapWidth=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)),overlapHeight=Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y));if(overlapWidth>1&&overlapHeight>1)problems.push('Mermaid event cards overlap in the rendered SVG');}
+    if(dom.paths.length)problems.push('Mermaid date ledger contains a relationship path not present in the source');
+    if(!plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/timeline/events'&&/not proportional to elapsed time/u.test(item.representation)&&/no causal or duration/u.test(item.representation)))problems.push('Mermaid ledger does not disclose categorical spacing and the absence of causal/duration meaning');
+   }
+   checks.push(pass('mermaid-timeline-event-ledger',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${visual.timeline?.events?.length??0} exact date/label/ID cards are source-mapped, row-major in chronological order with equal dates adjacent, nonoverlapping, and contain no relationship paths.`));
   }else{
   // Mermaid IDs are generated by Mermaid but preserve the compiler's safe native IDs.
   const blockCircular=visual.layout?.kind==='circular'&&plan.source.includes('\nblock-beta\n');

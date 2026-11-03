@@ -26,9 +26,30 @@ async function renderDocument(document:ReturnType<typeof createVisualDocument>,d
 }
 async function render(visual:Visual){return renderDocument(doc(visual));}
 async function recheck(page:Page,document:ReturnType<typeof doc>,plan:PresentationPlan,nativeAst:unknown){return verifyLiniPresentationQuality(page,{document,plan,nativeAst});}
-function expectAll(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>){expect(checks.map(check=>check.check)).toEqual(required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw new Error(JSON.stringify(failed));}
+function expectAll(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>,timeline=false){expect(checks.map(check=>check.check)).toEqual(timeline?[...required.slice(0,4),'lini-timeline-events-and-date-scale',required[4]!]:required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw new Error(JSON.stringify(failed));}
 
 describe('pinned Lini presentation quality',()=>{
+ it('preserves each exact-date event on a proportional native axis without a quantitative Y scale',async()=>{
+  const document=readVisualDocument(readFileSync(resolve('fixtures/visual/forms/helix-releases.json'),'utf8'),'json'),native=await renderDocument(document);
+  try{
+   expectAll(native.checks,true);
+   const visual=getVisual(document),events=visual.timeline?.events??[],eventMaps=native.plan.elementMap.filter(item=>item.kind==='event');
+   expect(eventMaps).toHaveLength(events.length);expect(eventMaps.map(item=>item.sourcePath)).toEqual(events.map((_,index)=>`/extensions/umf.visual/timeline/events/${index}`));
+   expect(native.plan.source).toContain('points: -540 0, 540 0');expect(native.plan.source).not.toContain('layout: chart;');
+   expect(native.plan.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/timeline/events')?.representation).toContain('rows carry no lane, measure, or chronology meaning');
+   const baseline=native.svg;
+   const mutated=async(action:'detach-marker'|'move-caption'|'remove-marker'|'wrong-text')=>{await native.page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},baseline);await native.page.locator('#frame svg').first().evaluate((root,operation)=>{const svg=root as SVGSVGElement;if(operation==='detach-marker'||operation==='remove-marker'){const marker=svg.querySelector('g.lini-node[data-id="mark1"]');if(!marker)throw Error('first renderer-owned date marker is missing');if(operation==='remove-marker')marker.remove();else marker.setAttribute('transform',(marker.getAttribute('transform')??'')+' translate(60,0)');}else if(operation==='move-caption'){const label=svg.querySelector('g.lini-node[data-id="event1"]'),other=svg.querySelector('g.lini-node[data-id="event2"]');if(!label||!other)throw Error('event caption carrier is missing');label.setAttribute('transform',other.getAttribute('transform')??'');}else{const label=svg.querySelector('g.lini-node[data-id="event1"] text.lini-text');if(!label)throw Error('first event caption is missing');label.textContent='altered date';}},action);return recheck(native.page,native.document,native.plan,native.nativeAst);};
+   const detachedMarker=await mutated('detach-marker');
+   expect(result(detachedMarker,'lini-timeline-events-and-date-scale')).toBe('fail');
+   const movedLabel=await mutated('move-caption');
+   expect(result(movedLabel,'lini-timeline-events-and-date-scale')).toBe('fail');
+   const missingMarker=await mutated('remove-marker');
+   expect(result(missingMarker,'lini-timeline-events-and-date-scale')).toBe('fail');
+   const wrongText=await mutated('wrong-text');
+   expect(result(wrongText,'lini-native-carriers')).toBe('fail');
+  }finally{await native.page.close();}
+ },{timeout:60_000});
+
  it('renders unanchored annotations as borderless footer text and rejects moved carrier text',async()=>{
   const document=createVisualDocument({id:'unanchored-annotations',kind:'flow',form:'network',question:'Where do notes belong?',layout:{kind:'flow',direction:'LR',order:['region-a','region-b']},groups:[{id:'region-a',label:'Request handling',role:'region',layout:{kind:'flow',direction:'LR',order:['api','worker']}},{id:'region-b',label:'Persistence',role:'region',layout:{kind:'flow',direction:'LR',order:['queue','database']}}],nodes:[{id:'api',label:'API',group:'region-a'},{id:'worker',label:'Worker',group:'region-a'},{id:'queue',label:'Queue',group:'region-b'},{id:'database',label:'Database',group:'region-b'}],edges:[{id:'request',from:'api',to:'worker',routing:{kind:'straight'}},{id:'handoff',from:'worker',to:'queue',routing:{kind:'straight'}},{id:'persist',from:'queue',to:'database',routing:{kind:'straight'}}],annotations:[{id:'heading',text:'Inbound path'},{id:'note',text:'Retry behavior is outside this sketch.'}]},'test:unanchored-annotations','1.4.0'),native=await renderDocument(document);
   try{

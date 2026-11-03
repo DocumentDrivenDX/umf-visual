@@ -5,6 +5,7 @@ import type {Page} from 'playwright';
 import type {Document} from '@umf/core';
 import {getVisual,type Visual,type VisualCardinality,type VisualMultiplicity} from '../../src/extensions/visual';
 import type {PresentationPlan} from '../../src/presentation';
+import {planDateHistoryEvents} from '../../src/presentation/timeline-layout';
 import {stateTransitionCaption} from '../../src/presentation/state';
 import type {PresentationQualityCheck} from './quality';
 import {verifyLiniRichPresentationQuality} from './lini-rich-quality';
@@ -14,7 +15,7 @@ type Carrier={id:string;classes:string[];texts:string[];title:string;style:strin
 type Vector={x:number;y:number};
 type Link={classes:string[];from:string|null;to:string|null;labels:string[];labelBounds:Box[];labelClearances:number[];bounds:Box;line:{start:Vector;end:Vector;startTangent:Vector;endTangent:Vector;samples:Vector[];d:string;curveDeviation:number}|null;markers:Array<{classes:string[];tag:string;d:string;length:number;center:Vector;orientation:Vector|null;points:Vector[];bounds:Box}>;arrows:number};
 type EndpointProof={path:string;carrier:Carrier;host:Carrier;side?:string};
-type NativeDom={svg:boolean;carriers:Carrier[];links:Link[];fontFamilies:Array<{text:string;inline:string;computed:string}>};
+type NativeDom={svg:boolean;svgBounds:Box;carriers:Carrier[];links:Link[];fontFamilies:Array<{text:string;inline:string;computed:string}>};
 const sha=(value:string)=>createHash('sha256').update(Buffer.from(value,'utf8')).digest('hex');
 const norm=(value:string)=>value.replace(/\s+/gu,' ').trim();
 const hasOffsetSheetPair=(sheets:Array<{bounds:Box;signature:string}>)=>{for(let i=0;i<sheets.length;i++)for(let j=i+1;j<sheets.length;j++){const {bounds:a,signature:sa}=sheets[i]!,{bounds:b,signature:sb}=sheets[j]!,offset=Math.hypot(a.x+a.width/2-b.x-b.width/2,a.y+a.height/2-b.y-b.height/2),overlapWidth=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)),overlapHeight=Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)),smaller=Math.min(a.width*a.height,b.width*b.height);if(sa===sb&&offset>1&&overlapWidth*overlapHeight>=smaller*.45)return true;}return false;};
@@ -146,7 +147,7 @@ export async function verifyLiniPresentationQuality(
     return{classes:[...group.classList],from:group.getAttribute('data-from'),to:group.getAttribute('data-to'),labels:labelElements.map(text=>normalize(text.textContent??'')).filter(Boolean),labelBounds:labelElements.map(box),labelClearances,bounds:box(group),line:start&&end&&line?{start,end,startTangent:tangent(line,0,length)??{x:0,y:0},endTangent:tangent(line,length,length)??{x:0,y:0},samples,d:line.getAttribute('d')??'',curveDeviation:curveDeviation(line)}:null,markers:markerElements.map(marker=>{const graphics=marker as SVGGraphicsElement,b=box(marker),matrix=graphics.getScreenCTM(),vertices=marker instanceof SVGPolygonElement?[...marker.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(matrix!);return{x:screen.x-origin.x,y:screen.y-origin.y};}):[],markerPath=marker instanceof SVGPathElement?marker:undefined,markerLength=markerPath?.getTotalLength()??0,orientation=markerPath&&markerLength>0?tangent(markerPath,0,markerLength):null;return{classes:[...marker.classList],tag:marker.tagName.toLowerCase(),d:marker.getAttribute('d')??'',length:markerLength,center:{x:b.x+b.width/2,y:b.y+b.height/2},orientation,points:vertices,bounds:b};}),arrows:group.querySelectorAll('.lini-marker-arrow').length};
    });
    const fontFamilies=[...svg.querySelectorAll('text')].map(element=>({text:normalize(element.textContent??''),inline:(element as SVGTextElement).style.fontFamily,computed:getComputedStyle(element).fontFamily}));
-   return{svg:svg.matches('svg.lini'),carriers,links,fontFamilies};
+   return{svg:svg.matches('svg.lini'),svgBounds:box(svg),carriers,links,fontFamilies};
   });
  }catch{/* emitted evidence below */}
 
@@ -189,6 +190,10 @@ export async function verifyLiniPresentationQuality(
   else if(item.kind==='layer')expected=visual.structure?.layers?.find(layer=>layer.id===item.logicalId)?.label??'';
   else if(item.kind==='entity')expected=visual.nodes?.find(node=>node.id===item.logicalId)?.label??'';
   else if(item.kind==='annotation')expected=visual.annotations?.find(annotation=>annotation.id===item.logicalId)?.text??'';
+  else if(item.kind==='event'){
+   const match=item.sourcePath.match(/\/timeline\/events\/(\d+)$/u),event=match?visual.timeline?.events?.[Number(match[1])]:undefined;
+   expected=event?event.label+' · '+event.at:'';
+  }
   const groupCaption=item.kind==='group'?dom?.carriers.find(candidate=>candidate.classes.includes('lini-caption')&&candidate.texts.some(text=>text.includes(norm(expected)))&&containsBox(found.bounds,candidate.bounds)):undefined;
   const visibleLabel=!!expected&&(found.texts.includes(norm(expected))||found.cells.some(cell=>norm(cell.text)===norm(expected))||!!groupCaption||!!dom?.carriers.some(candidate=>candidate.classes.includes('lini-caption')&&candidate.texts.includes(norm(expected))&&containsBox(found.bounds,candidate.bounds)));
   const shape=visual.nodes?.find(node=>node.id===item.logicalId)?.shape,visibleShapeFallback=!!shape&&found.texts.some(text=>text.startsWith(norm(expected)+' (shape: '+shape+')'));
@@ -444,6 +449,51 @@ export async function verifyLiniPresentationQuality(
   }
  }
  checks.push(pass('lini-containment-and-order',sourceSha256,containmentOk,containmentOk?`Native group/layer bounds contain their authored members; nested group captions clear both parent and child boundaries${nestedCaptionClearances.length?` (${nestedCaptionClearances.join(', ')})`:''}; stack layers retain authored order${stackCaptionClearances.length?`; native stack caption clearance from preceding layer boundary: ${stackCaptionClearances.join(', ')}.`:'.'}`:containmentProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
+
+ if(visual.kind==='timeline'&&visual.form==='history'){
+  const events=visual.timeline?.events??[],datePlan=planDateHistoryEvents(events),eventMaps=maps.filter(item=>item.kind==='event'),problems:string[]=[];
+  let timelineOk=!!dom?.svg&&!!datePlan?.ok;
+  const rootMap=maps.find(item=>item.kind==='visual'&&item.logicalId===visual.id),scene=rootMap?carrier(rootMap.nativeId,'lini-group'):undefined,axis=carrier('timeline-axis','lini-line');
+  if(eventMaps.length!==events.length){timelineOk=false;problems.push(`mapped event count ${eventMaps.length} differs from source event count ${events.length}`);}
+  if(!scene){timelineOk=false;problems.push('native positioned timeline scene is missing');}
+  if(!axis){timelineOk=false;problems.push('renderer-owned date baseline is missing');}
+  if(dom?.carriers.some(item=>item.classes.includes('lini-chart'))||dom?.carriers.some(item=>item.classes.includes('lini-chart-text'))){timelineOk=false;problems.push('native scene exposes a quantitative chart axis for collision tracks');}
+  if(!plan.approximations.some(item=>item.sourcePath===at('/timeline/events')&&item.representation.includes('rows carry no lane, measure, or chronology meaning'))){timelineOk=false;problems.push('renderer-only track meaning is not disclosed in the located event approximation');}
+  const positions:Array<{index:number;day:number;marker:Carrier;label:Carrier}> = [];
+  for(let index=0;index<events.length;index++){
+   const event=events[index]!,mapped=eventMaps.find(item=>item.sourcePath===at('/timeline/events/'+index)),expectedNative='event'+(index+1),marker=carrier('mark'+(index+1),'lini-oval'),label=mapped?carrier(mapped.nativeId,'lini-node'):undefined;
+   if(!mapped||mapped.logicalId!==event.id||mapped.nativeId!==expectedNative){timelineOk=false;problems.push(`event ${event.id} does not map to its original array index and native text carrier`);continue;}
+   if(!marker){timelineOk=false;problems.push(`event ${event.id} native marker is missing`);continue;}
+   if(!label||!label.texts.includes(norm(event.label+' · '+event.at))){timelineOk=false;problems.push(`event ${event.id} carrier does not own its exact source label and ISO date`);continue;}
+   if(!containsBox(dom!.svgBounds,label.bounds)){timelineOk=false;problems.push(`event ${event.id} label is clipped by the native SVG viewport`);}
+   const markerX=marker.containerBounds.x+marker.containerBounds.width/2,labelX=label.bounds.x+label.bounds.width/2;
+   if(Math.abs(markerX-labelX)>2){timelineOk=false;problems.push(`event ${event.id} label is detached from its native date marker by ${(Math.abs(markerX-labelX)).toFixed(2)} CSS px`);}
+   const markerY=marker.containerBounds.y+marker.containerBounds.height/2,axisY=axis?axis.containerBounds.y+axis.containerBounds.height/2:undefined;
+   if(axisY!==undefined&&Math.abs(markerY-axisY)>2){timelineOk=false;problems.push(`event ${event.id} marker is detached from the shared date baseline`);}
+   const match=mapped.sourcePath.match(/\/timeline\/events\/(\d+)$/u),row=match?datePlan?.ok?datePlan.events.find(item=>item.sourceIndex===Number(match[1])):undefined:undefined;
+   if(!row){timelineOk=false;problems.push(`event ${event.id} has no validated UTC date coordinate`);continue;}
+   positions.push({index,day:row.day,marker,label});
+  }
+  const sorted=[...positions].sort((a,b)=>a.day-b.day||a.index-b.index),first=sorted[0],last=sorted.at(-1),firstX=first?first.marker.containerBounds.x+first.marker.containerBounds.width/2:0,lastX=last?last.marker.containerBounds.x+last.marker.containerBounds.width/2:0,span=datePlan?.ok?datePlan.lastDay-datePlan.firstDay:0;
+  if(span>0&&lastX<=firstX){timelineOk=false;problems.push('native event markers do not increase along the date axis');}
+  if(span>0&&datePlan?.ok&&lastX>firstX){
+   for(const row of datePlan.events){const current=positions.find(item=>item.index===row.sourceIndex);if(!current)continue;const x=current.marker.containerBounds.x+current.marker.containerBounds.width/2,actual=(x-firstX)/(lastX-firstX),expected=row.dayOffset/span;if(Math.abs(actual-expected)>0.006){timelineOk=false;problems.push(`event ${row.event.id} UTC date position differs from its affine axis ratio by ${Math.abs(actual-expected).toFixed(4)}`);}}
+  }
+  if(datePlan?.ok){
+   for(let left=0;left<datePlan.events.length;left++)for(let right=left+1;right<datePlan.events.length;right++){
+    const a=datePlan.events[left]!,b=datePlan.events[right]!,pa=positions.find(item=>item.index===a.sourceIndex),pb=positions.find(item=>item.index===b.sourceIndex);if(!pa||!pb)continue;
+    const ax=pa.marker.containerBounds.x+pa.marker.containerBounds.width/2,bx=pb.marker.containerBounds.x+pb.marker.containerBounds.width/2;
+    if(a.day===b.day&&Math.abs(ax-bx)>1){timelineOk=false;problems.push(`same-date events ${a.event.id} and ${b.event.id} do not share x`);}
+    if(a.day===b.day){const ay=pa.label.bounds.y+pa.label.bounds.height/2,by=pb.label.bounds.y+pb.label.bounds.height/2;if(Math.abs(ay-by)<8){timelineOk=false;problems.push(`same-date event labels ${a.event.id} and ${b.event.id} share a collision row`);}}
+   }
+  }
+  for(let left=0;left<positions.length;left++)for(let right=left+1;right<positions.length;right++){
+   const a=positions[left]!.label.bounds,b=positions[right]!.label.bounds,overlapX=Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x),overlapY=Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y);
+   if(overlapX>0&&overlapY>0){timelineOk=false;problems.push(`event labels ${positions[left]!.index} and ${positions[right]!.index} overlap by ${overlapX.toFixed(2)}×${overlapY.toFixed(2)} CSS px`);}
+  }
+  const dateDetails=timelineOk?`All ${events.length} mapped event carriers own their exact label and ISO date; native markers share the positioned date baseline and follow validated UTC day ratios. Equal dates share x, collision rows are distinct, and native label bounds are disjoint. No quantitative Y axis is present. Renderer-only date positioning and nonsemantic rows are disclosed.`:problems.join('; ')||'The native timeline proof is unavailable.';
+  checks.push(pass('lini-timeline-events-and-date-scale',sourceSha256,timelineOk,dateDetails));
+ }
 
  let fieldsOk=!!dom?.svg;const fieldProblems:string[]=[];
  for(let entityIndex=0;entityIndex<(visual.structure?.entities??[]).length;entityIndex++){

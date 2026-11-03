@@ -5,12 +5,13 @@ import {getVisual,inspectVisual,type Visual,type VisualNode,type VisualGroup,typ
 import {compileLiniPresentation} from './lini';
 import {circularPlacement} from './circular';
 import {compileStatePresentation} from './state';
+import {compileTimelinePresentation} from './timeline';
 
 export type PresentationBackend='graphviz'|'mermaid'|'lini';
 export interface PresentationOptions {backend:PresentationBackend;direction?:'LR'|'TB';theme?:'presentation/1';}
 export interface PresentationDiagnostic {code:string;path:string;message:string;severity:'error'|'warning';}
 export interface PresentationExecution {runtime:'graphviz';layoutEngine:'neato';nodePositions:'fixed';}
-export interface PresentationElement {logicalId:string;sourcePath:string;nativeId:string;kind:'visual'|'group'|'node'|'edge'|'layer'|'entity'|'field'|'port'|'reference'|'participant'|'message'|'note'|'annotation'|'transition'|'state-marker';}
+export interface PresentationElement {logicalId:string;sourcePath:string;nativeId:string;kind:'visual'|'group'|'node'|'edge'|'layer'|'entity'|'field'|'port'|'reference'|'participant'|'message'|'note'|'annotation'|'transition'|'state-marker'|'event';}
 export interface PresentationOmission {sourcePath:string;reason:string;}
 export interface PresentationApproximation {sourcePath:string;requested:string;representation:string;code?:'ROUTING_SCOPE_CONFLICT'|'ROUTING_NATIVE_INTERPOLATION'|'CIRCULAR_NATIVE_GRID';}
 export interface PresentationPlan {
@@ -101,12 +102,14 @@ export function compilePresentation(document:Document,options:PresentationOption
  const supported=visual.kind==='flow'&&visual.form==='network'
   ||visual.kind==='structure'&&(visual.form==='stack'||visual.form==='entities'||visual.form==='tree')
   ||visual.kind==='sequence'&&visual.form==='lifelines'
-  ||visual.kind==='state'&&visual.form==='machine';
+  ||visual.kind==='state'&&visual.form==='machine'
+  ||visual.kind==='timeline'&&visual.form==='history';
  if(!supported)return {ok:false,diagnostics:[diag('PRESENTATION_FORM',BASE+'/form','No presentation projection is qualified for '+visual.kind+'/'+visual.form+'. The current flow projection covers only network diagrams.')]};
 
  const backend=optionValues.backend as PresentationBackend,dir=(optionValues.direction??'LR') as 'LR'|'TB';
  if(rich&&backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This tree or sequence presentation is currently qualified only for the native Lini backend.')]};
  if(visual.kind==='state'&&visual.form==='machine'&&backend!=='lini')return compileStatePresentation(visual,backend,dir);
+ if(visual.kind==='timeline'&&visual.form==='history'&&backend!=='lini')return compileTimelinePresentation(visual,backend);
  if(backend==='lini')return compileLiniPresentation(visual,dir);
  const errors:PresentationDiagnostic[]=[];
  const map:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];

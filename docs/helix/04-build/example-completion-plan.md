@@ -1671,8 +1671,7 @@ checks pass. The stale programmatic-authoring test now asserts the precise
 located order refusal and unchanged source instead of the former whole-form
 refusal; no production behavior changed for that correction.
 
-Cycle 10 is complete and ready for commit; the commit follows in this change and
-MUST precede cycle 11. Exact source Visual 1.0.0 and its absent final/guard/layout
+Cycle 10 is committed as `2d50cc2`. Exact source Visual 1.0.0 and its absent final/guard/layout
 properties remain unchanged. New support is bounded flat state/machine native
 presentation: composite/order/property subsets explicitly refuse; Mermaid uses
 disclosed unique endpoint/caption locators and rejects identical ambiguous
@@ -1681,14 +1680,79 @@ membership does not remove outgoing transitions. No portable vocabulary change,
 host support expansion, release or publication is claimed. Earlier draft 1.4.0
 enrichments and historical host qualifications retain their separate scopes.
 
+### Eleventh-cycle scope — release history
+
+Cycle 11 is in progress using exact authoritative source
+`fixtures/visual/forms/helix-releases.json`, SHA-256
+`c3f173bd6ca3bf49b158fdfc692d51a883534356e41cf8fbd2bbe54530c7bfbb`.
+Preserve envelope 0.10.0 / Visual 1.0.0, document/visual IDs, date scale and all
+41 event IDs, labels and exact dates. No durations, spans, lanes, roles or
+intra-day chronology are authored. The source array contains a date inversion;
+rendering must not mistake array order or release labels for chronological facts.
+A stable date sort is renderer policy and must retain original source pointers
+and bytes. Same-date events share their calendar date even if labels are stacked
+for readability. The HELIX tag locator/digest remain authored metadata, without
+a claim of external tag retrieval or independent historical verification.
+
+Reuse exact authoritative provenance/downloads without enrichment or synthetic
+capture. Native acceptance requires complete owned event labels/dates, truthful
+date ordering and coincident-date treatment, readable title/content and separate
+renderer-owned axes/placement helpers. Exact dates must be readable on each event
+or a clearly proven owned date group; monthly tick interpolation alone is not
+sufficient. Artificial label-track rows must not appear as a numeric event
+measure or semantic lanes. Do not invent causal graph edges or infer time spans
+between release labels. A nonproportional date-labelled projection
+must disclose its spacing approximation; a claim of proportional date placement
+requires actual native geometry proof. Implement family helpers and runtime
+policies outside portable vocabulary, with located refusal for unsupported
+source subsets. Qualify generic renamed, equal-date and unsorted-input controls.
+Use affected native/catalog/showcase/review, browser/package and full-suite
+gates for new renderer support. Commit cycle 11 before starting cycle 12.
+
+The source/interface/native-proof audit approves the shared UTC planner and
+bounded target helpers. Graphviz uses existing neato/fixed execution and verifies
+both native AST and actual SVG date ratios, ties and the single-date/no-axis
+case. Lini uses positioned primitives with exact owned dates and collision-only
+rows, without a quantitative Y axis. Mermaid uses a readable categorical
+row-major ledger with a native title and explicit reading-order/nonproportional
+spacing cue. Root visually approved all three final artifacts. Known subset
+refusals are explicitly classified; unknown/internal or invalid-source mixtures
+remain failures. No fixture-specific renderer branch or source mutation is used.
+
+The native/corpus window passes pinned Lini 1.1 and Graphviz 16.1 checks,
+catalog 53 items / 159 full pairs / zero loss or native diagnostics, and showcase
+9 definitions / 23 qualified variants / 4 explicit unsupported variants /
+69 assets with 23 actual SVG and 23 PNG replays. Source/type and package build
+pass. Integrated reviews pass 10 definitions / 30 qualified variants /
+zero unsupported / 90 assets with 30 actual SVG and 30 PNG replays; review UI
+passes seventeen checks. Public-browser checks pass ten reviewed definitions /
+twenty round trips / thirty plans using models 1.0.0 and draft 1.4.0, without
+errors; packed Bun/Node consumers report valid/complete results. The verifier
+requires all Lini base native checks plus its timeline proof; shared fit,
+clipping, typography and source-hash obligations remain in force. Final shared
+site/showcase UI passes with no browser errors on Chromium 153.0.8010.12; all
+46 showcase SVG/PNG assets and shared viewer/source behavior pass. Production
+inspection found no fixture IDs or source business-label dispatch branches.
+
+Final quiet full suite passes **712 tests, zero failures, 20,317 assertions
+across 108 files in 178.83 seconds** (`.cache/cycle11-full-tests.log`). All
+required source/type/build, native/corpus/review/UI/public-browser/package and
+actual visual audits pass. Cycle 11 is complete and ready for commit; the commit
+follows in this change and MUST precede cycle 12. The exact Visual 1.0.0 source,
+all dates/IDs and historical locator qualification remain unchanged. Support is
+bounded date/history presentation, with exact G/L date geometry and a visibly
+disclosed categorical Mermaid ledger; packing is not a lane or measure and no
+causal/duration meaning is invented. No vocabulary change, host capability
+expansion, release or publication is claimed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
 Cycle 3 is committed as `aa6a093`; cycle 4 is committed as `263b11f`.
 Cycle 5 is committed as `0a0f7c3`; cycle 6 is committed as `6b6b602`.
 Cycle 7 is committed as `498798c`; cycle 8 is committed as `b706901`.
-Cycle 9 is committed as `991a02a`; cycle 10 is complete and ready for commit.
-Cycles 11–68 remain pending.
+Cycle 9 is committed as `991a02a`; cycle 10 is committed as `2d50cc2`.
+Cycle 11 is complete and ready for commit; cycles 12–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

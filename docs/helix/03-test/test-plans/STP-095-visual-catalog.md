@@ -449,3 +449,28 @@ The exact Visual 1.0.0 authority remains unchanged. Evidence qualifies the
 bounded flat state-machine profiles and disclosed Mermaid locator uniqueness;
 unsupported composite/order/property subsets remain explicit refusals, without
 vocabulary changes or expanded historical host qualification.
+
+
+## Date-history native conformance
+
+Verify UTC/Gregorian date validation, early years, leap boundaries, stable equal
+dates, unsorted source arrays and source immutability. Bind every event's exact
+label/date to its whole-item pointer and native owner. For proportional views,
+check rendered SVG positions as well as AST day ratios; moving only the SVG
+carrier must fail. Test same-date shared x and readable separate labels, and a
+single-date native case without an invented nonzero span. Native axis helpers
+must remain undirected/unmapped and no event-to-event causal paths may appear.
+For categorical ledgers, inspect actual row-major card bounds, visible title and
+nonproportional-spacing/reading-order cue, exact dates, no event edges and helper
+exclusion from event counts. Reject overlap/clipping and quantitative packing
+axes; inspect actual artifact readability. Known unsupported subset codes remain
+explicit capability refusals; unknown/internal or mixed invalid-source errors
+must remain failures.
+
+Cycle 11 closeout: quiet full suite passes 712 tests, zero failures and 20,317
+assertions across 108 files in 178.83 seconds. All source/type/build, native
+corpus/review, shared UI, public-browser, packed-consumer and actual visual audits
+pass. Exact G/L date geometry, same-date ownership and the visible categorical
+Mermaid ledger qualify their bounded profiles; all Lini base checks remain
+required. The exact Visual 1.0.0 authority and historical locator limits are
+unchanged, without vocabulary or host-support expansion.

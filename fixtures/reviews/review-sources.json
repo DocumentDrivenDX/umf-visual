@@ -730,6 +730,44 @@
         "sourceDownloadPath": "reviews/helix-authoring-state/authoritative-source.json",
         "scope": "This exact UMF fixture JSON is the review definition. Its source locator and digest are retained as authored metadata; this provenance binds only the checked-in fixture bytes and does not attest to historical HELIX skill bytes."
       }
+    },
+    {
+      "id": "helix-releases",
+      "title": "HELIX releases",
+      "description": "An exact review of the authoritative HELIX release timeline source, preserving its event IDs, labels, dates, and source order.",
+      "kind": "timeline",
+      "form": "history",
+      "definitionPath": "fixtures/visual/forms/helix-releases.json",
+      "definitionSha256": "c3f173bd6ca3bf49b158fdfc692d51a883534356e41cf8fbd2bbe54530c7bfbb",
+      "sources": [
+        {
+          "path": "fixtures/visual/forms/helix-releases.json",
+          "sha256": "c3f173bd6ca3bf49b158fdfc692d51a883534356e41cf8fbd2bbe54530c7bfbb",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The checked-in Visual 1.0.0 fixture JSON is the complete definition and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/forms/helix-releases.json",
+          "sha256": "c3f173bd6ca3bf49b158fdfc692d51a883534356e41cf8fbd2bbe54530c7bfbb",
+          "outputPath": "reviews/helix-releases/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/forms/helix-releases.json",
+        "sourceSha256": "c3f173bd6ca3bf49b158fdfc692d51a883534356e41cf8fbd2bbe54530c7bfbb",
+        "documentId": "visual:helix-releases",
+        "visualId": "helix-releases",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-releases/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. Event IDs, labels, dates, and authored array order are preserved. The source path and digest are locator metadata; this review does not validate external HELIX tag history or infer release roles or durations."
+      }
     }
   ]
 }

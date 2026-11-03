@@ -409,3 +409,30 @@ layout combinations and node/transition properties with located diagnostics.
 Runtime policy and native helper options remain outside the portable vocabulary.
 Native title bounds MUST remain within the actual artifact viewport; no extra
 case-specific padding requirement is implied.
+
+
+## Date-history presentation
+
+The bounded date/history profile maps kind `event` to each whole
+`/timeline/events/i` item, retaining original array pointers, identities, exact
+labels and dates. Shared renderer-only date planning validates real Gregorian
+YYYY-MM-DD dates using timezone-independent day arithmetic and builds a stable
+chronological view without mutating the source. Equal dates remain coincident;
+source-index ties and collision rows add no intra-day order, lane or measure.
+Axes, guides and ledger headers are renderer helpers, not authored causal edges.
+
+A proportional-date realization MUST prove actual native event/marker positions
+against the day-offset ratio, independently of source declarations or native
+AST positions. Equal-date events MUST share the date coordinate; exact dates
+MUST remain readable on owned event carriers or proven date groups. Native
+collision packing MUST NOT expose an invented quantitative Y axis. A categorical
+ledger MAY preserve exact dates in chronological row-major order, but MUST
+disclose nonproportional spacing and reading order in the downloadable artifact
+as well as the located presentation report. No duration or causal relationship
+may be inferred from display order or spacing.
+
+Current qualification is events-only date/history; unsupported item kinds,
+properties, layouts and date forms MUST refuse with located diagnostics. Native
+fixed-position execution remains under the existing typed target boundary, not
+portable model options. Source tag locators/digests do not certify retrieved
+external history.

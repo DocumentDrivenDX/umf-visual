@@ -19,7 +19,14 @@ test('Graphviz native connection-count probe follows each supported source relat
  expect(expectedGraphvizConnectionCount(sequence)).toBe(0);
 });
 
-test('build classifies state projection-scope refusals as unsupported but keeps invalid inputs failed',()=>{
+test('Graphviz date-history axis helper is not counted as an event relation',async()=>{
+ const document=readVisualDocument(await Bun.file('fixtures/visual/forms/helix-releases.json').text(),'json'),timeline=getVisual(document);
+ expect(expectedGraphvizConnectionCount(timeline)).toBe(1);
+ timeline.timeline!.events=timeline.timeline!.events!.filter(event=>event.at==='2026-04-06');
+ expect(expectedGraphvizConnectionCount(timeline)).toBe(0);
+});
+
+test('build classifies only known valid-source projection refusals as unsupported',()=>{
  const diagnostic=(code:string)=>({code,path:'/extensions/umf.visual',message:'test classification',severity:'error' as const});
  expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_STATE_AMBIGUOUS_TRANSITION')])).toBe(true);
  expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_STATE_NODE_PROPERTY')])).toBe(true);
@@ -28,4 +35,13 @@ test('build classifies state projection-scope refusals as unsupported but keeps 
  expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_STATE_INTERNAL')])).toBe(false);
  expect(isUnsupportedPresentationDiagnostics([diagnostic('VISUAL_UNKNOWN')])).toBe(false);
  expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_STATE_LAYOUT'),diagnostic('VISUAL_UNKNOWN')])).toBe(false);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_TIMELINE_SCOPE')])).toBe(true);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_TIMELINE_DATE')])).toBe(true);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_TIMELINE_INTERNAL')])).toBe(false);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_TIMELINE_SCOPE')])).toBe(true);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_TIMELINE_EVENTS')])).toBe(true);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_TIMELINE_DATE')])).toBe(true);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_TIMELINE_TEXT')])).toBe(true);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_TIMELINE_INTERNAL')])).toBe(false);
+ expect(isUnsupportedPresentationDiagnostics([diagnostic('PRESENTATION_LINI_TIMELINE_SCOPE'),diagnostic('VISUAL_INVALID')])).toBe(false);
 });
