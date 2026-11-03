@@ -51,10 +51,10 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
   :visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
   ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']
   :['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows']),
-  ...(visual.kind==='flow'&&visual.form==='pipeline'&&!visual.layout&&!(visual.groups?.length)&&
+  ...(visual.kind==='flow'&&(visual.form==='pipeline'||visual.form==='network')&&!visual.layout&&!(visual.groups?.length)&&
     (visual.nodes??[]).every(node=>!node.group&&!node.parent)&&
     directedDagRanks((visual.nodes??[]).map(node=>node.id),(visual.edges??[]).filter(edge=>edge.kind!=='return'))
-    ?['lini-pipeline-dependency-ranks']:[]));
+    ?['lini-directed-flow-dependency-ranks']:[]));
  else checks.push(...(visual.kind==='state'?['mermaid-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['mermaid-timeline-event-ledger']:['mermaid-native-node-carriers',...(visual.form==='entities'?['mermaid-er-fields-and-relations']:[...(visual.kind==='flow'?['mermaid-flow-paths']:[]),'mermaid-containment-and-order'])]));
  if(backend!=='lini'&&visual.nodes?.some(node=>node.ports?.length))checks.push(backend==='graphviz'?'graphviz-node-port-rows':'mermaid-labeled-port-fallbacks');
  return checks.sort();

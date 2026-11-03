@@ -481,11 +481,11 @@ export async function verifyLiniPresentationQuality(
  }
  checks.push(pass('lini-containment-and-order',sourceSha256,containmentOk,containmentOk?`Native group/layer bounds contain their authored members; nested group captions clear both parent and child boundaries${nestedCaptionClearances.length?` (${nestedCaptionClearances.join(', ')})`:''}; stack layers retain authored order${stackCaptionClearances.length?`; native stack caption clearance from preceding layer boundary: ${stackCaptionClearances.join(', ')}.`:'.'}`:containmentProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
 
- if(visual.kind==='flow'&&visual.form==='pipeline'&&plan.approximations.some(item=>item.sourcePath===at('/form')&&item.requested==='Pipeline with no authored layout')){
+ if(visual.kind==='flow'&&(visual.form==='pipeline'||visual.form==='network')&&!visual.layout&&!(visual.groups?.length)&&(visual.nodes??[]).every(node=>!node.group&&!node.parent)&&plan.approximations.some(item=>item.sourcePath===at('/form')&&item.requested==='Directed flow with no authored layout')){
   const nodes=visual.nodes??[],edges=visual.edges??[],ranks=directedDagRanks(nodes.map(node=>node.id),edges.filter(edge=>edge.kind!=='return')),problems:string[]=[];
-  const expectedNative=new Set(maps.filter(item=>item.kind==='node').map(item=>item.nativeId)),metadataNative=new Set(maps.filter(item=>item.kind==='annotation').map(item=>item.nativeId)),actualNative=(dom?.carriers??[]).filter(item=>item.classes.includes('lini-box')&&!metadataNative.has(item.id)).map(item=>item.id);
+  const expectedNative=new Set(maps.filter(item=>item.kind==='node').map(item=>item.nativeId)),metadataNative=new Set(maps.filter(item=>item.kind==='annotation').map(item=>item.nativeId)),actualNative=(dom?.carriers??[]).filter(item=>item.classes.includes('lini-node')&&!item.classes.some(name=>['lini-group','lini-caption','lini-cell'].includes(name))&&!metadataNative.has(item.id)).map(item=>item.id);
   if(!ranks||ranks.size!==nodes.length)problems.push('authored non-return edges do not form the disclosed dependency-rank DAG');
-  if(expectedNative.size!==nodes.length||actualNative.length!==nodes.length||actualNative.some(id=>!expectedNative.has(id))||[...expectedNative].some(id=>!actualNative.includes(id)))problems.push('native pipeline node inventory differs from its mapped source-node inventory');
+  if(expectedNative.size!==nodes.length||actualNative.length!==nodes.length||actualNative.some(id=>!expectedNative.has(id))||[...expectedNative].some(id=>!actualNative.includes(id)))problems.push('native directed-flow node inventory differs from its mapped source-node inventory');
   const directionSource=plan.source.split('\n').find(line=>line.trimStart().startsWith('|group#diagram-content|'))??plan.source.split('\n').find(line=>line.trimStart().startsWith('|group#visual|'))??'',direction=/direction:\s*(row|column);/u.exec(directionSource)?.[1],axis=direction==='row'?'x':direction==='column'?'y':undefined,cross=axis==='x'?'y':'x';
   if(!axis)problems.push('compiled native dependency-rank direction is missing');
   const center=(id:string,coordinate:'x'|'y')=>{const item=carrier(id),box=item?.containerBounds;return box?box[coordinate]+box[coordinate==='x'?'width':'height']/2:undefined;};
@@ -503,7 +503,7 @@ export async function verifyLiniPresentationQuality(
    }
    for(const edge of edges.filter(item=>item.kind!=='return'))if((ranks.get(edge.to)??-1)<=(ranks.get(edge.from)??Number.MAX_SAFE_INTEGER))problems.push(`authored dependency ${edge.id} does not point to a later native rank`);
   }
-  checks.push(pass('lini-pipeline-dependency-ranks',sourceSha256,problems.length===0,problems.length?problems.join('; '):`All ${nodes.length} mapped source nodes occupy native longest-path ranks in compiled ${direction==='row'?'left-to-right':'top-to-bottom'} order; ties retain declaration order, and every authored non-return edge advances rank. No extra native node or dependency is present.`));
+  checks.push(pass('lini-directed-flow-dependency-ranks',sourceSha256,problems.length===0,problems.length?problems.join('; '):`All ${nodes.length} mapped source nodes occupy native longest-path ranks in compiled ${direction==='row'?'left-to-right':'top-to-bottom'} order; ties retain declaration order, and every authored non-return edge advances rank. No extra native node or dependency is present.`));
  }
 
  if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')){

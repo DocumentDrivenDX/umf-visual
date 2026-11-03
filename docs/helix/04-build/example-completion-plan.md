@@ -2645,6 +2645,73 @@ No current deployment, vocabulary, strict-interchange or host support expansion 
 claimed. Commit follows in this change; git history is authoritative. Cycle 26
 remains pending until cycle 25 is committed; this resolves earlier checkpoint holds.
 
+### Twenty-sixth-cycle scope — fictional selected context view
+
+Cycle 26 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/inventory/beacon-context.json`, SHA-256
+`967f17879a33a42f1fe9421d4114dafdde3b82dd3218f9ce098ba246e96c3962`.
+The same checked-in fictional architecture TOML matches declared digest
+`5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910`.
+Audit selected context view completeness before freezing: thirteen declared node
+identities, fourteen induced relations and exact roles/statuses/details/why, plus
+title/question/takeaway. Do not merge container internals, groups, other views or
+journey facts; no current deployment inference. Prefer exact alias unless a
+concrete relevant omission is evidenced, publishing immutable JSON/TOML separately.
+
+Evaluate existing G/M/L native ownership, full captions/details and layout clarity
+before considering runtime edits. Existing mask/tooltip/source semantics remain
+qualified only by actual native evidence. If runtime already suffices, use lean
+source/native-new-case/review/site/UI/consumer gates; a concrete generic code/proof
+change reopens applicable AGENTS regression gates. No new normative paragraph is
+needed for a data-only case. Commit cycle 26 before starting cycle 27.
+
+### Twenty-sixth-cycle focused-renderer checkpoint
+
+Generic ungrouped network DAG admission reuses the private directed-flow planner,
+separate from grouped-component placement, with explicit-layout precedence and
+cycle/headless fallback. A private route-axis caption estimate improves native
+placement without changing source or ink/endpoint thresholds. Compiler/native/
+mandatory-check eligibility now agrees under neutral directed-flow metadata and
+private proof ID; no vocabulary change is introduced.
+
+Source/guard checks pass eight tests/172 assertions; context native checks pass
+two tests/56 assertions with exact endpoint-caption corruption negatives. Actual
+G/M/L previews pass 11/10/12 native checks and visual review. Native node inventory
+now includes supported oval actors as well as boxes, excluding renderer helpers
+without relying solely on mapped IDs; existing pipeline phantom-node/dependency
+controls remain. Typecheck/diff pass. Full affected Lini/pipeline regressions and
+runtime/corpus/review/UI/consumer gates remain pending; cycle 26 is incomplete.
+
+### Twenty-sixth-cycle closeout — 2026-11-03
+
+The final isolated full suite passes **878 tests, zero failures, 23,132 assertions
+across 152 files in 186.49 seconds**. All required source/type/build, fetch/native,
+public-browser, packed Bun/Node consumer, catalog/showcase/review/site and shared
+UI gates pass without browser errors. Public browser covers 25 reviewed definitions/
+57 plans. Catalog covers 53 items; showcase nine examples/23 qualified/zero failed
+variants and 23 SVG/PNG replays. Reviews cover 25 documents/57 qualified/zero failed/
+18 unsupported variants/171 assets and 57 SVG/PNG replays. Review UI passes 25 examples;
+catalog UI passes 53 items/214 native SVGs; showcase UI passes nine examples/
+23 qualified variants/46 SVG/PNG previews.
+
+Root inspected actual G/M/L outputs. Exact definition SHA-256 remains
+`967f17879a33a42f1fe9421d4114dafdde3b82dd3218f9ce098ba246e96c3962`;
+built Lini PNG SHA-256
+`9e4df26544f047da407c58ee2ea274af9549848bc9f5e5c2ae51d2af5e4936f5`
+matches the approved native preview. The fictional selected context view is an
+exact alias, independently bound to matching TOML; no source facts were enriched.
+
+Final semantic/model/interface/modularity audit passes: private DAG rank placement
+is shared by eligible ungrouped networks/pipelines, separated from grouped planning,
+with explicit-layout precedence, topology-preserving fallback and stable ties.
+Compiler/quality/mandatory checks select identical neutral directed-flow obligations.
+Actual native inventory includes supported shape carriers, and caption estimates
+remain subordinate to owned ink/endpoints/frame/readability proofs. Original roles,
+statuses/details/why and full topology remain retained or truthfully view-accounted.
+No current deployment, vocabulary, strict-interchange or host capability expansion
+is claimed. Commit follows in this change; git history is authoritative. Cycle 27
+remains pending until cycle 26 is committed; this resolves prior checkpoint holds.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2659,7 +2726,8 @@ Cycle 17 is committed as `af9ba07`; cycle 18 is committed as `8b0bbe8`.
 Cycle 19 is committed as `122e5c6`; cycle 20 is committed as `adefa85`.
 Cycle 21 is committed as `b9257c8`; cycle 22 is committed as `ae58a76`.
 Cycle 23 is committed as `8efc657`; cycle 24 is committed as `5af7b4c`.
-Cycle 25 is complete and ready for commit; cycles 26–68 remain pending.
+Cycle 25 is committed as `2374106`; cycle 26 is complete and ready for commit.
+Cycles 27–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

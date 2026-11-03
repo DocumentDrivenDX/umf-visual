@@ -710,7 +710,7 @@ Visual 1.0.0 authority and historical PRD/status limits remain unchanged; no ela
 time, current delivery verification, vocabulary or host expansion is inferred.
 
 
-## Dependency-pipeline conformance
+## Directed-flow dependency conformance
 
 Verify converging independent roots and downstream dependencies across native
 backends, with exact node/edge identity and no extra serial/helper dependencies.
@@ -783,3 +783,22 @@ qualify with differential path/arrow paint, mask mutations and independent frame
 controls; TB remains unqualified. Exact fictional selected-view JSON/TOML source
 and all graph semantics remain preserved. No current deployment, vocabulary,
 strict-interchange or host capability expansion is inferred.
+
+
+Ungrouped network/pipeline rank admission must agree across compiler, native proof
+and mandatory-check selection. Verify equivalent renamed graphs, explicit-layout
+precedence, isolated/source-order ties and cycle/headless fallback. Native inventory
+counts actual top-level shape carriers across supported silhouettes, not only boxes
+or mapped IDs; phantom actors/nodes and fabricated dependencies must fail. Caption
+placement estimates remain renderer policy validated by exact text/endpoint/owned
+ink checks rather than hardcoded offsets.
+
+
+Cycle 26 closeout: final isolated suite passes 878 tests, zero failures and 23,132
+assertions across 152 files in 186.49 seconds. All required native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual visual/model/interface
+checks pass. Generic ungrouped network/pipeline DAG admission has aligned compiler/
+mandatory/native obligations, shape-independent actual inventory and unchanged
+owned-ink/endpoint/frame thresholds. Explicit layouts and cycle/headless fallback
+remain intact. Exact fictional selected-view JSON/TOML facts are unchanged; no
+current deployment, vocabulary or host qualification expansion is inferred.

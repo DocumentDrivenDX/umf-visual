@@ -26,7 +26,7 @@ async function renderDocument(document:ReturnType<typeof createVisualDocument>,d
 }
 async function render(visual:Visual){return renderDocument(doc(visual));}
 async function recheck(page:Page,document:ReturnType<typeof doc>,plan:PresentationPlan,nativeAst:unknown){return verifyLiniPresentationQuality(page,{document,plan,nativeAst});}
-function expectAll(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>,timeline=false){expect(checks.map(check=>check.check)).toEqual(timeline?[...required.slice(0,4),'lini-timeline-events-and-date-scale',required[4]!]:required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw new Error(JSON.stringify(failed));}
+function expectAll(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>,timeline=false,directedFlowRanks=false){expect(checks.map(check=>check.check)).toEqual(timeline?[...required.slice(0,4),'lini-timeline-events-and-date-scale',required[4]!]:directedFlowRanks?[...required.slice(0,4),'lini-directed-flow-dependency-ranks',required[4]!]:required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw new Error(JSON.stringify(failed));}
 
 describe('pinned Lini presentation quality',()=>{
  it('preserves each exact-date event on a proportional native axis without a quantitative Y scale',async()=>{
@@ -170,7 +170,7 @@ describe('pinned Lini presentation quality',()=>{
   }
   const native=await renderDocument(source);
   try{
-   expectAll(native.checks);
+   expectAll(native.checks,false,true);
    const processCaption=native.page.locator('g.lini-node[data-id="n7"] > g.lini-node.lini-cell[data-id="role"] text.lini-text');
    expect(await processCaption.textContent()).toBe('Process');
    await processCaption.evaluate(element=>{element.textContent='Activity';});
@@ -529,7 +529,7 @@ describe('pinned Lini presentation quality',()=>{
   ]};
   const standalone=await renderDocument(createVisualDocument(visual,'test:native-shapes','1.4.0'));
   try{
-   expectAll(standalone.checks);
+   expectAll(standalone.checks,false,true);
    const hex=standalone.page.locator('g.lini-node[data-id="n5"]'),label=await hex.locator(':scope > text.lini-text').first().textContent();
    await hex.evaluate(element=>{element.classList.remove('lini-hex');element.classList.add('lini-diamond');});
    expect(await hex.locator(':scope > text.lini-text').first().textContent()).toBe(label);

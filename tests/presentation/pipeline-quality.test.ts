@@ -38,7 +38,7 @@ test('native pipeline preserves five node carriers and all four independent depe
   const text=(await built.page.locator('#frame svg text.lini-text').allTextContents()).join(' ');for(const label of ['CI','What runs, in what order, when ci.yml starts?','Starts on pull_request, push.','lint','test','Migrations apply cleanly','build','Deploy to the app platform','ubuntu-latest'])expect(text).toContain(label);
   expect(built.plan.elementMap).toContainEqual({logicalId:'/extensions/umf.visual/question',sourcePath:'/extensions/umf.visual/question',nativeId:'pipeline-question-caption',kind:'annotation'});
   expect(built.plan.elementMap).toContainEqual({logicalId:'/extensions/umf.visual/takeaway',sourcePath:'/extensions/umf.visual/takeaway',nativeId:'pipeline-takeaway-footer',kind:'annotation'});
-  expect(result(checks,'lini-pipeline-dependency-ranks')?.result).toBe('pass');
+  expect(result(checks,'lini-directed-flow-dependency-ranks')?.result).toBe('pass');
   mkdirSync('.cache/cycle22',{recursive:true});await built.page.screenshot({path:'.cache/cycle22/lini-beacon-ci-ci.png',fullPage:true});
  }finally{await built.page.close();}
 });
@@ -63,10 +63,10 @@ test('native proof rejects a phantom node, a fabricated serial prerequisite edge
 
 test('native automatic pipeline ranks place all prerequisites before build and deploy',async()=>{
  const built=await compiled();try{
-  const check=result(await built.checks(),'lini-pipeline-dependency-ranks');expect(check?.result).toBe('pass');
+  const check=result(await built.checks(),'lini-directed-flow-dependency-ranks');expect(check?.result).toBe('pass');
   const node=built.page.locator('#frame svg g.lini-node[data-id="n1"]');const transform=await node.getAttribute('transform');expect(transform).toMatch(/^translate\([-\d.]+,[-\d.]+\)$/u);
   await node.evaluate(element=>{const match=/^translate\(([-\d.]+),([-\d.]+)\)$/u.exec(element.getAttribute('transform')??'');if(!match)throw Error('expected native translation');element.setAttribute('transform',`translate(${Number(match[1])+200},${Number(match[2])})`);});
-  const moved=result(await built.checks(),'lini-pipeline-dependency-ranks');expect(moved?.result).toBe('fail');expect(moved?.details).toContain('rank');
+  const moved=result(await built.checks(),'lini-directed-flow-dependency-ranks');expect(moved?.result).toBe('fail');expect(moved?.details).toContain('rank');
  }finally{await built.page.close();}
 });
 

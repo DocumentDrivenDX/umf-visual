@@ -653,9 +653,9 @@ must reconstruct complete authored content. Unknown content remains preserved wi
 located accounting; vocabulary and historical source claims are unchanged.
 
 
-## Dependency-pipeline composition
+## Directed-flow dependency composition
 
-A compatible pipeline MAY reuse generic flow rendering while preserving every
+A compatible pipeline or ungrouped network MAY reuse directed-flow ranking while preserving every
 source node, directed dependency and original pointer. Declaration order MUST NOT
 create a serial dependency between independent roots. With no authored layout,
 a renderer MAY use dependency-depth ranks and stable source-order ties; explicit

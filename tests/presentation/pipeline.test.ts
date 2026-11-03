@@ -53,6 +53,6 @@ test('valid Visual 1.4 authored pipeline layout takes precedence over caller dir
  authored.extensions['umf.visual']={...rawVisual,layout:{kind:'flow',direction:'TB',order:['migrations','lint','test','build','deploy']}} as unknown as Visual;
  const validation=inspectVisual(authored);expect(validation.valid).toBe(true);expect(validation.complete).toBe(true);
  const plan=compilePresentation(authored,{backend:'lini',direction:'LR'});expect(plan.ok).toBe(true);
- if(plan.ok){expect(plan.source).toMatch(/direction:\s*column;/u);expect(plan.approximations.some(item=>item.requested==='Pipeline with no authored layout')).toBe(false);}
+ if(plan.ok){expect(plan.source).toMatch(/direction:\s*column;/u);expect(plan.approximations.some(item=>item.requested==='Directed flow with no authored layout')).toBe(false);}
  expect(getVisual(document).layout).toBeUndefined();
 });
