@@ -1,4 +1,4 @@
-import {authoredComparisonView,authoredFocusTargets,authoredStepListPolicy} from './authored-context.js';
+import {authoredComparisonView,authoredFocusTargets,authoredMetricView,authoredStepListPolicy} from './authored-context.js';
 
 const $ = id => document.getElementById(id);
 const ui = {
@@ -508,6 +508,42 @@ function renderAuthoredContext(example) {
       choice.append(chosenValue, itemPointer, reason, reasonPointer); comparison.append(choice);
     }
     content.append(comparison);
+  }
+
+  const metricView = authoredMetricView(visual);
+  if (metricView) {
+    const metric = document.createElement('section'); metric.className = 'authored-metric';
+    const metricTitle = document.createElement('h5'); metricTitle.textContent = 'Authored metric fields'; metric.append(metricTitle);
+    const appendMetricFields = (parent, fields) => {
+      for (const field of fields) {
+        const line = document.createElement('p'), name = document.createElement('strong'), value = document.createElement('span'), pointer = document.createElement('code');
+        name.textContent = `${field.key}: `;
+        value.textContent = typeof field.value === 'string' ? field.value : JSON.stringify(field.value) ?? String(field.value);
+        pointer.textContent = field.sourcePath;
+        line.append(name, value, pointer); parent.append(line);
+      }
+    };
+    const definition = document.createElement('div'); definition.className = 'authored-metric-definition';
+    appendMetricFields(definition, metricView.fields); metric.append(definition);
+    for (const series of metricView.series) {
+      const seriesSection = document.createElement('section'); seriesSection.className = 'authored-metric-series';
+      const seriesTitle = document.createElement('h6'); seriesTitle.textContent = [series.id, series.label].filter(Boolean).join(' · ') || 'Metric series'; seriesSection.append(seriesTitle);
+      const seriesPath = document.createElement('code'); seriesPath.textContent = series.sourcePath; seriesSection.append(seriesPath);
+      appendMetricFields(seriesSection, [
+        ...(typeof series.id === 'string' ? [{key: 'id', value: series.id, sourcePath: series.idSourcePath}] : []),
+        ...(typeof series.label === 'string' ? [{key: 'label', value: series.label, sourcePath: series.labelSourcePath}] : []),
+      ]);
+      appendMetricFields(seriesSection, series.fields);
+      for (const [pointIndex, point] of series.points.entries()) {
+        const pointSection = document.createElement('div'); pointSection.className = 'authored-metric-point';
+        const pointTitle = document.createElement('strong'); pointTitle.textContent = `Point ${pointIndex + 1}`;
+        const pointPath = document.createElement('code'); pointPath.textContent = point.sourcePath;
+        pointSection.append(pointTitle, pointPath); appendMetricFields(pointSection, point.fields); seriesSection.append(pointSection);
+      }
+      metric.append(seriesSection);
+    }
+    const note = document.createElement('p'); note.className = 'authored-metric-note'; note.textContent = 'Values and targets are shown as authored; this view does not calculate progress, percentages, or recommendations.'; metric.append(note);
+    content.append(metric);
   }
 
   const steps = Array.isArray(visual.steps) ? visual.steps : [];

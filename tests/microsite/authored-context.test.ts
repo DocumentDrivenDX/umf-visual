@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {expect,test} from 'bun:test';
 import {readFileSync} from 'node:fs';
-import {authoredComparisonView,authoredFocusTargets,authoredStepListPolicy} from '../../microsite/authored-context.js';
+import {authoredComparisonView,authoredFocusTargets,authoredMetricView,authoredStepListPolicy} from '../../microsite/authored-context.js';
 
 test('authored focus resolver follows the Visual global ID declaration universe and exact source paths',()=>{
  const targets=authoredFocusTargets({
@@ -92,8 +92,27 @@ test('comparison context preserves axes, typed values, chosen reason, omissions,
  expect(authoredComparisonView({title:'No comparison'})).toBeNull();
 });
 
+test('metric context preserves authored fields and exact series/point pointers without deriving progress',()=>{
+ const view=authoredMetricView({metric:{unit:'criteria',good:'up',format:{kind:'number',decimals:0},target:837,series:[{id:'satisfied-now',label:'Satisfied',points:[{value:180},{at:'2026-01-01'}]}]}});
+ expect(view).toEqual({
+  fields:[
+   {key:'unit',value:'criteria',sourcePath:'/extensions/umf.visual/metric/unit'},
+   {key:'good',value:'up',sourcePath:'/extensions/umf.visual/metric/good'},
+   {key:'format',value:{kind:'number',decimals:0},sourcePath:'/extensions/umf.visual/metric/format'},
+   {key:'target',value:837,sourcePath:'/extensions/umf.visual/metric/target'},
+  ],
+  series:[{id:'satisfied-now',idSourcePath:'/extensions/umf.visual/metric/series/0/id',label:'Satisfied',labelSourcePath:'/extensions/umf.visual/metric/series/0/label',sourcePath:'/extensions/umf.visual/metric/series/0',fields:[],points:[
+   {sourcePath:'/extensions/umf.visual/metric/series/0/points/0',fields:[{key:'value',value:180,sourcePath:'/extensions/umf.visual/metric/series/0/points/0/value'}]},
+   {sourcePath:'/extensions/umf.visual/metric/series/0/points/1',fields:[{key:'at',value:'2026-01-01',sourcePath:'/extensions/umf.visual/metric/series/0/points/1/at'}]},
+  ]}],
+ });
+ expect(authoredMetricView({title:'No metric'})).toBeNull();
+});
+
 test('both viewers load the shared context panel and the static-site build versions its ESM helper',()=>{
  const build=readFileSync('microsite/build.ts','utf8');
+ const app=readFileSync('microsite/showcase.js','utf8');
+ const helper=readFileSync('microsite/authored-context.js','utf8');
  for(const page of ['microsite/index.html','microsite/reviews.html']){
   const html=readFileSync(page,'utf8');
   expect(html).toContain('<script type="module" src="./showcase.js"></script>');
@@ -105,4 +124,6 @@ test('both viewers load the shared context panel and the static-site build versi
  expect(build).toContain("digest(authoredContext)");
  expect(build).toContain("writeFile(resolve(destination,'authored-context.js'),authoredContext)");
  expect(build).toContain(".replace('./showcase.js','./showcase.js?v='+digest(versionedShowcaseApp))");
+ expect(app).toContain('authoredMetricView(visual)');expect(app).toContain('Authored metric fields');expect(app).toContain('does not calculate progress, percentages, or recommendations');
+ expect(helper).toContain('`${sourcePath}/points/${pointIndex}`');
 });

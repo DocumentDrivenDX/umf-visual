@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {mkdir,readFile} from 'node:fs/promises';
 import {extname,join,resolve,sep} from 'node:path';
 import {readJsonValue} from '@umf/core';
-import {authoredComparisonView,authoredFocusTargets,authoredStepListPolicy} from '../../microsite/authored-context.js';
+import {authoredComparisonView,authoredFocusTargets,authoredMetricView,authoredStepListPolicy} from '../../microsite/authored-context.js';
 
 const siteRoot=resolve('dist-site'),receipt=await Bun.file(join(siteRoot,'reviews.json')).json();
 if(receipt.schemaVersion!==1||!Array.isArray(receipt.examples)||receipt.examples.length===0)throw Error('Build source-derived review presentations first.');
@@ -115,6 +115,20 @@ async function assertAuthoredContext(page:Page,review:any):Promise<void>{
   }
   if(comparison.chosen){
    if(!text.includes('Authored choice')||!text.includes(String(comparison.chosen.item))||!text.includes(String(comparison.chosen.reason))||!pointers.includes(comparison.chosen.itemSourcePath)||!pointers.includes(comparison.chosen.reasonSourcePath))throw Error(`${review.id} chosen item/reason is missing, unlocated, or not identified as authored.`);
+  }
+ }
+ const metric=authoredMetricView(visual);
+ if(metric){
+  if(!text.includes('Authored metric fields')||!text.includes('does not calculate progress, percentages, or recommendations'))throw Error(`${review.id} metric context is not labeled as authored or avoids derived progress.`);
+  for(const field of metric.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw Error(`${review.id} metric field ${field.key} is missing or unlocated.`);
+  for(const series of metric.series){
+   if(!pointers.includes(series.sourcePath)||!text.includes(String(series.id))||!text.includes(String(series.label)))throw Error(`${review.id} metric series ${series.id} is missing or unlocated.`);
+   if(!pointers.includes(series.idSourcePath)||!pointers.includes(series.labelSourcePath))throw Error(`${review.id} metric series identity fields lack exact pointers.`);
+   for(const field of series.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw Error(`${review.id} metric series field ${field.key} is missing or unlocated.`);
+   for(const point of series.points){
+    if(!pointers.includes(point.sourcePath))throw Error(`${review.id} metric point index is missing or unlocated.`);
+    for(const field of point.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw Error(`${review.id} metric point field ${field.key} is missing or unlocated.`);
+   }
   }
  }
  const visualOmissions=Array.isArray(visual.omissions)?visual.omissions:[];

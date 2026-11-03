@@ -87,3 +87,30 @@ export function authoredComparisonView(visual) {
   const omissions = (Array.isArray(visual.omissions) ? visual.omissions : []).map((text, index) => ({text, sourcePath: `/extensions/umf.visual/omissions/${index}`}));
   return {axes, items, criteria, values, chosen, omissions};
 }
+
+/** Return a source-addressed view of metric declarations and points without computing progress. */
+export function authoredMetricView(visual) {
+  const metric = visual?.metric;
+  if (!metric || typeof metric !== 'object') return null;
+  const base = '/extensions/umf.visual/metric';
+  const fields = (record, sourcePath, excluded = []) => Object.entries(record || {})
+    .filter(([key]) => !excluded.includes(key))
+    .map(([key, value]) => ({key, value, sourcePath: `${sourcePath}/${escapePointerToken(key)}`}));
+  const series = (Array.isArray(metric.series) ? metric.series : []).map((entry, seriesIndex) => {
+    const sourcePath = `${base}/series/${seriesIndex}`;
+    const points = (Array.isArray(entry?.points) ? entry.points : []).map((point, pointIndex) => ({
+      sourcePath: `${sourcePath}/points/${pointIndex}`,
+      fields: fields(point, `${sourcePath}/points/${pointIndex}`),
+    }));
+    return {
+      id: entry?.id,
+      idSourcePath: `${sourcePath}/id`,
+      label: entry?.label,
+      labelSourcePath: `${sourcePath}/label`,
+      sourcePath,
+      fields: fields(entry, sourcePath, ['id', 'label', 'points']),
+      points,
+    };
+  });
+  return {fields: fields(metric, base, ['series']), series};
+}

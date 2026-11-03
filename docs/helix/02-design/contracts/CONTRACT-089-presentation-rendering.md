@@ -486,3 +486,31 @@ carrier and coordinate proofs complement the shared source-hash, fit, clipping,
 font and overlap obligations; they MUST NOT silently bypass them. Unsupported
 criteria, incomplete values or target subsets remain located refusals. Strict
 interchange serialization is separate from this presentation profile.
+
+
+## Scalar meter presentation
+
+A bounded metric/meter profile MUST preserve the admitted scalar value, series
+identity/label, unit, target and optional baseline/comparison references. Target
+is a reference, not a semantic maximum; baseline is not automatically a minimum.
+Unprovided zero anchors, padded numeric domains and native placement are renderer
+policy and MUST be disclosed. Computed bounds MUST remain finite, ordered and
+contain all admitted values/references, including zero, negative and over-target
+cases without clamping. No progress percentage or completion status may be
+inferred from a target.
+
+Presentation-only metric-series/value/reference mappings bind exact source
+pointers and owned native carriers; point indices MUST NOT become invented
+portable identities. Authored good-direction and format remain independent of
+domain policy. Formatting is a display instruction, not permission to alter raw
+source values; admitted rounding views MUST retain source-bound raw-value proof.
+Unsupported format/subset limits MUST be located and described as qualification
+limits rather than model impossibility.
+
+Native proof MUST calibrate bar endpoints and individual reference rules to
+actual owned numeric-axis ticks in one coordinate space, excluding value captions
+from tick calibration. Each admitted reference retains its own label/rule
+association. Zero fills may be geometrically empty; negative values extend to the
+correct side of the zero anchor. Shared fit, clipping, text/font and source-hash
+checks remain required. Strict interchange and portable metric semantics are
+unchanged by native meter composition.

@@ -671,7 +671,7 @@ export async function verifyPresentationQuality(
   checks.push(pass(plan.backend==='graphviz'?'graphviz-node-port-rows':'mermaid-labeled-port-fallbacks',sourceSha256,failures.length===0,failures.length?failures.join('; '):plan.backend==='graphviz'?'Every named port has an owned visible row and native HTML port declaration; connection checks verify its actual attachment.':'Every named port is visibly labeled on its real host node; this is an explicit node-level fallback, not a distinct native port.'));
  }
  const fit=await page.locator('#frame svg').evaluate(root=>{
-  const s=root as SVGSVGElement,r=s.getBoundingClientRect(),textEls=[...s.querySelectorAll('text,foreignObject')];
+  const s=root as SVGSVGElement,r=s.getBoundingClientRect(),textEls=[...s.querySelectorAll('text,foreignObject')].filter(el=>{const style=getComputedStyle(el);return style.display!=='none'&&style.visibility!=='hidden'&&style.opacity!=='0';});
   const normalize=(s:string)=>s.replace(/\s+/g,' ').trim();
   const texts=textEls.map(el=>{const b=el.getBoundingClientRect(),font=parseFloat(getComputedStyle(el).fontSize)||0;return{value:normalize(el.textContent??''),x:b.x-r.x,y:b.y-r.y,w:b.width,h:b.height,font};}).filter(x=>x.value);
   const out=texts.filter(x=>x.x<-1||x.y<-1||x.x+x.w>r.width+1||x.y+x.h>r.height+1);

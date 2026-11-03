@@ -522,3 +522,25 @@ audits pass. Exact rating geometry, owned text and invisible scaffold qualify th
 bounded Lini profile; read-only comparison context preserves absent values and
 authored claims without ranking. The exact Visual 1.0.0 authority and historical
 caveat/locator remain unchanged, without vocabulary or host-support expansion.
+
+
+## Scalar-meter conformance
+
+Check exact value/unit/series, target and admitted baseline/comparison/good/format
+ownership. Native geometry must use actual axis-owned ticks and screen-space
+transforms consistently; independently move the bar, reference rule or label and
+require failure. Include over-target, negative, zero and degenerate-domain cases,
+finite computed bounds and source immutability. Formatting checks must inspect
+tick carriers rather than unrelated numeric labels, and authored literal percent
+text must not be mistaken for a newly calculated percentage. Qualify admitted
+fractional-format behavior or report its exact subset limit without changing
+source numbers. Context checks preserve raw values, absent fields, point indices
+and full pointers without derived progress or external-ledger claims.
+
+Cycle 14 closeout: quiet full suite passes 743 tests, zero failures and 20,700
+assertions across 116 files in 149.31 seconds. All native/corpus/review/shared UI,
+public-browser, packed-consumer, source/type/build and actual visual/interface/
+model audits pass. Raw-domain calibration remains independent of rounded glyphs;
+negative/zero/over-target and coincident-reference ownership controls qualify the
+bounded native meter. Exact Visual 1.0.0 source and historical ledger limits are
+unchanged, without a semantic maximum, derived progress or host-support expansion.

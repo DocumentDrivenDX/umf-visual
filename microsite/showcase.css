@@ -97,6 +97,13 @@
 .authored-comparison-choice p{margin:0;overflow-wrap:anywhere}
 .authored-comparison-choice>strong{color:#f5f5ef;font-size:11px}
 .authored-comparison-choice code{display:block}
+.authored-metric,.authored-metric-series{display:grid;gap:7px;min-width:0;max-width:100%}
+.authored-metric-definition,.authored-metric-series,.authored-metric-point{padding:8px 10px;border:1px solid #ffffff1c;border-radius:8px;background:#ffffff05;color:#dce8df;overflow-wrap:anywhere}
+.authored-metric h5,.authored-metric h6{margin:0;color:#f5f5ef}
+.authored-metric h6{font-size:11px;font-weight:600}
+.authored-metric p{display:grid;gap:3px;margin:0;overflow-wrap:anywhere}
+.authored-metric-point{display:grid;gap:5px;min-width:0}
+.authored-metric-note{color:#f2c9a8;font-size:11px}
 @media(max-width:720px){.authored-context-content{grid-template-columns:minmax(0,1fr);gap:20px}.authored-context-metadata dl{grid-template-columns:82px minmax(0,1fr)}.authored-step-list{padding-left:21px}.authored-step-unordered{margin-left:-21px}}
 .rendering-note-sources{grid-column:1/-1;margin-top:3px}
 .rendering-note-sources>summary{padding:4px 0;color:#9eb2a7;font:9px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer}

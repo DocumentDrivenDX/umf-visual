@@ -1859,12 +1859,74 @@ shared-context behavior, on Chromium 153.0.8010.12 with no browser errors.
 
 Final quiet full suite passes **729 tests, zero failures, 20,546 assertions
 across 113 files in 145.96 seconds** (`.cache/cycle13-full-tests.log`). All
-required gates pass. Cycle 13 is complete and ready for commit; the commit follows
-in this change and MUST precede cycle 14. Exact source IDs, ratings, axes, choice
+required gates pass. Cycle 13 is committed as `51405f3`. Exact source IDs, ratings, axes, choice
 and historical caveat/locator remain unchanged. The bounded native rating
 quadrant and read-only context introduce no portable vocabulary change, current
 recommendation, independently verified measurement, host capability expansion,
 release or publication claim.
+
+### Fourteenth-cycle scope — authored meter
+
+Cycle 14 is in progress using exact authoritative source
+`fixtures/visual/forms/umf-ac-coverage.json`, SHA-256
+`68dfc3164c722dc21eb9430e77c179d8f90fb27af8fb167d644e6a803edc71c7`.
+Preserve Visual 1.0.0 / envelope 0.10.0, IDs, one series/point, value 180,
+target 837, unit criteria, good up and number format with zero decimals.
+Executive audience and historical source locator/digest remain authored facts,
+without current-ledger or external-byte verification. Source concepts suffice;
+no schema enrichment, percentage format, completion status or semantic maximum
+is implied by the target or labels.
+
+Qualify a generic meter with exact raw values/unit, target reference, good/format
+meaning and native ownership/geometry. Display domain and unprovided zero anchor
+are renderer policy, explicitly disclosed rather than authored model facts.
+Never clamp over-target values or reinterpret a target/baseline as a semantic
+maximum/minimum. Use renamed over-target, negative and zero-degenerate controls
+for the admitted subset, retaining actual fill/marker coordinates and readable
+text. Unsupported backends or metric subsets remain located refusals.
+
+Add shared read-only metric context with exact top-level fields, series and point
+records/full pointers, keeping absent fields absent and unknown content exact.
+Points use original source indices rather than invented IDs or time/category
+semantics. Do not compute percentages, recommendations or progress claims in the
+source view. Keep native domain/runtime policy outside vocabulary and strict
+interchange. Run affected native/corpus/review/UI/browser/package/full-suite
+gates for shared implementation changes. Commit cycle 14 before starting cycle 15.
+
+Final source/interface/native proof approves exact raw value geometry with visible
+number-format rounding, source-owned unit/good cues and target/reference roles.
+Explicit padded-low/zero/padded-high native tick anchors calibrate raw geometry
+independently from rounded labels, including a tiny domain whose visible ticks
+all round to zero. The renderer retains 8% raw-domain padding and a degenerate
+fallback, without a verifier-driven minimum span. Negative, zero and over-target
+controls pass. Coincident references share one exact rule and complete role-labeled
+caption, with every original pointer retained; removing a role or moving the
+shared rule fails. Hidden required labels fail native ownership, while visible
+hover-tooltip overlap fails the shared overlap check. Known scope/text refusals
+remain explicit and internal/mixed errors remain failures.
+
+Affected native suites pass 57 tests / 658 assertions. Source/type, SDK build,
+fetch/native, catalog 53 items / 532 assets / 159 full pairs / zero loss and
+showcase 9 definitions / 23 qualified variants with 23 native replay pairs pass.
+Integrated reviews pass **13 definitions / 33 qualified variants / 6 explicit
+unsupported variants / 99 assets**, with 33 actual SVG and 33 PNG replays.
+Review UI checks all thirteen definitions, exact metric fields/pointers and mobile
+bounds without browser errors. Public-browser checks pass thirteen reviewed
+definitions / twenty-six round trips / thirty-three plans; site and packed
+consumers pass. Root visually approved the final explicit-tick native PNG,
+SHA-256 `bb907c3175cae7986d52303660846b80273d199f2ccdf893f45d4ebc8252f17a`.
+Final shared UI checks 214 catalog native SVGs and showcase nine definitions /
+23 qualified variants / 46 SVG/PNG assets, including exact hashes/downloads,
+context, viewer and mobile behavior, on Chromium 153.0.8010.12 with no errors.
+
+Final quiet full suite passes **743 tests, zero failures, 20,700 assertions
+across 116 files in 149.31 seconds** (`.cache/cycle14-full-tests.log`). All
+required gates and visual/interface/model audits pass. Cycle 14 is complete and
+ready for commit; the commit follows in this change and MUST precede cycle 15.
+The exact Visual 1.0.0 source, target/reference semantics and historical ledger
+locator remain unchanged. No vocabulary change, semantic maximum, calculated
+percentage/progress/current-ledger claim, expanded host support, release or
+publication is introduced.
 
 ### Ordered cycle inventory
 
@@ -1874,7 +1936,8 @@ Cycle 5 is committed as `0a0f7c3`; cycle 6 is committed as `6b6b602`.
 Cycle 7 is committed as `498798c`; cycle 8 is committed as `b706901`.
 Cycle 9 is committed as `991a02a`; cycle 10 is committed as `2d50cc2`.
 Cycle 11 is committed as `5bcc704`; cycle 12 is committed as `fa45a72`.
-Cycle 13 is complete and ready for commit; cycles 14–68 remain pending.
+Cycle 13 is committed as `51405f3`; cycle 14 is in progress.
+Cycles 15–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

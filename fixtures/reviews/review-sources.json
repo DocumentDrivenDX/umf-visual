@@ -844,6 +844,44 @@
         "sourceDownloadPath": "reviews/layout-engines/authoritative-source.json",
         "scope": "This exact UMF fixture JSON is the review definition. Item and criterion IDs, labels, rating anchors and values, axes, chosen item, reason, and source-authored omissions are preserved. The source path and digest are locator metadata; this review does not validate current PRD bytes or present the ratings as measurements or a current recommendation."
       }
+    },
+    {
+      "id": "umf-ac-coverage",
+      "title": "Acceptance criteria satisfied",
+      "description": "An exact review of the authored meter source, preserving its single value, target, unit, direction, and number format.",
+      "kind": "metric",
+      "form": "meter",
+      "definitionPath": "fixtures/visual/forms/umf-ac-coverage.json",
+      "definitionSha256": "68dfc3164c722dc21eb9430e77c179d8f90fb27af8fb167d644e6a803edc71c7",
+      "sources": [
+        {
+          "path": "fixtures/visual/forms/umf-ac-coverage.json",
+          "sha256": "68dfc3164c722dc21eb9430e77c179d8f90fb27af8fb167d644e6a803edc71c7",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The checked-in Visual 1.0.0 fixture JSON is the complete definition and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/forms/umf-ac-coverage.json",
+          "sha256": "68dfc3164c722dc21eb9430e77c179d8f90fb27af8fb167d644e6a803edc71c7",
+          "outputPath": "reviews/umf-ac-coverage/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/forms/umf-ac-coverage.json",
+        "sourceSha256": "68dfc3164c722dc21eb9430e77c179d8f90fb27af8fb167d644e6a803edc71c7",
+        "documentId": "visual:umf-ac-coverage",
+        "visualId": "umf-ac-coverage",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/umf-ac-coverage/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. The value, target, unit, direction, and format are source-authored and are shown without deriving a percentage, progress claim, or recommendation. The source path and digest are locator metadata; this review does not retrieve or verify the referenced acceptance-criteria ledger."
+      }
     }
   ]
 }

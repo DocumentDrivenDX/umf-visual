@@ -407,3 +407,11 @@ unsupported capability. The view MUST NOT compute ranking or present historical
 ratings as measurements/current recommendations. Exact typed or unknown field
 content remains inspectable without execution; narrow tables scroll internally
 without page overflow or source-text mutation.
+
+
+Read-only metric context MUST preserve exact raw top-level declarations, series
+and original-index point records with full source pointers. Missing fields remain
+absent; compound or unknown values remain inspectable without interpretation.
+The view MUST NOT compute progress, percentages, rankings or recommendations, or
+claim retrieval/verification of a referenced external ledger. Exact source and
+download bytes remain unchanged.

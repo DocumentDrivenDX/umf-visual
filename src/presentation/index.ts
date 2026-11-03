@@ -7,12 +7,13 @@ import {circularPlacement} from './circular';
 import {compileStatePresentation} from './state';
 import {compileTimelinePresentation} from './timeline';
 import {compileLiniQuadrant} from './lini-quadrant';
+import {compileLiniMeter} from './lini-meter';
 
 export type PresentationBackend='graphviz'|'mermaid'|'lini';
 export interface PresentationOptions {backend:PresentationBackend;direction?:'LR'|'TB';theme?:'presentation/1';}
 export interface PresentationDiagnostic {code:string;path:string;message:string;severity:'error'|'warning';}
 export interface PresentationExecution {runtime:'graphviz';layoutEngine:'neato';nodePositions:'fixed';}
-export interface PresentationElement {logicalId:string;sourcePath:string;nativeId:string;kind:'visual'|'group'|'node'|'edge'|'layer'|'entity'|'field'|'port'|'reference'|'participant'|'participant-field'|'message'|'note'|'annotation'|'transition'|'state-marker'|'event'|'comparison-item'|'comparison-value'|'comparison-criterion'|'comparison-choice';}
+export interface PresentationElement {logicalId:string;sourcePath:string;nativeId:string;kind:'visual'|'group'|'node'|'edge'|'layer'|'entity'|'field'|'port'|'reference'|'participant'|'participant-field'|'message'|'note'|'annotation'|'transition'|'state-marker'|'event'|'comparison-item'|'comparison-value'|'comparison-criterion'|'comparison-choice'|'metric-series'|'metric-value'|'metric-reference';}
 export interface PresentationOmission {sourcePath:string;reason:string;}
 export interface PresentationApproximation {sourcePath:string;requested:string;representation:string;code?:'ROUTING_SCOPE_CONFLICT'|'ROUTING_NATIVE_INTERPOLATION'|'CIRCULAR_NATIVE_GRID';}
 export interface PresentationPlan {
@@ -105,10 +106,15 @@ export function compilePresentation(document:Document,options:PresentationOption
   ||visual.kind==='sequence'&&(visual.form==='lifelines'||visual.form==='ladder')
   ||visual.kind==='state'&&visual.form==='machine'
   ||visual.kind==='timeline'&&visual.form==='history'
-  ||visual.kind==='comparison'&&visual.form==='quadrant';
+  ||visual.kind==='comparison'&&visual.form==='quadrant'
+  ||visual.kind==='metric'&&visual.form==='meter';
  if(!supported)return {ok:false,diagnostics:[diag('PRESENTATION_FORM',BASE+'/form','No presentation projection is qualified for '+visual.kind+'/'+visual.form+'. The current flow projection covers only network diagrams.')]};
 
  const backend=optionValues.backend as PresentationBackend,dir=(optionValues.direction??'LR') as 'LR'|'TB';
+ if(visual.kind==='metric'&&visual.form==='meter'){
+  if(backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This bounded scalar meter profile is currently qualified only for the pinned Lini chart backend.')]};
+  return compileLiniMeter(visual);
+ }
  if(visual.kind==='comparison'&&visual.form==='quadrant'){
   if(backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This bounded native quadrant presentation is currently qualified only for the pinned Lini chart backend.')]};
   return compileLiniQuadrant(visual);

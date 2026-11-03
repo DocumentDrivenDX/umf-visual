@@ -3,7 +3,7 @@ import {createHash} from 'node:crypto';
 import {mkdir} from 'node:fs/promises';
 import {extname,join,resolve,sep} from 'node:path';
 import {readJsonValue} from '@umf/core';
-import {authoredComparisonView,authoredFocusTargets,authoredStepListPolicy} from '../microsite/authored-context.js';
+import {authoredComparisonView,authoredFocusTargets,authoredMetricView,authoredStepListPolicy} from '../microsite/authored-context.js';
 
 const siteRoot=resolve('dist-site');
 const showcase=await Bun.file(join(siteRoot,'showcase.json')).json() as {schemaVersion:number;examples:Array<any>};
@@ -33,6 +33,20 @@ async function assertAuthoredContext(page:import('playwright').Page,example:any)
       for(const field of value.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw new Error(`${example.id} comparison value ${field.key} is missing or unlocated.`);
     }
     if(comparison.chosen&&(!text.includes('Authored choice')||!text.includes(String(comparison.chosen.item))||!text.includes(String(comparison.chosen.reason))||!pointers.includes(comparison.chosen.itemSourcePath)||!pointers.includes(comparison.chosen.reasonSourcePath)))throw new Error(`${example.id} authored choice is missing or unlocated.`);
+  }
+  const metric=authoredMetricView(visual);
+  if(metric){
+    if(!text.includes('Authored metric fields')||!text.includes('does not calculate progress, percentages, or recommendations'))throw new Error(`${example.id} metric context is not labeled as authored or avoids derived progress.`);
+    for(const field of metric.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw new Error(`${example.id} metric field ${field.key} is missing or unlocated.`);
+    for(const series of metric.series){
+      if(!pointers.includes(series.sourcePath)||!text.includes(String(series.id))||!text.includes(String(series.label)))throw new Error(`${example.id} metric series ${series.id} is missing or unlocated.`);
+      if(!pointers.includes(series.idSourcePath)||!pointers.includes(series.labelSourcePath))throw new Error(`${example.id} metric series identity fields lack exact pointers.`);
+      for(const field of series.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw new Error(`${example.id} metric series field ${field.key} is missing or unlocated.`);
+      for(const point of series.points){
+        if(!pointers.includes(point.sourcePath))throw new Error(`${example.id} metric point index is missing or unlocated.`);
+        for(const field of point.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw new Error(`${example.id} metric point field ${field.key} is missing or unlocated.`);
+      }
+    }
   }
   const omissions=Array.isArray(visual.omissions)?visual.omissions:[];
   for(let index=0;index<omissions.length;index++)if(!text.includes(String(omissions[index]))||!pointers.includes(`/extensions/umf.visual/omissions/${index}`))throw new Error(`${example.id} authored caveat ${index} is missing or unlocated.`);

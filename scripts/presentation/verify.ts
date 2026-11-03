@@ -33,6 +33,8 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
  if(backend==='graphviz')checks.push(...(visual.kind==='state'?['graphviz-native-ast','graphviz-state-transitions-and-markers']:visual.kind==='timeline'&&visual.form==='history'?['graphviz-native-ast','graphviz-timeline-events-and-axis']:['graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order']));
  else if(backend==='lini')checks.push(...(visual.kind==='comparison'&&visual.form==='quadrant'
   ?['lini-native-ast','lini-native-carriers','lini-quadrant-coordinate-ownership']
+  :visual.kind==='metric'&&visual.form==='meter'
+  ?['lini-meter-value-and-reference-geometry']
   :visual.kind==='timeline'&&visual.form==='history'
   ?['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-timeline-events-and-date-scale','lini-entity-field-rows']
   :visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
