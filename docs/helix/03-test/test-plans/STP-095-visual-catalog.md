@@ -350,3 +350,36 @@ carrier controls must fail the corresponding realization claim. Exact native
 control points remain companion content. An interpolation approximation or retained
 source cannot certify actual curvature; preserve earlier source/profile limits
 and recheck affected generic port/routing consumers.
+
+
+## Authoritative entity-source review checks
+
+Bind authoritative-UMF provenance to exact source bytes, source path/hash,
+document/visual IDs and model version; reject mismatches and unknown kinds.
+Verify exact source/YAML downloads without forced capture/omission fields and
+retain prior integration-witness UI behavior. Inspect actual quoted/Unicode glyphs,
+owned entity/field/key/nullability rows and relationship endpoint cardinalities.
+Missing glyphs cannot pass through string coverage alone. Preserve unspecified FK,
+field binding and identification meaning; native grammar constraints require
+neutral composition or explicit refusal. Mutated source identities, moved field
+labels, altered relationship multiplicity and wrong entity attachments must fail
+corresponding claims. Check prior native/catalog/review and public boundaries
+when their generic rendering or provenance interfaces change.
+
+A neutral entity-card fallback must prove source-owned field rows and reference
+carriers, exact label/cardinality text, and attachment to the correct entities.
+An unarrowed association must not manufacture identifying/non-identifying or
+directional meaning. Test missing/moved cardinalities, changed reference labels,
+wrong entity attachments and mixed explicit identification: preserve the explicit
+meaning or refuse the affected projection. For Lini body-level endpoint markers,
+prove one connected same-link assembly from the line terminal to the entity
+boundary; detached, wrong-end and missing bridge mutations must fail. Field/port
+endpoints retain their row/side-specific attachment checks.
+
+Cycle 7 closeout: the unchanged authoritative entity canary qualifies all three
+native presentation backends, including the neutral Mermaid projection. Actual
+quoted/Unicode glyphs and complete field rows were visually approved. The quiet
+full suite passes 672 tests with 19,712 assertions across 98 files; current
+source/type, native replay, corpus, browser, packed-consumer and shared-site
+gates pass. This evidence qualifies the bounded presentation profiles, without
+expanding historical host support or changing the canary's Visual 1.0.0 source.

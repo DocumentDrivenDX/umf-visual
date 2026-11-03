@@ -40,6 +40,13 @@ const graphvizMultipleDocumentStatement=(node:VisualNode,nativeId:string,indent=
 const mermaidChar=(char:string)=>({ ' ':'#32;','#':'#35;','&':'#38;','"':'#34;','<':'#60;','>':'#62;',';':'#59;','(':'#40;',')':'#41;','[':'#91;',']':'#93;','{':'#123;','}':'#125;','\\':'#92;' } as Record<string,string>)[char]??char;
 const mermaidText=(s:string)=>s.replace(/\r/g,'').split('\n').map(line=>Array.from(line,mermaidChar).join('')).join('<br/>');
 const displayTitle=(visual:Visual)=>visual.title??visual.question;
+const mermaidNeutralFieldRow=(field:VisualField)=>{const keys=(field.keys??[]).map(key=>key.toUpperCase()).join(', '),nullable=field.nullable===undefined?'':field.nullable?'NULL':'NOT NULL',qualifiers=[keys,nullable].filter(Boolean).join(' · ');return(qualifiers?qualifiers+' · ':'')+field.name+(field.type?': '+field.type:'');};
+const mermaidNeutralWrappingWidth=(rows:string[],cardCount:number,referenceCount:number)=>{
+ const longest=rows.flatMap(row=>row.split('\n')).reduce((max,row)=>Math.max(max,Array.from(row).reduce((width,char)=>width+(char.codePointAt(0)!>0xFF?18:9),0)),0);
+ const rowWidth=Math.ceil(longest+40),aggregateWidth=Math.floor(1600/Math.max(1,cardCount+referenceCount*.6));
+ return Math.min(420,Math.max(200,Math.min(rowWidth,aggregateWidth)));
+};
+const mermaidNeutralHeader=(visual:Visual,width:number)=>['---','title: '+JSON.stringify(displayTitle(visual)),'config:','  flowchart:','    wrappingWidth: '+width,'---'];
 const ordered = <T extends {id:string}>(items:T[],order:string[]|undefined):T[]=>{
  if(!order)return items;const rank=new Map(order.map((id,index)=>[id,index]));
  return items.map((item,index)=>({item,index})).sort((a,b)=>(rank.get(a.item.id)??Number.MAX_SAFE_INTEGER)-(rank.get(b.item.id)??Number.MAX_SAFE_INTEGER)||a.index-b.index).map(row=>row.item);
@@ -111,6 +118,10 @@ export function compilePresentation(document:Document,options:PresentationOption
  if(visual.omissions)for(let i=0;i<visual.omissions.length;i++)omit(path('/omissions/'+i),'Authored omission inventory is retained in the source document, not drawn.');
 
  const nodes=visual.nodes??[],groups=visual.groups??[],edges=visual.edges??[];
+ const neutralMermaidEntityView=backend==='mermaid'&&visual.kind==='structure'&&visual.form==='entities'&&(
+  (visual.structure?.references??[]).some(reference=>!reference.identification||(!reference.fromMultiplicity&&!reference.fromCardinality)||(!reference.toMultiplicity&&!reference.toCardinality))
+  ||(visual.structure?.entities??[]).some(entity=>entity.fields.some(field=>!field.type||!/^[A-Za-z\u00C0-\uFFFF][A-Za-z0-9_\-()[\]\u00C0-\uFFFF]*$/u.test(field.type)||!/^[A-Za-z_*\u00C0-\uFFFF][A-Za-z0-9_\-()[\]\u00C0-\uFFFF]*$/u.test(field.name)))
+ );
  const nodeIds=new Map(nodes.map((n,i)=>[n.id,safeId('n',i)]));
  const annotationIds=new Map((visual.annotations??[]).map((annotation,i)=>[annotation.id,safeId('a',i)]));
  const groupIds=new Map(groups.map((g,i)=>[g.id,safeId('g',i)]));
@@ -126,7 +137,7 @@ export function compilePresentation(document:Document,options:PresentationOption
   if(backend==='mermaid')approx(portPath,'Named port '+port.id+(port.label?' ('+port.label+')':'')+' at '+(port.side??'unspecified')+' side','The port label is shown on its host node, which is the actual mapped native carrier; Mermaid has no distinct named port row or side attachment, including for ports without linked edges.');
   else if(backend==='graphviz'&&port.side)approx(portPath+'/side','Port side '+port.side,'Graphviz applies the compass side to the named HTML row port. The row attachment can differ from the outer node glyph boundary; source and row identity remain native.');
  });
- nodes.forEach((n,i)=>{if(n.evidence)omit(path('/nodes/'+i+'/evidence'),'Evidence locators remain in UMF and are not drawn in the presentation view.');if(n.icon)approx(path('/nodes/'+i+'/icon'),'Icon '+n.icon,'The icon name is retained as a visible caption in the native node label; Graphviz and Mermaid do not have the corresponding qualified UMF icon carrier.');if(backend==='mermaid'&&n.shape==='folded-corner')approx(path('/nodes/'+i+'/shape'),'Node shape folded-corner','Mermaid renders its native doc silhouette with a wavy footer; the requested folded-corner contour is represented by that located native document approximation.');});
+ nodes.forEach((n,i)=>{if(n.evidence)omit(path('/nodes/'+i+'/evidence'),'Evidence locators remain in UMF and are not drawn in the presentation view.');if(n.icon)approx(path('/nodes/'+i+'/icon'),'Icon '+n.icon,'The icon name is retained as a visible caption in the native node label; Graphviz and Mermaid do not have the corresponding qualified UMF icon carrier.');if(backend==='mermaid'&&!(visual.kind==='structure'&&visual.form==='entities')&&n.shape==='folded-corner')approx(path('/nodes/'+i+'/shape'),'Node shape folded-corner','Mermaid renders its native doc silhouette with a wavy footer; the requested folded-corner contour is represented by that located native document approximation.');});
  edges.forEach((e,i)=>{if(e.evidence)omit(path('/edges/'+i+'/evidence'),'Evidence locators remain in UMF and are not drawn in the presentation view.');});
  if(visual.kind==='flow'){
   nodes.forEach((n,i)=>{if(n.layer)omit(path('/nodes/'+i+'/layer'),'Stack layer membership is outside the flow/network view.');});
@@ -140,6 +151,7 @@ export function compilePresentation(document:Document,options:PresentationOption
 
  if(visual.kind==='structure'&&visual.form==='entities'){
   const structure=visual.structure!;const entities=structure.entities??[];const nodeById=new Map(nodes.map(n=>[n.id,n]));
+  const references=structure.references??[];
   const entityNative=new Map(nodes.map(n=>[n.id,nodeIds.get(n.id)!]));
   const fieldNative=new Map<string,string>();
   for(let i=0;i<nodes.length;i++)if(!entities.some(e=>e.node===nodes[i]!.id)){addMap(nodes[i]!.id,path('/nodes/'+i),entityNative.get(nodes[i]!.id)!,'node');mapPorts(nodes[i]!,i);}
@@ -147,9 +159,10 @@ export function compilePresentation(document:Document,options:PresentationOption
    const e=entities[i]!,node=nodeById.get(e.node)!;const id=entityNative.get(e.node)!;
    addMap(e.node,path('/structure/entities/'+i),id,'entity');
    mapPorts(node,nodes.indexOf(node));
-   e.fields.forEach((f,j)=>{const fid=f.id??f.name;const native=backend==='graphviz'?id+'_f'+(j+1):id+'.'+f.name;fieldNative.set(e.node+'\0'+fid,native);fieldNative.set(e.node+'\0'+f.name,native);addMap(fid,path('/structure/entities/'+i+'/fields/'+j),native,'field');});
+   e.fields.forEach((f,j)=>{const fid=f.id??f.name;const native=backend==='graphviz'?id+'_f'+(j+1):neutralMermaidEntityView?id:id+'.'+f.name;fieldNative.set(e.node+'\0'+fid,native);fieldNative.set(e.node+'\0'+f.name,native);addMap(fid,path('/structure/entities/'+i+'/fields/'+j),native,'field');});
   }
   if(backend==='graphviz')for(let i=0;i<(structure.references??[]).length;i++)addMap(structure.references![i]!.id,path('/structure/references/'+i),safeId('r',i),'reference');
+  else if(neutralMermaidEntityView)for(let i=0;i<references.length;i++)addMap(references[i]!.id,path('/structure/references/'+i),safeId('r',i),'reference');
   else for(let i=0;i<(structure.references??[]).length;i++)omit(path('/structure/references/'+i+'/id'),'Mermaid ER draws this relationship but does not provide a qualified user-assigned native relationship identifier.');
   if(backend==='graphviz'){
    const entityDirection=layoutDirection(visual.layout,dir);
@@ -202,8 +215,45 @@ export function compilePresentation(document:Document,options:PresentationOption
    lines.push('}');
    return {ok:true,profileId:'umf.visual.presentation/1',backend,nativeFormat:'dot',source:lines.join('\n')+'\n',elementMap:map,omissions,approximations};
   }
-   if((structure.references??[]).some(reference=>!reference.identification)){
-    return {ok:false,diagnostics:[diag('PRESENTATION_MERMAID_RELATIONSHIP',path('/structure/references'),'These references leave identification unspecified; Mermaid requires an explicit identifying or non-identifying choice. Graphviz preserves the relationship without inventing it.')]};
+   if(neutralMermaidEntityView){
+    const direction=layoutDirection(visual.layout,'LR');
+    const widthRows:string[]=[];
+    for(const entity of entities){const node=nodeById.get(entity.node)!;if(node.icon)widthRows.push('Icon: '+node.icon);widthRows.push(node.label);if(node.detail)widthRows.push(node.detail);if(node.shape)widthRows.push('Shape: '+shapeOptions[node.shape]!.label);widthRows.push(...entity.fields.map(mermaidNeutralFieldRow),...(node.ports??[]).map(port=>'Port '+portCaption(port)));}
+    for(const node of nodes)if(!entities.some(entity=>entity.node===node.id)){if(node.icon)widthRows.push('Icon: '+node.icon);widthRows.push(node.label);if(node.detail)widthRows.push(node.detail);if(node.shape)widthRows.push('Shape: '+shapeOptions[node.shape]!.label);widthRows.push(...(node.ports??[]).map(port=>'Port '+portCaption(port)));}
+    const lines=[...mermaidNeutralHeader(visual,mermaidNeutralWrappingWidth(widthRows,nodes.length,references.length)),'flowchart '+direction];
+    if(references.length)approx(path('/structure/references'),'Entity references in a neutral Mermaid flowchart profile','Mermaid uses unarrowed flowchart associations. Only authored identification, endpoint references, and endpoint cardinalities are shown as text; unspecified values are not inferred.');
+    for(const {entity,index} of entities.map((entity,index)=>({entity,index}))){
+     const node=nodeById.get(entity.node)!,id=entityNative.get(entity.node)!;
+     const fields=entity.fields.map(mermaidNeutralFieldRow);
+     const shape=node.shape?shapeOptions[node.shape]!.label:undefined;
+     const content=[node.icon?'Icon: '+node.icon:undefined,node.label,node.detail,shape?'Shape: '+shape:undefined,...fields,...(node.ports??[]).map(port=>'Port '+portCaption(port))].filter((part):part is string=>!!part).join('\n');
+     lines.push('  '+id+'["'+mermaidText(content)+'"]');
+     if(node.shape)approx(path('/nodes/'+nodes.indexOf(node)+'/shape'),'Node shape '+node.shape,'The requested node shape is retained as visible text inside the neutral Mermaid card; the card outline is renderer policy.');
+     for(const key of ['role','status','emphasis'] as const)if(node[key]!==undefined)omit(path('/nodes/'+nodes.indexOf(node)+'/'+key),'This neutral Mermaid card profile does not encode this node property.');
+     for(let j=0;j<entity.fields.length;j++)if(entity.fields[j]!.nullable!==undefined)approx(path('/structure/entities/'+index+'/fields/'+j+'/nullable'),entity.fields[j]!.nullable?'Nullable field':'Non-nullable field','Mermaid flowchart preserves the authored nullability as exact row text; the row is a labelled card, not a native schema field declaration.');
+    }
+    for(const node of nodes)if(!entities.some(entity=>entity.node===node.id)){
+     lines.push('  '+entityNative.get(node.id)+'["'+mermaidText([node.icon?'Icon: '+node.icon:undefined,node.label,node.detail,node.shape?'Shape: '+shapeOptions[node.shape]!.label:undefined,...(node.ports??[]).map(port=>'Port '+portCaption(port))].filter(Boolean).join('\n'))+'"]');
+     if(node.shape)approx(path('/nodes/'+nodes.indexOf(node)+'/shape'),'Node shape '+node.shape,'The requested node shape is retained as visible text inside the neutral Mermaid card; the card outline is renderer policy.');
+     for(const key of ['role','status','emphasis'] as const)if(node[key]!==undefined)omit(path('/nodes/'+nodes.indexOf(node)+'/'+key),'This neutral Mermaid card profile does not encode this node property.');
+    }
+    for(let i=0;i<references.length;i++){
+     const reference=references[i]!,from=entityNative.get(reference.from.node)!,to=entityNative.get(reference.to.node)!;
+     const endpoint=(side:'from'|'to')=>{const value=reference[side];return value.fieldId?side+' field ID: '+value.fieldId:value.field?side+' field: '+value.field:value.portId?side+' port ID: '+value.portId:undefined;};
+     if(reference.from.fieldId||reference.from.field||reference.from.portId)approx(path('/structure/references/'+i+'/from'),'Field or port endpoint '+(reference.from.fieldId??reference.from.field??reference.from.portId),'The neutral Mermaid association attaches to the endpoint entity card; the exact authored endpoint identity is included in its visible label because no field/port anchor is asserted.');
+     if(reference.to.fieldId||reference.to.field||reference.to.portId)approx(path('/structure/references/'+i+'/to'),'Field or port endpoint '+(reference.to.fieldId??reference.to.field??reference.to.portId),'The neutral Mermaid association attaches to the endpoint entity card; the exact authored endpoint identity is included in its visible label because no field/port anchor is asserted.');
+     const cardinalities=[multiplicityText(reference.fromMultiplicity,reference.fromCardinality),multiplicityText(reference.toMultiplicity,reference.toCardinality)];
+     const label=[reference.identification?reference.identification==='identifying'?'Identifying':'Non-identifying':undefined,reference.label,endpoint('from'),endpoint('to'),cardinalities.some(Boolean)?cardinalities.map(value=>value||'unspecified').join(' → '):undefined].filter(Boolean).join(' · ');
+     lines.push('  '+from+' r'+(i+1)+'@---'+(label?'|'+mermaidText(label)+'|':'')+' '+to);
+    }
+    if(visual.layout?.order){const ids=visual.layout.order.map(id=>entityNative.get(id)).filter((id):id is string=>!!id);for(let i=0;i<ids.length-1;i++)lines.push('  '+ids[i]+' ~~~ '+ids[i+1]);}
+    if(visual.layout?.kind==='grid'&&visual.layout.columns>1)approx(path('/layout'),'Grid layout with '+visual.layout.columns+' columns','Mermaid preserves authored entity order but does not encode an exact fixed grid column count.');
+    for(const key of ['groups','edges'] as const)if(visual[key])omit(path('/'+key),'The entity view is driven by structure.entities/references; unrelated visual '+key+' are retained in UMF but are not drawn.');
+    nodes.forEach((node,index)=>{for(const key of ['group','parent','layer'] as const)if(node[key]!==undefined)omit(path('/nodes/'+index+'/'+key),'This node property is outside the neutral Mermaid entity-card view.');});
+    if(structure.layers)omit(path('/structure/layers'),'Layer placement is outside the entity view.');
+    if(visual.audience)omit(path('/audience'),'Audience metadata is retained in UMF but not drawn.');
+    if(visual.steps)omit(path('/steps'),'Walkthrough steps are not part of the entity relationship view.');
+    return {ok:true,profileId:'umf.visual.presentation/1',backend,nativeFormat:'mermaid',source:lines.join('\n')+'\n',elementMap:map,omissions,approximations};
    }
    const erDirection=layoutDirection(visual.layout,'LR');
    const lines=[...mermaidHeader(visual),'erDiagram','  direction '+erDirection];

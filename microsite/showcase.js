@@ -127,6 +127,7 @@ function updateBackendButtons(example) {
 }
 
 function formatSourcePath(path, hash) {
+  const citation = document.createElement('span');
   const label = document.createElement('span');
   label.textContent = pathLabel(path);
   if (typeof path === 'string' && /^[A-Za-z0-9._/-]+$/.test(path) && !path.split('/').includes('..')) {
@@ -136,9 +137,17 @@ function formatSourcePath(path, hash) {
     link.rel = 'noreferrer';
     link.textContent = label.textContent;
     link.title = hash ? `Source SHA-256 ${hash}` : 'Open repository source';
-    return link;
+    citation.append(link);
+  } else {
+    citation.append(label);
   }
-  return label;
+  if (typeof hash === 'string' && HASH.test(hash)) {
+    citation.append(document.createTextNode(' · '));
+    const digest = document.createElement('code');
+    digest.textContent = hash;
+    citation.append(digest);
+  }
+  return citation;
 }
 
 function renderCitations(example) {
@@ -165,18 +174,48 @@ async function renderOriginalEvidence(example) {
   const disclosure = $('review-evidence-disclosure');
   if (!panel) return;
   const evidence = example.originalEvidence;
+  const authoritative = evidence?.kind === 'authoritative-umf-source';
+  const synthetic = evidence?.kind === 'synthetic-integration-witness';
+  const supported = authoritative || synthetic;
   const image = $('historical-capture');
+  const frame = $('historical-capture-frame');
   const status = $('historical-identity');
+  const omissionsTitle = $('historical-omissions-title');
   const omissions = $('historical-omissions');
   const download = $('historical-capture-download');
   state.historicalResizeObserver?.disconnect();
   state.historicalResizeObserver = null;
   if (state.historicalUrl) { URL.revokeObjectURL(state.historicalUrl); state.objectUrls.delete(state.historicalUrl); state.historicalUrl = null; }
   image.hidden = true; image.removeAttribute('src');
+  frame.hidden = true;
   download.href = '#'; download.removeAttribute('download'); download.setAttribute('aria-disabled', 'true');
-  panel.hidden = !evidence;
-  if (disclosure) disclosure.hidden = !evidence;
-  if (!evidence) return;
+  panel.hidden = !supported;
+  panel.classList.toggle('authoritative-source-only', authoritative);
+  if (disclosure) disclosure.hidden = !supported;
+  if (!supported) return;
+  omissions.replaceChildren();
+  if (authoritative) {
+    status.textContent = `AUTHORITATIVE UMF SOURCE · document ${safeText(evidence.documentId)} · Visual id ${safeText(evidence.visualId)} · Visual ${safeText(evidence.modelVersion)} · UMF ${safeText(evidence.envelopeVersion)}`;
+    $('historical-scope').textContent = safeText(evidence.scope);
+    $('historical-sources').replaceChildren(formatSourcePath(evidence.sourcePath, evidence.sourceSha256));
+    omissionsTitle.hidden = true;
+    download.textContent = 'Download exact UMF source JSON';
+    try {
+      const sourceUrl = await loadVerifiedAsset(evidence.sourceDownloadPath, evidence.sourceSha256);
+      if (token !== state.historicalToken || state.selectedId !== example.id) { URL.revokeObjectURL(sourceUrl); return; }
+      state.objectUrls.add(sourceUrl);
+      state.historicalUrl = sourceUrl;
+      download.href = sourceUrl;
+      download.download = pathLabel(evidence.sourcePath);
+      download.setAttribute('aria-disabled', 'false');
+    } catch (error) {
+      if (token !== state.historicalToken || state.selectedId !== example.id) return;
+      status.textContent += ` · Source unavailable: ${error instanceof Error ? error.message : String(error)}`;
+    }
+    return;
+  }
+  panel.classList.remove('authoritative-source-only');
+  frame.hidden = false;
   status.textContent = `${safeText(evidence.rendererId).toUpperCase()} · ${safeText(evidence.rendererProfileId)} · model ${safeText(evidence.modelVersion)} · mapping ${safeText(evidence.mappingVersion)} · ${safeText(evidence.nativeVersion)} · ${safeText(evidence.stage)}`;
   $('historical-scope').textContent = safeText(evidence.scope);
   $('historical-sources').replaceChildren(
@@ -186,8 +225,10 @@ async function renderOriginalEvidence(example) {
     document.createTextNode(' · '),
     formatSourcePath(evidence.previewReceiptPath, evidence.previewReceiptSha256),
   );
-  omissions.replaceChildren();
-  for (const omission of evidence.knownOmissions || []) { const item = document.createElement('li'); item.textContent = safeText(omission); omissions.append(item); }
+  const recordedOmissions = Array.isArray(evidence.knownOmissions) ? evidence.knownOmissions : [];
+  omissionsTitle.hidden = recordedOmissions.length === 0;
+  for (const omission of recordedOmissions) { const item = document.createElement('li'); item.textContent = safeText(omission); omissions.append(item); }
+  download.textContent = 'Download original capture';
   try {
     const captureUrl = await loadVerifiedAsset(evidence.capturePath, evidence.captureSha256);
     if (token !== state.historicalToken || state.selectedId !== example.id) { URL.revokeObjectURL(captureUrl); return; }
@@ -222,10 +263,8 @@ async function renderOriginalEvidence(example) {
   } catch (error) {
     if (token !== state.historicalToken || state.selectedId !== example.id) return;
     status.textContent += ` · Capture unavailable: ${error instanceof Error ? error.message : String(error)}`;
-    download.href = '#'; download.removeAttribute('download'); download.setAttribute('aria-disabled', 'true');
   }
 }
-
 function renderSource(example, variant, nativeSource = '') {
   ui.definitionPath.replaceChildren(formatSourcePath(example.definitionPath, example.definitionSha256));
   ui.definition.textContent = JSON.stringify(example.definition, null, 2);
@@ -315,13 +354,13 @@ export function editAndCompile(payload: Visual) {
 }
 
 async function loadVerifiedAsset(path, expectedHash) {
-  const extension = typeof path === 'string' ? /\.(svg|png|jpe?g)$/i.exec(path)?.[0].toLowerCase() : '';
+  const extension = typeof path === 'string' ? /\.(svg|png|jpe?g|json)$/i.exec(path)?.[0].toLowerCase() : '';
   if (!extension || !safeAssetPath(path, extension)) throw new Error('Asset path is outside the configured presentation namespace');
   const response = await fetch(`./${path}`, {cache: 'no-store'});
   if (!response.ok) throw new Error(`Asset request failed (${response.status})`);
   const bytes = await response.arrayBuffer();
   const actual = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(value => value.toString(16).padStart(2, '0')).join('');
-  if (actual !== expectedHash.toLowerCase()) throw new Error('Asset hash does not match its showcase receipt');
+  if (actual !== expectedHash.toLowerCase()) throw new Error('Asset hash does not match its review manifest');
   return URL.createObjectURL(new Blob([bytes], {type: response.headers.get('content-type') || 'application/octet-stream'}));
 }
 

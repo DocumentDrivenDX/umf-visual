@@ -54,16 +54,21 @@ describe('presentation compiler',()=>{
   expect(plan.elementMap.some(x=>x.kind==='field'&&x.logicalId==='owner-id'&&x.nativeId==='n2_f2')).toBe(true);
  });
 
- it('refuses Mermaid ER relationships when identifying semantics are undeclared',()=>{
+ it('uses neutral Mermaid cards and unarrowed links when relationship semantics are undeclared',()=>{
   const d=document({id:'er-mermaid',kind:'structure',form:'entities',question:'How are entities related?',nodes:[{id:'person',label:'Person'},{id:'team',label:'Team'}],structure:{entities:[{node:'person',fields:[{name:'id',type:'Id',keys:['pk']},{name:'teamId',type:'Id',keys:['fk']}]},{node:'team',fields:[{name:'id',type:'Id',keys:['pk']}]}],references:[{id:'membership',from:{node:'person',field:'teamId'},to:{node:'team',field:'id'},label:'member of',fromCardinality:'zero-or-many',toCardinality:'exactly-one'}]}});
-  expect(compilePresentation(d,{backend:'mermaid'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_MERMAID_RELATIONSHIP',message:'These references leave identification unspecified; Mermaid requires an explicit identifying or non-identifying choice. Graphviz preserves the relationship without inventing it.'}]});
+  const plan=compilePresentation(d,{backend:'mermaid'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+  expect(plan.source).toContain('flowchart LR');expect(plan.source).toContain('n1["Person<br/>PK#32;·#32;id:#32;Id<br/>FK#32;·#32;teamId:#32;Id"]');
+  expect(plan.source).toContain('n1 r1@---|member#32;of#32;·#32;from#32;field:#32;teamId#32;·#32;to#32;field:#32;id#32;·#32;0..*#32;→#32;1| n2');
+  expect(plan.source).not.toContain('Identifying');expect(plan.source).not.toContain('Non-identifying');
+  expect(plan.elementMap).toContainEqual({logicalId:'membership',sourcePath:'/extensions/umf.visual/structure/references/0',nativeId:'r1',kind:'reference'});
+  expect(plan.elementMap.filter(item=>item.kind==='field').every(item=>item.nativeId==='n1'||item.nativeId==='n2')).toBe(true);
  });
 
- it('refuses unsupported forms and unrepresentable Mermaid field identifiers',()=>{
+ it('refuses unsupported forms and preserves un-tokenizable Mermaid field identifiers in cards',()=>{
   const unsupported=document({id:'machine',kind:'state',form:'machine',question:'How does it work?',nodes:[{id:'ready',label:'Ready'}],state:{initial:'ready',transitions:[{id:'t',from:'ready',to:'ready',event:'again'}]}});
   expect(compilePresentation(unsupported,{backend:'graphviz'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_FORM'}]});
   const er=document({id:'er-odd-field',kind:'structure',form:'entities',question:'Question?',nodes:[{id:'user',label:'User'}],structure:{entities:[{node:'user',fields:[{name:'display name',type:'String'}]}]}});
-  expect(compilePresentation(er,{backend:'mermaid'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_MERMAID_FIELD'}]});
+  const plan=compilePresentation(er,{backend:'mermaid'});expect(plan.ok).toBe(true);if(plan.ok){expect(plan.source).toContain('display#32;name:#32;String');expect(plan.elementMap.find(item=>item.kind==='field')?.nativeId).toBe('n1');}
  });
 
  it('fails closed for malformed, cyclic, and incomplete documents',()=>{
@@ -100,9 +105,36 @@ describe('presentation compiler',()=>{
   expect(plan.source).toContain('string id "NULL"');expect(plan.source).toContain('rawType required "NOT NULL"');expect(plan.source).not.toContain('string? id');
  });
 
- it('refuses Mermaid ER relationships with unspecified endpoint cardinality',()=>{
+ it('does not invent missing Mermaid relationship cardinalities',()=>{
   const d=document({id:'mermaid-unknown-cardinality',kind:'structure',form:'entities',question:'Unknown cardinality',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[]},{node:'b',fields:[]}],references:[{id:'r',from:{node:'a'},to:{node:'b'},fromCardinality:'exactly-one'}]}});
-  expect(compilePresentation(d,{backend:'mermaid'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_MERMAID_RELATIONSHIP'}]});
+  const plan=compilePresentation(d,{backend:'mermaid'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+  expect(plan.source).toContain('n1 r1@---|1#32;→#32;unspecified| n2');expect(plan.source).not.toContain('0..*');
+ });
+
+ it('keeps neutral entity fallback disclosures consistent with the card it emits',()=>{
+  const d=createVisualDocument({id:'mermaid-neutral-doc-shape',kind:'structure',form:'entities',question:'What is retained?',nodes:[{id:'record',label:'Record',shape:'folded-corner'}],structure:{entities:[{node:'record',fields:[{name:'display name',type:'raw type'}] }]} },'test:mermaid-neutral-doc-shape','1.4.0');
+  const plan=compilePresentation(d,{backend:'mermaid'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+  expect(plan.source).toContain('Shape:#32;folded-corner');
+  expect(plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/nodes/0/shape'&&item.representation.includes('card outline is renderer policy'))).toBe(true);
+  expect(plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/nodes/0/shape'&&item.representation.includes('wavy footer'))).toBe(false);
+ });
+
+ it('derives bounded native Mermaid card wrapping from authored rows',()=>{
+  const compile=(name:string)=>{
+   const d=createVisualDocument({id:'mermaid-neutral-width',kind:'structure',form:'entities',question:'Which row width is used?',nodes:[{id:'record',label:'Record'}],structure:{entities:[{node:'record',fields:[{name,type:'raw type'}]}]}},'test:mermaid-neutral-width','1.4.0');
+   const plan=compilePresentation(d,{backend:'mermaid'});expect(plan.ok).toBe(true);if(!plan.ok)return 0;
+   return Number(plan.source.match(/wrappingWidth: (\d+)/)?.[1]??0);
+  };
+  const short=compile('short'),long=compile('long-authored-field-name-which-needs-more-horizontal-room'),veryLong=compile('a-'.repeat(80));
+  expect(short).toBeGreaterThanOrEqual(200);expect(short).toBeLessThan(long);expect(long).toBeLessThanOrEqual(420);expect(veryLong).toBe(420);
+ });
+
+ it('budgets Mermaid card wrapping across the combined card and relation layout',()=>{
+  const nodes=Array.from({length:5},(_,index)=>({id:'record-'+(index+1),label:'Record '+(index+1)}));
+  const d=createVisualDocument({id:'mermaid-neutral-layout-budget',kind:'structure',form:'entities',question:'Which records link?',nodes,structure:{entities:nodes.map(node=>({node:node.id,fields:[{name:'id',type:'uuid'}]})),references:nodes.slice(0,-1).map((node,index)=>({id:'link-'+(index+1),from:{node:node.id},to:{node:nodes[index+1]!.id},label:'links '+(index+1),fromCardinality:'exactly-one' as const,toCardinality:'zero-or-many' as const}))}},'test:mermaid-neutral-layout-budget','1.4.0');
+  const plan=compilePresentation(d,{backend:'mermaid'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+  const width=Number(plan.source.match(/wrappingWidth: (\d+)/)?.[1]??0);
+  expect(width).toBeGreaterThanOrEqual(200);expect(width).toBeLessThanOrEqual(220);
  });
 
  it('rejects unsafe option access and accounts for standalone E/R nodes',()=>{

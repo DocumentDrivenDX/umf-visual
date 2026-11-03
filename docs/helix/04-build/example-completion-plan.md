@@ -1401,12 +1401,85 @@ edits or rebuild were needed and no broader full-suite or host qualification is
 claimed. This bounded verification is complete; the cycle 6 commit follows in
 this change and MUST precede cycle 7.
 
+### Seventh-cycle scope — authoritative entity canary
+
+Cycle 6 is committed as `6b6b602`; cycle 7 is in progress. The authoritative UMF
+fixture is `fixtures/catalog/canary-entities.json`, hash
+`6b101dd70cab0fbb10a87b195515d76d06f62828afe02d1f368afe417ecfbd6e`.
+Use its exact bytes/1.0.0 model as the review source rather than inventing a
+synthetic host witness or capture. Preserve its document/visual identities, two
+entities, three fields and entity-level relationship. Quoted/Unicode labels,
+including 東京 and the quoted relationship text, must remain visibly readable;
+string/hash preservation alone does not qualify missing glyphs.
+
+Preserve supplied PK/nullability and exactly-one/zero-or-many endpoint cardinality.
+Unspecified FK markers, nullability, field-bound references and relationship
+identification stay unspecified; names or keys do not authorize inference.
+No model expansion or upgrade is required merely to render this source. Backend
+limitations require honest refusal or a qualified neutral composition, not a
+source edit adding identifying/non-identifying classification. Implement and qualify a reusable neutral entity-card/association fallback where
+a native E/R grammar forces classification: preserve owned field rows, exact
+relationship labels and endpoint cardinality text on an unarrowed association.
+Do not imply identification through line style or infer a direction absent from
+the entity reference. Mixed explicit identification must be preserved or the
+affected projection must refuse explicitly. Retain located approximations and
+source-level endpoint meaning; no new shared-model type is needed.
+
+Add discriminated `authoritative-umf-source` review provenance binding the exact
+source path/hash, UMF document ID, visual ID and model version. Do not duplicate
+classification or require capture fields, historical omission lists or native
+witness paths. The generic verifier must reject unknown provenance kinds and
+stale/malformed identity joins; the shared viewer presents source authority and
+exact YAML/JSON, with no fabricated historical image. Keep integration-witness
+behavior and prior review outputs qualified independently.
+
+Acceptance requires complete owned field rows, keys/nullability and association
+cardinality with actual native labels/glyphs and correct entity endpoints; no
+field-port equivalence is claimed for this entity-level source. Audit encoding,
+font fallback/measurement, generic native composition, source-provenance dispatch
+and download integrity with negative controls. Run focused native/browser/package
+and affected prior review/catalog gates; commit this cycle before the next canary.
+No new host qualification or publication is claimed.
+
+The implementation and source/interface audit are complete. The original
+1.0.0 source remains byte-identical; no new DSL type or host qualification is
+introduced. Mermaid uses source-contained neutral entity cards with exact
+field/port rows and unarrowed references. Its 200–420 pixel wrapping heuristic
+combines longest authored line estimates with a generic aggregate card/reference
+budget; it does not guarantee fit. Actual native font/PNG checks establish the
+qualified readability. Lini proves the same-link terminal path/marker assembly
+through card reach, retaining field/port alignment and independent missing,
+wrong-end, detached and caption mutation controls. Unspecified identification,
+FK markers, nullability and field binding remain unspecified. Exact source
+provenance is independent of reviewed-definition identity; it creates no claim
+of semantic equivalence or historical host capture.
+
+Final verification passes: quiet full suite **672 tests, 0 failures, 19,712
+assertions across 98 files in 177.71 seconds**
+(`.cache/cycle07-full-tests-final.log`); source/type checks; fresh package build,
+public-browser loading and packed Bun/Node consumers; pinned native Graphviz
+16.1 and Lini 1.1 checks; catalog **53 definitions / 159 full pairs / zero loss**;
+showcase **9 definitions / 23 qualified variants / 4 explicit unsupported
+variants / 69 assets**, including 23 actual SVG and 23 PNG replays; and reviews
+**6 definitions / 18 qualified variants / 54 assets**, including 18 actual SVG
+and 18 PNG replays. Review/catalog/showcase UI checks pass with no browser errors
+on Chromium 153.0.8010.12. Root visually approved the actual Graphviz, Lini and
+Mermaid canary images and the readable larger Mermaid schema overview at the
+unchanged minimum-font gate. Focused verifier tests also retain forged-version,
+quality, hash, mapping and PNG negative controls.
+
+Cycle 7 is complete and ready for its commit; that commit follows in this change
+and MUST precede cycle 8. The authoritative canary remains Visual 1.0.0, earlier
+reviewed enrichments remain unreleased draft 1.4.0, and historical host evidence
+retains its original model/subset qualification. No release, broader host support
+or publication is claimed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
 Cycle 3 is committed as `aa6a093`; cycle 4 is committed as `263b11f`.
-Cycle 5 is committed as `0a0f7c3`. Cycle 6 is verified and ready for the commit
-that follows in this change; cycles 7–68 remain pending.
+Cycle 5 is committed as `0a0f7c3`; cycle 6 is committed as `6b6b602`.
+Cycle 7 is complete and ready for commit; cycles 8–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

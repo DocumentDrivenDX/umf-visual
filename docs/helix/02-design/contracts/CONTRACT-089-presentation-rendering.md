@@ -327,3 +327,39 @@ Broader shared-model admission does not qualify every form/backend combination;
 unsupported annotation scopes MUST be explicit before a successful render claim.
 Region groups authored as a reviewed frame interpretation preserve declared
 membership without asserting equivalence to a host's frame item identity or geometry.
+
+
+## Authoritative UMF review provenance
+
+Review `originalEvidence.kind: authoritative-umf-source` binds an authored UMF
+source directly through exact source path/hash, document ID, visual ID and model
+version. These identities MUST agree with parsed source bytes. The original
+source MUST pass public UMF/Visual document validation for its declared supported
+profile; valid but incomplete unknown content remains preserved and MUST NOT be
+rejected merely for incompleteness. This provenance
+variant MUST NOT require synthetic/native witness paths, captures or fabricated
+historical omissions. It may alias the unchanged source as the reviewed definition, but generic
+provenance admission MUST NOT require definition/source path or hash equality.
+The reviewed definition is independently bound by its own path/hash and identity;
+original source labels, missing properties and model version remain authoritative
+for that original source. Explicit review-authored enrichment MUST be distinguished
+from original authority. Valid provenance alone MUST NOT certify semantic
+equivalence between independently bound documents.
+The existing integration-witness variant retains its separate native/capture
+qualification. Unknown or inconsistent provenance declarations MUST refuse.
+Viewer branches MUST use declared provenance kind rather than fixture IDs or
+path/name conventions. Exact source and YAML remain available even when a target
+refuses; a source-authority panel MUST NOT masquerade as native capture evidence.
+
+
+## Neutral entity-card projection
+
+When a native E/R grammar requires identification that the source leaves
+unspecified, a renderer MAY use a qualified neutral entity-card composition.
+It MUST preserve source-owned fields, keys/nullability, relationship labels,
+endpoint cardinalities and entity attachments. An unarrowed association with
+explicit cardinality text MUST NOT invent identifying/non-identifying or
+directional meaning. Located approximations MUST distinguish that composition
+from a native E/R realization. Explicit identification in a mixed source MUST
+be preserved or the affected projection MUST refuse; unspecified source meaning
+MUST NOT be filled in merely to satisfy native syntax.

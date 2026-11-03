@@ -371,6 +371,36 @@ export async function verifyPresentationQuality(
   }
   checks.push(pass('mermaid-native-node-carriers',sourceSha256,missing.length===0&&ownLabelsMissing.length===0&&shapeFailures.length===0&&processRoleMissing.length===0&&annotationFailures.length===0,missing.length||ownLabelsMissing.length||shapeFailures.length||processRoleMissing.length||annotationFailures.length?`Missing native node carriers: ${[...missing,...ownLabelsMissing.map(x=>'label '+x),...shapeFailures,...processRoleMissing,...annotationFailures].join(', ')}.`:`${expectedNodeLabels.length} source labels, all requested document shapes, and ${(visual.annotations??[]).length} unanchored annotations appear in their exact ID-mapped Mermaid carriers.`));
   if(visual.form==='entities'){
+   if(plan.source.includes('\nflowchart ')){
+    const problems:string[]=[];
+    for(let entityIndex=0;entityIndex<(visual.structure?.entities??[]).length;entityIndex++){
+     const entity=visual.structure!.entities![entityIndex]!,mapped=elementFor(plan,'entity',`/extensions/umf.visual/structure/entities/${entityIndex}`),owner=mapped?mermaidNodeCarrier(mapped.nativeId):undefined,node=visual.nodes?.find(item=>item.id===entity.node);
+     if(!mapped||!owner||!node||!normLabel(owner.ownText.join(' ')).includes(normLabel(node.label)))problems.push(`${entity.node} label is not owned by its mapped Mermaid card`);
+     for(let fieldIndex=0;fieldIndex<entity.fields.length;fieldIndex++){
+      const field=entity.fields[fieldIndex]!,mappedField=elementFor(plan,'field',`/extensions/umf.visual/structure/entities/${entityIndex}/fields/${fieldIndex}`),qualifiers=[(field.keys??[]).map(key=>key.toUpperCase()).join(', ')||undefined,field.nullable===undefined?undefined:field.nullable?'NULL':'NOT NULL'].filter((item):item is string=>!!item),expected=(qualifiers.length?qualifiers.join(' · ')+' · ':'')+field.name+(field.type?': '+field.type:'');
+      if(!mapped||!mappedField||mappedField.nativeId!==mapped.nativeId||!owner||!normLabel(owner.ownText.join(' ')).includes(normLabel(expected)))problems.push(`${entity.node}.${field.name} exact field row is not owned by its mapped card`);
+     }
+    }
+    const multiplicity=(value:VisualMultiplicity|undefined,cardinality:string|undefined)=>value?(value.text??`${value.min}..${value.max===undefined?'*':value.max}`):cardinality==='zero-or-one'?'0..1':cardinality==='exactly-one'?'1':cardinality==='zero-or-many'?'0..*':cardinality==='one-or-many'?'1..*':'';
+    for(let index=0;index<(visual.structure?.references??[]).length;index++){
+     const reference=visual.structure!.references![index]!,mapped=elementFor(plan,'reference',`/extensions/umf.visual/structure/references/${index}`),fromId=nativeIdForNode(plan,reference.from.node),toId=nativeIdForNode(plan,reference.to.node),path=mapped?dom.paths.find(item=>item.id.endsWith('-'+mapped.nativeId)||item.dataId.endsWith('-'+mapped.nativeId)):undefined;
+     if(!mapped||mapped.logicalId!==reference.id||!fromId||!toId||!path?.d)problems.push(`${reference.id} has no unique ID-mapped Mermaid association path`);
+     const sourceLine=plan.source.split('\n').find(line=>line.trim().startsWith(`${fromId} ${mapped?.nativeId}@---`));
+     if(!sourceLine||!sourceLine.includes(` ${toId}`)||!sourceLine.includes('@---')||sourceLine.includes('-->')||sourceLine.includes('-.->'))problems.push(`${reference.id} source does not preserve an unarrowed association between its authored endpoints`);
+     if(path){
+      if(path.markerStart||path.markerEnd)problems.push(`${reference.id} native association path invents an arrowhead`);
+      const label=dom.edgeLabels.find(item=>item.id===path.dataId),labelParts=[reference.identification?reference.identification==='identifying'?'Identifying':'Non-identifying':undefined,reference.label,reference.from.fieldId?'from field ID: '+reference.from.fieldId:reference.from.field?'from field: '+reference.from.field:reference.from.portId?'from port ID: '+reference.from.portId:undefined,reference.to.fieldId?'to field ID: '+reference.to.fieldId:reference.to.field?'to field: '+reference.to.field:reference.to.portId?'to port ID: '+reference.to.portId:undefined],ends=[multiplicity(reference.fromMultiplicity,reference.fromCardinality),multiplicity(reference.toMultiplicity,reference.toCardinality)];
+      if(ends.some(Boolean))labelParts.push(ends.map(value=>value||'unspecified').join(' → '));
+      const expected=normLabel(labelParts.filter(Boolean).join(' · '));
+      if(expected&&(!label||normLabel(label.text)!==expected))problems.push(`${reference.id} exact authored label/identification/cardinality text is absent from its own native edge label`);
+      if(!expected&&label)problems.push(`${reference.id} has an unrequested native label`);
+      const source=fromId?mermaidNodeCarrier(fromId):undefined,target=toId?mermaidNodeCarrier(toId):undefined,distance=(point:{x:number;y:number}|null,box:QualityBox|undefined)=>!point||!box?Infinity:Math.hypot(Math.max(box.x-point.x,0,point.x-(box.x+box.width)),Math.max(box.y-point.y,0,point.y-(box.y+box.height)));
+      if(!source||!target||Math.min(distance(path.start,source.bounds)+distance(path.end,target.bounds),distance(path.end,source.bounds)+distance(path.start,target.bounds))>64)problems.push(`${reference.id} path is detached from its mapped endpoint cards`);
+     }
+    }
+    const relationCount=visual.structure?.references?.length??0;
+    checks.push(pass('mermaid-er-fields-and-relations',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${visual.structure?.entities?.reduce((count,entity)=>count+entity.fields.length,0)??0} exact field rows belong to their mapped cards; ${relationCount} neutral relationships preserve mapped endpoints, authored labels and declared cardinalities without arrowheads.`));
+   }else{
    // Mermaid ER has entity-level relationship endpoints, never field-port attachment.
    const nodesWithFields=dom.carriers.filter(c=>c.cls.includes('node')&&c.ownText.length>0);
    const problems:string[]=[];
@@ -398,6 +428,7 @@ export async function verifyPresentationQuality(
     if(reference.label&&edge&&!dom.edgeLabels.some(l=>l.text.includes(reference.label!)&&l.id===edge.dataId))problems.push(`relationship ${reference.id} label is not carried by its own Mermaid edge label`);
    });
    checks.push(pass('mermaid-er-fields-and-relations',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${visual.structure?.entities?.reduce((n,e)=>n+e.fields.length,0)??0} fields are scoped to entity carriers and ${relationCount} relationships have native paths with cardinality markers. Mermaid ER endpoints are entity-level; this check makes no field-port claim.`));
+   }
   }else if(visual.kind==='flow'){
    const failures:string[]=[];
    const routeFallbacks:string[]=[];

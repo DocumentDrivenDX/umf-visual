@@ -30,7 +30,7 @@ describe('microsite catalogue UI contract',()=>{
     expect(reviewHtml).toContain('data-selection-param="review"');
     expect(reviewHtml).toContain('id="review-evidence"');
     expect(reviewHtml).toContain('id="review-evidence-disclosure"');
-    expect(reviewHtml).toContain('<summary>Original host evidence and capture</summary>');
+    expect(reviewHtml).toContain('<summary>Source evidence and original host output</summary>');
     expect(reviewHtml).toContain('id="historical-capture"');
     expect(html).toContain('aria-label="Target format"');
     expect(app).toContain("code.textContent = result.source");

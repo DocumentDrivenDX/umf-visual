@@ -2,19 +2,37 @@
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {dirname,join,resolve} from 'node:path';
+import {readVisualDocument} from '../../src/extensions/visual';
 
 const root=resolve(import.meta.dir,'../..');
 const sha=(data:Uint8Array|string)=>createHash('sha256').update(data).digest('hex');
 const safe=(path:unknown):path is string=>typeof path==='string'&&/^[A-Za-z0-9._/-]+$/.test(path)&&!path.startsWith('/')&&!path.split('/').includes('..');
 const readJson=async(path:string)=>JSON.parse(await readFile(join(root,path),'utf8'));
 
-export async function verifyReviewSourceEvidence(manifestPath='fixtures/reviews/review-sources.json'):Promise<{examples:number;captures:number}>{
+export async function verifyReviewSourceEvidence(manifestPath='fixtures/reviews/review-sources.json'):Promise<{examples:number;captures:number;authoritativeSources:number}>{
  const manifest=await readJson(manifestPath);
  if(manifest.schemaVersion!==1||!Array.isArray(manifest.examples)||manifest.examples.length===0)throw Error('Review source manifest must contain examples under schemaVersion 1.');
- let captures=0;const ids=new Set<string>();
+ let captures=0,authoritativeSources=0;const ids=new Set<string>();
  for(const example of manifest.examples){
   if(!example||typeof example.id!=='string'||ids.has(example.id))throw Error('Review source manifest has a missing or duplicate ID.');ids.add(example.id);
-  const original=example.originalEvidence;if(!original||original.kind!=='synthetic-integration-witness'||typeof original.classification!=='string'||!original.classification.trim())throw Error(`${example.id} uses an unsupported or incomplete original-evidence provenance declaration.`);
+  const original=example.originalEvidence;
+  if(!original||typeof original.kind!=='string')throw Error(`${example.id} has no discriminated original-evidence provenance declaration.`);
+  if(original.kind==='authoritative-umf-source'){
+   const {sourcePath,sourceSha256,documentId,visualId,envelopeVersion,modelVersion,sourceDownloadPath}=original;
+   if(!safe(sourcePath)||!safe(sourceDownloadPath)||![sourceSha256,documentId,visualId,envelopeVersion,modelVersion].every(value=>typeof value==='string'&&value.trim()))throw Error(`${example.id} has incomplete authoritative UMF source identity.`);
+   for(const forbidden of ['classification','integrationCaseId','integrationManifestPath','nativeWitnessPath','commonDocumentPath','rendererId','rendererProfileId','stage','capturePath','captureSha256','captureDigestSha256','knownOmissions'])if(forbidden in original)throw Error(`${example.id} authoritative UMF source must not claim host or synthetic-witness metadata (${forbidden}).`);
+   const sourceRows=new Map((example.sources??[]).map((source:any)=>[source.path,source.sha256]));
+   if(sourceRows.get(sourcePath)!==sourceSha256)throw Error(`${example.id} source manifest does not bind the authoritative UMF bytes.`);
+   const assets=example.publishedAssets??[],asset=assets.find((item:any)=>item.path===sourcePath&&item.sha256===sourceSha256&&item.outputPath===sourceDownloadPath);
+   if(!asset||asset.mediaType!=='application/json')throw Error(`${example.id} exact authoritative UMF source download is not published as JSON.`);
+   const bytes=await readFile(join(root,sourcePath));if(sha(bytes)!==sourceSha256)throw Error(`${example.id} authoritative UMF source hash is stale.`);
+   let document:any;try{document=readVisualDocument(bytes.toString('utf8'),'json');}catch{throw Error(`${example.id} authoritative source is not a valid UMF Visual document.`);}
+   const visual=document?.extensions?.['umf.visual'];
+   if(document?.id!==documentId||document?.umf!==envelopeVersion||document?.vocabularies?.['umf.visual']?.version!==modelVersion||visual?.id!==visualId)throw Error(`${example.id} authoritative UMF source identity or version differs from its exact bytes.`);
+   if(typeof original.scope!=='string'||!original.scope.trim())throw Error(`${example.id} authoritative source lacks a provenance description.`);
+   authoritativeSources++;continue;
+  }
+  if(original.kind!=='synthetic-integration-witness'||typeof original.classification!=='string'||!original.classification.trim())throw Error(`${example.id} uses an unsupported or incomplete original-evidence provenance declaration.`);
   const integrationPath=original.integrationManifestPath,receiptPath=original.previewReceiptPath;
   if(!safe(integrationPath)||!safe(receiptPath)||sha(await readFile(join(root,integrationPath)))!==original.integrationManifestSha256)throw Error(`${example.id} integration manifest identity or hash is stale.`);
   if(sha(await readFile(join(root,receiptPath)))!==original.previewReceiptSha256)throw Error(`${example.id} preview receipt identity or hash is stale.`);
@@ -39,7 +57,7 @@ export async function verifyReviewSourceEvidence(manifestPath='fixtures/reviews/
   if(!Array.isArray(original.knownOmissions)||original.knownOmissions.length===0||typeof original.scope!=='string'||!original.scope.trim())throw Error(`${example.id} historical evidence lacks qualified scope or omission notes.`);
   captures++;
  }
- return {examples:ids.size,captures};
+ return {examples:ids.size,captures,authoritativeSources};
 }
 
 export async function verifyReviewReceiptBindings(manifestPath='fixtures/reviews/review-sources.json',receiptPath='dist-site/reviews.json'){

@@ -248,6 +248,54 @@ describe('pinned Lini presentation quality',()=>{
   }finally{await good.page.close();}
  });
 
+ it('keeps neutral relationship captions clear and proves the complete optional-many endpoint glyph',async()=>{
+  const source=readVisualDocument(readFileSync(resolve(import.meta.dir,'../../fixtures/catalog/canary-entities.json'),'utf8'),'json'),good=await renderDocument(source);
+  try{
+   expect(result(good.checks,'lini-connection-endpoints')).toBe('pass');
+   expect(good.plan.source).toContain('[ "emits \\\"events\\\"" { translate: 0 -24; } ]');
+   const link=good.page.locator('g.lini-link.lini-style-r1'),caption=link.locator('text.lini-link-label'),circle=link.locator('circle.lini-marker');
+   expect(await circle.count()).toBe(1);
+   const clearance=await link.evaluate(element=>{
+    const path=element.querySelector(':scope > path:not(.lini-marker)') as SVGPathElement,label=element.querySelector(':scope > text.lini-link-label') as SVGTextElement,box=label.getBoundingClientRect(),length=path.getTotalLength(),matrix=path.getScreenCTM()!;let gap=Infinity;
+    for(let i=0;i<=120;i++){const point=path.getPointAtLength(length*i/120),screen=new DOMPoint(point.x,point.y).matrixTransform(matrix),dx=Math.max(box.left-screen.x,0,screen.x-box.right),dy=Math.max(box.top-screen.y,0,screen.y-box.bottom);gap=Math.min(gap,Math.hypot(dx,dy));}
+    return gap;
+   });
+   expect(clearance).toBeGreaterThanOrEqual(8);
+   const circleMarkup=await circle.evaluate(element=>{const markup=element.outerHTML;element.remove();return markup;});
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await link.evaluate((element,markup)=>element.insertAdjacentHTML('beforeend',markup),circleMarkup);
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('pass');
+   const originalCx=await circle.getAttribute('cx');expect(originalCx).not.toBeNull();
+   await circle.evaluate(element=>element.setAttribute('cx',String(Number(element.getAttribute('cx'))-100)));
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await circle.evaluate((element,cx)=>element.setAttribute('cx',cx??''),originalCx);
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('pass');
+   const bridgeMarkup=await link.evaluate(element=>{const candidate=[...element.querySelectorAll('path.lini-marker')].find(path=>{const line=path as SVGPathElement;return(line.getAttribute('d')?.match(/\bM\b/gu)?.length??0)===1&&(line.getAttribute('d')?.match(/\bL\b/gu)?.length??0)===1&&line.getTotalLength()<5;});if(!candidate)return'';const markup=candidate.outerHTML;candidate.remove();return markup;});
+   expect(bridgeMarkup).not.toBe('');
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await link.evaluate((element,markup)=>element.insertAdjacentHTML('beforeend',markup),bridgeMarkup);
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('pass');
+   const detached=await link.evaluate(element=>{
+    const markers=[...element.querySelectorAll<SVGElement>('.lini-marker:not(.lini-marker-arrow)')],selected=markers.filter(marker=>marker.tagName.toLowerCase()==='circle'||marker.tagName.toLowerCase()==='path'&&((marker.getAttribute('d')?.match(/\bL\b/gu)?.length??0)>=3||((marker.getAttribute('d')?.match(/\bM\b/gu)?.length??0)===1&&(marker.getAttribute('d')?.match(/\bL\b/gu)?.length??0)===1&&(marker as SVGPathElement).getTotalLength()<5)));
+    return selected.map(marker=>{const transform=marker.getAttribute('transform');marker.setAttribute('transform',(transform??'')+' translate(-100 0)');return{markup:marker.outerHTML,transform};});
+   });
+   expect(detached.length).toBe(3);
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await link.evaluate((element,states)=>{const markers=[...element.querySelectorAll<SVGElement>('.lini-marker:not(.lini-marker-arrow)')],selected=markers.filter(marker=>marker.tagName.toLowerCase()==='circle'||marker.tagName.toLowerCase()==='path'&&((marker.getAttribute('d')?.match(/\bL\b/gu)?.length??0)>=3||((marker.getAttribute('d')?.match(/\bM\b/gu)?.length??0)===1&&(marker.getAttribute('d')?.match(/\bL\b/gu)?.length??0)===1&&(marker as SVGPathElement).getTotalLength()<5)));selected.forEach((marker,index)=>{const transform=states[index]?.transform;if(transform===null||transform===undefined)marker.removeAttribute('transform');else marker.setAttribute('transform',transform);});},detached);
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('pass');
+   await caption.evaluate(element=>{const text=element as SVGTextElement;text.setAttribute('transform',(text.getAttribute('transform')??'')+' translate(0 18)');});
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
+  }finally{await good.page.close();}
+ });
+
+ it('places entity relationship captions perpendicular to a top-to-bottom composition',async()=>{
+  const document=createVisualDocument({id:'vertical-entity-caption',kind:'structure',form:'entities',question:'Which entity follows?',layout:{kind:'grid',columns:1,order:['source','target']},nodes:[{id:'source',label:'Source entity'},{id:'target',label:'Target entity'}],structure:{entities:[{node:'source',fields:[{name:'id',type:'uuid'}]},{node:'target',fields:[{name:'source_id',type:'uuid'}]}],references:[{id:'association',from:{node:'source'},to:{node:'target'},label:'relates',fromCardinality:'exactly-one',toCardinality:'zero-or-many'}]}},'test:vertical-entity-caption','1.2.0'),good=await renderDocument(document);
+  try{
+   expect(good.plan.source).toContain('translate: 24 0;');
+   expect(result(good.checks,'lini-connection-endpoints')).toBe('pass');
+  }finally{await good.page.close();}
+ });
+
  it('checks authored stack layer order and refuses reordered native bands',async()=>{
   const good=await render({id:'ordered-stack',kind:'structure',form:'stack',question:'Which layer comes first?',nodes:[{id:'client',label:'Client',layer:'interface'},{id:'engine',label:'Engine',layer:'runtime'},{id:'records',label:'Records',layer:'storage'}],structure:{layers:[{id:'interface',label:'Interface'},{id:'runtime',label:'Runtime'},{id:'storage',label:'Storage'}]}});
   try{

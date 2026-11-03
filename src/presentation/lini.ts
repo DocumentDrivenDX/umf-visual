@@ -300,6 +300,8 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
    approx(path('/structure/layers'),'Layer order',stackLayout?`Lini native ${stackDirection==='LR'?'row':'column'} flow follows authored layer order from ${stackDirection==='LR'?'left to right':'top to bottom'}.`:rootLayout?.kind==='grid'?`Lini native grid with ${rootLayout.columns} columns emits layer bands in authored order and places them row-major.`:'Lini native one-column layout follows authored layer order from top to bottom.');
   }else{
    const structure=visual.structure!,entities=structure.entities??[],entityByNode=new Map(entities.map((entity,index)=>[entity.node,{entity,index}]));
+   const entityDirection=rootLayout?.kind==='grid'&&rootLayout.columns===1?'TB':rootLayout&&'direction'in rootLayout?rootLayout.direction??direction:direction;
+   const relationshipCaptionTranslate=entityDirection==='TB'?'24 0':'0 -24';
    const entityRows=new Map<string,string>(),standaloneRows=new Map<string,string>();
    for(let i=0;i<nodes.length;i++){
     const node=nodes[i]!,found=entityByNode.get(node.id),id=nodeIds.get(node.id)!;
@@ -349,7 +351,8 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     const label=[identificationLabel,reference.label,exact.length?'['+exact.join('; ')+']':undefined].filter(Boolean).join(' '),className=safeId('r',i);
     add(reference.id,path('/structure/references/'+i),className,'reference');
     styleRules.push(`.${className} { stroke: --teal-deep;${reference.identification==='non-identifying'?' stroke-style: dashed;':''} }`);
-    children.push(`${from} ${operator} ${to}${label?' '+quoteChecked(label,path('/structure/references/'+i+'/label')):''} .${className}`);
+    const caption=label?` [ ${quoteChecked(label,path('/structure/references/'+i+'/label'))} { translate: ${relationshipCaptionTranslate}; } ]`:'';
+    children.push(`${from} ${operator} ${to} .${className} { along: 0.5; }${caption}`);
     if(a.approximate||b.approximate)approx(path('/structure/references/'+i),'Exact endpoint multiplicities',`Lini uses unmarked endpoint(s) for nonstandard exact ranges and prints their exact text in the relationship label${a.approximate&&b.approximate?'':'; conventional endpoints use native crow’s-foot markers'}.`);
     if(reference.identification)approx(path('/structure/references/'+i+'/identification'),'Relationship identification '+reference.identification,'Lini has no intrinsic identifying/non-identifying connector semantics; the distinction is written in the visible relationship label'+(reference.identification==='non-identifying'?' and a dashed line style.':'.'));
    }

@@ -27,11 +27,11 @@ async function downloadBytes(page:Page,selector:string,target:string):Promise<{f
 async function openHistoricalDisclosure(page:Page):Promise<void>{
  const details=page.locator('#review-evidence-disclosure'),summary=details.locator(':scope > summary');
  if(!(await details.evaluate(element=>(element as HTMLDetailsElement).open)))await summary.click();
- if(!(await details.evaluate(element=>(element as HTMLDetailsElement).open)))throw Error('Original host evidence did not open from its summary.');
+ if(!(await details.evaluate(element=>(element as HTMLDetailsElement).open)))throw Error('Source evidence did not open from its summary.')
  await summary.focus();await page.keyboard.press('Enter');
- if(await details.evaluate(element=>(element as HTMLDetailsElement).open))throw Error('Original host evidence disclosure did not close with Enter.');
+ if(await details.evaluate(element=>(element as HTMLDetailsElement).open))throw Error('Source evidence disclosure did not close with Enter.')
  await summary.focus();await page.keyboard.press('Enter');
- if(!(await details.evaluate(element=>(element as HTMLDetailsElement).open)))throw Error('Original host evidence disclosure did not reopen with Enter.');
+ if(!(await details.evaluate(element=>(element as HTMLDetailsElement).open)))throw Error('Source evidence disclosure did not reopen with Enter.')
 }
 async function assertHistoricalImageFits(page:Page,caseId:string):Promise<void>{
  await page.waitForFunction(id=>{const image=document.querySelector('#historical-capture') as HTMLImageElement|null,frame=image?.parentElement,box=image?.getBoundingClientRect();return !!image&&!image.hidden&&image.alt.endsWith(id)&&image.naturalWidth>0&&!!frame&&box!.width>0&&box!.height>0&&box!.width<=frame.clientWidth+1;},caseId,{timeout:10000});
@@ -151,7 +151,7 @@ try{
     if(source.label&&(!citations.includes(source.label)||!citations.includes(source.path?.split('/').pop()??'')))throw Error(`${review.id} source details do not expose its labeled source citation ${source.label}.`);
    }
   }
-  if(evidence){
+  if(evidence?.kind==='synthetic-integration-witness'){
    await openHistoricalDisclosure(page);
    await assertHistoricalImageFits(page,evidence.integrationCaseId);
    const identity=await page.locator('#historical-identity').innerText();
@@ -171,7 +171,24 @@ try{
    checks.push(`${review.id} historical capture resizes from desktop to 375px and back without clipping or aspect-ratio distortion`);
    const historicalScreenshot=review.id===first.id?'.cache/reviews-ui-historical.png':`.cache/reviews-ui-${review.id}-historical.png`;
    await page.locator('#review-evidence').screenshot({path:historicalScreenshot});
-  }else if(await page.locator('#review-evidence').isVisible())throw Error(`${review.id} shows original-host evidence that is not declared.`);
+  }else if(evidence?.kind==='authoritative-umf-source'){
+   await openHistoricalDisclosure(page);
+   const identity=await page.locator('#historical-identity').innerText();
+   for(const value of [evidence.documentId,evidence.visualId,evidence.envelopeVersion,evidence.modelVersion])if(!identity.includes(value))throw Error(`${review.id} authoritative source identity omits ${value}.`);
+   if(!(await page.locator('#historical-scope').innerText()).includes(evidence.scope))throw Error(`${review.id} authoritative source scope differs from its manifest.`);
+   const sourceCitation=await page.locator('#historical-sources').innerText();
+   if(!sourceCitation.includes(evidence.sourcePath.split('/').pop())||!sourceCitation.includes(evidence.sourceSha256))throw Error(`${review.id} authoritative source path/hash is not visibly identified.`);
+   if(!(await page.locator('#historical-omissions-title').evaluate(element=>(element as HTMLElement).hidden))||await page.locator('#historical-omissions').innerText()!=='')throw Error(`${review.id} authoritative source is shown with forced omission notes.`);
+   if(!(await page.locator('#historical-capture').evaluate(element=>(element as HTMLImageElement).hidden)))throw Error(`${review.id} authoritative UMF source was given a fabricated host preview.`);
+   const asset=review.publishedAssets.find((item:any)=>item.outputPath===evidence.sourceDownloadPath);
+   if(!asset||asset.path!==evidence.sourcePath||asset.sha256!==evidence.sourceSha256)throw Error(`${review.id} authoritative source download is not in the published asset manifest.`);
+   const source=await downloadBytes(page,'#historical-capture-download',`.cache/review-${review.id}-authoritative-source.json`);
+   if(source.filename!==evidence.sourcePath.split('/').pop()||sha(source.bytes)!==evidence.sourceSha256)throw Error(`${review.id} authoritative source download differs from the checked source bytes.`);
+   checks.push(`${review.id} authoritative UMF source identity and exact-byte download are verified without host-capture claims`);
+   const historicalScreenshot=review.id===first.id?'.cache/reviews-ui-historical.png':`.cache/reviews-ui-${review.id}-historical.png`;
+   await page.locator('#review-evidence').screenshot({path:historicalScreenshot});
+  }else if(evidence)throw Error(`${review.id} uses an unsupported original-evidence provenance kind.`);
+  else if(await page.locator('#review-evidence').isVisible())throw Error(`${review.id} shows source evidence that is not declared.`);
 
   for(const backend of ['graphviz','mermaid','lini'] as const){
    const row=review.renders.find((item:any)=>item.backend===backend);if(!row)throw Error(`${review.id} is missing ${backend} render state.`);
@@ -228,7 +245,7 @@ try{
    await page.screenshot({path:desktopScreenshot,fullPage:true});
   }
  }
- checks.push('every review selection exposes exact parsed/copyable YAML, original-host provenance where declared, and hash-verified SVG, PNG and native-source outcomes for all three backends');
+ checks.push('every review selection exposes exact parsed/copyable YAML, declared source provenance, and hash-verified SVG, PNG and native-source outcomes for all three backends');
 
  const probe=reviews.find((review:any)=>review.renders?.some((item:any)=>item.backend==='graphviz'&&item.status==='qualified'));
  if(!probe)throw Error('No review has a qualified Graphviz render for corrupt-asset and modal checks.');

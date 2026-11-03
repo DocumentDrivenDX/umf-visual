@@ -395,6 +395,35 @@ describe('presentation native quality verifier',()=>{
   }finally{await good.page.close();}
  });
 
+ it('proves neutral Mermaid entity cards, field rows, and exact unarrowed references',async()=>{
+  const d=createVisualDocument({id:'neutral-mermaid-entities',kind:'structure',form:'entities',question:'Which records are linked?',nodes:[{id:'record',label:'A "quoted" record · 東京'},{id:'event',label:'Event & audit'}],structure:{entities:[{node:'record',fields:[{id:'record-id',name:'id',type:'uuid',keys:['pk','fk'],nullable:false},{name:'display_name',type:'text'}]},{node:'event',fields:[{name:'record_id',type:'uuid'}]}],references:[{id:'emits',from:{node:'record',fieldId:'record-id'},to:{node:'event',field:'record_id'},label:'emits "events"',fromCardinality:'exactly-one',toCardinality:'zero-or-many'},{id:'observes',from:{node:'event'},to:{node:'record'},label:'observes',identification:'identifying',fromCardinality:'exactly-one'}]}},'quality:neutral-mermaid-entities','1.4.0');
+  const good=await check(d,'mermaid');
+  try{
+   expect(good.plan.source).toContain('flowchart LR');expect(good.plan.source).toContain('r1@---');expect(good.plan.source).toContain('r2@---');expect(good.plan.source).not.toContain('-->');
+   expect(good.plan.source).toContain('NOT#32;NULL');expect(good.plan.source).toContain('Identifying');expect(result(good.checks,'mermaid-er-fields-and-relations')).toBe('pass');
+   const fieldMap=good.plan.elementMap.find(item=>item.kind==='field'&&item.logicalId==='record-id');expect(fieldMap?.nativeId).toBe(good.plan.elementMap.find(item=>item.kind==='entity'&&item.logicalId==='record')?.nativeId);
+   const nativeLabel=await good.page.locator('#frame svg g.node').filter({hasText:'東京'}).locator('foreignObject div').innerText();expect(nativeLabel.split('\n')[0]).toBe('A "quoted" record · 東京');
+   expect(good.plan.source).toContain('PK,#32;FK#32;·#32;NOT#32;NULL');
+   const restore=async()=>good.page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},good.svg);
+   await restore();
+   const wrongField=await good.page.locator('#frame svg').evaluate(root=>{const card=[...root.querySelectorAll('g.node')].find(node=>node.id.includes('flowchart-n1-'));const div=card?.querySelector('foreignObject div');if(!div)throw Error('Missing native Mermaid card text owner');div.innerHTML=div.innerHTML.replace('NOT NULL','NULL');return(root as SVGSVGElement).outerHTML;});
+   expect(result(await verifyPresentationQuality(good.page,{svg:wrongField,document:d,plan:good.plan}),'mermaid-er-fields-and-relations')).toBe('fail');
+   await restore();
+   const wrongLabel=await good.page.locator('#frame svg').evaluate(root=>{const div=[...root.querySelectorAll('g.edgeLabel foreignObject div')][0];if(!div)throw Error('Missing native Mermaid edge-label owner');div.textContent='invented relationship';return(root as SVGSVGElement).outerHTML;});
+   expect(result(await verifyPresentationQuality(good.page,{svg:wrongLabel,document:d,plan:good.plan}),'mermaid-er-fields-and-relations')).toBe('fail');
+   await restore();
+   const arrowed=await good.page.locator('#frame svg path[data-edge="true"]').first().evaluate(path=>{path.setAttribute('marker-end','url(#invented-arrow)');return(path.closest('svg') as SVGSVGElement).outerHTML;});
+   expect(result(await verifyPresentationQuality(good.page,{svg:arrowed,document:d,plan:good.plan}),'mermaid-er-fields-and-relations')).toBe('fail');
+  }finally{await good.page.close();}
+  const omitted=createVisualDocument({id:'neutral-mermaid-omitted-cardinality',kind:'structure',form:'entities',question:'What is authored?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[]},{node:'b',fields:[]}],references:[{id:'one-sided',from:{node:'a'},to:{node:'b'},label:'relates',fromCardinality:'exactly-one'}]}},'quality:neutral-mermaid-omitted-cardinality','1.4.0');
+  const partial=await check(omitted,'mermaid');
+  try{
+   expect(result(partial.checks,'mermaid-er-fields-and-relations')).toBe('pass');expect(partial.plan.source).toContain('1#32;→#32;unspecified');expect(partial.plan.source).not.toContain('0..*');
+   const invented=await partial.page.locator('#frame svg g.edgeLabel').first().evaluate(label=>{const div=label.querySelector('foreignObject div');if(!div)throw Error('Missing partial-cardinality label');div.textContent='relates · 1 → 0..*';return(label.closest('svg') as SVGSVGElement).outerHTML;});
+   expect(result(await verifyPresentationQuality(partial.page,{svg:invented,document:omitted,plan:partial.plan}),'mermaid-er-fields-and-relations')).toBe('fail');
+  }finally{await partial.page.close();}
+ },{timeout:45_000});
+
  it('checks Mermaid stack containment and authored layer order from cluster geometry',async()=>{
   const d=doc({id:'mermaid-stack-quality',kind:'structure',form:'stack',question:'What is the order?',nodes:[{id:'api',label:'API',layer:'top'},{id:'engine',label:'Engine',layer:'middle'},{id:'schema',label:'Schema',layer:'bottom'}],structure:{layers:[{id:'top',label:'Top layer'},{id:'middle',label:'Middle layer'},{id:'bottom',label:'Bottom layer'}]}});
   const good=await check(d,'mermaid');try{
