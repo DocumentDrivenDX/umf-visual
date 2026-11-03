@@ -45,6 +45,8 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
   ?['lini-native-ast','lini-trend-series-and-date-value-geometry']
   :visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')
   ?['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-timeline-events-and-date-scale','lini-entity-field-rows']
+  :visual.kind==='timeline'&&visual.form==='roadmap'
+  ?['lini-native-ast','lini-native-carriers','lini-roadmap-period-lane-span-ownership']
   :visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
   ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']
   :['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows']));

@@ -2274,6 +2274,65 @@ winner, current-state verification, vocabulary change or host-support expansion
 is invented. Commit follows in this change; git history is authoritative.
 Cycle 21 remains pending until cycle 20 is committed.
 
+### Twenty-first-cycle scope — period/lane roadmap
+
+Cycle 21 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/forms/visuals-roadmap.json`, SHA-256
+`7d6a37e0bbd89a5795aa095ae9b855ea771c28daf78f675e508fdc390310dc12`.
+Preserve Visual 1.0.0 / envelope 0.10.0, eight ordered period identities/labels,
+four lane identities/labels and eight source-indexed spans with exact labels,
+start/end category references, lanes and authored built/decided statuses. No dates,
+durations or causal relationships are authored. Historical PRD locator/digest and
+status claims do not verify current delivery state.
+
+A generic period-by-lane scene must resolve categories and lanes by ID and follow
+declaration order. Same-period spans occupy a visible category cell; multi-period
+interval composition must disclose its category-boundary policy without inventing
+elapsed time. Exact span labels/status and start/end/lane ownership require both
+independent native AST and actual SVG geometry evidence. Reordered period/lane
+arrays, moved spans, changed endpoints/status and source immutability provide
+controls. Shared vocabulary already expresses this source; native layout, packing
+and styling remain renderer responsibilities without fixture-specific branches.
+
+Runtime qualification requires AGENTS public/native/catalog gates and affected
+timeline regressions, plus source/provenance/review/UI consumer checks. Commit
+cycle 21 before starting cycle 22. No source-fact enrichment is anticipated.
+
+### Twenty-first-cycle integration checkpoint — 2026-11-03
+
+The bounded Lini categorical roadmap preserves exact periods/lanes, inclusive
+span endpoints, full authored labels and literal statuses. Same-lane overlap uses
+renderer-only subtracks; native proof independently checks containment/disjointness
+rather than mirroring packing. Period midpoint alignment, actual CSS-scaled
+insets, independent AST/visible-text recovery and exact bar identity/count controls
+pass. Source/public controls pass seven tests/117 assertions; native controls pass
+seven tests/48 assertions. No source/model changes or fixture-specific branches
+were introduced; source/type/diff checks and implementation-label audit pass.
+
+Native Graphviz 16.1/Lini 1.1 and catalog 53-item ordinary-profile renders 19/29/24
+pass. Showcase remains nine examples/23 qualified/four unsupported/69 assets and
+23 SVG/PNG replays. Integrated reviews cover 20 documents/42 qualified/18
+unsupported/126 assets/42 SVG/PNG replays, with five captured and 15 authoritative
+sources. All 20 review UI examples pass, including 375px and downloads. Public
+browser passes 53 fixtures/106 round trips and 20 reviewed definitions/40 round trips/
+42 plans without errors. Installed packed Bun/Node consumers are valid and complete.
+Final shared catalog UI passes all 214 native SVGs; showcase UI passes nine
+examples/23 qualified variants/46 SVG/PNG previews in Chromium 153, without errors.
+
+### Twenty-first-cycle closeout — 2026-11-03
+
+The isolated full suite passes **835 tests, zero failures, 22,333 assertions
+across 138 files in 152.16 seconds** (`.cache/cycle21/full-tests.log`). All
+required native/corpus/review/UI, public-browser, packed-consumer, source/type/build
+and actual visual/model/interface/modularity audits pass. Exact Visual 1.0.0
+source and historical PRD locator/status claims remain unchanged. Period/lane ID
+joins, inclusive categorical intervals, full label/status ownership and independent
+native geometry qualify the bounded Lini roadmap. Renderer-only overlap subtracks
+add no semantic lanes or sequence meaning. No calendar duration, causal delivery,
+current-state verification, vocabulary, strict-interchange or host capability
+expansion is claimed. Commit follows in this change; git history is authoritative.
+Cycle 22 remains pending until cycle 21 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2285,8 +2344,8 @@ Cycle 11 is committed as `5bcc704`; cycle 12 is committed as `fa45a72`.
 Cycle 13 is committed as `51405f3`; cycle 14 is committed as `c5212bf`.
 Cycle 15 is committed as `a4f89f1`; cycle 16 is committed as `fc841bd`.
 Cycle 17 is committed as `af9ba07`; cycle 18 is committed as `8b0bbe8`.
-Cycle 19 is committed as `122e5c6`; cycle 20 is complete and ready for commit.
-Cycles 21–68 remain pending.
+Cycle 19 is committed as `122e5c6`; cycle 20 is committed as `adefa85`.
+Cycle 21 is complete and ready for commit; cycles 22–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

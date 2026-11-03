@@ -922,6 +922,44 @@
       }
     },
     {
+      "id": "visuals-roadmap",
+      "title": "Visuals milestones",
+      "description": "An exact review of the authored period roadmap, preserving its ordered periods, lanes, spans, statuses, and parent references.",
+      "kind": "timeline",
+      "form": "roadmap",
+      "definitionPath": "fixtures/visual/forms/visuals-roadmap.json",
+      "definitionSha256": "7d6a37e0bbd89a5795aa095ae9b855ea771c28daf78f675e508fdc390310dc12",
+      "sources": [
+        {
+          "path": "fixtures/visual/forms/visuals-roadmap.json",
+          "sha256": "7d6a37e0bbd89a5795aa095ae9b855ea771c28daf78f675e508fdc390310dc12",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The checked-in Visual 1.0.0 fixture JSON is the complete definition and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/forms/visuals-roadmap.json",
+          "sha256": "7d6a37e0bbd89a5795aa095ae9b855ea771c28daf78f675e508fdc390310dc12",
+          "outputPath": "reviews/visuals-roadmap/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/forms/visuals-roadmap.json",
+        "sourceSha256": "7d6a37e0bbd89a5795aa095ae9b855ea771c28daf78f675e508fdc390310dc12",
+        "documentId": "visual:visuals-roadmap",
+        "visualId": "visuals-roadmap",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/visuals-roadmap/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. Period, lane, and span IDs, labels, declared order, start/end period references, lane assignments, and statuses are source-authored. The source path and digest are locator metadata; this review does not verify current PRD bytes or infer calendar dates, elapsed durations, or current delivery status from the period scale or status labels."
+      }
+    },
+    {
       "id": "umf-ac-coverage",
       "title": "Acceptance criteria satisfied",
       "description": "An exact review of the authored meter source, preserving its single value, target, unit, direction, and number format.",

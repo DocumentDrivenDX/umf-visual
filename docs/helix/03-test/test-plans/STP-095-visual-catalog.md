@@ -683,3 +683,28 @@ reconstructed complete wrapped content qualify the bounded Lini table. Core form
 validation, exact Visual 1.0.0 authority and historical PRD locator limits remain
 unchanged; no inferred winner, current-state verification, portable vocabulary
 change or host capability expansion is claimed.
+
+
+## Period/lane roadmap conformance
+
+Test reordered period/lane arrays and ID joins, same-period and multi-period spans,
+overlap subtracks, source-index stability and source immutability. Inspect actual
+AST/SVG identities and complete wrapped label/status recovery, exact bar counts,
+period midpoint alignment and declared order. Moved lanes/endpoints, shifted period
+labels, hidden or changed statuses, missing label lines and phantom bars must fail.
+Verify finite ordered grid boundaries and actual CSS-scaled inclusive insets across
+native fit sizes. Packing remains renderer policy; proof requires disjoint owned
+intervals rather than a particular first-fit assignment. Control-character errors
+and escaped unknown-field paths remain precisely located, with shared native
+fit/clipping/font/overlap and earlier timeline regressions retained.
+
+
+Cycle 21 closeout: isolated full suite passes 835 tests, zero failures and
+22,333 assertions across 138 files in 152.16 seconds. All native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual visual/model/interface
+checks pass. Exact period/lane joins, inclusive span cells, literal statuses and
+complete wrapped labels qualify the bounded Lini roadmap. Native source/order,
+midpoint/interval geometry, hidden/phantom controls and overlap subtracks retain
+independent source ownership without imposing private packing choices. Exact
+Visual 1.0.0 authority and historical PRD/status limits remain unchanged; no elapsed
+time, current delivery verification, vocabulary or host expansion is inferred.

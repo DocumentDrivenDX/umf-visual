@@ -632,3 +632,22 @@ or truncation. Native proof MUST independently reconstruct actual AST and visibl
 text against source content, not rely solely on the compiler's wrapping oracle.
 Native row/column order and cell ownership require separate structural and actual
 rendered-geometry evidence. Unsupported subsets remain located target limitations.
+
+
+## Categorical period/lane roadmaps
+
+A bounded roadmap profile MUST resolve span start/end and lane references by ID,
+retain original pointers and follow declared period/lane order. Inclusive period
+cells MAY compose a visible interval, including a full cell for equal endpoints;
+this categorical policy MUST be disclosed without calendar duration or causality.
+Authored labels and literal statuses remain visibly owned by their span bars,
+without inferred delivery completion or status-derived business meaning.
+
+Overlapping same-lane spans MAY occupy renderer-only subtracks without adding
+semantic lanes or sequence facts. Native proof MUST independently establish lane
+containment, exact inclusive endpoints, disjoint bars and full visible text/status,
+rather than reproduce a private packing algorithm. Period labels MUST align with
+their actual grid cells; native insets require measured screen-space scaling.
+Original full strings are validated before wrapping, and actual AST/visible lines
+must reconstruct complete authored content. Unknown content remains preserved with
+located accounting; vocabulary and historical source claims are unchanged.
