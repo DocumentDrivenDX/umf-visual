@@ -8,6 +8,7 @@ import {compileStatePresentation} from './state';
 import {compileTimelinePresentation} from './timeline';
 import {compileLiniQuadrant} from './lini-quadrant';
 import {compileLiniMeter} from './lini-meter';
+import {compileLiniStatPresentation} from './lini-stat';
 
 export type PresentationBackend='graphviz'|'mermaid'|'lini';
 export interface PresentationOptions {backend:PresentationBackend;direction?:'LR'|'TB';theme?:'presentation/1';}
@@ -107,13 +108,17 @@ export function compilePresentation(document:Document,options:PresentationOption
   ||visual.kind==='state'&&visual.form==='machine'
   ||visual.kind==='timeline'&&visual.form==='history'
   ||visual.kind==='comparison'&&visual.form==='quadrant'
-  ||visual.kind==='metric'&&visual.form==='meter';
+  ||visual.kind==='metric'&&(visual.form==='meter'||visual.form==='stat');
  if(!supported)return {ok:false,diagnostics:[diag('PRESENTATION_FORM',BASE+'/form','No presentation projection is qualified for '+visual.kind+'/'+visual.form+'. The current flow projection covers only network diagrams.')]};
 
  const backend=optionValues.backend as PresentationBackend,dir=(optionValues.direction??'LR') as 'LR'|'TB';
  if(visual.kind==='metric'&&visual.form==='meter'){
   if(backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This bounded scalar meter profile is currently qualified only for the pinned Lini chart backend.')]};
   return compileLiniMeter(visual);
+ }
+ if(visual.kind==='metric'&&visual.form==='stat'){
+  if(backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This bounded date-series stat presentation is currently qualified only for the pinned Lini chart backend.')]};
+  return compileLiniStatPresentation(visual);
  }
  if(visual.kind==='comparison'&&visual.form==='quadrant'){
   if(backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This bounded native quadrant presentation is currently qualified only for the pinned Lini chart backend.')]};

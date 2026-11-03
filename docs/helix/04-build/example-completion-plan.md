@@ -1921,12 +1921,75 @@ context, viewer and mobile behavior, on Chromium 153.0.8010.12 with no errors.
 
 Final quiet full suite passes **743 tests, zero failures, 20,700 assertions
 across 116 files in 149.31 seconds** (`.cache/cycle14-full-tests.log`). All
-required gates and visual/interface/model audits pass. Cycle 14 is complete and
-ready for commit; the commit follows in this change and MUST precede cycle 15.
+required gates and visual/interface/model audits pass. Cycle 14 is committed as `c5212bf`.
 The exact Visual 1.0.0 source, target/reference semantics and historical ledger
 locator remain unchanged. No vocabulary change, semantic maximum, calculated
 percentage/progress/current-ledger claim, expanded host support, release or
 publication is introduced.
+
+### Fifteenth-cycle scope — dated stat observations
+
+Cycle 15 is in progress using exact authoritative source
+`fixtures/visual/forms/umf-ac-satisfied.json`, SHA-256
+`deb56df1ab320b4609086b78eb4ba4afa9f1e89ad457a2a877f529aa433a726e`.
+Preserve envelope 0.10.0 / Visual 1.0.0, IDs, one time-axis series with nine
+October 2026 observations, every original date/value/index, unit criteria,
+good up and number format with zero decimals. The three 117 observations remain
+distinct dated samples. No target, baseline or comparison is authored. Historical
+source locator/digest and executive audience do not certify a current ledger.
+
+Qualify a generic temporal stat view with an explicit dated headline policy:
+latest authored UTC calendar date, not current time or blindly the last array
+item. Preserve original source pointers through any stable chronological view.
+Actual x spacing must be proportional to date intervals and y geometry must
+retain raw values; display formatting does not rewrite source values. Do not
+invent growth rates, percentages, causation or smoothed observations. Any straight
+connecting segments are disclosed display guides between samples, not measured
+intermediate facts. Keep plateaus and uneven gaps visible and inspect readability.
+
+Reuse private date/format/domain helpers where appropriate, keeping runtime and
+native policy outside vocabulary and strict interchange. Existing metric context
+must expose exact raw axis/series/point fields and pointers without derived
+progress. Qualify generic renamed, unsorted-input, gap and plateau controls;
+unsupported backends/subsets remain honest. Run affected native/corpus/review/UI,
+browser/package/full-suite gates for shared changes. Commit cycle 15 before
+starting cycle 16.
+
+Final source/interface/native audit approves the private shared calendar module,
+including forward/inverse epoch, early-year and leap-boundary controls; existing
+timeline imports retain compatibility. Every observation keeps original-index
+maps through the chronological display. Duplicate and tied latest-date readings
+remain present without choosing a winner. Exact date ticks and raw value-domain
+ticks are verified against native geometry; fractional/default precision, narrow
+and all-zero controls prevent formatter/domain drift. The separate readable
+caption grid, native “Dated observations” heading and visible straight-guide note
+preserve exact facts without crossing leaders or inferred intermediate data.
+Root visually approved the actual final native image, SHA-256
+`0a7e3904dd0a29e6bbeb8b589a37521432e52d7ab0c7b197134cc741598ed0b6`.
+
+Renderer gates pass focused 17 tests / 243 assertions and broader native suites
+43 tests / 477 assertions, plus the final spacing rerun. Fetch/native, catalog
+53 items / 532 assets / 159 full pairs / zero loss, and showcase nine definitions /
+23 qualified variants / 4 explicit unsupported variants / 69 assets with 23 native
+SVG/PNG replay pairs pass. Integrated reviews pass **14 definitions / 34 qualified
+variants / 8 explicit unsupported variants / 102 assets**, with 34 actual SVG and
+34 PNG replays. All fourteen review UI examples pass without browser errors;
+public browser checks pass 53 catalog fixtures / 106 round trips plus fourteen
+reviewed definitions / twenty-eight round trips / thirty-four plans. SDK/site,
+packed Bun/Node, source/type and final shared catalog/showcase UI gates pass on
+Chromium 153.0.8010.12 without errors; no fixture/date-specific dispatch is used.
+
+The first full run caught an outdated test expecting stat to be entirely
+unsupported. Its test-only correction now checks the precise missing-time-axis
+subset refusal while retaining a separate valid unsupported-form assertion;
+focused tests pass 14 tests / 253 assertions. Production and source were unchanged.
+Final isolated full suite passes **762 tests, zero failures, 21,000 assertions
+across 120 files in 180.53 seconds** (`.cache/cycle15-full-tests-final.log`).
+All required gates and actual visual/interface audits pass. Cycle 15 is complete
+and ready for commit; the commit follows in this change and MUST precede cycle 16.
+Exact Visual 1.0.0 observations, format/good/unit and historical source limits are
+unchanged; no vocabulary change, current-ledger, growth/percentage/causation,
+host-support expansion, release or publication claim is introduced.
 
 ### Ordered cycle inventory
 

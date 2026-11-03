@@ -544,3 +544,26 @@ model audits pass. Raw-domain calibration remains independent of rounded glyphs;
 negative/zero/over-target and coincident-reference ownership controls qualify the
 bounded native meter. Exact Visual 1.0.0 source and historical ledger limits are
 unchanged, without a semantic maximum, derived progress or host-support expansion.
+
+
+## Temporal-stat conformance
+
+Verify forward/inverse calendar round trips across epoch, early-year and leap
+boundaries; inspect actual native tick date strings and affine positions. Test
+source reversal without mutation, uneven gaps, plateaus, duplicate observations
+and tied latest dates retaining all source pointers/readings. Validate raw y
+geometry and exact format/default precision on fractional, narrow and all-zero
+domains, using the raw tick plan rather than recomputing a step from padded bounds.
+Changed date captions, moved markers, missing guides and forged ownership maps
+must fail independently. Check exact optional text and metadata carriers, native
+observation-grid heading/reading order and visible straight-guide disclaimer,
+with readable unclipped artifact bounds and no inferred current/growth claim.
+
+Cycle 15 closeout: final isolated suite passes 762 tests, zero failures and
+21,000 assertions across 120 files in 180.53 seconds. All native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual visual/interface
+audits pass. A prior full run caught a stale test-only whole-form stat refusal;
+the corrected test preserves the precise subset boundary and production/source
+were unchanged. Calendar/tick geometry, duplicate/tied observations and readable
+dated summaries qualify the bounded profile without current-ledger, inferred
+growth or host-support claims; exact Visual 1.0.0 authority remains unchanged.

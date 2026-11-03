@@ -109,6 +109,22 @@ test('metric context preserves authored fields and exact series/point pointers w
  expect(authoredMetricView({title:'No metric'})).toBeNull();
 });
 
+test('authored metric context exposes the complete date axis and source-indexed observations',()=>{
+ const visual=JSON.parse(readFileSync('fixtures/visual/forms/umf-ac-satisfied.json','utf8')).extensions['umf.visual'];
+ const view=authoredMetricView(visual)!;
+ expect(view.fields).toContainEqual({key:'axis',value:{kind:'time'},sourcePath:'/extensions/umf.visual/metric/axis'});
+ const series=view.series[0]!;
+ expect(series.idSourcePath).toBe('/extensions/umf.visual/metric/series/0/id');
+ expect(series.labelSourcePath).toBe('/extensions/umf.visual/metric/series/0/label');
+ expect(series.points).toHaveLength(9);
+ expect(series.points[0]).toEqual({sourcePath:'/extensions/umf.visual/metric/series/0/points/0',fields:[
+  {key:'at',value:'2026-10-02',sourcePath:'/extensions/umf.visual/metric/series/0/points/0/at'},
+  {key:'value',value:55,sourcePath:'/extensions/umf.visual/metric/series/0/points/0/value'},
+ ]});
+ expect(series.points[4]?.fields).toContainEqual({key:'value',value:117,sourcePath:'/extensions/umf.visual/metric/series/0/points/4/value'});
+ expect(series.points[8]?.fields).toContainEqual({key:'value',value:180,sourcePath:'/extensions/umf.visual/metric/series/0/points/8/value'});
+});
+
 test('both viewers load the shared context panel and the static-site build versions its ESM helper',()=>{
  const build=readFileSync('microsite/build.ts','utf8');
  const app=readFileSync('microsite/showcase.js','utf8');

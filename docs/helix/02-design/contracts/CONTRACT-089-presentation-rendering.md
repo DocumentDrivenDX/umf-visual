@@ -514,3 +514,29 @@ association. Zero fills may be geometrically empty; negative values extend to th
 correct side of the zero anchor. Shared fit, clipping, text/font and source-hash
 checks remain required. Strict interchange and portable metric semantics are
 unchanged by native meter composition.
+
+
+## Dated temporal-stat presentation
+
+A bounded time-axis stat profile MUST preserve each observation's original
+series/point pointer, exact date and raw value, independently from display order
+and number formatting. A headline based on greatest authored calendar date MUST
+identify that historical date rather than imply current measurements. Tied latest
+dates retain all authored readings; duplicate observations retain their separate
+source indexes without selecting a winner or jittering raw coordinates.
+
+Shared private calendar conversions MUST explicitly use the same integer-day
+epoch in both directions, independent of timezone/DST and early-year host date
+quirks. Actual native x positions MUST be affine to date intervals and y positions
+to raw values under disclosed renderer-selected bounds. Tick text and positions,
+including fractional or zero domains, require independent native verification;
+formatted glyphs MUST NOT replace raw coordinate facts.
+
+A separate readable observation grid MAY associate full dates/values with the
+plot without crossing callout leaders. It MUST preserve chronological display
+order with source-index ties and own every caption. Straight connecting segments
+are renderer guides, not measured intermediate observations, smoothing, growth
+rates or causal relationships; that distinction MUST remain visible in the
+downloadable artifact. Native title, unit, series, good-direction, format and
+admitted optional text retain exact source ownership. Unsupported formats,
+backends and metric subsets remain located refusals without vocabulary changes.

@@ -46,9 +46,13 @@ test('meter projection refuses other backends and other metric forms with locate
   expect(result.diagnostics[0]?.code).toBe('PRESENTATION_BACKEND_SUBSET');
   expect(result.diagnostics[0]?.path).toBe('/extensions/umf.visual/form');
  }
- const other={...source,extensions:{...source.extensions,'umf.visual':{...visual,form:'stat'}}} as unknown as Document;
- const result=compile(other);expect(result.ok).toBe(false);if(result.ok)return;
- expect(result.diagnostics.some(diagnostic=>diagnostic.code==='PRESENTATION_FORM'&&diagnostic.path==='/extensions/umf.visual/form')).toBe(true);
+ const stat={...source,extensions:{...source.extensions,'umf.visual':{...visual,form:'stat'}}} as unknown as Document;
+ const statResult=compile(stat);expect(statResult.ok).toBe(false);if(statResult.ok)return;
+ expect(statResult.diagnostics).toContainEqual(expect.objectContaining({code:'PRESENTATION_LINI_STAT_SCOPE',path:'/extensions/umf.visual/metric/axis'}));
+ const lineVisual={...visual,form:'line' as const,metric:{...visual.metric!,axis:{kind:'time' as const},series:[{...visual.metric!.series[0]!,points:[{at:'2026-10-01',value:1},{at:'2026-10-02',value:2}]}]}};
+ const unsupportedForm={...source,extensions:{...source.extensions,'umf.visual':lineVisual}} as unknown as Document;
+ const unsupportedResult=compile(unsupportedForm);expect(unsupportedResult.ok).toBe(false);if(unsupportedResult.ok)return;
+ expect(unsupportedResult.diagnostics).toContainEqual(expect.objectContaining({code:'PRESENTATION_FORM',path:'/extensions/umf.visual/form'}));
 });
 
 test('optional takeaway, format, and reference owners exist exactly once in the public native source map',()=>{
