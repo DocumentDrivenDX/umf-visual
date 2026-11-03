@@ -30,7 +30,7 @@ export type ArtifactReader=(path:string)=>Promise<Uint8Array>;
 export function requiredPresentationChecks(backend:PresentationBackend,visual:Visual):string[]{
  const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-svg-fit','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
  if(visual.layout?.kind==='circular')checks.push('presentation-circular-layout');
- if(backend==='graphviz')checks.push(...(visual.kind==='state'?['graphviz-native-ast','graphviz-state-transitions-and-markers']:visual.kind==='timeline'&&visual.form==='history'?['graphviz-native-ast','graphviz-timeline-events-and-axis']:['graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order']));
+ if(backend==='graphviz')checks.push(...(visual.kind==='state'?['graphviz-native-ast','graphviz-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['graphviz-native-ast','graphviz-timeline-events-and-axis']:['graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order']));
  else if(backend==='lini')checks.push(...(visual.kind==='comparison'&&visual.form==='quadrant'
   ?['lini-native-ast','lini-native-carriers','lini-quadrant-coordinate-ownership']
   :visual.kind==='metric'&&visual.form==='meter'
@@ -41,12 +41,12 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
   ?['lini-native-ast','lini-native-carriers','lini-category-bar-values-and-category-ownership']
   :visual.kind==='metric'&&visual.form==='line'
   ?['lini-native-ast','lini-trend-series-and-date-value-geometry']
-  :visual.kind==='timeline'&&visual.form==='history'
+  :visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')
   ?['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-timeline-events-and-date-scale','lini-entity-field-rows']
   :visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
   ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']
   :['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows']));
- else checks.push(...(visual.kind==='state'?['mermaid-state-transitions-and-markers']:visual.kind==='timeline'&&visual.form==='history'?['mermaid-timeline-event-ledger']:['mermaid-native-node-carriers',...(visual.form==='entities'?['mermaid-er-fields-and-relations']:[...(visual.kind==='flow'?['mermaid-flow-paths']:[]),'mermaid-containment-and-order'])]));
+ else checks.push(...(visual.kind==='state'?['mermaid-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['mermaid-timeline-event-ledger']:['mermaid-native-node-carriers',...(visual.form==='entities'?['mermaid-er-fields-and-relations']:[...(visual.kind==='flow'?['mermaid-flow-paths']:[]),'mermaid-containment-and-order'])]));
  if(backend!=='lini'&&visual.nodes?.some(node=>node.ports?.length))checks.push(backend==='graphviz'?'graphviz-node-port-rows':'mermaid-labeled-port-fallbacks');
  return checks.sort();
 }

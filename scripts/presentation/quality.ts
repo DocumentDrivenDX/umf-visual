@@ -163,7 +163,7 @@ export async function verifyPresentationQuality(
    }
    if(edges.length!==state.transitions.length+1)problems.push(`native edge count ${edges.length} includes a missing or extra helper/transition path`);
    checks.push(pass('graphviz-state-transitions-and-markers',sourceSha256,!!ast&&Array.isArray(ast.objects)&&Array.isArray(ast.edges)&&problems.length===0,problems.length?problems.join('; '):`${visualNodes.length} state nodes, ${state.transitions.length} item-mapped transitions, and the authored initial${(state.final??[]).length?' and final':''} marker(s) have native AST and SVG ownership.`));
-  }else if(visual.kind==='timeline'&&visual.form==='history'&&ast&&Array.isArray(ast.objects)){
+  }else if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')&&ast&&Array.isArray(ast.objects)){
    const problems:string[]=[],layout=planDateHistoryEvents(visual.timeline?.events??[]),objects=ast.objects,edges=Array.isArray(ast.edges)?ast.edges:[],byName=new Map(objects.map(object=>[objectName(object),object])),byGvid=new Map(objects.map(object=>[Number(object._gvid),objectName(object)]));
    if(ast.edges!==undefined&&!Array.isArray(ast.edges))problems.push('Graphviz timeline AST has a malformed non-array edge collection');
    if(!layout?.ok){problems.push('source date-history events do not have exact valid UTC calendar-day positions');}
@@ -191,7 +191,7 @@ export async function verifyPresentationQuality(
     if(edges.length!==axisEdges.length)problems.push('Graphviz contains a native event-to-event connection not present in the timeline source');
    }
    checks.push(pass('graphviz-timeline-events-and-axis',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${visual.timeline?.events?.length??0} exact event/date cards have source-index ownership, nonoverlapping native carriers, and linear UTC-day x positions; the axis is undirected and unmapped.`));
-  }else if(visual.kind==='timeline'&&visual.form==='history'){
+  }else if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')){
    checks.push(pass('graphviz-timeline-events-and-axis',sourceSha256,false,'Graphviz JSON AST is required to bind every date-history event and the unmapped date-axis helper.'));
   }else if(ast&&Array.isArray(ast.objects)&&Array.isArray(ast.edges)){
    const objects=ast.objects,edges=ast.edges;
@@ -438,7 +438,7 @@ export async function verifyPresentationQuality(
    const expectedPathCount=state.transitions.length+1+(state.final?.length??0);
    if(dom.paths.length!==expectedPathCount)problems.push(`native Mermaid path count ${dom.paths.length} differs from the ${state.transitions.length} authored transitions plus ${expectedPathCount-state.transitions.length} explicit marker links`);
    checks.push(pass('mermaid-state-transitions-and-markers',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${nodes.length} state nodes, ${state.transitions.length} mapped directed transitions, and authored initial/final markers are visible in their native carriers.`));
-  }else if(visual.kind==='timeline'&&visual.form==='history'){
+  }else if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')){
    const layout=planDateHistoryEvents(visual.timeline?.events??[]),problems:string[]=[];
    if(!layout?.ok)problems.push('source event dates do not form a valid chronological ledger');
    else{

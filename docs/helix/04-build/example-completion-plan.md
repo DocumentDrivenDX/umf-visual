@@ -2161,6 +2161,62 @@ locator limits remain unchanged; no current inventory, vocabulary, interchange,
 new backend support or publication claim is introduced. Commit follows in this
 change; git history is authoritative. Cycle 19 remains pending until commit 18.
 
+### Nineteenth-cycle scope — dated milestones
+
+Cycle 19 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/forms/umf-releases.json`, SHA-256
+`2a0be94de504e1d400c4897f786b0976c93173558942d334eadab94c7f60f08f`.
+Preserve Visual 1.0.0 / envelope 0.10.0, eleven event identities/labels and exact
+dates across seven days, including coincident dates. No lanes, spans, markers,
+event details/status/emphasis or causal edges are authored. The historical tag
+locator/digest does not certify current repository tags or present release status.
+
+Reuse qualified event-only date rendering where applicable, broadening generic
+milestones dispatch rather than inventing a new source interpretation. Exact-axis
+profiles preserve UTC-day spacing and shared same-date coordinates; packing has no
+quantitative Y, lane or intra-day sequence meaning. A categorical ledger preserves
+exact dates/identity and visibly discloses its reading order/nonproportional scale.
+Original event array indexes and bytes remain unchanged. Retain title/question
+ownership or explicit omissions, native labels and version-qualified proofs.
+
+If only review inventory changes, use affected source/provenance and review/UI
+consumer gates. Runtime form qualification additionally requires relevant history
+regressions and AGENTS public/native/catalog commands. Commit cycle 19 before
+starting cycle 20; no model or strict-interchange changes are anticipated.
+
+### Nineteenth-cycle integration checkpoint — 2026-11-03
+
+Implementation/interface review and actual native visual review pass. The shared
+history/milestones admission uses identical build/quality/mandatory-check dispatch;
+Graphviz short-range width adapts through one affine date factor shared with
+collision packing, retaining same-date equality and long-range behavior. No
+source/model changes or quality-tolerance waivers were introduced.
+
+Fresh integrated reviews cover 18 documents with 40 qualified variants,
+14 unsupported variants, 120 assets and 40 SVG/PNG native replays. Showcase
+coverage remains nine examples, 23 qualified variants, four unsupported variants,
+zero failed variants, 69 assets and 23 SVG/PNG replays. Public-browser checks pass
+53 fixtures/106 round trips and 18 reviewed definitions/36 round trips/40 plans
+without errors. Catalog coverage remains 53 items with source profiles rendered
+19/29/24. Packed Bun/Node consumers are valid; review UI passes all 18 examples
+without errors. Source/type/build and focused milestone/history controls pass.
+Final shared site UI passes all 214 native SVGs and showcase UI passes nine
+examples/23 qualified variants/46 SVG/PNG previews in Chromium 153, without errors.
+
+### Nineteenth-cycle closeout — 2026-11-03
+
+The isolated full suite passes **817 tests, zero failures, 21,989 assertions
+across 133 files in 165.57 seconds** (`.cache/cycle19/full-tests.log`). All
+required native/corpus/review/UI, public-browser, packed-consumer, source/type/build
+and actual visual/model/interface/modularity audits pass. Exact source bytes,
+Visual 1.0.0 identities/event pointers and historical tag-locator limits remain
+unchanged. Generic milestone qualification retains affine/same-date exact-axis
+proof, disclosed categorical ledger spacing and mandatory quality checks; native
+short-range readability uses target-owned width rather than altered source dates.
+No vocabulary, strict-interchange, external-history verification or host capability
+claim is introduced. Commit follows in this change; git history is authoritative.
+Cycle 20 remains pending until cycle 19 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2171,8 +2227,8 @@ Cycle 9 is committed as `991a02a`; cycle 10 is committed as `2d50cc2`.
 Cycle 11 is committed as `5bcc704`; cycle 12 is committed as `fa45a72`.
 Cycle 13 is committed as `51405f3`; cycle 14 is committed as `c5212bf`.
 Cycle 15 is committed as `a4f89f1`; cycle 16 is committed as `fc841bd`.
-Cycle 17 is committed as `af9ba07`; cycle 18 is complete and ready for commit.
-Cycles 19–68 remain pending.
+Cycle 17 is committed as `af9ba07`; cycle 18 is committed as `8b0bbe8`.
+Cycle 19 is complete and ready for commit; cycles 20–68 remain pending.
 Cycles 15–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.

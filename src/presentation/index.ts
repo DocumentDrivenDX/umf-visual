@@ -108,7 +108,7 @@ export function compilePresentation(document:Document,options:PresentationOption
   ||visual.kind==='structure'&&(visual.form==='stack'||visual.form==='entities'||visual.form==='tree')
   ||visual.kind==='sequence'&&(visual.form==='lifelines'||visual.form==='ladder')
   ||visual.kind==='state'&&visual.form==='machine'
-  ||visual.kind==='timeline'&&visual.form==='history'
+  ||visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')
   ||visual.kind==='comparison'&&visual.form==='quadrant'
   ||visual.kind==='metric'&&(visual.form==='meter'||visual.form==='stat'||visual.form==='bar'||visual.form==='line');
  if(!supported)return {ok:false,diagnostics:[diag('PRESENTATION_FORM',BASE+'/form','No presentation projection is qualified for '+visual.kind+'/'+visual.form+'. The current flow projection covers only network diagrams.')]};
@@ -136,7 +136,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  }
  if(rich&&backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This tree or sequence presentation is currently qualified only for the native Lini backend.')]};
  if(visual.kind==='state'&&visual.form==='machine'&&backend!=='lini')return compileStatePresentation(visual,backend,dir);
- if(visual.kind==='timeline'&&visual.form==='history'&&backend!=='lini')return compileTimelinePresentation(visual,backend);
+ if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')&&backend!=='lini')return compileTimelinePresentation(visual,backend);
  if(backend==='lini')return compileLiniPresentation(visual,dir);
  const errors:PresentationDiagnostic[]=[];
  const map:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];

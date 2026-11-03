@@ -601,3 +601,15 @@ node identity MUST survive native nesting; helper links MUST NOT become authored
 edge mappings. Shared spacing is a renderer budget qualified by actual native
 geometry, not a universal routing guarantee. Metadata not drawn remains explicitly
 accounted for rather than inferred from branch styling.
+
+
+## Event-only milestone qualification
+
+Qualified date-event profiles MAY admit history and milestones through the same
+native adaptation when all authored event meanings are preserved. Form admission
+MUST select identical source ownership, calendar geometry, categorical-ledger
+limitations and mandatory native checks. It MUST NOT add duration, causality,
+release-role or current external-history claims. Original event pointers and
+same-date identities remain distinct. Exact-axis scale width MAY adapt to native
+card/readability budgets while retaining one affine UTC-day factor and exact
+same-date equality; a fixed points-per-day choice is not portable semantics.

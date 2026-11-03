@@ -182,7 +182,7 @@ function fieldReference(nodeId:string,fieldName:string|undefined,fieldId:string|
 
 /** Emit a deterministic, readable Lini source view; renderer effects stay in Lini. */
 export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):PresentationPlan|PresentationFailure{
- if(visual.kind==='timeline'&&visual.form==='history')return compileLiniTimelinePresentation(visual);
+ if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones'))return compileLiniTimelinePresentation(visual);
  if(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'){
   try{return visual.kind==='sequence'?compileLiniSequence(visual):compileLiniTree(visual,direction);}
   catch(reason){const path=reason&&typeof reason==='object'&&'sourcePath'in reason&&typeof reason.sourcePath==='string'?reason.sourcePath:'/extensions/umf.visual';return failure('PRESENTATION_LINI_TEXT',path,reason instanceof Error?reason.message:'Lini could not encode the authored presentation text.');}

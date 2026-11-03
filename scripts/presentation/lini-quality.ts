@@ -460,7 +460,7 @@ export async function verifyLiniPresentationQuality(
  }
  checks.push(pass('lini-containment-and-order',sourceSha256,containmentOk,containmentOk?`Native group/layer bounds contain their authored members; nested group captions clear both parent and child boundaries${nestedCaptionClearances.length?` (${nestedCaptionClearances.join(', ')})`:''}; stack layers retain authored order${stackCaptionClearances.length?`; native stack caption clearance from preceding layer boundary: ${stackCaptionClearances.join(', ')}.`:'.'}`:containmentProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
 
- if(visual.kind==='timeline'&&visual.form==='history'){
+ if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')){
   const events=visual.timeline?.events??[],datePlan=planDateHistoryEvents(events),eventMaps=maps.filter(item=>item.kind==='event'),problems:string[]=[];
   let timelineOk=!!dom?.svg&&!!datePlan?.ok;
   const rootMap=maps.find(item=>item.kind==='visual'&&item.logicalId===visual.id),scene=rootMap?carrier(rootMap.nativeId,'lini-group'):undefined,axis=carrier('timeline-axis','lini-line');

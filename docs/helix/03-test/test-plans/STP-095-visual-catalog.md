@@ -637,3 +637,25 @@ semantics. A prior full run exposed stale header adjacency assertions only;
 independent semantic expectations remain retained. Absent-layout tree composition
 qualifies the existing Lini profile without current-inventory verification,
 vocabulary changes, invented authored edges or host-support expansion.
+
+
+## Event-only milestone conformance
+
+Exercise history and milestones through public compilation, native build, replay
+and mandatory-check dispatch with identical event/date ownership obligations.
+Include coincident events, moved same-date markers, altered labels and ledger
+order mutations. Exact-axis short/long date ranges retain affine rendered-center
+ratios and exact same-date equality under renderer-selected width; categorical
+ledgers retain their visible nonproportional-spacing caveat. Existing history and
+single-date regressions remain required. No source-array mutation or external tag
+verification may be inferred from the review.
+
+
+Cycle 19 closeout: isolated full suite passes 817 tests, zero failures and
+21,989 assertions across 133 files in 165.57 seconds. All native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual visual/model/interface
+checks pass. Milestone and history forms share exact event ownership and mandatory
+native proofs; short-range adaptive width preserves affine dates/same-date equality
+without changing tolerances or long-range behavior. Exact Visual 1.0.0 authority,
+historical tag-locator limits, portable vocabulary and strict interchange remain
+unchanged; no current external-history or host-support expansion is claimed.

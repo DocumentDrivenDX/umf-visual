@@ -31,8 +31,8 @@ function assignLabelTracks(rows:NonNullable<ReturnType<typeof planDateHistoryEve
 
 function validate(visual:Visual):PresentationFailure|undefined{
  const timeline=visual.timeline;
- if(visual.kind!=='timeline'||visual.form!=='history')return fail('PRESENTATION_LINI_TIMELINE_SCOPE','/form','Lini date-history presentation supports timeline/history only.');
- if(!timeline||timeline.scale.kind!=='date')return fail('PRESENTATION_LINI_TIMELINE_SCOPE','/timeline/scale','Lini history presentation requires an exact date scale.');
+ if(visual.kind!=='timeline'||(visual.form!=='history'&&visual.form!=='milestones'))return fail('PRESENTATION_LINI_TIMELINE_SCOPE','/form','Lini date-event presentation supports timeline/history or timeline/milestones only.');
+ if(!timeline||timeline.scale.kind!=='date')return fail('PRESENTATION_LINI_TIMELINE_SCOPE','/timeline/scale','Lini date-event presentation requires an exact date scale.');
  for(const key of ['lanes','spans','markers'] as const)if(timeline[key]!==undefined)return fail('PRESENTATION_LINI_TIMELINE_SCOPE','/timeline/'+key,'This bounded history profile supports events only; lanes, spans, and markers are not silently dropped.');
  if(visual.layout!==undefined)return fail('PRESENTATION_LINI_TIMELINE_SCOPE','/layout','Timeline layout hints have no qualified native projection.');
  if(visual.annotations?.length)return fail('PRESENTATION_LINI_TIMELINE_SCOPE','/annotations','Unanchored annotations do not have a qualified placement in the native history scene.');

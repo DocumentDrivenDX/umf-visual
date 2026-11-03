@@ -26,6 +26,32 @@ test('Graphviz history maps each unchanged source event to a fixed proportional 
  expect(JSON.stringify(document)).toBe(before);
 });
 
+test('Graphviz widens short date ranges to a readable axis span while preserving long-range scale',async()=>{
+ const cases=[
+  {file:'fixtures/visual/forms/umf-releases.json',minimumSpan:800},
+  {file:'fixtures/visual/forms/helix-releases.json',minimumSpan:800}
+ ];
+ for(const item of cases){
+  const document=readVisualDocument(await Bun.file(item.file).text(),'json'),visual=getVisual(document),layout=planDateHistoryEvents(visual.timeline!.events!)!,before=JSON.stringify(document),plan=compilePresentation(document,{backend:'graphviz'});
+  expect(plan.ok).toBe(true);if(!plan.ok||!layout.ok)continue;
+  const positions=layout.events.map(row=>{
+   const line=plan.source.split('\n').find(candidate=>candidate.trimStart().startsWith(`event_${row.sourceIndex+1} [`));
+   const match=/pos="([\d.-]+),([\d.-]+)!"/u.exec(line??'');expect(match).not.toBeNull();return{row,x:Number(match?.[1])};
+  });
+  const span=Math.max(...positions.map(item=>item.x))-Math.min(...positions.map(item=>item.x));
+  expect(span).toBeGreaterThanOrEqual(item.minimumSpan-0.01);
+  for(const item of positions){
+   const expected=layout.lastDay===layout.firstDay?0:item.row.dayOffset/(layout.lastDay-layout.firstDay),actual=span===0?0:(item.x-Math.min(...positions.map(position=>position.x)))/span;
+   expect(Math.abs(actual-expected)).toBeLessThan(0.001);
+  }
+  for(const date of new Set(layout.events.map(row=>row.event.at))){
+   const same=positions.filter(item=>item.row.event.at===date);if(same.length>1)expect(new Set(same.map(item=>item.x)).size).toBe(1);
+  }
+  if(item.file.endsWith('helix-releases.json'))expect(span).toBeCloseTo((layout.lastDay-layout.firstDay)*4.25,3);
+  expect(JSON.stringify(document)).toBe(before);
+ }
+});
+
 test('Mermaid history is a categorical date ledger with one carrier per source event and no relations',async()=>{
  const document=await load(),visual=getVisual(document),layout=planDateHistoryEvents(visual.timeline!.events!)!,plan=compilePresentation(document,{backend:'mermaid'});
  expect(plan.ok).toBe(true);if(!plan.ok||!layout.ok)return;

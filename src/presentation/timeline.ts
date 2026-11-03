@@ -19,7 +19,7 @@ function gridColumns(rows:DateHistoryEventPlacement[]):number {
 }
 
 function validateHistory(visual:Visual):PresentationFailure|undefined {
- if(visual.kind!=='timeline'||visual.form!=='history')return{ok:false,diagnostics:[diagnostic('PRESENTATION_TIMELINE_SCOPE','/form','The date-history projection supports timeline/history only.')]};
+ if(visual.kind!=='timeline'||(visual.form!=='history'&&visual.form!=='milestones'))return{ok:false,diagnostics:[diagnostic('PRESENTATION_TIMELINE_SCOPE','/form','The exact-date event projection supports timeline/history or timeline/milestones only.')]};
  const timeline=visual.timeline;
  if(!timeline||timeline.scale.kind!=='date')return{ok:false,diagnostics:[diagnostic('PRESENTATION_TIMELINE_SCOPE','/timeline/scale','This projection supports a date scale only; period timelines are not reinterpreted.') ]};
  const diagnostics:PresentationDiagnostic[]=[];
@@ -32,10 +32,16 @@ function validateHistory(visual:Visual):PresentationFailure|undefined {
 
 const DATE_X_POINTS_PER_DAY=4.25;
 const EVENT_CARD_HALF_WIDTH_POINTS=68;
-function collisionTracks(rows:ReturnType<typeof planDateHistoryEvents> extends infer T?T extends {ok:true;events:infer R}?R:never:never):Array<{sourceIndex:number;track:number;halfWidth:number}> {
+// Six native card widths provide a compact readable span for short histories.
+// This is presentation spacing only; every date still uses one affine x scale.
+const MIN_DATE_AXIS_SPAN_POINTS=EVENT_CARD_HALF_WIDTH_POINTS*12;
+function dateAxisPointsPerDay(daySpan:number):number {
+ return Math.max(DATE_X_POINTS_PER_DAY,MIN_DATE_AXIS_SPAN_POINTS/daySpan);
+}
+function collisionTracks(rows:ReturnType<typeof planDateHistoryEvents> extends infer T?T extends {ok:true;events:infer R}?R:never:never,pointsPerDay:number):Array<{sourceIndex:number;track:number;halfWidth:number}> {
  const ends:number[]=[],placed:Array<{sourceIndex:number;track:number;halfWidth:number}>=[];
  for(const row of rows){
-  const halfWidth=EVENT_CARD_HALF_WIDTH_POINTS,center=row.dayOffset*DATE_X_POINTS_PER_DAY;
+  const halfWidth=EVENT_CARD_HALF_WIDTH_POINTS,center=row.dayOffset*pointsPerDay;
   let track=ends.findIndex(end=>center-halfWidth>=end+12);if(track<0)track=ends.length;
   ends[track]=center+halfWidth;placed.push({sourceIndex:row.sourceIndex,track,halfWidth});
  }
@@ -43,10 +49,10 @@ function collisionTracks(rows:ReturnType<typeof planDateHistoryEvents> extends i
 }
 
 function compileGraphviz(visual:Visual,rows:NonNullable<ReturnType<typeof planDateHistoryEvents>> & {ok:true}):PresentationPlan {
- const events=visual.timeline!.events!,placements=collisionTracks(rows.events),trackBySource=new Map(placements.map(row=>[row.sourceIndex,row.track]));
  const first=rows.events[0]!,last=rows.events.at(-1)!,hasRange=first.day!==last.day;
+ const events=visual.timeline!.events!,pointsPerDay=hasRange?dateAxisPointsPerDay(last.day-first.day):DATE_X_POINTS_PER_DAY,placements=collisionTracks(rows.events,pointsPerDay),trackBySource=new Map(placements.map(row=>[row.sourceIndex,row.track]));
  // Graphviz neato -n2 interprets fixed node positions in points, not inches.
- const x=(offset:number)=>100+offset*DATE_X_POINTS_PER_DAY,y=(track:number)=>100+track*58;
+ const x=(offset:number)=>100+offset*pointsPerDay,y=(track:number)=>100+track*58;
  const title=visual.title??visual.question,elementMap:PresentationElement[]=[{logicalId:visual.id,sourcePath:BASE,nativeId:'visual',kind:'visual'}];
  const lines=[
   'digraph UMFDateHistory {',
@@ -66,7 +72,7 @@ function compileGraphviz(visual:Visual,rows:NonNullable<ReturnType<typeof planDa
   lines.push(`  ${nativeId} [id=${dot(nativeId)}, label=<${eventLabel}>, shape=plain, pos="${x(row.dayOffset).toFixed(3)},${y(trackBySource.get(index)!).toFixed(3)}!", pin=true];`);
  }
  lines.push('}');
- const approximations=[{sourcePath:path('/timeline/events'),requested:'Date scale and stable event identities',representation:'Each event card is positioned with a linear x coordinate derived from its exact UTC calendar-day offset; the displayed date and event label remain together. Equal-date events share x and retain source order in separate label tracks. Y positions are collision packing only and carry no quantitative or business meaning.'}];
+ const approximations=[{sourcePath:path('/timeline/events'),requested:'Date scale and stable event identities',representation:'Each event card is positioned with a linear x coordinate derived from its exact UTC calendar-day offset; a renderer-selected minimum axis span may widen short date ranges while preserving exact proportional spacing. The displayed date and event label remain together. Equal-date events share x and retain source order in separate label tracks. Y positions are collision packing only and carry no quantitative or business meaning.'}];
  if(!hasRange)approximations.push({sourcePath:path('/timeline/events'),requested:'Single-date history',representation:'All event cards share one date coordinate because the source contains one distinct date; no duration or date spacing is implied.'});
  const omissions=[
   ...(visual.title&&visual.question!==visual.title?[{sourcePath:path('/question'),reason:'The question is distinct from the concise display title and remains in the original document.'}]:[]),

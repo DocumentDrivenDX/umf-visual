@@ -44,7 +44,7 @@ export function expectedGraphvizConnectionCount(visual:Visual):number{
  if(visual.kind==='flow')return (visual.edges??[]).length;
  if(visual.kind==='structure'&&visual.form==='entities')return (visual.structure?.references??[]).length;
  if(visual.kind==='state'&&visual.form==='machine')return (visual.state?.transitions??[]).length+1; // renderer-owned initial marker link
- if(visual.kind==='timeline'&&visual.form==='history'){
+ if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')){
   const layout=planDateHistoryEvents(visual.timeline?.events??[]);
   return layout?.ok&&layout.firstDay!==layout.lastDay?1:0; // one unmapped, undirected date-axis guide; never an event relation
  }
@@ -131,7 +131,7 @@ function textTokens(v:Visual,backend:PresentationBackend):string[]{
   for(const n of v.nodes??[])out.push(n.label,...(n.detail?[n.detail]:[]));
   for(const e of v.edges??[])out.push(...(e.label?[e.label]:[]));
  }
- if(v.kind==='timeline'&&v.form==='history')for(const event of v.timeline?.events??[])out.push(event.label,event.at);
+ if(v.kind==='timeline'&&(v.form==='history'||v.form==='milestones'))for(const event of v.timeline?.events??[])out.push(event.label,event.at);
  if(v.form==='stack'){
   for(const l of v.structure?.layers??[])out.push(l.label);
   for(const n of v.nodes??[])out.push(n.label,...(n.detail?[n.detail]:[]));
