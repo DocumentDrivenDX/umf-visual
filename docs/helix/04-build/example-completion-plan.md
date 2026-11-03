@@ -1362,12 +1362,51 @@ hints rather than native side fields/business interfaces, and Mermaid's collinea
 route/node-level port approximation remains located. No new host support or
 publication follows from this closeout.
 
+### Sixth-cycle scope — opaque native-only witnesses
+
+Cycle 5 is committed as `0a0f7c3`; cycle 6 verification is complete. The unchanged opaque
+witness hash is `90a1921d973424c9290b7ae734d0fe8a5e4ea060a33773e7938105dd24676c19`.
+Its two records preserve synthetic opaque tokens, geometry and base64 payload
+strings under `application/vnd.umf.synthetic-stencil+json`; no decoded meaning,
+common visual or genuine renderable image/vector asset is supplied. A private
+board's separate mention of opaque stencils does not identify these synthetic
+records as captured board content.
+
+Reuse the existing generic native-witness-only integration path. It exposes the
+native JSON download and explicit projection gaps, with three host-target
+`NO_COMMON_PROJECTION` refusals, zero writes and adapter planning not attempted.
+Do not fabricate nodes, roles, edges, a reader question, common UMF download or
+preview glyph. Review preservation/hash-bound download, source authorship and UI
+absence/refusal evidence. Existing model/renderer boundaries need no extension or
+new target execution; no new live host action is authorized by this review.
+
+This is a native-only preservation/refusal cycle, not a sixth common projection
+or another rendered diagram. Commit the completed cycle before beginning catalog
+cycle 7; no later document implementation may advance before that commit.
+
+### Sixth-cycle closeout — ready for commit
+
+The unchanged 1,390-byte native JSON download is byte-identical to the witness
+hash above. Both `syn-opaque-a` and `syn-opaque-b`, synthetic tokens, geometry and
+opaque non-image payload strings remain preserved without decoding. Common path
+is null; no common UMF download, renderer artifact or live host write is created.
+All three targets retain `native-witness-only` refusal evidence with
+`NO_COMMON_PROJECTION`, zero writes and planning not attempted.
+
+The focused complex-Miro corpus/catalog checks pass four tests with 718 assertions.
+The existing site gate passes in Chromium 153.0.8010.12 with no errors, including
+the opaque card's three-refusal/one-download guard. Sol's read-only model/module
+audit confirms this reuses the existing generic absence/refusal path. No source
+edits or rebuild were needed and no broader full-suite or host qualification is
+claimed. This bounded verification is complete; the cycle 6 commit follows in
+this change and MUST precede cycle 7.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
 Cycle 3 is committed as `aa6a093`; cycle 4 is committed as `263b11f`.
-Cycle 5 is verified and ready for the commit that follows in this change;
-cycles 6–68 remain pending.
+Cycle 5 is committed as `0a0f7c3`. Cycle 6 is verified and ready for the commit
+that follows in this change; cycles 7–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 
