@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {afterAll,beforeAll,describe,expect,it} from 'bun:test';
 import {chromium,type Browser,type Page} from 'playwright';
-import {createVisualDocument,readVisualDocument} from '../../src/extensions/visual';
+import {createVisualDocument,getVisual,readVisualDocument} from '../../src/extensions/visual';
 import {compilePresentation,type PresentationPlan} from '../../src/presentation';
 import {renderPresentationLini} from '../../scripts/presentation/lini-runtime';
 import {verifyLiniPresentationQuality} from '../../scripts/presentation/lini-quality';
@@ -13,8 +13,8 @@ const required=['lini-rich-native-semantics','lini-rich-svg-ownership-geometry',
 const names=(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>)=>checks.map(check=>check.check);
 const status=(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>,name:string)=>checks.find(check=>check.check===name)?.result;
 const root=import.meta.dir+'/../..';
-async function renderDocument(document:ReturnType<typeof readVisualDocument>){
- const plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});expect(plan.ok,`${document.id} must compile`).toBe(true);if(!plan.ok)throw Error(JSON.stringify(plan));
+async function renderDocument(document:ReturnType<typeof readVisualDocument>,direction:'LR'|'TB'='LR'){
+ const plan=compilePresentation(document,{backend:'lini',theme:'presentation/1',direction});expect(plan.ok,`${document.id} must compile`).toBe(true);if(!plan.ok)throw Error(JSON.stringify(plan));
  const native=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900}});
  await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden;background:#fff}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
  await page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},native.svg);
@@ -28,6 +28,69 @@ async function recheck(page:Page,document:Awaited<ReturnType<typeof render>>['do
 function expectPass(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>){expect(names(checks)).toEqual(required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw Error(JSON.stringify(failed));}
 
 describe('pinned Lini rich layouts',()=>{
+ it('renders a source-ordered Visual 1.0 tree when layout is omitted',async()=>{
+  const document=readVisualDocument(await Bun.file(`${root}/fixtures/visual/forms/umf-extensions.json`).text(),'json');
+  const visual=getVisual(document);
+  expect(visual.layout).toBeUndefined();
+  const good=await renderDocument(document);
+  try{
+   expectPass(good.checks);
+   expect(good.plan.elementMap.filter(item=>item.kind==='node')).toHaveLength(9);
+   expect(good.plan.elementMap.filter(item=>item.kind==='visual')).toHaveLength(1);
+   expect(good.plan.elementMap.filter(item=>item.kind==='edge')).toHaveLength(0);
+   expect(good.nativeAst.match(/n1\.n[2-9]:left/gu)).toHaveLength(8);
+   const sourceOrder=(visual.nodes??[]).map(node=>node.label),nativeOrder=await good.page.locator('g.lini-node.lini-topic > text.lini-text').allTextContents();
+   expect(nativeOrder).toEqual(sourceOrder);
+   const titleCell=good.page.locator('g.lini-node[data-id="n1"] > g.lini-node.lini-cell[data-id="visual-title"]');
+   expect(await titleCell.locator('text.lini-text').textContent()).toBe("umf's extensions");
+   expect(await titleCell.boundingBox()).not.toBeNull();
+   const omittedQuestion=good.plan.omissions.find(item=>item.sourcePath==='/extensions/umf.visual/question');
+   expect(omittedQuestion?.reason).toContain('reader question remains in UMF');
+   const missingRelationship=good.nativeAst.replace('n1.n8:left & n1.n9:left','n1.n8:left & n1.n8:left');
+   expect(status(await recheck(good.page,document,good.plan,missingRelationship),'lini-rich-native-semantics')).toBe('fail');
+   const topDown=await renderDocument(document,'TB');
+   try{
+    expectPass(topDown.checks);expect(topDown.plan.source).toContain('layout: tree; direction: column; gap: 120;');
+    expect(await topDown.page.locator('g.lini-node.lini-topic > text.lini-text').allTextContents()).toEqual(sourceOrder);
+   }finally{await topDown.page.close();}
+  }finally{await good.page.close();}
+ },{timeout:30_000});
+
+ it('checks native declaration order within each parent instead of global preorder',async()=>{
+  const document=createVisualDocument({id:'tree-non-preorder',kind:'structure',form:'tree',question:'Which branch is nested?',nodes:[
+   {id:'root',label:'Root'},
+   {id:'first',label:'First child',parent:'root'},
+   {id:'second',label:'Second child',parent:'root'},
+   {id:'nested',label:'Nested child',parent:'first'},
+  ]},'test:tree-non-preorder','1.4.0');
+  const good=await renderDocument(document);
+  try{
+   expectPass(good.checks);
+   expect(good.nativeAst.indexOf('|block#n2|')).toBeLessThan(good.nativeAst.indexOf('|block#n4|'));
+   expect(good.nativeAst.indexOf('|block#n4|')).toBeLessThan(good.nativeAst.indexOf('|block#n3|'));
+  }finally{await good.page.close();}
+ },{timeout:30_000});
+
+ it('uses TB sibling geometry and rejects horizontally swapped SVG siblings',async()=>{
+  const document=createVisualDocument({id:'tree-tb-sibling-order',kind:'structure',form:'tree',question:'Which order is shown?',layout:{kind:'tree',direction:'TB'},nodes:[
+   {id:'root',label:'Root'},
+   {id:'first',label:'First child',parent:'root'},
+   {id:'second',label:'Second child',parent:'root'},
+   {id:'third',label:'Third child',parent:'root'},
+  ]},'test:tree-tb-sibling-order','1.4.0');
+  const good=await renderDocument(document,'LR');
+  try{
+   expectPass(good.checks);expect(good.plan.source).toContain('direction: column;');
+   const first=good.page.locator('g.lini-node[data-id="n2"]'),second=good.page.locator('g.lini-node[data-id="n3"]');
+   const firstTransform=await first.getAttribute('transform'),secondTransform=await second.getAttribute('transform');
+   expect(firstTransform).not.toBeNull();expect(secondTransform).not.toBeNull();
+   await first.evaluate((node,transform)=>node.setAttribute('transform',transform??''),secondTransform);
+   await second.evaluate((node,transform)=>node.setAttribute('transform',transform??''),firstTransform);
+   const swapped=await recheck(good.page,document,good.plan,good.nativeAst),geometry=swapped.find(check=>check.check==='lini-rich-svg-ownership-geometry');
+   expect(geometry?.result).toBe('fail');expect(geometry?.details).toContain('left-to-right order');
+  }finally{await good.page.close();}
+ },{timeout:30_000});
+
  it('proves the ladder adaptation, exact participant metadata cells, and native title margins',async()=>{
   const document=readVisualDocument(await Bun.file(`${root}/fixtures/visual/forms/helix-request-ladder.json`).text(),'json'),good=await renderDocument(document);
   try{

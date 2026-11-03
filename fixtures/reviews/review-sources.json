@@ -996,6 +996,44 @@
         "sourceDownloadPath": "reviews/umf-ac-trend/authoritative-source.json",
         "scope": "This exact UMF fixture JSON is the review definition. Its two series, nine date/value points per series, source order, shared time axis, unit, global good direction, and number format are source-authored. The global `good: up` value is not interpreted as a per-series preference or ranking. The source path and digest are locator metadata; this review does not retrieve or verify the referenced acceptance-criteria ledger, derive totals or growth claims, or treat the observations as current status."
       }
+    },
+    {
+      "id": "umf-extensions",
+      "title": "umf's extensions",
+      "description": "An exact review of the authored extension tree, preserving its root, eight ordered children, and empty modules list.",
+      "kind": "structure",
+      "form": "tree",
+      "definitionPath": "fixtures/visual/forms/umf-extensions.json",
+      "definitionSha256": "a11c45838a97eddb397cc1a7d8a6e4f0ed8fb7e1ce998d2855b78d038a38e062",
+      "sources": [
+        {
+          "path": "fixtures/visual/forms/umf-extensions.json",
+          "sha256": "a11c45838a97eddb397cc1a7d8a6e4f0ed8fb7e1ce998d2855b78d038a38e062",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The checked-in Visual 1.0.0 fixture JSON is the complete definition and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/forms/umf-extensions.json",
+          "sha256": "a11c45838a97eddb397cc1a7d8a6e4f0ed8fb7e1ce998d2855b78d038a38e062",
+          "outputPath": "reviews/umf-extensions/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/forms/umf-extensions.json",
+        "sourceSha256": "a11c45838a97eddb397cc1a7d8a6e4f0ed8fb7e1ce998d2855b78d038a38e062",
+        "documentId": "visual:umf-extensions",
+        "visualId": "umf-extensions",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/umf-extensions/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. Its nine node IDs, labels, parent relationships, and child order are source-authored; the modules list is empty. The source path and digest are locator metadata, not verification of the referenced repository path. The tree preserves the fixture's historical claim and does not assert a current or exhaustive listing of implemented extensions."
+      }
     }
   ]
 }

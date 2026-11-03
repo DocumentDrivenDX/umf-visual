@@ -615,3 +615,25 @@ neutral legend and within-series guide ownership qualify the bounded Lini line
 profile. Sparse/repeated dates, raw/default precision and existing stat behavior
 remain covered. Exact Visual 1.0.0 authority, core cardinality, historical locator
 limits, strict interchange and host qualification remain unchanged.
+
+
+## Tree composition conformance
+
+Compare absent-layout and explicit-tree views across supported directions, exact
+parent/nesting ownership and authored sibling order. Missing or redirected native
+hierarchy links must fail; generated links do not count as authored edges. Verify
+explicit hint precedence, located incompatible-layout refusal, metadata ownership
+or omissions and immutable source bytes. Native spacing changes require existing
+bilateral/deeper-tree regressions and actual route readability, alongside shared
+fit/clipping/font/overlap checks.
+
+
+Cycle 18 closeout: final isolated suite passes 810 tests, zero failures and
+21,720 assertions across 130 files in 152.15 seconds. All required native/corpus,
+review/UI, public-browser, packed-consumer, source/type/build and actual visual/
+model/interface audits pass. Per-parent AST order and direction-aware SVG sibling
+checks cover non-preorder arrays and TB horizontal swaps without changing source
+semantics. A prior full run exposed stale header adjacency assertions only;
+independent semantic expectations remain retained. Absent-layout tree composition
+qualifies the existing Lini profile without current-inventory verification,
+vocabulary changes, invented authored edges or host-support expansion.

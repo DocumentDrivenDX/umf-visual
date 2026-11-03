@@ -589,3 +589,15 @@ Each guide joins adjacent dated observations only within its source series;
 visible guide disclosures and exact owned metadata remain required. Shared pure
 numeric-scale planning MUST preserve raw coordinate facts independently of
 rounded labels, with finite bounds and explicit unsupported magnitude handling.
+
+
+## Source-declared tree composition
+
+A tree profile MAY select native direction/spacing when layout is absent, without
+adding layout facts to the source. Explicit qualified tree hints retain precedence;
+incompatible explicit layouts require located accounting. Parent references own
+hierarchy independently of renderer-generated links. Sibling order and original
+node identity MUST survive native nesting; helper links MUST NOT become authored
+edge mappings. Shared spacing is a renderer budget qualified by actual native
+geometry, not a universal routing guarantee. Metadata not drawn remains explicitly
+accounted for rather than inferred from branch styling.

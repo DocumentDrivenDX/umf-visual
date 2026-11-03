@@ -2110,6 +2110,57 @@ aggregate, causal, status-based desirability or publication claim is introduced.
 Commit follows in this change; git history is authoritative. Cycle 18 remains
 pending and may start only after cycle 17 is committed.
 
+### Eighteenth-cycle scope — source-declared hierarchy
+
+Cycle 18 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/forms/umf-extensions.json`, SHA-256
+`a11c45838a97eddb397cc1a7d8a6e4f0ed8fb7e1ce998d2855b78d038a38e062`.
+Preserve Visual 1.0.0 / envelope 0.10.0, nine node identities/labels, one root and
+eight parent relationships in authored sibling order. No explicit edges, roles,
+status or layout are authored. The source path/digest is a historical assertion,
+not verification of today's extension inventory; no source nodes are added or
+removed based on current implementation.
+
+Evaluate the existing native Lini tree first. Missing layout must not require
+semantic enrichment: a renderer-owned default may compose the authored hierarchy,
+while explicit layout meanings retain their own qualified scope. Native nesting,
+source-indexed ownership, sibling order and readable title/question require actual
+native proof; hierarchy helpers do not become authored edges. Preserve the exact
+source alias and scoped backend limitations without vocabulary/interchange changes.
+
+A source/manifest-only result requires focused provenance/preservation tests and
+review build/replay/UI plus consumer checks. Any shared renderer, dispatch or
+native-proof change instead runs the applicable AGENTS public/native/catalog
+commands and affected regressions. Commit cycle 18 before starting cycle 19.
+
+### Eighteenth-cycle closeout — 2026-11-03
+
+The existing native Lini tree now admits absent layout using renderer-selected
+direction and shared route-spacing budgets, preserving explicit tree hints and
+located incompatible-layout refusal. Exact source bytes, nine node identities,
+eight parent relationships and sibling order remain unchanged. Native AST order
+is checked per parent rather than against global preorder; actual SVG sibling
+geometry follows the validated native direction. Non-preorder positive and TB
+horizontal-swap negative controls preserve the distinction. Hierarchy links
+remain native helpers, with no fabricated source edges or roles.
+
+All required native/corpus, source/type/build, public-browser, packed Bun/Node
+consumer and shared site/review/showcase UI gates pass. Updated verifier replay
+covers 23 showcase SVG/PNG variants and 17 reviewed documents with 37 qualified
+variants, 14 unsupported variants, 111 assets and 37 SVG/PNG replays. Chromium
+153 reports no browser errors. Root approved the fresh native tree PNG, SHA-256
+`85ec0fe552624b8fb2fb6a16fd997b8e443650e0e29e2ff08d2c0996948a8ac8`.
+
+The final isolated suite passes **810 tests, zero failures, 21,720 assertions
+across 130 files in 152.15 seconds** (`.cache/cycle18-full-tests-final.log`).
+The earlier full run found only stale test header-adjacency expectations;
+the test-only correction retains independent direction/font, identity/icon/order
+and count assertions, with no production change. Visual/model/interface and
+modularity audits pass. Exact Visual 1.0.0 authority and historical inventory
+locator limits remain unchanged; no current inventory, vocabulary, interchange,
+new backend support or publication claim is introduced. Commit follows in this
+change; git history is authoritative. Cycle 19 remains pending until commit 18.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2120,7 +2171,8 @@ Cycle 9 is committed as `991a02a`; cycle 10 is committed as `2d50cc2`.
 Cycle 11 is committed as `5bcc704`; cycle 12 is committed as `fa45a72`.
 Cycle 13 is committed as `51405f3`; cycle 14 is committed as `c5212bf`.
 Cycle 15 is committed as `a4f89f1`; cycle 16 is committed as `fc841bd`.
-Cycle 17 is complete and ready for commit; cycles 18–68 remain pending.
+Cycle 17 is committed as `af9ba07`; cycle 18 is complete and ready for commit.
+Cycles 19–68 remain pending.
 Cycles 15–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.

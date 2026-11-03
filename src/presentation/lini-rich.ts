@@ -25,12 +25,12 @@ function plan(visual:Visual,source:string,elements:PresentationElement[],omissio
 export function compileLiniTree(visual:Visual,direction:'LR'|'TB'):PresentationPlan|PresentationFailure {
  const nodes=visual.nodes??[],elements:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];
  const tree=visual.layout?.kind==='tree'?visual.layout:undefined;
- if(!tree)return fail('PRESENTATION_LINI_TREE',path('/structure/tree'),'A tree presentation requires its explicit structure.tree layout.');
+ if(visual.layout&&!tree)return fail('VISUAL_LAYOUT',path('/layout'),'Lini tree presentation cannot preserve this non-tree root layout. Use an explicit tree layout or leave layout unspecified for renderer-selected placement.');
  const roots=nodes.filter(node=>node.parent===undefined);
  if(roots.length!==1)return fail('PRESENTATION_LINI_TREE_ROOT',path('/nodes'),'Lini tree presentation requires exactly one declared root node.');
  const byParent=new Map<string|undefined,VisualNode[]>();for(const node of nodes){const list=byParent.get(node.parent)??[];list.push(node);byParent.set(node.parent,list);}
  const root=roots[0]!;
- const children=(parent:string|undefined)=>orderBy(byParent.get(parent)??[],parent===undefined?tree.order:undefined);
+ const children=(parent:string|undefined)=>orderBy(byParent.get(parent)??[],parent===undefined?tree?.order:undefined);
  const nodeMap=new Map(nodes.map((node,index)=>[node.id,id('n',index)]));
  const branchColors=['--rose','--orange','--lime','--teal','--sky','--purple'];
  const add=(logicalId:string,sourcePath:string,nativeId:string,kind:PresentationElement['kind'])=>elements.push({logicalId,sourcePath,nativeId,kind});
@@ -54,9 +54,15 @@ export function compileLiniTree(visual:Visual,direction:'LR'|'TB'):PresentationP
   const decl=`|${type}#${nativeId}| ${label} ${nodePaint}${content.length?' [\n'+content.map(item=>indent(item,depth+1)).join('\n')+'\n'+'  '.repeat(depth)+']':''}`;
   return decl;
  };
- const treeDirection=tree.direction??direction;
+ // With no authored tree layout, use source sibling order and the caller's
+ // renderer direction. Parent references still own the hierarchy; no source
+ // layout or edge semantics are inferred.
+ const treeDirection=tree?.direction??direction;
  const directionValue=treeDirection==='bilateral'?'bilateral':treeDirection==='TB'?'column':'row';
- const source=[`{ layout: tree; direction: ${directionValue}; font-family: Arial; --lini-font-family: Arial;\n  .lini-block { font-family: Arial; }\n  .lini-text { font-family: Arial; }\n}`,emit(root,nodes.indexOf(root),0,true)].join('\n')+'\n';
+ // Renderer-owned spacing budgets open route channels around sibling branches.
+ // The native geometry gate remains the authority for each compiled tree.
+ const treeGap=treeDirection==='TB'?120:80;
+ const source=[`{ layout: tree; direction: ${directionValue}; gap: ${treeGap}; font-family: Arial; --lini-font-family: Arial;\n  .lini-block { font-family: Arial; }\n  .lini-text { font-family: Arial; }\n}`,emit(root,nodes.indexOf(root),0,true)].join('\n')+'\n';
  add(visual.id,path('/id'),nodeMap.get(root.id)!,'visual');
  for(const node of nodes){const index=nodes.indexOf(node);for(const field of ['detail','evidence','role','status','emphasis','group','layer','ports'] as const)if(node[field]!==undefined&&!['detail','role'].includes(field))omissions.push({sourcePath:path('/nodes/'+index+'/'+field),reason:'This tree profile renders hierarchy, labels, and supported icons; this field is retained in UMF but is not drawn.'});if(node.role)approximations.push({sourcePath:path('/nodes/'+index+'/role'),requested:'Node role '+node.role,representation:'Lini topics use a generic branch palette; node role does not change the native topic silhouette.'});if(node.icon&&iconToken(node.icon))approximations.push({sourcePath:path('/nodes/'+index+'/icon'),requested:'Icon '+node.icon,representation:'Native Lini Phosphor symbol with the generic branch palette applied to its stroke.'});}
  for(const key of ['takeaway','source','audience','steps','groups','edges','omissions'] as const)if(visual[key]!==undefined)omissions.push({sourcePath:path('/'+key),reason:'Retained in UMF; not part of the native Lini tree layout.'});

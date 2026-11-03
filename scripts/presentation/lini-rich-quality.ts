@@ -14,7 +14,7 @@ type NativeNode={nativeId:string;logicalId:string;kind:string;selector:string;pa
 type NativeParticipantField={nativeId:string;logicalId:string;parent:string|undefined;label:string;line:number};
 type NativeLink={from:string;to:string;operator:string;label:string;styleId:string|undefined;line:number;groups:string[]};
 type NativeTreeEdge={from:string;to:string;line:number};
-type NativeRead={nodes:NativeNode[];participantFields:Map<string,NativeParticipantField>;links:NativeLink[];treeEdges:NativeTreeEdge[];symbols:Map<string,string[]>;notes:Map<string,{participants:string[];line:number}>;frames:Map<string,Box>};
+type NativeRead={nodes:NativeNode[];participantFields:Map<string,NativeParticipantField>;links:NativeLink[];treeEdges:NativeTreeEdge[];treeDirection:'row'|'column'|'bilateral'|undefined;symbols:Map<string,string[]>;notes:Map<string,{participants:string[];line:number}>;frames:Map<string,Box>};
 type DomSheet={bounds:Box;signature:string};
 type DomNode={id:string;classes:string[];texts:string[];cells:Array<{id:string|null;text:string;bounds:Box}>;bounds:Box;shape:Box;sheetRects:DomSheet[];parentId:string|null;glyphs:number;icons:Array<{symbols:string[];glyphs:number}>};
 type DomLink={from:string|null;to:string|null;classes:string[];labels:string[];bounds:Box;labelBounds:Box|null;paths:Array<{d:string;start:Point|null;end:Point|null;bounds:Box}>;arrowCount:number};
@@ -35,6 +35,7 @@ const countBrackets=(line:string)=>{let quote=false,escape=false,open=0,close=0;
 /** Parse only the stable structural surface emitted by pinned `lini desugar`. */
 function readNative(source:string,plan:PresentationPlan):NativeRead {
  const nodes:NativeNode[]=[],participantFields=new Map<string,NativeParticipantField>(),links:NativeLink[]=[],treeEdges:NativeTreeEdge[]=[],symbols=new Map<string,string[]>(),notes=new Map<string,{participants:string[];line:number}>();
+ const directionMatch=/^\s*\{\s*layout:\s*tree;[^\n]*\bdirection:\s*(row|column|bilateral)\s*;/mu.exec(source),treeDirection=directionMatch?.[1] as NativeRead['treeDirection'];
  const byNative=new Map<string,PresentationPlan['elementMap'][number]>();for(const item of plan.elementMap){if(item.kind==='visual'&&byNative.has(item.nativeId))continue;byNative.set(item.nativeId,item);}
  const frames=new Map<string,Box>(),stack:Array<{id?:string;kind?:string;depth:number}>=[];
  const lines=source.split(/\r?\n/u);
@@ -83,7 +84,7 @@ function readNative(source:string,plan:PresentationPlan):NativeRead {
   }
   {const bracket=countBrackets(line),closesAfter=Math.max(0,bracket.close-bracket.open-(leadingClose?1:0));for(let i=0;i<closesAfter;i++)stack.pop();}
  }
- return{nodes,participantFields,links,treeEdges,symbols,notes,frames};
+ return{nodes,participantFields,links,treeEdges,treeDirection,symbols,notes,frames};
 }
 
 /** The caller inserts the pinned Lini SVG into #frame, then supplies the exact `desugar()` output. */
@@ -131,16 +132,23 @@ export async function verifyLiniRichPresentationQuality(page:Page,input:{documen
    const nodes=visual.nodes??[],nativeNodes=read.nodes.filter(item=>item.kind==='node'),idToNative=new Map(nodes.map(node=>[node.id,element(plan,'node',node.id)?.nativeId??'']));
    const fullNative=(id:string):string=>{const node=nodes.find(item=>item.id===id),own=idToNative.get(id)??'';return node?.parent?fullNative(node.parent)+'.'+own:own;};
    if(nativeNodes.length!==nodes.length)nativeOk=false,problems.push(`Native AST has ${nativeNodes.length} topic nodes; expected ${nodes.length}.`);
-   for(const [index,node] of nodes.entries()){
+   for(const node of nodes){
     const nativeId=idToNative.get(node.id)!,found=nativeNodes.find(item=>item.nativeId===nativeId),parentNative=node.parent?idToNative.get(node.parent):undefined;
-    if(!found||found.label!==node.label||found.parent!==parentNative||nativeNodes[index]?.nativeId!==nativeId){nativeOk=false;problems.push(`Tree topic ${node.id} native mismatch ${JSON.stringify({found,expected:{nativeId,label:node.label,parent:parentNative},atIndex:nativeNodes[index]?.nativeId})}.`);}
+    if(!found||found.label!==node.label||found.parent!==parentNative){nativeOk=false;problems.push(`Tree topic ${node.id} native mismatch ${JSON.stringify({found,expected:{nativeId,label:node.label,parent:parentNative}})}.`);}
     const symbols=read.symbols.get(nativeId)??[];if(node.icon&&(!symbols.includes(node.icon)||symbols.some(symbol=>symbol!==node.icon))){nativeOk=false;problems.push(`Topic ${node.id} native AST icon symbol does not equal ${node.icon}.`);}
+   }
+   const plannedDirection=/^\s*\{\s*layout:\s*tree;[^\n]*\bdirection:\s*(row|column|bilateral)\s*;/mu.exec(plan.source)?.[1];
+   if(!plannedDirection||read.treeDirection!==plannedDirection){nativeOk=false;problems.push(`Native tree direction ${read.treeDirection??'missing'} differs from the compiled presentation direction ${plannedDirection??'missing'}.`);}
+   const declaredDirection=visual.layout?.kind==='tree'?visual.layout.direction:undefined,expectedDirection=declaredDirection==='LR'?'row':declaredDirection==='TB'?'column':declaredDirection;
+   if(expectedDirection&&read.treeDirection!==expectedDirection){nativeOk=false;problems.push(`Native AST direction does not match the authored ${declaredDirection} tree direction.`);}
+   for(const parent of nodes){
+    const parentNative=idToNative.get(parent.id)??'',expectedChildren=nodes.filter(node=>node.parent===parent.id).map(node=>idToNative.get(node.id)??''),actualChildren=nativeNodes.filter(node=>node.parent===parentNative).sort((a,b)=>a.line-b.line).map(node=>node.nativeId);
+    if(JSON.stringify(actualChildren)!==JSON.stringify(expectedChildren)){nativeOk=false;problems.push(`Tree native AST sibling order under ${parent.id} differs: ${actualChildren.join(', ')} vs ${expectedChildren.join(', ')}.`);}
    }
    const root=nodes.find(node=>node.parent===undefined),rootNative=root?idToNative.get(root.id):undefined;
    const expectedPairs=nodes.filter(node=>node.parent).map(node=>[idToNative.get(node.parent!)??'',`${idToNative.get(node.parent!)??''}.${idToNative.get(node.id)??''}`] as const);
    for(const[from,to]of expectedPairs)if(!read.treeEdges.some(edge=>edge.from===from&&edge.to===to)){nativeOk=false;problems.push(`Native AST has no exact tree edge ${from} → ${to}.`);}
    if(read.treeEdges.length!==expectedPairs.length)nativeOk=false,problems.push(`Native AST has ${read.treeEdges.length} tree edges; expected exactly ${expectedPairs.length}.`);
-   const direction=visual.layout?.kind==='tree'?visual.layout.direction:undefined;if(direction&& !ast.includes(`direction: ${direction==='LR'?'row':direction==='TB'?'column':'bilateral'}`)){nativeOk=false;problems.push(`Native AST direction does not match ${direction}.`);}
   } else {nativeOk=false;problems.push('Rich Lini quality applies only to sequence and structure/tree visuals.');}
  }
  checks.push(pass('lini-rich-native-semantics',sourceSha256,nativeOk,nativeOk?'Pinned Lini desugared source preserves every mapped native identity, label, endpoint, operator, note anchor, group interval, and tree parent-child relationship.':problems.join('; ')||'Native semantic correspondence failed.'));
@@ -210,8 +218,25 @@ export async function verifyLiniRichPresentationQuality(page:Page,input:{documen
    if(actualTreeLinks.length!==expected.length||dom.links.length!==expected.length){geometryOk=false;geometryProblems.push(`Tree SVG has ${dom.links.length} native relationships; expected exactly ${expected.length}.`);}
    for(const pair of expected){const link=dom.links.find(item=>item.from===pair.from&&item.to===pair.to),parent=nodeCarrier(nativeId.get(pair.parent)??''),child=nodeCarrier(nativeId.get(pair.child.id)??''),path=link?.paths.find(item=>item.start&&item.end);if(!link||!parent||!child||!path||dist(path.start!,parent.shape)>32||dist(path.end!,child.shape)>32){geometryOk=false;geometryProblems.push(`Tree relationship ${pair.parent} → ${pair.child.id} lacks a native path joining the mapped topic shapes.`);}}
    const root=nodes.find(node=>node.parent===undefined),rootBox=root?nodeCarrier(fullNative(root.id))?.shape:undefined;
-   if(visual.layout?.kind==='tree'&&visual.layout.direction==='bilateral'&&rootBox){const sides=nodes.filter(node=>node.parent===root?.id).map(node=>{const box=nodeCarrier(fullNative(node.id))?.shape;return box?Math.sign((box.x+box.width/2)-(rootBox.x+rootBox.width/2)):0;});if(!sides.includes(-1)||!sides.includes(1)){geometryOk=false;geometryProblems.push('Bilateral tree does not place root branches on both native sides.');}}
-   for(const parent of nodes){const children=nodes.filter(node=>node.parent===parent.id),sameSide=new Map<number,typeof children>();for(const child of children){const parentBox=nodeCarrier(fullNative(parent.id))?.shape,childBox=nodeCarrier(fullNative(child.id))?.shape;if(!parentBox||!childBox)continue;const side=Math.sign(childBox.x+childBox.width/2-parentBox.x-parentBox.width/2),items=sameSide.get(side)??[];items.push(child);sameSide.set(side,items);}for(const items of sameSide.values()){const actual=[...items].sort((a,b)=>{const aa=nodeCarrier(fullNative(a.id))!.shape,bb=nodeCarrier(fullNative(b.id))!.shape;return aa.y+aa.height/2-bb.y-bb.height/2;});if(actual.length>1&&actual.some((child,index)=>child.id!==items[index]?.id)){geometryOk=false;geometryProblems.push(`Tree siblings under ${parent.id} changed vertical order within their native side.`);}}}
+   const direction=read?.treeDirection;
+   if(direction==='bilateral'&&rootBox){const sides=nodes.filter(node=>node.parent===root?.id).map(node=>{const box=nodeCarrier(fullNative(node.id))?.shape;return box?Math.sign((box.x+box.width/2)-(rootBox.x+rootBox.width/2)):0;});if(!sides.includes(-1)||!sides.includes(1)){geometryOk=false;geometryProblems.push('Bilateral tree does not place root branches on both native sides.');}}
+   for(const parent of nodes){
+    const children=nodes.filter(node=>node.parent===parent.id),parentBox=nodeCarrier(fullNative(parent.id))?.shape;
+    if(!parentBox||children.length<2)continue;
+    if(direction==='row'||direction==='column'){
+     const boxes=children.map(child=>({child,box:nodeCarrier(fullNative(child.id))?.shape}));
+     if(boxes.some(item=>!item.box)){geometryOk=false;geometryProblems.push(`Tree siblings under ${parent.id} are missing native geometry.`);continue;}
+     const center=(box:Box,axis:'x'|'y')=>axis==='x'?box.x+box.width/2:box.y+box.height/2;
+     const crossAxis=direction==='row'?'x':'y',orderAxis=direction==='row'?'y':'x';
+     const actual=[...boxes].sort((a,b)=>center(a.box!,orderAxis)-center(b.box!,orderAxis));
+     if(actual.some((item,index)=>item.child.id!==children[index]?.id)){geometryOk=false;geometryProblems.push(`Tree siblings under ${parent.id} changed ${direction==='row'?'top-to-bottom':'left-to-right'} order.`);}
+     if(boxes.some(item=>center(item.box!,crossAxis)<=center(parentBox,crossAxis))){geometryOk=false;geometryProblems.push(`Tree children under ${parent.id} are not placed in the native ${direction==='row'?'rightward':'downward'} direction.`);}
+    }else if(direction==='bilateral'){
+     const sameSide=new Map<number,typeof children>();
+     for(const child of children){const childBox=nodeCarrier(fullNative(child.id))?.shape;if(!childBox)continue;const side=Math.sign(childBox.x+childBox.width/2-parentBox.x-parentBox.width/2),items=sameSide.get(side)??[];items.push(child);sameSide.set(side,items);}
+     for(const items of sameSide.values()){const actual=[...items].sort((a,b)=>{const aa=nodeCarrier(fullNative(a.id))!.shape,bb=nodeCarrier(fullNative(b.id))!.shape;return aa.y+aa.height/2-bb.y-bb.height/2;});if(actual.length>1&&actual.some((child,index)=>child.id!==items[index]?.id)){geometryOk=false;geometryProblems.push(`Bilateral tree siblings under ${parent.id} changed vertical order on their native side.`);}}
+    }else {geometryOk=false;geometryProblems.push(`Tree under ${parent.id} has no validated native direction for sibling-order proof.`);}
+   }
   }
  }
  checks.push(pass('lini-rich-svg-ownership-geometry',sourceSha256,geometryOk,geometryOk?'Pinned SVG carriers own labels, paths, note attachments, icon glyphs, and authored relationships; anonymous loop rectangles are spatially paired with unique native guard text and contain exactly the declared member paths.':geometryProblems.join('; ')||'Pinned Lini SVG or required geometry is unavailable.'));
