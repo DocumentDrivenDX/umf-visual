@@ -24,6 +24,46 @@ async function downloadBytes(page:Page,selector:string,target:string):Promise<{f
  if(!bytes.length)throw Error(`${selector} download is empty.`);
  return{filename:download.suggestedFilename(),bytes};
 }
+async function exerciseViewerZoom(page:Page,expectedSvgSha256:string,selectionChanges:Array<()=>Promise<void>>):Promise<void>{
+ const viewer=page.locator('#diagram-viewer'),frame=page.locator('#viewer-image-frame'),level=page.locator('#viewer-zoom-level');
+ await page.locator('#enlarge-diagram').click();if(!(await viewer.isVisible()))throw Error('Review diagram viewer did not open.');
+ await page.locator('#viewer-image').evaluate(async element=>{await (element as HTMLImageElement).decode();});
+ if(!(await level.innerText()).trim().startsWith('Fit'))throw Error('Opening the review viewer did not start in Fit mode.');
+ const fit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
+ if(fit.width>fit.frameWidth+1||fit.height>fit.frameHeight+1)throw Error('Review viewer Fit mode exceeds its available viewport.');
+ await page.locator('#viewer-zoom-in').focus();await page.keyboard.press('Enter');if((await level.innerText()).trim()!=='125%')throw Error('Review zoom in did not advance by 25%.');
+ await page.locator('#viewer-actual-size').click();if((await level.innerText()).trim()!=='100%')throw Error('Review viewer actual size did not select 100%.');
+ const actual=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight,scrollWidth:f.scrollWidth,scrollHeight:f.scrollHeight,clientWidth:f.clientWidth,clientHeight:f.clientHeight,tabIndex:f.tabIndex};});
+ if(Math.abs(actual.width-actual.naturalWidth)>2||Math.abs(actual.height-actual.naturalHeight)>2)throw Error('Review 100% mode does not display intrinsic SVG dimensions.');
+ if(actual.tabIndex<0)throw Error('Review diagram viewport is not keyboard focusable.');
+ await page.locator('#viewer-zoom-in').click();if((await level.innerText()).trim()!=='125%')throw Error('Review zoom in did not advance by 25%.');
+ for(let i=0;i<20&&await page.locator('#viewer-zoom-in').isEnabled();i++)await page.locator('#viewer-zoom-in').click();if((await level.innerText()).trim()!=='400%')throw Error('Review zoom in did not clamp at 400%.');
+ for(let i=0;i<20&&await page.locator('#viewer-zoom-out').isEnabled();i++)await page.locator('#viewer-zoom-out').click();if((await level.innerText()).trim()!=='25%')throw Error('Review zoom out did not clamp at 25%.');
+ await page.locator('#viewer-fit').click();if(!(await level.innerText()).trim().startsWith('Fit'))throw Error('Review Fit control did not restore Fit mode.');
+ await page.setViewportSize({width:375,height:812});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Open review viewer causes page-level horizontal overflow on mobile.');
+ const mobileFit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
+ if(mobileFit.width>mobileFit.frameWidth+1||mobileFit.height>mobileFit.frameHeight+1)throw Error('Mobile review Fit mode exceeds its available viewport.');
+ if(!(await page.locator('#viewer-actual-size').isEnabled()))throw Error('Mobile review Fit mode unexpectedly disables Actual size.');
+ await page.locator('#viewer-actual-size').click();
+ const mobileActual=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight,scrollWidth:f.scrollWidth,scrollHeight:f.scrollHeight,clientWidth:f.clientWidth,clientHeight:f.clientHeight};});
+ if((await level.innerText()).trim()!=='100%'||Math.abs(mobileActual.width-mobileActual.naturalWidth)>2||Math.abs(mobileActual.height-mobileActual.naturalHeight)>2||(mobileActual.scrollWidth<=mobileActual.clientWidth&&mobileActual.scrollHeight<=mobileActual.clientHeight))throw Error('Mobile review 100% mode does not preserve the intrinsic-size scrollable image.');
+ await frame.evaluate(element=>{const f=element as HTMLElement;f.scrollTo(f.scrollWidth>f.clientWidth?120:0,f.scrollHeight>f.clientHeight?120:0);});
+ if(await frame.evaluate(element=>{const f=element as HTMLElement;return f.scrollLeft+f.scrollTop;})<=0)throw Error('Native overflow scrolling did not pan the mobile review viewport.');
+ await frame.focus();if(await page.evaluate(()=>document.activeElement?.id)!=='viewer-image-frame')throw Error('Review diagram viewport did not accept keyboard focus.');
+ await page.setViewportSize({width:390,height:844});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ const fixedAfterResize=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight};});
+ if((await level.innerText()).trim()!=='100%'||Math.abs(fixedAfterResize.width-fixedAfterResize.naturalWidth)>2||Math.abs(fixedAfterResize.height-fixedAfterResize.naturalHeight)>2)throw Error('Manual review 100% zoom changed size when the viewport resized.');
+ await page.locator('#viewer-fit').click();
+ const refit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
+ if(!(await level.innerText()).trim().startsWith('Fit')||refit.width>refit.frameWidth+1||refit.height>refit.frameHeight+1)throw Error('Review Fit mode did not recompute after a viewport resize.');
+ const downloadedHash=await page.evaluate(async()=>{const link=document.querySelector('#viewer-svg-download') as HTMLAnchorElement,response=await fetch(link.href),bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');});
+ if(downloadedHash!==expectedSvgSha256)throw Error('Review viewer zoom changed the hash-verified SVG download.');
+ await page.keyboard.press('Escape');if(await viewer.isVisible()||await page.evaluate(()=>document.activeElement?.id)!=='enlarge-diagram')throw Error('Review viewer Escape did not close and restore focus.');
+ for(const changeSelection of selectionChanges){await changeSelection();await page.locator('#enlarge-diagram').click();
+  if(!(await level.innerText()).trim().startsWith('Fit'))throw Error('Changing review scene/backend did not reset the viewer to Fit.');
+  await page.keyboard.press('Escape');}
+}
 async function openHistoricalDisclosure(page:Page):Promise<void>{
  const details=page.locator('#review-evidence-disclosure'),summary=details.locator(':scope > summary');
  if(!(await details.evaluate(element=>(element as HTMLDetailsElement).open)))await summary.click();
@@ -258,8 +298,19 @@ try{
  await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');
  checks.push('corrupt rendered assets fail hash verification and disable stale downloads');
 
- await page.locator('#enlarge-diagram').click();if(!(await page.locator('#diagram-viewer').isVisible()))throw Error('Review image modal did not open.');
- await page.keyboard.press('Escape');if(await page.locator('#diagram-viewer').isVisible()||await page.evaluate(()=>document.activeElement?.id)!=='enlarge-diagram')throw Error('Review modal keyboard close did not restore focus.');
+ await page.setViewportSize({width:375,height:812});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ for(const selector of ['#source-details','#review-evidence-disclosure','#rendering-notes']){const disclosure=page.locator(selector);if(await disclosure.count())await disclosure.evaluate(element=>{(element as HTMLDetailsElement).open=true;});}
+ if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Expanded review source/evidence panels cause horizontal page overflow at 375px.');
+ for(const selector of ['#source-details','#review-evidence-disclosure','#rendering-notes']){const disclosure=page.locator(selector);if(await disclosure.count()&&await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))await disclosure.evaluate(element=>{(element as HTMLDetailsElement).open=false;});}
+ await page.setViewportSize({width:1440,height:1000});
+ const alternateBackend=probe.renders.find((item:any)=>item.status==='qualified'&&item.backend!=='graphviz');
+ const nextReview=reviews.find((review:any)=>review.id!==probe.id&&review.renders?.some((item:any)=>item.backend==='graphviz'&&item.status==='qualified'));
+ const resetReviewSelections:Array<()=>Promise<void>>=[];
+ if(alternateBackend)resetReviewSelections.push(async()=>{await page.locator(`[data-backend="${alternateBackend.backend}"]`).click();await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');});
+ if(nextReview)resetReviewSelections.push(async()=>{await page.locator(`[data-example-id="${nextReview.id}"]`).click();await page.locator('[data-backend="graphviz"]').click();await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');});
+ if(!resetReviewSelections.length)throw Error('No scene/backend selection is available to verify viewer reset.');
+ await exerciseViewerZoom(page,graphviz.svgSha256,resetReviewSelections);
+ checks.push('review viewer supports Fit/100%, bounded 25% zoom, keyboard controls, a focusable scroll viewport, reset after scene/backend changes, and preserves SVG hash');
  await page.setViewportSize({width:375,height:812});await page.reload({waitUntil:'networkidle'});
  await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');
  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Review page overflows horizontally on mobile.');

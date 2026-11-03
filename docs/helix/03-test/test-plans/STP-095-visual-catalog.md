@@ -405,3 +405,24 @@ source/type, browser, packed-consumer and shared-site gates pass, including
 independent caption/path/frame mutation controls. This qualifies the tested
 generic caption policies without changing the authoritative Visual 1.0.0 source
 or expanding historical host support.
+
+
+## Shared inspection UX checks
+
+Verify Fit and fixed native-size modes independently across viewport resize,
+bounded zoom controls, visible scale and scroll/pan reach. Test reopening, scene
+and backend resets, unsupported-state cleanup and late image-decode races.
+Maintain keyboard dialog focus, Escape closure and focus restoration. At a narrow
+viewport, leave source disclosures expanded while checking page bounds: exact
+YAML/code must scroll internally and long references/hashes wrap without
+truncation or text mutation. Recheck original SVG download hashes after viewer
+interactions. Shared showcase/review views must use the same behavior without
+fixture-specific dispatch; no change in native rendering or model support is
+implied by these inspection controls.
+
+Cycle 9 closeout: quiet full suite passes 679 tests, zero failures and 19,797
+assertions across 100 files in 178.54 seconds. Both shared inspection browser
+suites pass native-size/Fit, bounded zoom/pan, lifecycle cleanup/reset, keyboard
+and narrow expanded-source checks, preserving original download hashes. The
+exact Visual 1.0.0 source and its absent/default properties are unchanged; no
+native compiler/model support expansion is claimed.

@@ -365,3 +365,21 @@ results. Core generic elements and the visual payload do not own native engine
 receipts, local SVG paths or UI inventory statuses. Those are local build-product
 metadata under this contract, not a competing visual model. No new vocabulary or
 generation authority is introduced.
+
+
+## Shared inspection interface
+
+Qualified source-bound render views MUST permit both fit-to-viewport and native
+size inspection, with bounded zoom and scroll/pan access to the enlarged asset.
+The interface MUST distinguish fixed native size from Fit when the viewport
+changes, expose the current scale, and preserve exact downloadable asset bytes.
+Dialog operation MUST retain keyboard access, focus behavior and Escape closure.
+Opening a new inspection or changing scene/backend MUST reset inspection state;
+late asynchronous completion MUST NOT restore stale images, metadata or downloads.
+Unavailable scenes MUST clear stale inspection state.
+
+Exact source panes MUST remain accessible on narrow viewports through internal
+scrolling; long source references and hashes MAY wrap without changing their
+content. Expanded source disclosures and enlarged diagrams MUST NOT force the
+whole page beyond the viewport. These are shared inspection requirements, not
+portable vocabulary fields or new native-renderer qualification claims.

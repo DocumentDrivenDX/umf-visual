@@ -8,12 +8,14 @@ const ui = {
   definitionPath: $('definition-path'), definition: $('definition-source'), citations: $('source-citations'),
   downloadSource: $('download-native-source'), downloadDefinition: $('download-definition'), frame: $('diagram-frame'), dimensionNote: $('dimension-note'),
   enlarge: $('enlarge-diagram'), viewer: $('diagram-viewer'), viewerImage: $('viewer-image'), viewerTitle: $('viewer-title'),
+  viewerFrame: $('viewer-image-frame'), viewerCanvas: $('viewer-canvas'), viewerFit: $('viewer-fit'), viewerZoomOut: $('viewer-zoom-out'),
+  viewerZoomIn: $('viewer-zoom-in'), viewerActualSize: $('viewer-actual-size'), viewerZoomLevel: $('viewer-zoom-level'),
   viewerCaption: $('viewer-caption'), viewerSvg: $('viewer-svg-download'),
   caveat: $('render-caveat'), renderNotes: $('rendering-notes'), renderNotesList: $('rendering-notes-list'),
   payload: $('visual-payload'), visualVersion: $('visual-version'), programmaticCode: $('programmatic-code'),
   compileTargetNote: $('compile-target-note'),
 };
-const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, historicalToken: 0, historicalUrl: null, historicalResizeObserver: null, objectUrls: new Set(), renderUrls: new Set(), currentVariant: null, currentImageUrl: null};
+const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, historicalToken: 0, historicalUrl: null, historicalResizeObserver: null, objectUrls: new Set(), renderUrls: new Set(), currentVariant: null, currentImageUrl: null, viewerMode:'fit',viewerScale:1};
 const HASH = /^[a-f0-9]{64}$/i;
 const pageConfig = {manifest: document.body.dataset.manifest || 'showcase.json', assetPrefix: document.body.dataset.assetPrefix || 'showcase', legacyRedirect: document.body.dataset.legacyRedirect !== 'false', selectionParam: document.body.dataset.selectionParam || 'id'};
 const LEGACY_HASHES = new Set(['#coverage', '#six-target-section', '#integrations', '#examples', '#language', '#kind-reference-grid']);
@@ -85,6 +87,42 @@ function setState(message, kind = 'info') {
   ui.frame.classList.remove('has-image');
   ui.engine.textContent = kind === 'error' ? 'RENDER UNAVAILABLE' : 'NATIVE ENGINE · SELECT A VARIANT';
   ui.quality.textContent = kind === 'error' ? 'NOT QUALIFIED' : 'SOURCE-BOUND EXAMPLE';
+}
+
+function applyViewerZoom(resetScroll=false) {
+  const frame=ui.viewerFrame,image=ui.viewerImage,canvas=ui.viewerCanvas;
+  const naturalWidth=image.naturalWidth,naturalHeight=image.naturalHeight;
+  if(!naturalWidth||!naturalHeight){ui.viewerZoomLevel.textContent=state.viewerMode==='fit'?'Fit':'100%';for(const button of [ui.viewerFit,ui.viewerZoomOut,ui.viewerZoomIn,ui.viewerActualSize])button.disabled=true;return;}
+  const width=Math.max(1,frame.clientWidth),height=Math.max(1,frame.clientHeight);
+  const priorWidth=Math.max(1,frame.scrollWidth),priorHeight=Math.max(1,frame.scrollHeight);
+  const centerX=(frame.scrollLeft+frame.clientWidth/2)/priorWidth,centerY=(frame.scrollTop+frame.clientHeight/2)/priorHeight;
+  const scale=state.viewerMode==='fit'?Math.min(1,width/naturalWidth,height/naturalHeight):state.viewerScale;
+  state.viewerScale=scale;
+  const imageWidth=Math.max(1,Math.round(naturalWidth*scale)),imageHeight=Math.max(1,Math.round(naturalHeight*scale));
+  canvas.style.width=`${Math.max(width,imageWidth)}px`;
+  canvas.style.height=`${Math.max(height,imageHeight)}px`;
+  image.style.width=`${imageWidth}px`;
+  image.style.height=`${imageHeight}px`;
+  const percent=Math.round(scale*100);
+  ui.viewerZoomLevel.textContent=state.viewerMode==='fit'?`Fit · ${percent}%`:`${percent}%`;
+  ui.viewerZoomOut.disabled=scale<=.25;
+  ui.viewerZoomIn.disabled=scale>=4;
+  ui.viewerActualSize.disabled=state.viewerMode==='actual';
+  ui.viewerFit.disabled=state.viewerMode==='fit';
+  if(resetScroll){frame.scrollLeft=0;frame.scrollTop=0;}
+  else{frame.scrollLeft=Math.max(0,centerX*frame.scrollWidth-frame.clientWidth/2);frame.scrollTop=Math.max(0,centerY*frame.scrollHeight-frame.clientHeight/2);}
+}
+
+function setViewerZoom(mode,scale) {
+  state.viewerMode=mode;
+  if(typeof scale==='number')state.viewerScale=Math.min(4,Math.max(.25,scale));
+  applyViewerZoom(mode==='fit'||mode==='actual');
+}
+
+function resetViewerZoom() {
+  state.viewerMode='fit';state.viewerScale=1;
+  ui.viewerZoomLevel.textContent='Fit';
+  applyViewerZoom(true);
 }
 
 function pathLabel(path) { return safeText(path).split('/').pop() || 'Source file'; }
@@ -391,6 +429,15 @@ function addRenderUrl(url) {
 
 function clearRenderUrls() {
   if (ui.viewer.open) ui.viewer.close();
+  ui.viewerImage.removeAttribute('src');
+  ui.viewerImage.alt='';
+  ui.viewerImage.style.width='';ui.viewerImage.style.height='';
+  ui.viewerTitle.textContent='';ui.viewerCaption.textContent='';
+  ui.viewerSvg.href='#';ui.viewerSvg.removeAttribute('download');ui.viewerSvg.setAttribute('aria-disabled','true');
+  ui.viewerCanvas.style.width='';ui.viewerCanvas.style.height='';
+  ui.viewerFrame.scrollLeft=0;ui.viewerFrame.scrollTop=0;
+  for(const button of [ui.viewerFit,ui.viewerZoomOut,ui.viewerZoomIn,ui.viewerActualSize])button.disabled=true;
+  ui.viewerZoomLevel.textContent='Fit';
   for (const url of state.renderUrls) {
     URL.revokeObjectURL(url);
     state.objectUrls.delete(url);
@@ -404,6 +451,7 @@ async function renderSelected() {
   if (!example) return;
   const token = ++state.renderToken;
   clearRenderUrls();
+  state.viewerMode='fit';state.viewerScale=1;ui.viewerZoomLevel.textContent='Fit';
   const variant = qualifiedVariant(example, state.backend);
   state.currentVariant = variant ?? null;
   ui.title.textContent = safeText(example.title, 'Untitled visual');
@@ -444,6 +492,16 @@ async function renderSelected() {
     ui.image.alt = `${example.title} — rendered by ${variant.engine} ${variant.nativeVersion}`;
     await ui.image.decode();
     if (token !== state.renderToken) return;
+    ui.viewerImage.src = svgUrl;
+    ui.viewerImage.alt = ui.image.alt;
+    ui.viewerTitle.textContent = safeText(example.title);
+    ui.viewerCaption.textContent = `${safeText(variant.engine)} ${safeText(variant.nativeVersion)} · PNG export ${variant.width} × ${variant.height}px · SVG vector`;
+    ui.viewerSvg.href = svgUrl;
+    ui.viewerSvg.download = pathLabel(variant.svgPath);
+    ui.viewerSvg.setAttribute('aria-disabled', 'false');
+    await ui.viewerImage.decode();
+    if (token !== state.renderToken) return;
+    setViewerZoom('fit');
     ui.state.hidden = true;
     ui.image.hidden = false;
     ui.enlarge.hidden = false;
@@ -481,13 +539,6 @@ async function renderSelected() {
       ui.downloadRecipe.setAttribute('aria-disabled', 'false');
     }
     ui.dimensionNote.textContent = `${variant.width} × ${variant.height} px · PNG and SVG downloaded from this render.`;
-    ui.viewerImage.src = svgUrl;
-    ui.viewerImage.alt = ui.image.alt;
-    ui.viewerTitle.textContent = safeText(example.title);
-    ui.viewerCaption.textContent = `${safeText(variant.engine)} ${safeText(variant.nativeVersion)} · PNG export ${variant.width} × ${variant.height}px · SVG vector`;
-    ui.viewerSvg.href = svgUrl;
-    ui.viewerSvg.download = pathLabel(variant.svgPath);
-    ui.viewerSvg.setAttribute('aria-disabled', 'false');
   } catch (error) {
     if (token !== state.renderToken) return;
     setState(`This render could not be verified: ${error instanceof Error ? error.message : String(error)}`, 'error');
@@ -554,7 +605,12 @@ async function initialize() {
 
 window.addEventListener('popstate',()=>{const requested=new URL(location.href).searchParams.get(pageConfig.selectionParam);const id=state.examples.some(example=>example.id===requested)?requested:state.examples[0]?.id;if(id)selectExample(id,false);});
 
-ui.enlarge.addEventListener('click', () => { if (state.currentVariant) ui.viewer.showModal(); });
+ui.enlarge.addEventListener('click', () => { if (state.currentVariant) {ui.viewer.showModal();resetViewerZoom();requestAnimationFrame(resetViewerZoom);} });
+$('viewer-fit').addEventListener('click',()=>setViewerZoom('fit'));
+$('viewer-actual-size').addEventListener('click',()=>setViewerZoom('actual',1));
+$('viewer-zoom-out').addEventListener('click',()=>setViewerZoom('scale',state.viewerScale-.25));
+$('viewer-zoom-in').addEventListener('click',()=>setViewerZoom('scale',state.viewerScale+.25));
+window.addEventListener('resize',()=>{if(ui.viewer.open&&state.viewerMode==='fit')requestAnimationFrame(()=>applyViewerZoom(true));});
 $('close-viewer').addEventListener('click', () => ui.viewer.close());
 ui.viewer.addEventListener('click', event => { if (event.target === ui.viewer) ui.viewer.close(); });
 ui.downloadDefinition.addEventListener('click', () => {

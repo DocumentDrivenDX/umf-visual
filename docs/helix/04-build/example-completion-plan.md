@@ -1530,8 +1530,7 @@ consumers and all required native/corpus/UI gates pass. The stale rich-compiler
 caption assertion was updated without changing production code or removing
 operator, endpoint, port, edge-identity or parallel-placement checks.
 
-Cycle 8 is complete and ready for commit; the commit follows in this change
-and MUST precede cycle 9. The canary remains byte-identical Visual 1.0.0 with
+Cycle 8 is committed as `b706901`. The canary remains byte-identical Visual 1.0.0 with
 no authored role, route, layout or additional business meaning. Caption estimates
 and offsets are bounded presentation heuristics, not a universal clearance or
 fit guarantee; actual native proof and visual inspection qualify the tested
@@ -1539,13 +1538,75 @@ profiles. Earlier draft 1.4.0 enrichments and historical host evidence retain
 their separate model/subset limits. No release, expanded host qualification or
 publication is claimed.
 
+### Ninth-cycle scope — supported-flow canary
+
+Cycle 9 is in progress using exact authoritative source
+`fixtures/catalog/canary-supported-flow.json`, SHA-256
+`d3f865c73aa04f9720b60153b280817a4919282cbdf30fc3703c9b4f364b1baf`.
+Retain envelope 0.10.0, Visual 1.0.0, document/visual IDs, two nodes and one edge.
+The question is its display heading; title, source locator and authored omission
+inventory are absent. The literal caption “transfers data” does not authorize
+adding an edge kind, and source/target labels do not authorize business roles.
+Routing/layout remain absent; retain the profile's default directed connection.
+Reuse authoritative-source provenance and an exact-byte definition/download,
+without synthetic capture or enrichment.
+
+Acceptance requires readable π and quoted labels in their owned native carriers,
+the exact owned edge caption, correct endpoints and direction on all three
+native renderers, plus source/JSON/YAML provenance and download checks. Reuse the
+existing caption policy if native inspection establishes clearance. For a
+source/manifest-only cycle, run focused source/provenance and affected review/UI,
+public-browser and package checks rather than claim a new full-corpus result.
+If a generic renderer or public boundary changes, run its required native/catalog
+and affected regression gates under repository instructions. Commit cycle 9
+before beginning cycle 10; no new vocabulary or host qualification is presumed.
+
+Native inspection found all three renderings faithful, but the shared Enlarge
+viewer still reduced the full image to a small mobile contain-fit. This cycle
+therefore adds a generic inspection interface: Fit, 100%, increment/decrement
+controls, visible percentage and scroll access at enlarged scale. Reset zoom on
+open and scene/backend changes; preserve original assets and exact downloads.
+Maintain keyboard dialog focus, Escape and focus restoration. Test actual mobile
+readability/scroll reach, desktop behavior and independent reset/selection races
+in both showcase and review pages. This is shared viewer behavior, not a new
+DSL concept, native mobile renderer or per-example presentation. Run affected
+shared browser/UI and source/type checks, plus focused tests for any changed
+public boundary; preserve current native source/receipt qualification unchanged
+unless implementation actually changes those outputs.
+
+The final source/interface audit approves the exact authoritative alias and
+shared inspection controls. The source tests preserve absent kind/routing/roles,
+profile-default direction and JSON/YAML identity. Viewer token guards prevent
+stale decode completion from replacing a newer scene; scene cleanup clears old
+image/download metadata, geometry and scroll. Fixed 100% and Fit modes retain
+distinct resize behavior. Native render source and model remain unchanged.
+
+Final browser evidence passes showcase 9 definitions / 23 qualified variants
+and reviews 8 definitions / 24 qualified variants / 72 assets, with 24 actual
+SVG and 24 PNG replays. Both shared suites explicitly verify backend and scene
+resets, Fit versus fixed 100%, zoom limits and pan reach, expanded source panels
+at 375 pixels, no page overflow, dialog focus/Escape and unchanged SVG download
+hashes. Chromium 153.0.8010.12 reports no browser errors. Source/type, JavaScript
+syntax, UI unit and diff checks pass.
+
+Final quiet full suite passes **679 tests, zero failures, 19,797 assertions
+across 100 files in 178.54 seconds** (`.cache/cycle09-full-tests.log`). All
+source/provenance, native-review, shared UI and independent static audits pass.
+Cycle 9 is complete and ready for commit; the commit follows in this change and
+MUST precede cycle 10. The exact authoritative source remains Visual 1.0.0,
+with absent role/kind/routing/layout and profile-default direction preserved.
+No model, native compiler, native source or artifact bytes changed in this cycle;
+shared inspection controls preserve source/download hashes while enabling
+readable native-size inspection. Earlier draft 1.4.0 and historical host scopes
+remain separate; no new host qualification, release or publication is claimed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
 Cycle 3 is committed as `aa6a093`; cycle 4 is committed as `263b11f`.
 Cycle 5 is committed as `0a0f7c3`; cycle 6 is committed as `6b6b602`.
-Cycle 7 is committed as `498798c`; cycle 8 is complete and ready for commit.
-Cycles 9–68 remain pending.
+Cycle 7 is committed as `498798c`; cycle 8 is committed as `b706901`.
+Cycle 9 is complete and ready for commit; cycles 10–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

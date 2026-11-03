@@ -654,6 +654,44 @@
         "sourceDownloadPath": "reviews/catalog-canary-flow/authoritative-source.json",
         "scope": "This exact catalog JSON is the review definition. It preserves the authored flow, node and edge IDs; title, question, labels, source locator and omission statement. No route, layout, role or additional business meaning is authored by this review."
       }
+    },
+    {
+      "id": "catalog-canary-supported-flow",
+      "title": "Catalog file canary-supported-flow.json",
+      "description": "An exact review of the authoritative catalog UMF source; source-omitted values remain absent.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/catalog/canary-supported-flow.json",
+      "definitionSha256": "d3f865c73aa04f9720b60153b280817a4919282cbdf30fc3703c9b4f364b1baf",
+      "sources": [
+        {
+          "path": "fixtures/catalog/canary-supported-flow.json",
+          "sha256": "d3f865c73aa04f9720b60153b280817a4919282cbdf30fc3703c9b4f364b1baf",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative catalog UMF source",
+          "description": "The checked-in catalog JSON is the complete authoritative source and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/catalog/canary-supported-flow.json",
+          "sha256": "d3f865c73aa04f9720b60153b280817a4919282cbdf30fc3703c9b4f364b1baf",
+          "outputPath": "reviews/catalog-canary-supported-flow/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF catalog source bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/catalog/canary-supported-flow.json",
+        "sourceSha256": "d3f865c73aa04f9720b60153b280817a4919282cbdf30fc3703c9b4f364b1baf",
+        "documentId": "visual:catalog-canary-supported-flow",
+        "visualId": "catalog-canary-supported-flow",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/catalog-canary-supported-flow/authoritative-source.json",
+        "scope": "This exact catalog JSON is the review definition. Its Visual payload has no authored title, source locator or omissions list; these remain absent. No directed override, edge kind, route, layout or node roles are authored. The Visual 1.0 default edge direction remains applicable; no business roles are inferred from the labels."
+      }
     }
   ]
 }

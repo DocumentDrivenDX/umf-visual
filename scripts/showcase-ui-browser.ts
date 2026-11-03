@@ -10,6 +10,59 @@ if(showcase.schemaVersion!==1||showcase.examples.length===0)throw new Error('Bui
 const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
 const browser=await chromium.launch({headless:true});
 const errors:string[]=[];const checks:string[]=[];
+async function exerciseViewerZoom(page:import('playwright').Page,expectedSvgSha256:string,selectionChanges:Array<()=>Promise<void>>):Promise<void>{
+  const viewer=page.locator('#diagram-viewer'),frame=page.locator('#viewer-image-frame'),image=page.locator('#viewer-image'),level=page.locator('#viewer-zoom-level');
+  await page.locator('#enlarge-diagram').click();
+  if(!(await viewer.isVisible()))throw new Error('The diagram viewer did not open.');
+  await image.evaluate(async element=>{await (element as HTMLImageElement).decode();});
+  if(!(await level.innerText()).trim().startsWith('Fit'))throw new Error('Opening the diagram viewer did not start in Fit mode.');
+  const fit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
+  if(fit.width>fit.frameWidth+1||fit.height>fit.frameHeight+1)throw new Error('Fit mode exceeds the available diagram viewport.');
+  await page.locator('#viewer-zoom-in').focus();await page.keyboard.press('Enter');
+  if((await level.innerText()).trim()!=='125%')throw new Error('Zoom in did not advance by one 25% step.');
+  await page.locator('#viewer-actual-size').click();
+  if((await level.innerText()).trim()!=='100%')throw new Error('Actual size did not select 100%.');
+  const actual=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight,scrollWidth:f.scrollWidth,scrollHeight:f.scrollHeight,clientWidth:f.clientWidth,clientHeight:f.clientHeight,tabIndex:f.tabIndex};});
+  if(Math.abs(actual.width-actual.naturalWidth)>2||Math.abs(actual.height-actual.naturalHeight)>2)throw new Error('100% mode does not display the SVG at its intrinsic pixel dimensions.');
+  if(actual.tabIndex<0)throw new Error('The diagram viewport is not keyboard focusable.');
+  await page.locator('#viewer-zoom-in').click();
+  if((await level.innerText()).trim()!=='125%')throw new Error('Zoom in did not advance by one 25% step.');
+  for(let index=0;index<20&&await page.locator('#viewer-zoom-in').isEnabled();index++)await page.locator('#viewer-zoom-in').click();
+  if((await level.innerText()).trim()!=='400%')throw new Error('Zoom in did not clamp at 400%.');
+  for(let index=0;index<20&&await page.locator('#viewer-zoom-out').isEnabled();index++)await page.locator('#viewer-zoom-out').click();
+  if((await level.innerText()).trim()!=='25%')throw new Error('Zoom out did not clamp at 25%.');
+  await page.locator('#viewer-fit').click();
+  if(!(await level.innerText()).trim().startsWith('Fit'))throw new Error('Fit control did not restore Fit mode.');
+  await page.setViewportSize({width:375,height:812});
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  const pageOverflow=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,offenders:[...document.querySelectorAll('body *')].map(element=>({element,rect:element.getBoundingClientRect()})).filter(item=>item.rect.right>innerWidth+1).slice(0,8).map(item=>({id:(item.element as HTMLElement).id,className:(item.element as HTMLElement).className,right:item.rect.right,width:item.rect.width}))}));
+  if(pageOverflow.scrollWidth>pageOverflow.width)throw new Error(`The open diagram viewer causes page-level horizontal overflow on mobile: ${JSON.stringify(pageOverflow)}.`);
+  const mobileFit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
+  if(mobileFit.width>mobileFit.frameWidth+1||mobileFit.height>mobileFit.frameHeight+1)throw new Error('Mobile Fit mode exceeds the available diagram viewport.');
+  if(!(await page.locator('#viewer-actual-size').isEnabled()))throw new Error('Mobile Fit mode unexpectedly disables Actual size.');
+  await page.locator('#viewer-actual-size').click();
+  if((await level.innerText()).trim()!=='100%')throw new Error('Mobile actual-size control did not select 100%.');
+  const mobileNative=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight,scrollWidth:f.scrollWidth,scrollHeight:f.scrollHeight,clientWidth:f.clientWidth,clientHeight:f.clientHeight};});
+  if(Math.abs(mobileNative.width-mobileNative.naturalWidth)>2||Math.abs(mobileNative.height-mobileNative.naturalHeight)>2||(mobileNative.scrollWidth<=mobileNative.clientWidth&&mobileNative.scrollHeight<=mobileNative.clientHeight))throw new Error('Mobile 100% mode does not preserve a scrollable intrinsic-size diagram.');
+  await frame.evaluate(element=>{const f=element as HTMLElement;f.scrollTo(f.scrollWidth>f.clientWidth?120:0,f.scrollHeight>f.clientHeight?120:0);});
+  if(await frame.evaluate(element=>{const f=element as HTMLElement;return f.scrollLeft+f.scrollTop;})<=0)throw new Error('Native overflow scrolling did not pan the mobile diagram viewport.');
+  await frame.focus();if(await page.evaluate(()=>document.activeElement?.id)!=='viewer-image-frame')throw new Error('The diagram viewport did not accept keyboard focus.');
+  await page.setViewportSize({width:390,height:844});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  const fixedAfterResize=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight};});
+  if((await level.innerText()).trim()!=='100%'||Math.abs(fixedAfterResize.width-fixedAfterResize.naturalWidth)>2||Math.abs(fixedAfterResize.height-fixedAfterResize.naturalHeight)>2)throw new Error('Manual 100% zoom changed size when the viewport resized.');
+  await page.locator('#viewer-fit').click();
+  const refit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
+  if(!(await level.innerText()).trim().startsWith('Fit')||refit.width>refit.frameWidth+1||refit.height>refit.frameHeight+1)throw new Error('Fit mode did not recompute after a viewport resize.');
+  const before=await page.evaluate(async()=>{const link=document.querySelector('#viewer-svg-download') as HTMLAnchorElement;const response=await fetch(link.href);const bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');});
+  if(before!==expectedSvgSha256)throw new Error('Zooming changed the hash-verified SVG download.');
+  await page.keyboard.press('Escape');
+  if(await viewer.isVisible()||await page.evaluate(()=>document.activeElement?.id)!=='enlarge-diagram')throw new Error('Escape did not close the viewer and restore focus.');
+  for(const changeSelection of selectionChanges){
+    await changeSelection();await page.locator('#enlarge-diagram').click();
+    if(!(await level.innerText()).trim().startsWith('Fit'))throw new Error('Changing the selected scene or backend did not reset the viewer to Fit.');
+    await page.keyboard.press('Escape');
+  }
+}
 await mkdir('.cache',{recursive:true});
 try{
   const page=await browser.newPage({viewport:{width:1440,height:1050},acceptDownloads:true});
@@ -185,7 +238,18 @@ try{
   await page.keyboard.press('Escape');
   if(await page.locator('#diagram-viewer').isVisible())throw new Error('Escape did not close the enlarged diagram viewer.');
   if(await page.evaluate(()=>document.activeElement?.id)!=='enlarge-diagram')throw new Error('Closing the image viewer did not restore focus to its opener.');
-  checks.push('enlarged diagram viewer opens and closes with keyboard Escape and restores focus');
+  const alternateBackend=firstQualified.find(backend=>backend!==sourceBackend);
+  const resetSelections:Array<()=>Promise<void>>=[];
+  if(alternateBackend)resetSelections.push(async()=>{await page.locator(`[data-backend="${alternateBackend}"]`).click();await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');});
+  if(showcase.examples.length>1)resetSelections.push(async()=>{await selected.nth(1).click();await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');});
+  await page.setViewportSize({width:375,height:812});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  await page.locator('#source-details').evaluate(element=>{(element as HTMLDetailsElement).open=true;});
+  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw new Error('Expanded source inspection causes horizontal page overflow at 375px.');
+  await page.locator('#source-details').evaluate(element=>{(element as HTMLDetailsElement).open=false;});
+  for(const selector of ['#source-details','#rendering-notes']){const disclosure=page.locator(selector);if(await disclosure.count()&&await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))await disclosure.evaluate(element=>{(element as HTMLDetailsElement).open=false;});}
+  await page.setViewportSize({width:1440,height:1050});
+  await exerciseViewerZoom(page,selectedReceipt.svgSha256,resetSelections);
+  checks.push('enlarged diagram supports Fit/100%, bounded 25% zoom, keyboard controls, a focusable scroll viewport, reset after scene/backend changes, and preserves the SVG hash');
 
   await page.setViewportSize({width:390,height:844});await page.goto('https://umf.local/',{waitUntil:'networkidle'});
   await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');
