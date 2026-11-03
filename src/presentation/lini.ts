@@ -30,6 +30,37 @@ const property=(name:string,value:string|number)=>`${name}: ${typeof value==='st
 const liniIcons=new Set(['user','rocket','seal','presentation','heart','gear','cloud','house','database','folder-simple','cpu','bell','star','ghost','video-camera','wall','check','warning','globe','lock','key','lightning','magnifying-glass','arrow-right']);
 const liniIcon=(value:string)=>liniIcons.has(value)?value:undefined;
 const portCaption=(port:NonNullable<VisualNode['ports']>[number])=>port.label===undefined?port.id:port.label===port.id?port.id:port.label+' · '+port.id;
+const estimateTextWidth=(value:string)=>[...value].reduce((total,char)=>total+11*(/[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uff01-\uff60]/u.test(char)?1:/[ilI.,'`!|:;]/u.test(char)?0.32:/[MW@#%&]/u.test(char)?0.82:0.58),0);
+const estimateMultilineTextWidth=(value:string)=>Math.max(0,...value.split(String.fromCharCode(10)).map(estimateTextWidth));
+const estimateTextLines=(value:string,wrapWidth=190)=>value.split(String.fromCharCode(10)).reduce((total,line)=>total+Math.max(1,Math.ceil(estimateTextWidth(line)/wrapWidth)),0);
+const estimateNodeHalfHeight=(node:VisualNode|undefined)=>{
+ if(!node)return 42;
+ return 31+11*estimateTextLines(node.label)+(node.detail?11+11*estimateTextLines(node.detail):0)+(node.icon?10:0)+(node.role==='process'?11:0)+(node.ports?.length??0)*11;
+};
+const flowCaptionOffset=(direction:'LR'|'TB',label:string,from:VisualNode|undefined,to:VisualNode|undefined,along:number,gap:number,parallelIndex:number)=>{
+ const lane=parallelIndex*18;
+ if(direction==='TB')return Math.ceil(Math.max(24,estimateMultilineTextWidth(label)/2+10))+lane;
+ const availableAlongGap=2*gap*Math.min(along,1-along);
+ if(estimateMultilineTextWidth(label)<=availableAlongGap)return 24+lane;
+ const captionHalfHeight=Math.max(1,estimateTextLines(label))*8;
+ // This is a conservative native-layout estimate; the browser-side quality
+ // proof measures actual caption, connector, marker, and endpoint bounds.
+ return Math.ceil(Math.max(24,(Math.max(estimateNodeHalfHeight(from),estimateNodeHalfHeight(to))+captionHalfHeight+10)/1.5))+lane;
+};
+const siblingGroupCaptionTranslate=(direction:'LR'|'TB',from:VisualNode|undefined,to:VisualNode|undefined,nodes:VisualNode[],groups:VisualGroup[],offset:number)=>{
+ if(!from?.group||!to?.group||from.group===to.group)return undefined;
+ const fromGroup=groups.find(group=>group.id===from.group),toGroup=groups.find(group=>group.id===to.group);
+ if(!fromGroup||!toGroup||fromGroup.parent!==toGroup.parent)return undefined;
+ const memberDirection=(group:VisualGroup)=>group.layout?.kind==='flow'||group.layout?.kind==='stack'?group.layout.direction??'TB':!group.layout?'TB':group.layout.kind==='grid'&&group.layout.columns===1?'TB':undefined;
+ if(memberDirection(fromGroup)!==(direction==='LR'?'TB':'LR')||memberDirection(toGroup)!==(direction==='LR'?'TB':'LR')||groups.some(group=>group.parent===fromGroup.id||group.parent===toGroup.id))return undefined;
+ const rankFromCenter=(group:VisualGroup,nodeId:string)=>{const members=ordered(nodes.filter(node=>node.group===group.id),group.layout?.order),index=members.findIndex(node=>node.id===nodeId);return index<0?undefined:index-(members.length-1)/2;};
+ const fromRank=rankFromCenter(fromGroup,from.id),toRank=rankFromCenter(toGroup,to.id);
+ if(fromRank===undefined||toRank===undefined)return undefined;
+ const delta=toRank-fromRank,budget=Math.max(40,offset);
+ if(delta===0){const diagonal=Math.ceil(budget/Math.SQRT2);return direction==='LR'?`-${diagonal} -${diagonal}`:`${diagonal} ${diagonal}`;}
+ const magnitude=Math.hypot(delta,1),crossAxis=budget*Math.abs(delta)/magnitude,alongAxis=budget/magnitude;
+ return direction==='LR'?`${-Math.sign(delta)*crossAxis} -${alongAxis}`:`${alongAxis} ${-Math.sign(delta)*crossAxis}`;
+};
 const curvedPeerGroupOffset=(visual:Visual,edges:VisualEdge[])=>{
  const offsets=new Map<string,number>(),edgeIds=new Set<string>();
  if(visual.layout)return{offsets,edgeIds};
@@ -232,8 +263,8 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     if(edge.status)style.push(property('stroke',statuses[edge.status]??'--gray-deep'));
     if(edge.emphasis==='focus')style.push(property('stroke-width',3));else if(edge.emphasis==='muted')style.push(property('opacity',0.55));
     styleRules.push(`.${className} { ${style.length?style.join(' '):'stroke: --teal-deep;'} }`);
-    const fromGroupPath=groupChain(fromNode?.group).map(group=>group.id),toGroupPath=groupChain(toNode?.group).map(group=>group.id),isPrefix=(outer:string[],inner:string[])=>outer.length<inner.length&&outer.every((id,index)=>id===inner[index]),crossingCaptionAlong=isPrefix(fromGroupPath,toGroupPath)?0.1:isPrefix(toGroupPath,fromGroupPath)?0.9:undefined,siblingGroupPaths=fromGroupPath.length>0&&toGroupPath.length>0&&fromGroupPath.at(-1)!==toGroupPath.at(-1),uniquePair=edges.filter(candidate=>candidate.from===edge.from&&candidate.to===edge.to).length===1,along=crossingCaptionAlong??(siblingGroupPaths?0.5:edge.routing?.kind==='straight'&&uniquePair?0.45:[0.35,0.5,0.65][i%3]!);
-    const rows=edgeRowsByScope.get(scope)??[],operator=edge.directed===false?'---':'->',caption=label?quoteChecked(label,path('/edges/'+i+'/label')):'',separatedSiblingCaption=!!caption&&siblingGroupPaths&&edge.routing?.kind==='curved';rows.push(`${source} ${operator} ${target}${caption&&!separatedSiblingCaption?' '+caption:''} .${className} { along: ${along}; }${separatedSiblingCaption?` [ ${caption} { translate: 0 -24; } ]`:''}`);edgeRowsByScope.set(scope,rows);
+    const fromGroupPath=groupChain(fromNode?.group).map(group=>group.id),toGroupPath=groupChain(toNode?.group).map(group=>group.id),isPrefix=(outer:string[],inner:string[])=>outer.length<inner.length&&outer.every((id,index)=>id===inner[index]),crossingCaptionAlong=isPrefix(fromGroupPath,toGroupPath)?0.1:isPrefix(toGroupPath,fromGroupPath)?0.9:undefined,siblingGroupPaths=fromGroupPath.length>0&&toGroupPath.length>0&&fromGroupPath.at(-1)!==toGroupPath.at(-1),spansRootComponent=siblingGroupPaths&&scope===undefined&&sourceOrder>=0&&targetOrder>=0&&Math.abs(sourceOrder-targetOrder)>1,parallelEdges=edges.filter(candidate=>candidate.from===edge.from&&candidate.to===edge.to),parallelIndex=parallelEdges.indexOf(edge),uniquePair=parallelEdges.length===1,along=crossingCaptionAlong??(spansRootComponent?(sourceOrder<targetOrder?0.85:0.15):siblingGroupPaths?0.5:uniquePair?0.5:0.25+0.5*parallelIndex/(parallelEdges.length-1)),captionGap=scope?52:visual.form==='entities'?88:72;
+    const rows=edgeRowsByScope.get(scope)??[],operator=edge.directed===false?'---':'->',caption=label?quoteChecked(label,path('/edges/'+i+'/label')):'',captionOffset=flowCaptionOffset(routeDirection,label,fromNode,toNode,along,captionGap,parallelIndex),parallelLane=parallelIndex*18,captionTranslate=siblingGroupPaths&&edge.routing?.kind==='curved'?`0 -${24+parallelLane}`:spansRootComponent?(routeDirection==='LR'?`${sourceOrder<targetOrder?22:-22} -${100+parallelLane}`:`${100+parallelLane} ${sourceOrder<targetOrder?22:-22}`):(siblingGroupPaths?siblingGroupCaptionTranslate(routeDirection,fromNode,toNode,nodes,groups,captionOffset):undefined)??(routeDirection==='LR'?`0 -${captionOffset}`:`${captionOffset} 0`);rows.push(`${source} ${operator} ${target} .${className} { along: ${along}; }${caption?` [ ${caption} { translate: ${captionTranslate}; } ]`:''}`);edgeRowsByScope.set(scope,rows);
     for(const field of ['why','evidence'] as const)if(edge[field]!==undefined)omit(path('/edges/'+i+'/'+field),field==='why'?'Lini link hints do not appear on the native link SVG; rationale remains in the source document.':'Evidence locators remain in UMF and are not drawn.');
     if(edge.kind)approx(path('/edges/'+i+'/kind'),'Connection kind '+edge.kind,edge.kind==='data'?'Dashed Lini line style.':edge.kind==='control'?'Dotted Lini line style.':'Double Lini line style.');
     if(edge.routing){const scopeKinds=routeKindsByScope.get(scope),applicable=scopeKinds?.size===1,selected=scopeKinds?.values().next().value,peerOffset=peerCurvePolicy.edgeIds.has(edge.id),selectedSides=inferNaturalSide?' Native compass sides '+fromNaturalSide+'→'+toNaturalSide+' are chosen only because this edge has no authored named ports or sides.':'',code=applicable?(selected==='curved'&&!inferNaturalSide&&!peerOffset?'ROUTING_NATIVE_INTERPOLATION':undefined):'ROUTING_SCOPE_CONFLICT';approx(path('/edges/'+i+'/routing'),'Edge routing '+edge.routing.kind,applicable?'Lini applies native routing: '+(selected==='curved'?'natural':'straight')+' to this connection scope; '+(inferNaturalSide?'native compass anchors are selected to produce a curved path without overriding named ports or sides.':peerOffset?'a renderer-owned 24-unit offset separates the two peer groups when no layout is authored, allowing natural routing to curve while preserving the declared east/west ports.':'natural routing may remain straight when the layout is collinear.')+selectedSides+' Exact control points and endpoint attachment coordinates remain native.':'Lini routing is set on a container, not per edge; this scope mixes curved and straight intent, so no requested route is selected and this edge geometry is not guaranteed.',code);}

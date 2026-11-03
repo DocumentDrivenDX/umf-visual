@@ -616,6 +616,44 @@
         "sourceDownloadPath": "reviews/catalog-canary-entities/authoritative-source.json",
         "scope": "This exact catalog JSON is the review definition. Its source payload, IDs, Visual version and authored field/reference values are preserved without adding semantics."
       }
+    },
+    {
+      "id": "catalog-canary-flow",
+      "title": "Quoted labels, Unicode, and projection loss",
+      "description": "An exact review of the authoritative catalog UMF source, preserving its flow, node, edge and text identities.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/catalog/canary-flow.json",
+      "definitionSha256": "e3f8b85ee85418e391befd7d7fb3161553218d27e8b039a5889deb370dcf5db9",
+      "sources": [
+        {
+          "path": "fixtures/catalog/canary-flow.json",
+          "sha256": "e3f8b85ee85418e391befd7d7fb3161553218d27e8b039a5889deb370dcf5db9",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative catalog UMF source",
+          "description": "The checked-in catalog JSON is the complete authoritative source and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/catalog/canary-flow.json",
+          "sha256": "e3f8b85ee85418e391befd7d7fb3161553218d27e8b039a5889deb370dcf5db9",
+          "outputPath": "reviews/catalog-canary-flow/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF catalog source bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/catalog/canary-flow.json",
+        "sourceSha256": "e3f8b85ee85418e391befd7d7fb3161553218d27e8b039a5889deb370dcf5db9",
+        "documentId": "visual:catalog-canary-flow",
+        "visualId": "catalog-canary-flow",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/catalog-canary-flow/authoritative-source.json",
+        "scope": "This exact catalog JSON is the review definition. It preserves the authored flow, node and edge IDs; title, question, labels, source locator and omission statement. No route, layout, role or additional business meaning is authored by this review."
+      }
     }
   ]
 }

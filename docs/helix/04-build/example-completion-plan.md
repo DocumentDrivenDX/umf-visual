@@ -1468,18 +1468,84 @@ Mermaid canary images and the readable larger Mermaid schema overview at the
 unchanged minimum-font gate. Focused verifier tests also retain forged-version,
 quality, hash, mapping and PNG negative controls.
 
-Cycle 7 is complete and ready for its commit; that commit follows in this change
-and MUST precede cycle 8. The authoritative canary remains Visual 1.0.0, earlier
+Cycle 7 is committed as `498798c`. The authoritative canary remains Visual 1.0.0, earlier
 reviewed enrichments remain unreleased draft 1.4.0, and historical host evidence
 retains its original model/subset qualification. No release, broader host support
 or publication is claimed.
+
+### Eighth-cycle scope — authoritative flow canary
+
+Cycle 8 is in progress using the exact authoritative source
+`fixtures/catalog/canary-flow.json`, SHA-256
+`e3f8b85ee85418e391befd7d7fb3161553218d27e8b039a5889deb370dcf5db9`.
+Keep its Visual 1.0.0 model, envelope 0.10.0 and document/visual identities,
+two nodes and one edge unchanged. Reuse the generic authoritative-UMF evidence
+branch and exact source download; no synthetic capture or reviewed enrichment is
+needed. Preserve the profile's directed-edge semantics without authoring absent
+kind, routing, layout or role values or inferring roles from labels.
+
+Acceptance requires actual readable quotes, π and ampersand in owned node
+carriers and the exact quoted caption on its own correctly attached directed
+edge across all three native renderers. The distinct question, source locator
+and authored omission remain in exact source with located presentation
+disclosures where not drawn; the omission text is not evidence that unknown
+adapter extension payloads occur in this fixture. Verify source/provenance joins,
+JSON/YAML download integrity and generic viewer dispatch. Update aggregate
+inventory assertions without changing earlier cycle-local source truths or
+qualification evidence. Run bounded focused/native/browser and affected shared
+gates; commit cycle 8 before starting cycle 9. No new model or host support is
+presumed. The initial Lini native output crowds the caption against its arrow;
+a generic positioned-caption policy must prove owned caption/path/marker/card
+clearance with renamed LR/TB controls while preserving existing curved sibling,
+ancestor and named-port behavior. Because this cycle now changes production
+caption policy, affected review/showcase regressions and the full Bun suite are
+required before closeout.
+
+The source/interface audit approves the generic caption policy and exact source
+provenance. Conservative multiline/row estimates remain renderer heuristics;
+actual native checks enforce connector, marker/node and qualified group-frame
+clearance. Authored order/direction, ancestor placement, named ports and parallel
+lanes are preserved. Root visually approved the refreshed grouped output after
+endpoint-frame and unrelated-frame corrections. Independent negative controls
+restore their native baseline before each mutation.
+
+The legacy gate window passes pinned Lini 1.1 and Graphviz 16.1, catalog
+53 items / 159 full pairs with zero loss or native diagnostics, and showcase
+9 definitions / 23 qualified variants / 4 explicit unsupported variants /
+69 assets with 23 actual SVG and 23 PNG replays. The reviewed cohort also
+passes 7 definitions / 21 qualified variants / 63 assets with 21 actual SVG and
+21 PNG replays. Review UI passes seven documents and twelve checks with no
+errors on Chromium 153.0.8010.12. Public-browser checks pass 53 catalog fixtures /
+106 round trips plus seven reviewed definitions / fourteen round trips /
+21 plans using models 1.0.0 and draft 1.4.0; packed Bun and Node consumers pass.
+Root visually approved the final Lini canary and grouped architecture, and the
+source reviewer inspected all three new canary renderings. Final shared-site
+and showcase UI checks pass with no browser errors on Chromium 153.0.8010.12;
+all 46 qualified showcase SVG/PNG assets decode and mobile layout has no overflow.
+
+Final quiet full suite passes **677 tests, zero failures, 19,765 assertions
+across 99 files in 160.82 seconds** (`.cache/cycle08-full-tests-final.log`).
+Source/type checks, package build, public-browser loading, packed Bun/Node
+consumers and all required native/corpus/UI gates pass. The stale rich-compiler
+caption assertion was updated without changing production code or removing
+operator, endpoint, port, edge-identity or parallel-placement checks.
+
+Cycle 8 is complete and ready for commit; the commit follows in this change
+and MUST precede cycle 9. The canary remains byte-identical Visual 1.0.0 with
+no authored role, route, layout or additional business meaning. Caption estimates
+and offsets are bounded presentation heuristics, not a universal clearance or
+fit guarantee; actual native proof and visual inspection qualify the tested
+profiles. Earlier draft 1.4.0 enrichments and historical host evidence retain
+their separate model/subset limits. No release, expanded host qualification or
+publication is claimed.
 
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
 Cycle 3 is committed as `aa6a093`; cycle 4 is committed as `263b11f`.
 Cycle 5 is committed as `0a0f7c3`; cycle 6 is committed as `6b6b602`.
-Cycle 7 is complete and ready for commit; cycles 8–68 remain pending.
+Cycle 7 is committed as `498798c`; cycle 8 is complete and ready for commit.
+Cycles 9–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

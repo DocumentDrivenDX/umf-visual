@@ -383,3 +383,25 @@ full suite passes 672 tests with 19,712 assertions across 98 files; current
 source/type, native replay, corpus, browser, packed-consumer and shared-site
 gates pass. This evidence qualifies the bounded presentation profiles, without
 expanding historical host support or changing the canary's Visual 1.0.0 source.
+
+
+## Flow-caption native conformance
+
+Check exact owned caption text, actual connector clearance and endpoint marker/node
+overlap across renamed LR/TB, multiline and parallel-edge controls. Include
+compatible grouped layouts with authored member order; test both partial crossing
+of endpoint frames and placement inside an unrelated frame. Restore the original
+native baseline before each independent mutation so one earlier failure cannot
+mask a later ineffective control. Renderer sizing/offset estimates remain
+heuristics; native measurements and visual inspection establish qualification.
+Recheck affected grouped, curved, ancestor/descendant and named-port views after
+changing shared caption policy, preserving source meanings and existing strict
+clearance thresholds.
+
+Cycle 8 closeout: quiet full suite passes 677 tests, zero failures and 19,765
+assertions across 99 files in 160.82 seconds. Actual three-backend flow canary
+images and the affected grouped Lini view were visually approved. Native/corpus,
+source/type, browser, packed-consumer and shared-site gates pass, including
+independent caption/path/frame mutation controls. This qualifies the tested
+generic caption policies without changing the authoritative Visual 1.0.0 source
+or expanding historical host support.

@@ -6,7 +6,8 @@ import {verifyReviewSourceEvidence} from '../../scripts/reviews/source-evidence'
 const sourceManifest='fixtures/reviews/review-sources.json';
 
 test('review evidence joins exact checked-in definitions, integration witnesses, renderer receipt and capture bytes',async()=>{
- expect(await verifyReviewSourceEvidence()).toEqual({examples:6,captures:5,authoritativeSources:1});
+ const rows=await Bun.file(sourceManifest).json().then((manifest:any)=>manifest.examples);
+ expect(await verifyReviewSourceEvidence()).toEqual({examples:rows.length,captures:rows.filter((row:any)=>row.originalEvidence.kind==='synthetic-integration-witness').length,authoritativeSources:rows.filter((row:any)=>row.originalEvidence.kind==='authoritative-umf-source').length});
 });
 
 test('stale or forged common/native/capture bindings fail before a review can be published',async()=>{

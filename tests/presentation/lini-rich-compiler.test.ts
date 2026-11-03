@@ -77,7 +77,7 @@ describe('rich Lini presentation compilation',()=>{
   const dot=compilePresentation(doc(visual),{backend:'graphviz'}),mermaid=compilePresentation(doc(visual),{backend:'mermaid'}),lini=compilePresentation(doc(visual),{backend:'lini'});
   expect(dot.ok&&dot.source).toContain('-> n2 [id="e1"');expect(dot.ok&&dot.source).toContain('-> n2:p1:w [id="e2"');expect(dot.ok&&dot.source).toContain('dir=none');expect(dot.ok&&dot.source).toContain('n1 -> n1 [id="e3"');
   expect(mermaid.ok&&mermaid.source).toContain('n1 -->|"directed#32;default"| n2');expect(mermaid.ok&&mermaid.source).toContain('n1 ---|"undirected#32;parallel"| n2');expect(mermaid.ok&&mermaid.source).toContain('n1 ---|"self#32;association"| n1');
-  expect(lini.ok&&lini.source).toContain('n1 -> n2 "directed default" .e1');expect(lini.ok&&lini.source).toContain('n1.p1:right --- n2.p1:left "undirected parallel" .e2');expect(lini.ok&&lini.source).toContain('n1 --- n1 "self association" .e3');
+  expect(lini.ok&&lini.source).toContain('n1 -> n2 .e1 { along: 0.25; } [ "directed default" { translate: 0 -48; } ]');expect(lini.ok&&lini.source).toContain('n1.p1:right --- n2.p1:left .e2 { along: 0.75; } [ "undirected parallel" { translate: 0 -66; } ]');expect(lini.ok&&lini.source).toContain('n1 --- n1 .e3 { along: 0.5; } [ "self association" { translate: 0 -48; } ]');
   for(const result of [dot,mermaid,lini]){expect(result.ok).toBe(true);if(result.ok)for(const id of ['default-arrow','headless-parallel','headless-self'])expect(result.elementMap.some(item=>item.logicalId===id&&item.kind==='edge')).toBe(true);}
  });
 });

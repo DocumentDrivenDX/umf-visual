@@ -108,6 +108,23 @@ describe('pinned Lini presentation quality',()=>{
   }finally{await native.page.close();}
  },{timeout:45_000});
 
+ it('offsets grouped flow captions from routed paths using endpoint member order',async()=>{
+  const document=createVisualDocument({id:'renamed-group-caption-flow',kind:'flow',form:'network',question:'Which group members are connected?',layout:{kind:'flow',direction:'LR',order:['source-region','middle-region','target-region']},groups:[{id:'source-region',label:'Source region',role:'region'},{id:'middle-region',label:'Middle region',role:'region'},{id:'target-region',label:'Target region',role:'region'}],nodes:[{id:'origin',label:'Origin',group:'source-region'},{id:'origin-peer',label:'Origin peer',group:'source-region'},{id:'middle-node',label:'Unrelated middle',group:'middle-region'},{id:'same-rank',label:'Same rank',group:'target-region'},{id:'lower-rank-a',label:'Lower rank A',group:'target-region'},{id:'lower-rank-b',label:'Lower rank B',group:'target-region'}],edges:[{id:'same-row-link',from:'origin',to:'same-rank',label:'same row'},{id:'offset-link',from:'origin',to:'lower-rank-b',label:'lower target'}]},'test:renamed-group-caption-flow','1.2.0'),native=await renderDocument(document);
+  try{
+   const geometry=await native.page.evaluate(()=>[...globalThis.document.querySelectorAll('g.lini-link')].map(link=>{const path=link.querySelector(':scope > path:not(.lini-marker)') as SVGPathElement|undefined,label=link.querySelector(':scope > text.lini-link-label');if(!path||!label)return null;const bounds=label.getBoundingClientRect(),pathBounds=path.getBoundingClientRect(),length=path.getTotalLength(),matrix=path.getScreenCTM();if(!matrix)return null;let clearance=Infinity;for(let index=0;index<=180;index++){const point=path.getPointAtLength(length*index/180),screen=new DOMPoint(point.x,point.y).matrixTransform(matrix),dx=Math.max(bounds.left-screen.x,0,screen.x-bounds.right),dy=Math.max(bounds.top-screen.y,0,screen.y-bounds.bottom);clearance=Math.min(clearance,Math.hypot(dx,dy));}return{text:label.textContent?.trim(),clearance,label:{left:bounds.left,top:bounds.top,right:bounds.right,bottom:bounds.bottom},path:{left:pathBounds.left,top:pathBounds.top,right:pathBounds.right,bottom:pathBounds.bottom,d:path.getAttribute('d')}};}));
+   expectAll(native.checks);
+   expect(geometry).toHaveLength(2);expect(geometry.every(item=>!!item&&item.clearance>=8)).toBe(true);
+   const label=native.page.locator('g.lini-link.lini-style-e1 > text.lini-link-label'),restore=async()=>native.page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},native.svg);await label.evaluate(element=>{const text=element as SVGTextElement,path=globalThis.document.querySelector('g.lini-link.lini-style-e1 > path:not(.lini-marker)') as SVGPathElement,point=path.getPointAtLength(path.getTotalLength()/2);text.setAttribute('x',String(point.x));text.setAttribute('y',String(point.y));});
+   expect(result(await recheck(native.page,native.document,native.plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await restore();
+   await label.evaluate(element=>{const text=element as SVGTextElement,frame=globalThis.document.querySelector('g.lini-node[data-id="g2"] > rect') as SVGRectElement;if(!frame)throw Error('unrelated native group frame missing');const labelBox=text.getBoundingClientRect(),frameBox=frame.getBoundingClientRect();text.style.transform=`translate(${frameBox.left+frameBox.width/2-(labelBox.left+labelBox.right)/2}px, ${frameBox.top+frameBox.height/2-(labelBox.top+labelBox.bottom)/2}px)`;});
+   expect(result(await recheck(native.page,native.document,native.plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await restore();
+   await label.evaluate(element=>{const text=element as SVGTextElement,frame=globalThis.document.querySelector('g.lini-node[data-id="g3"] > rect') as SVGRectElement;if(!frame)throw Error('endpoint native group frame missing');const labelBox=text.getBoundingClientRect(),frameBox=frame.getBoundingClientRect();text.style.transform=`translate(${frameBox.left-(labelBox.left+labelBox.right)/2}px, ${frameBox.top+frameBox.height/2-(labelBox.top+labelBox.bottom)/2}px)`;});
+   expect(result(await recheck(native.page,native.document,native.plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+  }finally{await native.page.close();}
+ },{timeout:45_000});
+
  it('records observed native geometry for a located Lini routing-scope fallback',async()=>{
   const document=createVisualDocument({id:'routing-scope-observation',kind:'flow',form:'network',question:'Which paths are drawn?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'},{id:'c',label:'C'}],edges:[{id:'curve',from:'a',to:'b',routing:{kind:'curved'}},{id:'line',from:'b',to:'c',routing:{kind:'straight'}}]},'test:routing-scope-observation','1.4.0');
   const native=await renderDocument(document);
@@ -160,11 +177,47 @@ describe('pinned Lini presentation quality',()=>{
   const root=resolve(import.meta.dir,'../..'),sourceDoc=readVisualDocument(readFileSync(resolve(root,'fixtures/reviews/definitions/miro-process-documents-store.json'),'utf8'),'json'),good=await renderDocument(sourceDoc);
   const measure=async(page:Page,plan:PresentationPlan)=>page.evaluate(maps=>maps.map(({nativeId})=>{const link=document.querySelector(`g.lini-link.lini-style-${nativeId}`),label=link?.querySelector('text.lini-link-label'),arrow=link?.querySelector('.lini-marker-arrow');if(!label||!arrow)return null;const a=label.getBoundingClientRect(),b=arrow.getBoundingClientRect();return{label:{left:a.left,right:a.right,top:a.top,bottom:a.bottom},arrow:{left:b.left,right:b.right,top:b.top,bottom:b.bottom}};}),plan.elementMap.filter(item=>item.kind==='edge').map(item=>({nativeId:item.nativeId})));
   try{
-   expect(good.plan.source.match(/along: 0\.45;/gu)).toHaveLength(3);
+   expect(good.plan.source.match(/along: 0\.5;/gu)).toHaveLength(3);
    const clearances=await measure(good.page,good.plan);expect(clearances).toHaveLength(3);for(const item of clearances){expect(item).not.toBeNull();if(item){const horizontal=Math.max(item.arrow.left-item.label.right,item.label.left-item.arrow.right,0),vertical=Math.max(item.arrow.top-item.label.bottom,item.label.top-item.arrow.bottom,0),gap=Math.hypot(horizontal,vertical);expect(gap,JSON.stringify(item)).toBeGreaterThan(3);}}
-   const shifted=await renderPresentationLini(good.plan.source.replaceAll('along: 0.45;','along: 0.65;')),page=await browser.newPage({viewport:{width:1600,height:900}});
-   try{await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>');await page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},shifted.svg);const moved=await measure(page,good.plan);expect(moved.some(item=>item===null||(()=>{const horizontal=Math.max(item.arrow.left-item.label.right,item.label.left-item.arrow.right,0),vertical=Math.max(item.arrow.top-item.label.bottom,item.label.top-item.arrow.bottom,0);return Math.hypot(horizontal,vertical)<=3;})())).toBe(true);}finally{await page.close();}
+   const moved=await good.page.evaluate(()=>{const link=globalThis.document.querySelector('g.lini-link.lini-style-e1'),label=link?.querySelector('text.lini-link-label'),arrow=link?.querySelector('.lini-marker-arrow');if(!label||!arrow)return false;const a=label.getBoundingClientRect(),b=arrow.getBoundingClientRect();(label as SVGTextElement).style.transform=`translate(${(b.left+b.right-a.left-a.right)/2}px, ${(b.top+b.bottom-a.top-a.bottom)/2}px)`;return true;});expect(moved).toBe(true);const collided=await measure(good.page,good.plan);expect(collided[0]).not.toBeNull();if(collided[0]){const item=collided[0],horizontal=Math.max(item.arrow.left-item.label.right,item.label.left-item.arrow.right,0),vertical=Math.max(item.arrow.top-item.label.bottom,item.label.top-item.arrow.bottom,0);expect(Math.hypot(horizontal,vertical)).toBeLessThanOrEqual(3);}
   }finally{await good.page.close();}
+ },{timeout:45_000});
+
+ it('offsets labeled flow connections clear of their paths in either authored direction',async()=>{
+  for(const direction of ['LR','TB'] as const){
+   const visual:Visual={id:`flow-caption-${direction.toLowerCase()}`,kind:'flow',form:'network',question:'Which label belongs to this connection?',layout:{kind:'flow',direction,order:['origin','destination']},nodes:[{id:'origin',label:'Origin node'},{id:'destination',label:'Destination node'}],edges:[{id:'connection',from:'origin',to:'destination',label:'preserves "intent"'}]},document=createVisualDocument(visual,'lini-quality:'+visual.id,'1.2.0'),good=await renderDocument(document);
+   try{
+    expect(good.plan.source).toMatch(direction==='LR'?/translate: 0 -\d+;/u:/translate: \d+ 0;/u);
+    const failures=good.checks.filter(check=>check.result!=='pass');if(failures.length)throw Error(`${direction}: ${JSON.stringify(failures)}`);
+    const gap=await good.page.evaluate(()=>{
+     const link=globalThis.document.querySelector('g.lini-link.lini-style-e1'),path=link?.querySelector(':scope > path:not(.lini-marker)') as SVGPathElement|undefined,label=link?.querySelector(':scope > text.lini-link-label');if(!path||!label)return-1;
+     const rect=label.getBoundingClientRect(),length=path.getTotalLength(),matrix=path.getScreenCTM();if(!matrix)return-1;let minimum=Infinity;
+     for(let index=0;index<=120;index++){const point=path.getPointAtLength(length*index/120),screen=new DOMPoint(point.x,point.y).matrixTransform(matrix),dx=Math.max(rect.left-screen.x,0,screen.x-rect.right),dy=Math.max(rect.top-screen.y,0,screen.y-rect.bottom);minimum=Math.min(minimum,Math.hypot(dx,dy));}
+     return minimum;
+    });
+    expect(gap).toBeGreaterThanOrEqual(8);
+    await good.page.locator('g.lini-link.lini-style-e1 > text.lini-link-label').evaluate(label=>{
+     const link=label.closest('g.lini-link'),path=link?.querySelector(':scope > path:not(.lini-marker)') as SVGPathElement|undefined;if(!path)throw Error('Missing native connection path');
+     const point=path.getPointAtLength(path.getTotalLength()/2);label.setAttribute('x',String(point.x));label.setAttribute('y',String(point.y));
+    });
+    expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   }finally{await good.page.close();}
+  }
+ },{timeout:45_000});
+
+ it('gives parallel captions distinct lanes and clears a long top-to-bottom caption',async()=>{
+  const parallelVisual:Visual={id:'parallel-flow-captions',kind:'flow',form:'network',question:'Which caption belongs to each link?',layout:{kind:'flow',direction:'LR',order:['source','target']},nodes:[{id:'source',label:'Source'},{id:'target',label:'Target'}],edges:[{id:'first',from:'source',to:'target',label:'first relation'},{id:'second',from:'source',to:'target',label:'second relation'}]},parallel=await renderDocument(createVisualDocument(parallelVisual,'lini-quality:'+parallelVisual.id,'1.2.0'));
+  try{
+   expectAll(parallel.checks);
+   expect(parallel.plan.source).toContain('along: 0.25;');expect(parallel.plan.source).toContain('along: 0.75;');
+   const offsets=[...parallel.plan.source.matchAll(/translate: 0 -(\d+);/gu)].slice(-2).map(match=>Number(match[1]));expect(offsets).toHaveLength(2);expect(new Set(offsets).size).toBe(2);
+  }finally{await parallel.page.close();}
+
+  const visual:Visual={id:'long-tb-caption',kind:'flow',form:'network',question:'Which caption clears the vertical connector?',layout:{kind:'flow',direction:'TB',order:['origin','destination']},nodes:[{id:'origin',label:'Origin'},{id:'destination',label:'Destination'}],edges:[{id:'connection',from:'origin',to:'destination',label:'first line with a long second caption and a third segment'}]},document=createVisualDocument(visual,'lini-quality:'+visual.id,'1.2.0'),vertical=await renderDocument(document);
+  try{
+   expectAll(vertical.checks);expect(vertical.plan.source).toMatch(/translate: \d+ 0;/u);
+   const text=await vertical.page.locator('g.lini-link.lini-style-e1 > text.lini-link-label').evaluate(label=>label.textContent??'');expect(text.replace(/\s+/gu,' ').trim()).toBe('first line with a long second caption and a third segment');
+  }finally{await vertical.page.close();}
  },{timeout:45_000});
 
  it('binds native identities, visible labels, nested group membership and directed network links',async()=>{

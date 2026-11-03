@@ -363,3 +363,21 @@ directional meaning. Located approximations MUST distinguish that composition
 from a native E/R realization. Explicit identification in a mixed source MUST
 be preserved or the affected projection MUST refuse; unspecified source meaning
 MUST NOT be filled in merely to satisfy native syntax.
+
+
+## Flow-caption ownership and visual boundaries
+
+A qualified flow-caption realization MUST retain the exact caption on its owned
+connection and preserve its endpoint identity. Position, wrapping and spacing
+are renderer policy; conservative text/layout estimates are not measured native
+clearance or a universal fit guarantee. Native qualification MUST inspect the
+actual caption carrier against its connector, endpoint markers and node bounds.
+For qualified grouped caption scopes, it MUST also reject straddling endpoint
+group frames and intersection with unrelated group frames. Passing text coverage
+alone MUST NOT certify these visual ownership or boundary claims.
+
+A target policy MAY use midpoint placement, perpendicular offsets and separate
+parallel-caption lanes without adding source semantics. It MUST respect authored
+layout order, scoped direction and named endpoints. Native conformance scope and
+limits remain explicit; support for one group/layout combination does not imply
+all combinations are qualified.

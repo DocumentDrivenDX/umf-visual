@@ -56,7 +56,8 @@ test('authoritative source provenance binds exact bytes, IDs and versions withou
  expect(row.originalEvidence).not.toHaveProperty('classification');
  expect(row.originalEvidence).not.toHaveProperty('captureSha256');
  expect(row.originalEvidence).not.toHaveProperty('knownOmissions');
- expect(await verifyReviewSourceEvidence()).toEqual({examples:6,captures:5,authoritativeSources:1});
+ const rows=manifest.examples;
+ expect(await verifyReviewSourceEvidence()).toEqual({examples:rows.length,captures:rows.filter(item=>item.originalEvidence.kind==='synthetic-integration-witness').length,authoritativeSources:rows.filter(item=>item.originalEvidence.kind==='authoritative-umf-source').length});
 });
 
 test('authoritative provenance rejects stale hashes and mismatched source identity/version',async()=>{
