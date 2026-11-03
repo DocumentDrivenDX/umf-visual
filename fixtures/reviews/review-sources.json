@@ -1304,6 +1304,58 @@
         "sourceDownloadPath": "reviews/beacon-ci-preview/authoritative-source.json",
         "scope": "The original UMF fixture remains authoritative for its three node IDs/labels, two directed edge IDs/endpoints, title, question, original takeaway, audience, and historical source locator; its bytes remain available unchanged. This separate reviewed Visual 1.0.0 definition preserves that source and derives only the three runner and exact-command details from the checked-in preview YAML snapshot whose SHA-256 matches the source locator. The original takeaway remains a source-authored claim. The historical locator and matching local snapshot do not establish current workflow contents, execution, or repository state."
       }
+    },
+    {
+      "id": "beacon-containers",
+      "title": "Inside Beacon",
+      "description": "The exact Visual 1.0.0 fixture for the selected fictional containers view and its matching architecture-model source.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/visual/inventory/beacon-containers.json",
+      "definitionSha256": "b6cc883738063075c31ee3c1e0e9f2fe484dc3e8538e2e9508fcd7fa2788b472",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-containers.json",
+          "sha256": "b6cc883738063075c31ee3c1e0e9f2fe484dc3e8538e2e9508fcd7fa2788b472",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 source fixture supplies the selected view's IDs, details, roles, statuses, groups, relations, question, and takeaway."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "pointer": "/view/containers",
+          "label": "Fictional architecture-model source",
+          "description": "The exact checked-in TOML bytes identify the selected containers view and its elements, groups, and relations; the source labels the model fictional."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-containers.json",
+          "sha256": "b6cc883738063075c31ee3c1e0e9f2fe484dc3e8538e2e9508fcd7fa2788b472",
+          "outputPath": "reviews/beacon-containers/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "outputPath": "reviews/beacon-containers/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact fictional architecture-model TOML bytes cited by the original fixture."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-containers.json",
+        "sourceSha256": "b6cc883738063075c31ee3c1e0e9f2fe484dc3e8538e2e9508fcd7fa2788b472",
+        "documentId": "visual:beacon-containers",
+        "visualId": "beacon-containers",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-containers/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. It retains all nine element IDs and their labels, details, roles and statuses for the selected `containers` view; both view groups and their explicit memberships; and all ten relations induced by endpoints in that view, including the return kind, `why` text, and placeholder/unknown statuses. Its title, question and takeaway remain source-authored. The exact architecture-model TOML is separately cited and downloadable; it labels itself fictional. No elements from other views or steps from journeys are added, and neither source asserts a deployed or current Beacon system."
+      }
     }
   ]
 }

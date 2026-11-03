@@ -92,13 +92,14 @@ describe('pinned Lini presentation quality',()=>{
     const {label,frames}=labelPlacement,overlaps=(frame:NonNullable<typeof frames[number]>)=>{const vertical=(x:number)=>label.left<=x+1&&label.right>=x-1&&label.bottom>=frame.top&&label.top<=frame.bottom,horizontal=(y:number)=>label.top<=y+1&&label.bottom>=y-1&&label.right>=frame.left&&label.left<=frame.right;return vertical(frame.left)||vertical(frame.right)||horizontal(frame.top)||horizontal(frame.bottom);};
     expect(label.right).toBeLessThan(frames[0]!.left);for(const frame of frames)if(frame)expect(overlaps(frame)).toBe(false);else expect(frame).not.toBeNull();
    }
-   const legacyNative=await renderPresentationLini(good.plan.source.replace('along: 0.1;','along: 0.35;')),legacyPage=await browser.newPage({viewport:{width:1600,height:900}});
+   const legacySource=good.plan.source.replace('along: 0.1;','along: 0.35;');expect(legacySource).not.toBe(good.plan.source);
+   const legacyNative=await renderPresentationLini(legacySource),legacyPage=await browser.newPage({viewport:{width:1600,height:900}});
    try{
     await legacyPage.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>');
     await legacyPage.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},legacyNative.svg);
     const legacyPlacement=await legacyPage.evaluate(nativeIds=>{const label=globalThis.document.querySelector('g.lini-link.lini-style-e1 > text.lini-link-label')?.getBoundingClientRect(),frames=nativeIds.map(id=>globalThis.document.querySelector(`g.lini-node[data-id="${id}"] > rect`)?.getBoundingClientRect());return label&&frames.every(Boolean)?{label:{left:label.left,right:label.right,top:label.top,bottom:label.bottom},frames:frames.map(frame=>({left:frame!.left,right:frame!.right,top:frame!.top,bottom:frame!.bottom}))}:null;},ancestorNativeIds);
     expect(legacyPlacement).not.toBeNull();
-    if(legacyPlacement){const deepest=legacyPlacement.frames.at(-1)!;expect(legacyPlacement.label.left<=deepest.left+1&&legacyPlacement.label.right>=deepest.left-1&&legacyPlacement.label.bottom>=deepest.top&&legacyPlacement.label.top<=deepest.bottom).toBe(true);}
+    if(legacyPlacement){const parent=legacyPlacement.frames[0]!;expect(legacyPlacement.label.left<=parent.left+1&&legacyPlacement.label.right>=parent.left-1&&legacyPlacement.label.bottom>=parent.top&&legacyPlacement.label.top<=parent.bottom).toBe(true);}
    }finally{await legacyPage.close();}
    const link=good.page.locator('g.lini-link.lini-style-e1 > path:not(.lini-marker)');
    const original=await link.getAttribute('d');expect(original).toMatch(/[CcQqSsAa]/);
@@ -124,8 +125,10 @@ describe('pinned Lini presentation quality',()=>{
    await label.evaluate((element)=>{const text=element as SVGTextElement,path=globalThis.document.querySelector('g.lini-link.lini-style-e1 > path:not(.lini-marker)') as SVGPathElement,point=path.getPointAtLength(path.getTotalLength()/2);text.setAttribute('y',String(point.y));});
    expect(result(await recheck(native.page,native.document,native.plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
    await label.evaluate((element,y)=>{if(y!==null)(element as SVGTextElement).setAttribute('y',y);},originalY);
-   await native.page.locator('g.lini-link.lini-style-e1 > text.lini-link-label').evaluate((label)=>{const frame=globalThis.document.querySelector('g.lini-node[data-id="g1"] > rect')!;const labelBox=label.getBoundingClientRect(),frameBox=frame.getBoundingClientRect(),delta=frameBox.right-(labelBox.left+labelBox.right)/2;(label as SVGTextElement).style.transform=`translateX(${delta}px)`;});
-   expect(result(await recheck(native.page,native.document,native.plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   const crossed=await native.page.locator('g.lini-link.lini-style-e1 > text.lini-link-label').evaluate((label)=>{const text=label as SVGTextElement,frame=globalThis.document.querySelector('g.lini-node[data-id="g1"] > rect')! as SVGGraphicsElement,frameBox=frame.getBoundingClientRect(),labelBox=text.getBoundingClientRect(),target={x:frameBox.right,y:(frameBox.top+frameBox.bottom)/2},dx=target.x-(labelBox.left+labelBox.right)/2,dy=target.y-(labelBox.top+labelBox.bottom)/2,matrix=text.getScreenCTM()!,localX=matrix.inverse().a*dx+matrix.inverse().c*dy,localY=matrix.inverse().b*dx+matrix.inverse().d*dy,x=Number(text.getAttribute('x')??0),y=Number(text.getAttribute('y')??0);text.setAttribute('x',String(x+localX));text.setAttribute('y',String(y+localY));const moved=text.getBoundingClientRect(),overlaps=moved.left<frameBox.right&&moved.right>frameBox.left&&moved.top<frameBox.bottom&&moved.bottom>frameBox.top,inside=moved.left>=frameBox.left+2&&moved.right<=frameBox.right-2&&moved.top>=frameBox.top+2&&moved.bottom<=frameBox.bottom-2;return{overlaps,inside};});
+   expect(crossed.overlaps&&!crossed.inside).toBe(true);
+   const frameFailure=(await recheck(native.page,native.document,native.plan,native.nativeAst)).find(check=>check.check==='lini-connection-endpoints');
+   expect(frameFailure?.result).toBe('fail');expect(frameFailure?.details).toContain('owned caption crosses native group frame');
   }finally{await native.page.close();}
  },{timeout:45_000});
 

@@ -670,3 +670,35 @@ carriers require exact visible ownership where drawn; other backend views retain
 truthful metadata omissions and source/context access without claiming those
 meanings are present in standalone artifacts. No trigger or business-specific
 vocabulary is inferred from authored prose.
+
+
+## Native on-path caption cutouts
+
+Caption clearance conformance MUST evaluate effective painted connector ink.
+A qualified native on-path label cutout MAY satisfy clearance instead of an
+off-path gap only when independently proved for the owned caption/connector.
+Evidence MUST resolve local mask references, units and transforms, establish
+opaque keep/knockout behavior covering complete visible glyph bounds with margin,
+and preserve identifiable surviving connector ink plus endpoint/arrow attachment.
+Unresolved/external masks or geometrical path proximity alone cannot establish
+success. Native paint/pixel evidence MUST corroborate the bounded mask profile.
+
+Removing/disabling/shrinking the knockout MUST expose a failing ink collision;
+an overbroad knockout that destroys meaningful connector ink MUST also fail.
+Mask qualification does not waive source ownership, group-frame crossing,
+unrelated-caption association, readability or other native quality checks.
+This is target rendering policy, without new portable routing/caption semantics.
+
+
+## Automatic grouped-flow composition
+
+With no authored root layout, a renderer MAY collapse top-level group subtrees and
+ungrouped root nodes into private layout components, using authored cross-component
+directed links to select placement. Explicit qualified layout retains precedence;
+cycles/headless ambiguity preserve topology through a fallback. Every actual
+internal, cross-group and return link remains source-owned and drawn or explicitly
+accounted for. Private components/ranks add no semantic groups or execution order.
+Caption wrapping validates original text before inserting display breaks and must
+retain full visible content. Direction-specific qualification remains empirical:
+a successful default direction MUST NOT imply another direction passes native
+readability, frame ownership or mask/ink requirements.

@@ -102,12 +102,15 @@ export async function verifyPresentationQuality(
    bounds:box(g),
    polygon:primaryPolygon??null,
    polygons:nativePolygons,
-   paths:[...g.querySelectorAll(':scope path')].map(p=>{
+   paths:[...g.querySelectorAll(':scope path')].filter(path=>!g.classList.contains('edge')||path.closest('g.edge')===g).map(p=>{
     const path=p as SVGPathElement,point=(at:number)=>{try{const q=path.getPointAtLength(at),screen=new DOMPoint(q.x,q.y).matrixTransform(path.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};}catch{return null;}};
     const length=path.getTotalLength(),matrix=path.getScreenCTM()!,lengthCss=length*Math.sqrt((matrix.a**2+matrix.b**2+matrix.c**2+matrix.d**2)/2);return{d:path.getAttribute('d')??'',length,lengthCss,dashArray:getComputedStyle(path).strokeDasharray,markerEnd:path.getAttribute('marker-end'),bounds:box(p),start:point(0),end:point(length),curveDeviation:curveDeviation(path)};
    }),
-   arrow:g.querySelector(':scope > polygon')!==null,
-   arrowPoints:(()=>{const polygon=g.querySelector(':scope > polygon') as SVGPolygonElement|null;if(!polygon||polygon.points.numberOfItems<3)return[];return[...polygon.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(polygon.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};});})(),
+   // Graphviz wraps an edge's path and arrow in a nested <a> when `tooltip`
+   // is present. Keep ownership scoped to this nearest edge group while
+   // allowing those native link wrappers.
+   arrow:(g.classList.contains('edge')?[...g.querySelectorAll('polygon')].some(polygon=>polygon.closest('g.edge')===g):g.querySelector(':scope > polygon')!==null),
+   arrowPoints:(()=>{const polygon=(g.classList.contains('edge')?[...g.querySelectorAll('polygon')].find(candidate=>candidate.closest('g.edge')===g):g.querySelector(':scope > polygon')) as SVGPolygonElement|undefined;if(!polygon||polygon.points.numberOfItems<3)return[];return[...polygon.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(polygon.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};});})(),
    fontSizes:[...g.querySelectorAll('text')].map(t=>{const v=parseFloat(getComputedStyle(t).fontSize);return Number.isFinite(v)?v:0;}).filter(v=>v>0),
   });});
   const allText=[...s.querySelectorAll('text,foreignObject')].map(el=>({value:visibleText(el),bounds:box(el),size:el instanceof SVGTextElement?parseFloat(getComputedStyle(el).fontSize):parseFloat(getComputedStyle(el).fontSize),owner:(el.closest('g.node,g.cluster,g.edge')?.querySelector(':scope > title')?.textContent??'').trim()})).filter(x=>x.value);
@@ -288,6 +291,10 @@ export async function verifyPresentationQuality(
     const expectedTitle=`${exp.from}${exp.fromPort?':'+exp.fromPort:''}->${exp.to}${exp.toPort?':'+exp.toPort:''}`;
     const svgEdge=dom.carriers.find(c=>c.cls.split(/\s+/).includes('edge')&&!usedSvgEdges.has(c.id||c.title)&&(c.id===exp.id||c.title===expectedTitle||(!exp.fromPort&&!exp.toPort&&c.title===`${exp.from}->${exp.to}`)));
     if(svgEdge)usedSvgEdges.add(svgEdge.id||svgEdge.title);
+    // Graphviz nests path + arrow inside <a> when an authored edge tooltip is
+    // present. `paths` and `arrow` were collected only from descendants whose
+    // closest edge owner is this exact mapped edge, so the wrapper is native
+    // presentation detail rather than a different owner.
     const drawn=svgEdge?.paths.find(p=>p.d.trim()&&p.start&&p.end);
     if(!svgEdge||!drawn||(exp.directed&&!svgEdge.arrow))endpointFailures.push(`${exp.id} has no native SVG path${exp.directed?' and arrow':''}`);
     const sourceEdge=visual.kind==='flow'?visual.edges?.find(candidate=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===candidate.id):undefined;

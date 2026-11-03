@@ -753,3 +753,33 @@ snapshot; original IDs/DAG/version and trigger prose remain unchanged. Real nati
 PNG bytes match the visually approved preview. Runtime/proof/source-authority code
 is unchanged, so full/unchanged corpus suites were intentionally not rerun. No
 current execution, environment, result or host qualification is inferred.
+
+
+## Native caption-cutout conformance
+
+For a qualified native on-path label strategy, inspect connector-owned mask
+references, exact mask/element transforms, glyph coverage margin and surviving
+painted stroke near the caption and endpoints. Corroborate effective visible ink
+with pinned native paint/pixel evidence. Removed/disabled/shrunken masks and
+unresolved ownership must fail; overbroad cutouts removing meaningful connector
+ink must fail independently. Retain off-path clearance controls and all caption/
+frame/source ownership checks; do not replace these with a numerical waiver.
+
+
+Grouped-flow native conformance additionally checks top-level component placement
+without source mutation, explicit-layout precedence and cycle/headless fallback.
+Retain internal/return/cross-group edges, exact caption recovery and independent
+frame-crossing negatives. Graphviz tooltip wrappers require owned descendant
+path/arrow traversal constrained by the nearest native edge carrier; missing owned
+paths/arrows still fail. Default-direction qualification does not qualify alternate
+directions with failed font/mask/frame checks.
+
+
+Cycle 25 closeout: final isolated suite passes 868 tests, zero failures and 22,904
+assertions across 149 files in 158.05 seconds. All required native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual visual/model/interface
+checks pass. Default-LR grouped-flow composition and owned native label cutouts
+qualify with differential path/arrow paint, mask mutations and independent frame
+controls; TB remains unqualified. Exact fictional selected-view JSON/TOML source
+and all graph semantics remain preserved. No current deployment, vocabulary,
+strict-interchange or host capability expansion is inferred.

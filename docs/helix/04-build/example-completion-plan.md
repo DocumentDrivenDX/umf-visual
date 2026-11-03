@@ -2561,6 +2561,90 @@ host capability expansion are introduced. Commit follows in this change; git
 history is authoritative. Cycle 25 remains pending until cycle 24 is committed;
 this closeout resolves earlier checkpoint holds.
 
+### Twenty-fifth-cycle scope — fictional selected container view
+
+Cycle 25 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/inventory/beacon-containers.json`, SHA-256
+`b6cc883738063075c31ee3c1e0e9f2fe484dc3e8538e2e9508fcd7fa2788b472`.
+The originating `fixtures/visual/sources/beacon/architecture-model.toml` matches
+declared digest
+`5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910`
+and explicitly describes a fictional system. Its selected containers view supplies
+nine nodes, two groups and ten induced relations; the original Visual already
+preserves relevant details/roles/statuses, labels, return kind and why qualifiers.
+Use an exact alias unless a concrete relevant omission is evidenced; publish exact
+TOML and unchanged JSON independently. Do not merge other views/journey steps or
+infer current deployment state.
+
+Audit native grouped-flow fidelity across G/M/L: exact group membership/boundaries,
+node/edge identity and directed endpoints, full labels/details, authored role/status,
+return and why accounting. Source meaning remains authoritative; runtime gaps are
+generic renderer responsibilities without business-specific types or branches.
+Choose lean data-only gates if existing runtime suffices; concrete runtime/proof
+changes reopen applicable AGENTS public/native/catalog regressions. Commit cycle 25
+before starting cycle 26.
+
+### Twenty-fifth-cycle renderer qualification checkpoint
+
+Default LR native previews pass G/M/L 11/10/12 checks and actual visual review.
+Graphviz tooltip wrappers retain exact owned descendant path/arrow proof. Lini
+uses generic root-component DAG composition and source-preserving caption wrapping;
+actual visible-ink proof independently verifies local luminance cutouts, glyph
+coverage and owned stroke/arrow differential raster contributions. Mask removal,
+shrink/overbroad/alpha and hidden-caption/path/arrow controls pass two tests/28 assertions.
+Group-frame crossing remains separately required. TB is currently unqualified due
+to font/mask-margin failures and is not claimed by the default-direction evidence.
+Case-level Lini integration/frame mutation and full required runtime/corpus gates
+remain pending; no completion claim is made.
+
+### Twenty-fifth-cycle focused-regression checkpoint
+
+Generic caption priority now preserves ancestor .1/.9 placement and established
+long-span/curved-sibling strategies before automatic root-component fallback.
+Geometry-aware native mutations preserve their intended independent frame failures.
+Visible-ink proof admits either off-path clearance or a verified native cutout;
+mask structure and owned differential stroke/arrow survival remain required, while
+glyph-cut coverage/effect is conditional on actually using the cutout alternative.
+Source remains an exact alias with fictional selected-view boundaries.
+
+Focused tests and source/type checks pass; public browser covers 24 reviewed
+definitions/54 plans and packed Bun/Node consumers/native interchange pass. The
+first full run observed 867 passed/one stale compiler coordinate assertion failure.
+Its test-only correction retains nested path, along .9, exact label and dashed
+semantics without binding private offset arithmetic; focused compiler 17 tests/
+264 assertions passes. Full catalog/showcase/review/site/UI gates and the isolated
+full-suite rerun remain pending. Cycle 25 is not complete or ready for commit.
+
+### Twenty-fifth-cycle closeout — 2026-11-03
+
+The final isolated full suite passes **868 tests, zero failures, 22,904 assertions
+across 149 files in 158.05 seconds**. All required source/type/build, native
+interchange, public-browser, packed Bun/Node consumer, catalog/showcase/review and
+shared UI gates pass. Fresh catalog coverage is 53 items; showcase has 23 qualified/
+zero failed variants and 23 SVG/PNG replays. Reviews cover 24 documents/54 qualified/
+zero failed/18 unsupported variants/162 assets and 54 SVG/PNG replays. Catalog UI
+passes 214 native SVGs; showcase UI passes nine examples/23 qualified/46 SVG/PNG
+previews; all 24 review UI examples pass exact TOML downloads and positive late-Blob
+revocation. Public browser covers 24 reviewed definitions/54 plans.
+
+Root inspected all three actual native previews. Lini PNG SHA-256
+`22cbbbd9c00466e1c9528e05f8e8d0ea9e3577019f0ecf31c78bb8c084dd23b3`
+binds the approved rendering. Default LR is qualified; TB remains unqualified for
+observed font/mask-margin failures and is not claimed by these receipts. Earlier
+full-run stale private-coordinate assertion was corrected only in tests, retaining
+path/along/label/dash meaning; final production/source stayed unchanged afterward.
+
+Final model/interface/modularity audit passes: exact fictional selected-view source
+is an alias, with immutable JSON/TOML authority and no unrelated source enrichment.
+Generic root-component placement/word wrapping and native visible-ink proof remain
+outside vocabulary; authored topology, groups, statuses/roles/return/why accounting,
+explicit layout precedence and caption frame ownership remain intact. Graphviz
+owned descendants allow native tooltip wrappers without borrowed paths/arrows.
+Owned differential raster and mask mutation controls prevent a clearance waiver.
+No current deployment, vocabulary, strict-interchange or host support expansion is
+claimed. Commit follows in this change; git history is authoritative. Cycle 26
+remains pending until cycle 25 is committed; this resolves earlier checkpoint holds.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2574,8 +2658,8 @@ Cycle 15 is committed as `a4f89f1`; cycle 16 is committed as `fc841bd`.
 Cycle 17 is committed as `af9ba07`; cycle 18 is committed as `8b0bbe8`.
 Cycle 19 is committed as `122e5c6`; cycle 20 is committed as `adefa85`.
 Cycle 21 is committed as `b9257c8`; cycle 22 is committed as `ae58a76`.
-Cycle 23 is committed as `8efc657`; cycle 24 is complete and ready for commit.
-Cycles 25–68 remain pending.
+Cycle 23 is committed as `8efc657`; cycle 24 is committed as `5af7b4c`.
+Cycle 25 is complete and ready for commit; cycles 26–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 
