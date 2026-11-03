@@ -9,6 +9,7 @@ import {planDateHistoryEvents} from '../../src/presentation/timeline-layout';
 import {stateTransitionCaption} from '../../src/presentation/state';
 import type {PresentationQualityCheck} from './quality';
 import {verifyLiniRichPresentationQuality} from './lini-rich-quality';
+import {verifyLiniQuadrantPresentationQuality} from './lini-quadrant-quality';
 
 type Box={x:number;y:number;width:number;height:number};
 type Carrier={id:string;classes:string[];texts:string[];title:string;style:string;bounds:Box;containerBounds:Box;rectRadii:number[];sheetPaths:number;sheetGeometry:Array<{bounds:Box;signature:string}>;groups:string[];parentId:string|null;cells:Array<{id:string|null;text:string;bounds:Box}>};
@@ -86,6 +87,7 @@ export async function verifyLiniPresentationQuality(
  const {document,plan}=input,sourceSha256=sha(plan.source),checks:PresentationQualityCheck[]=[];
  let visual:Visual|undefined;try{visual=getVisual(document);}catch{/* checked below */}
  if(visual&&(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'))return verifyLiniRichPresentationQuality(page,input);
+ if(visual?.kind==='comparison'&&visual.form==='quadrant')return verifyLiniQuadrantPresentationQuality(page,input);
  const nativeAst=typeof input.nativeAst==='string'?input.nativeAst:'';
  const maps=plan.elementMap;
  const requiredMapToken=(element:PresentationPlan['elementMap'][number]):string=>{

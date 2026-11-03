@@ -1800,12 +1800,71 @@ viewer, mobile and context behavior. Browser error inventories are empty.
 Final quiet full suite passes **720 tests, zero failures, 20,440 assertions
 across 110 files in 152.09 seconds** (`.cache/cycle12-full-tests.log`). All
 required gates and actual visual/interface audits pass, with no fixture-specific
-production dispatch. Cycle 12 is complete and ready for commit; its commit follows
-in this change and MUST precede cycle 13. Exact Visual 1.0.0 source, role/status,
+production dispatch. Cycle 12 is committed as `fa45a72`. Exact Visual 1.0.0 source, role/status,
 message and step meanings remain unchanged. Support is a bounded Lini lifelines
 adaptation with honest unsupported Graphviz/Mermaid variants and read-only shared
 context; no vocabulary change, native narrow-screen ladder claim, expanded host
 qualification, release or publication is made.
+
+### Thirteenth-cycle scope — authored rating quadrant
+
+Cycle 13 is in progress using exact authoritative source
+`fixtures/visual/forms/layout-engines.json`, SHA-256
+`534e2ee82b0ca6afa66403d15073bb33c2528f87b57ffb5ff0495766ed6af862`.
+Preserve Visual 1.0.0 / envelope 0.10.0, IDs, five items, two rating criteria
+with max 3 and exact low/high anchors, ten ratings, explicit x/y criterion IDs,
+and the chosen item with its exact reason. These are authored historical claims,
+not independently verified measurements or a current recommendation. Retain
+the explicit ratings-not-measurements caveat and source locator/digest without
+claiming retrieval of referenced historical bytes. Do not infer roles, durations,
+midpoint thresholds, causal relationships or a new ranking from labels/positions.
+
+Native acceptance requires exact rating/max axis mapping using the declared
+axis identities, owned item labels/values and readable criterion anchors, and
+source-bound choice/caveat representation. Boundary points at zero/max must
+remain unclipped and coordinates must not be jittered to avoid collisions.
+Native helpers and target coordinate policy stay outside portable vocabulary;
+unsupported backends/subsets remain explicit until qualified. Prove actual affine
+positions, swapped-axis/altered-rating negatives, labels and no invented
+relationships with generic renamed controls.
+
+Add a shared read-only comparison context view for exact criteria/axes/value
+records, authored choice/reason and authored omissions, using full source
+pointers. Do not assume every comparison is a rating or compute recommendations;
+absent values remain absent. Reuse exact authoritative source/downloads and
+inspect actual native/mobile outputs. Run affected native/corpus/review/UI,
+browser/package and full-suite gates for changed shared implementations. Commit
+cycle 13 before starting cycle 14.
+
+Final source/interface/native proof approves the isolated Lini quadrant helper,
+exact criterion/value/item/choice mapping, dark owned labels/ticks, actual
+rating-to-axis geometry and invisible unmapped chart scaffold. Low/high anchors
+point to their real text owners. Optional detail/note/takeaway and appropriately
+versioned draft 1.4.0 annotation controls pass; frozen source 1.0.0 is unchanged.
+Strict interchange remains separate. Shared read-only context preserves mixed
+measure types, explicit absent values, exact pointers, authored choice/reason and
+caveat without ranking or measurement claims. Root approved the actual native
+quadrant image and all interface/modularity/conditional-branch audits.
+
+Focused compiler/native/classifier checks pass 10 tests / 97 assertions.
+Source/type, SDK build, native/fetch, catalog and showcase gates pass. Integrated
+reviews pass **12 definitions / 32 qualified variants / 4 explicit unsupported
+variants / 96 assets**, with 32 actual SVG and 32 PNG replays. Fresh review UI
+verifies all twelve definitions, including exact source identity and comparison
+context, without browser errors. Public-browser checks pass twelve reviewed
+definitions / twenty-four round trips / thirty-two plans; packed consumers pass.
+Final shared UI checks 214 catalog native SVG assets and showcase nine definitions /
+23 qualified variants / 46 SVG/PNG assets, including source/hash/viewer/mobile/
+shared-context behavior, on Chromium 153.0.8010.12 with no browser errors.
+
+Final quiet full suite passes **729 tests, zero failures, 20,546 assertions
+across 113 files in 145.96 seconds** (`.cache/cycle13-full-tests.log`). All
+required gates pass. Cycle 13 is complete and ready for commit; the commit follows
+in this change and MUST precede cycle 14. Exact source IDs, ratings, axes, choice
+and historical caveat/locator remain unchanged. The bounded native rating
+quadrant and read-only context introduce no portable vocabulary change, current
+recommendation, independently verified measurement, host capability expansion,
+release or publication claim.
 
 ### Ordered cycle inventory
 
@@ -1814,8 +1873,8 @@ Cycle 3 is committed as `aa6a093`; cycle 4 is committed as `263b11f`.
 Cycle 5 is committed as `0a0f7c3`; cycle 6 is committed as `6b6b602`.
 Cycle 7 is committed as `498798c`; cycle 8 is committed as `b706901`.
 Cycle 9 is committed as `991a02a`; cycle 10 is committed as `2d50cc2`.
-Cycle 11 is committed as `5bcc704`; cycle 12 is complete and ready for commit.
-Cycles 13–68 remain pending.
+Cycle 11 is committed as `5bcc704`; cycle 12 is committed as `fa45a72`.
+Cycle 13 is complete and ready for commit; cycles 14–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

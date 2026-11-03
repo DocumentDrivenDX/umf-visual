@@ -49,3 +49,41 @@ export function authoredStepListPolicy(steps) {
     return {numbered: false, number: undefined, listValue: numberedCount + 1};
   });
 }
+
+const escapePointerToken = value => String(value).replaceAll('~', '~0').replaceAll('/', '~1');
+
+/** Return a source-addressed view of typed comparison fields without scoring or ranking items. */
+export function authoredComparisonView(visual) {
+  const comparison = visual?.comparison;
+  if (!comparison || typeof comparison !== 'object') return null;
+  const base = '/extensions/umf.visual/comparison';
+  const propertyRows = (record, sourcePath, excluded = []) => Object.entries(record || {})
+    .filter(([key]) => !excluded.includes(key))
+    .map(([key, value]) => ({key, value, sourcePath: `${sourcePath}/${escapePointerToken(key)}`}));
+  const items = (Array.isArray(comparison.items) ? comparison.items : []).map((item, index) => ({
+    id: item?.id,
+    label: item?.label,
+    sourcePath: `${base}/items/${index}`,
+    fields: propertyRows(item, `${base}/items/${index}`, ['id', 'label']),
+  }));
+  const criteria = (Array.isArray(comparison.criteria) ? comparison.criteria : []).map((criterion, index) => ({
+    id: criterion?.id,
+    label: criterion?.label,
+    sourcePath: `${base}/criteria/${index}`,
+    fields: propertyRows(criterion, `${base}/criteria/${index}`, ['id', 'label']),
+  }));
+  const values = (Array.isArray(comparison.values) ? comparison.values : []).map((entry, index) => ({
+    item: entry?.item,
+    criterion: entry?.criterion,
+    sourcePath: `${base}/values/${index}`,
+    fields: propertyRows(entry, `${base}/values/${index}`, ['item', 'criterion']),
+  }));
+  const axes = comparison.axes && typeof comparison.axes === 'object'
+    ? propertyRows(comparison.axes, `${base}/axes`)
+    : [];
+  const chosen = comparison.chosen && typeof comparison.chosen === 'object'
+    ? {item: comparison.chosen.item, itemSourcePath: `${base}/chosen/item`, reason: comparison.chosen.reason, reasonSourcePath: `${base}/chosen/reason`}
+    : null;
+  const omissions = (Array.isArray(visual.omissions) ? visual.omissions : []).map((text, index) => ({text, sourcePath: `/extensions/umf.visual/omissions/${index}`}));
+  return {axes, items, criteria, values, chosen, omissions};
+}

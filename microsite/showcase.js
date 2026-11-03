@@ -1,4 +1,4 @@
-import {authoredFocusTargets,authoredStepListPolicy} from './authored-context.js';
+import {authoredComparisonView,authoredFocusTargets,authoredStepListPolicy} from './authored-context.js';
 
 const $ = id => document.getElementById(id);
 const ui = {
@@ -428,6 +428,87 @@ function renderAuthoredContext(example) {
     metadata.append(locatorNote);
   }
   content.append(metadata);
+
+  const omissions = Array.isArray(visual.omissions) ? visual.omissions : [];
+  if (omissions.length) {
+    const caveats = document.createElement('section'); caveats.className = 'authored-caveats';
+    const caveatTitle = document.createElement('h5'); caveatTitle.textContent = 'Authored caveats'; caveats.append(caveatTitle);
+    const list = document.createElement('ul');
+    omissions.forEach((note, index) => {
+      const item = document.createElement('li'), text = document.createElement('span'), pointer = document.createElement('code');
+      text.textContent = typeof note === 'string' ? note : JSON.stringify(note);
+      pointer.textContent = `/extensions/umf.visual/omissions/${index}`;
+      item.append(text, pointer); list.append(item);
+    });
+    caveats.append(list); content.append(caveats);
+  }
+
+  const comparisonView = authoredComparisonView(visual);
+  if (comparisonView) {
+    const comparison = document.createElement('section'); comparison.className = 'authored-comparison';
+    const comparisonTitle = document.createElement('h5'); comparisonTitle.textContent = 'Authored comparison'; comparison.append(comparisonTitle);
+    const appendFields = (parent, fields) => {
+      for (const field of fields) {
+        const line = document.createElement('div'), name = document.createElement('strong'), value = document.createElement('span'), pointer = document.createElement('code');
+        name.textContent = `${field.key}: `;
+        value.textContent = typeof field.value === 'string' ? field.value : JSON.stringify(field.value) ?? String(field.value);
+        pointer.textContent = field.sourcePath;
+        line.append(name, value, pointer); parent.append(line);
+      }
+    };
+    const axes = document.createElement('div'); axes.className = 'authored-comparison-axes';
+    for (const axis of comparisonView.axes) {
+      const line = document.createElement('p'), name = document.createElement('strong'), value = document.createElement('span'), pointer = document.createElement('code');
+      const criterion = comparisonView.criteria.find(candidate => candidate.id === axis.value);
+      name.textContent = `${axis.key.toUpperCase()} axis: `;
+      value.textContent = criterion ? `${safeText(axis.value)} · ${safeText(criterion.label)}` : safeText(axis.value);
+      pointer.textContent = axis.sourcePath;
+      line.append(name, value, pointer);
+      if (criterion) { const criterionPath = document.createElement('code'); criterionPath.textContent = criterion.sourcePath; line.append(criterionPath); }
+      axes.append(line);
+    }
+    comparison.append(axes);
+
+    const tableWrap = document.createElement('div'); tableWrap.className = 'authored-comparison-table-wrap';
+    const table = document.createElement('table'); table.className = 'authored-comparison-table';
+    const head = document.createElement('thead'), headerRow = document.createElement('tr'), itemHeader = document.createElement('th');
+    itemHeader.scope = 'col'; itemHeader.textContent = 'Item'; headerRow.append(itemHeader);
+    for (const criterion of comparisonView.criteria) {
+      const cell = document.createElement('th'); cell.scope = 'col';
+      const identity = document.createElement('div'); identity.className = 'authored-comparison-criterion';
+      const id = document.createElement('strong'); id.textContent = `${safeText(criterion.id)} · ${safeText(criterion.label)}`;
+      const path = document.createElement('code'); path.textContent = criterion.sourcePath;
+      identity.append(id, path); appendFields(identity, criterion.fields); cell.append(identity); headerRow.append(cell);
+    }
+    head.append(headerRow); table.append(head);
+    const body = document.createElement('tbody');
+    for (const item of comparisonView.items) {
+      const row = document.createElement('tr'), itemCell = document.createElement('th'); itemCell.scope = 'row';
+      const itemIdentity = document.createElement('div'), itemId = document.createElement('strong'), itemLabel = document.createElement('span'), itemPath = document.createElement('code');
+      itemId.textContent = safeText(item.id); itemLabel.textContent = safeText(item.label); itemPath.textContent = item.sourcePath;
+      itemIdentity.append(itemId, itemLabel, itemPath); appendFields(itemIdentity, item.fields); itemCell.append(itemIdentity); row.append(itemCell);
+      for (const criterion of comparisonView.criteria) {
+        const cell = document.createElement('td'), valueRecord = comparisonView.values.find(candidate => candidate.item === item.id && candidate.criterion === criterion.id);
+        if (valueRecord) { const valuePath = document.createElement('code'); valuePath.textContent = valueRecord.sourcePath; cell.append(valuePath); appendFields(cell, valueRecord.fields); }
+        else cell.textContent = 'No value authored for this item and criterion.';
+        row.append(cell);
+      }
+      body.append(row);
+    }
+    table.append(body); tableWrap.append(table); comparison.append(tableWrap);
+
+    if (comparisonView.chosen) {
+      const choice = document.createElement('div'); choice.className = 'authored-comparison-choice';
+      const choiceTitle = document.createElement('strong'); choiceTitle.textContent = 'Authored choice'; choice.append(choiceTitle);
+      const chosenItem = comparisonView.items.find(item => item.id === comparisonView.chosen.item);
+      const chosenValue = document.createElement('p'); chosenValue.textContent = chosenItem ? `${safeText(chosenItem.id)} · ${safeText(chosenItem.label)}` : safeText(comparisonView.chosen.item);
+      const itemPointer = document.createElement('code'); itemPointer.textContent = comparisonView.chosen.itemSourcePath;
+      const reason = document.createElement('p'); reason.textContent = safeText(comparisonView.chosen.reason);
+      const reasonPointer = document.createElement('code'); reasonPointer.textContent = comparisonView.chosen.reasonSourcePath;
+      choice.append(chosenValue, itemPointer, reason, reasonPointer); comparison.append(choice);
+    }
+    content.append(comparison);
+  }
 
   const steps = Array.isArray(visual.steps) ? visual.steps : [];
   const walkthrough = document.createElement('section'); walkthrough.className = 'authored-walkthrough';

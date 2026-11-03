@@ -500,3 +500,25 @@ activation, disclosed ladder/lifelines adaptation and read-only authored-context
 inspection. Exact Visual 1.0.0 source and historical locator limits remain
 unchanged; unsupported backends remain explicit, without vocabulary or host
 support expansion.
+
+
+## Rating-quadrant conformance
+
+Check exact axis identity/ranges, owned labels/low-high anchors, logical/source
+map identities, and actual affine marker positions at zero/max and interior
+ratings. Swapped axes, moved markers, forged map IDs, changed caveat/choice and
+visible chart scaffolds must independently fail. Keep optional detail/value-note/
+takeaway/annotation ownership controls under appropriate source model versions;
+never infer support for newer annotation fields in frozen legacy models. Inspect
+contrast, marker/label containment, no invented causal/midpoint meaning and all
+shared fit/clipping/font/overlap checks. Context tests cover mixed measure types,
+missing values, exact pointers and authored rather than computed choice, plus
+expanded mobile table scrolling and unchanged source/download hashes.
+
+Cycle 13 closeout: quiet full suite passes 729 tests, zero failures and 20,546
+assertions across 113 files in 145.96 seconds. All source/type/build, native
+corpus/review/shared UI, public-browser, packed-consumer and actual visual/interface
+audits pass. Exact rating geometry, owned text and invisible scaffold qualify the
+bounded Lini profile; read-only comparison context preserves absent values and
+authored claims without ranking. The exact Visual 1.0.0 authority and historical
+caveat/locator remain unchanged, without vocabulary or host-support expansion.

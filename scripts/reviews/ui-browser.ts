@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {mkdir,readFile} from 'node:fs/promises';
 import {extname,join,resolve,sep} from 'node:path';
 import {readJsonValue} from '@umf/core';
-import {authoredFocusTargets,authoredStepListPolicy} from '../../microsite/authored-context.js';
+import {authoredComparisonView,authoredFocusTargets,authoredStepListPolicy} from '../../microsite/authored-context.js';
 
 const siteRoot=resolve('dist-site'),receipt=await Bun.file(join(siteRoot,'reviews.json')).json();
 if(receipt.schemaVersion!==1||!Array.isArray(receipt.examples)||receipt.examples.length===0)throw Error('Build source-derived review presentations first.');
@@ -101,6 +101,24 @@ async function assertAuthoredContext(page:Page,review:any):Promise<void>{
   for(const key of ['path','view','digest'])if(typeof visual.source[key]==='string'&&(!text.includes(visual.source[key])||!(await content.locator('code').allTextContents()).includes(`/extensions/umf.visual/source/${key}`)))throw Error(`${review.id} authored source ${key} is missing or has no full source pointer.`);
   if(!text.includes('does not independently retrieve or verify the referenced resource'))throw Error(`${review.id} source locator is presented as externally verified.`);
  }
+ const comparison=authoredComparisonView(visual),pointers=await content.locator('code').allTextContents();
+ if(comparison){
+  if(!text.includes('Authored comparison'))throw Error(`${review.id} comparison context is not labeled as authored source content.`);
+  for(const axis of comparison.axes){if(!pointers.includes(axis.sourcePath)||!text.includes(String(axis.value)))throw Error(`${review.id} comparison axis ${axis.key} is missing or unlocated.`);}
+  for(const collection of [comparison.items,comparison.criteria])for(const row of collection){
+   if(!pointers.includes(row.sourcePath)||!text.includes(String(row.id))||!text.includes(String(row.label)))throw Error(`${review.id} comparison row ${row.id} is missing or unlocated.`);
+   for(const field of row.fields){if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw Error(`${review.id} comparison field ${field.key} is missing or unlocated.`);}
+  }
+  for(const value of comparison.values){
+   if(!pointers.includes(value.sourcePath)||!text.includes(String(value.item))||!text.includes(String(value.criterion)))throw Error(`${review.id} comparison value references are missing or unlocated.`);
+   for(const field of value.fields){if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw Error(`${review.id} comparison value ${field.key} is missing or unlocated.`);}
+  }
+  if(comparison.chosen){
+   if(!text.includes('Authored choice')||!text.includes(String(comparison.chosen.item))||!text.includes(String(comparison.chosen.reason))||!pointers.includes(comparison.chosen.itemSourcePath)||!pointers.includes(comparison.chosen.reasonSourcePath))throw Error(`${review.id} chosen item/reason is missing, unlocated, or not identified as authored.`);
+  }
+ }
+ const visualOmissions=Array.isArray(visual.omissions)?visual.omissions:[];
+ for(let index=0;index<visualOmissions.length;index++)if(!text.includes(String(visualOmissions[index]))||!pointers.includes(`/extensions/umf.visual/omissions/${index}`))throw Error(`${review.id} authored caveat ${index} is missing or lacks its full source pointer.`);
  const steps=Array.isArray(visual.steps)?visual.steps:[],items=content.locator('.authored-step-list > li');
  if(await items.count()!==steps.length)throw Error(`${review.id} authored step count differs from its Visual payload.`);
  const policy=authoredStepListPolicy(steps),targets=authoredFocusTargets(visual);

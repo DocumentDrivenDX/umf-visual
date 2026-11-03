@@ -461,3 +461,28 @@ invented execution durations. Static sequence artifacts MAY retain walkthrough
 steps as located native omissions while shared authored-context inspection
 provides exact step/focus meaning under CONTRACT-085; this MUST NOT be advertised
 as native focus activation or animation.
+
+
+## Two-axis rating quadrant
+
+The bounded quadrant profile uses two distinct authored rating criteria, positive
+maxima and complete per-item values. It MUST bind declared x/y criterion identity
+rather than criterion array order, retain exact ratings on a zero-to-maximum
+coordinate plane, and preserve labels and low/high anchors. Native proof MUST
+measure actual marker positions, including boundary values, without jitter or
+invented midpoint classifications. Item/criterion/value/choice mappings are
+presentation-only kinds at exact source pointers; they add no Visual identities.
+
+Choice and rationale MUST remain explicitly authored claims, not a computed or
+current recommendation. Source caveats MUST retain exact text and ownership.
+Optional admitted detail, value notes and takeaway MUST have owned native text
+carriers or an explicit located limit. An admitted unanchored annotation requires
+its own exact native carrier under the source model version that declares it;
+this does not unfreeze older model schemas.
+
+A native chart scaffold MAY be renderer-owned and unmapped only when actually
+invisible, without a line, point, legend, score or relationship. Native AST,
+carrier and coordinate proofs complement the shared source-hash, fit, clipping,
+font and overlap obligations; they MUST NOT silently bypass them. Unsupported
+criteria, incomplete values or target subsets remain located refusals. Strict
+interchange serialization is separate from this presentation profile.

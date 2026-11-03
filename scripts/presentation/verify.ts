@@ -31,7 +31,9 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
  const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-svg-fit','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
  if(visual.layout?.kind==='circular')checks.push('presentation-circular-layout');
  if(backend==='graphviz')checks.push(...(visual.kind==='state'?['graphviz-native-ast','graphviz-state-transitions-and-markers']:visual.kind==='timeline'&&visual.form==='history'?['graphviz-native-ast','graphviz-timeline-events-and-axis']:['graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order']));
- else if(backend==='lini')checks.push(...(visual.kind==='timeline'&&visual.form==='history'
+ else if(backend==='lini')checks.push(...(visual.kind==='comparison'&&visual.form==='quadrant'
+  ?['lini-native-ast','lini-native-carriers','lini-quadrant-coordinate-ownership']
+  :visual.kind==='timeline'&&visual.form==='history'
   ?['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-timeline-events-and-date-scale','lini-entity-field-rows']
   :visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
   ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']

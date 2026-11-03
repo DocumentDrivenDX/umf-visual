@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {expect,test} from 'bun:test';
 import {readFileSync} from 'node:fs';
-import {authoredFocusTargets,authoredStepListPolicy} from '../../microsite/authored-context.js';
+import {authoredComparisonView,authoredFocusTargets,authoredStepListPolicy} from '../../microsite/authored-context.js';
 
 test('authored focus resolver follows the Visual global ID declaration universe and exact source paths',()=>{
  const targets=authoredFocusTargets({
@@ -50,6 +50,46 @@ test('steps with authored when values are unnumbered while absent when uses sour
   {numbered:true,number:2,listValue:2},
   {numbered:false,number:undefined,listValue:3},
  ]);
+});
+
+test('comparison context preserves axes, typed values, chosen reason, omissions, and exact pointers without scoring',()=>{
+ const view=authoredComparisonView({
+  omissions:['These are author readings, not measurements.'],
+  comparison:{
+   items:[{id:'a',label:'Option A'},{id:'b',label:'Option B'}],
+   criteria:[{id:'fit',label:'Runtime fit',measure:'rating',max:3,low:'Not suited',high:'Runs locally'},{id:'support',label:'Feature support',measure:'support'}],
+   values:[{item:'a',criterion:'fit',rating:3,note:'Preferred by the author'},{item:'b',criterion:'support',support:'partial'}],
+   axes:{x:'fit',y:'support'},chosen:{item:'a',reason:'The source author selected this option.'},
+  },
+ });
+ expect(view).toEqual({
+  axes:[{key:'x',value:'fit',sourcePath:'/extensions/umf.visual/comparison/axes/x'},{key:'y',value:'support',sourcePath:'/extensions/umf.visual/comparison/axes/y'}],
+  items:[
+   {id:'a',label:'Option A',sourcePath:'/extensions/umf.visual/comparison/items/0',fields:[]},
+   {id:'b',label:'Option B',sourcePath:'/extensions/umf.visual/comparison/items/1',fields:[]},
+  ],
+  criteria:[
+   {id:'fit',label:'Runtime fit',sourcePath:'/extensions/umf.visual/comparison/criteria/0',fields:[
+    {key:'measure',value:'rating',sourcePath:'/extensions/umf.visual/comparison/criteria/0/measure'},
+    {key:'max',value:3,sourcePath:'/extensions/umf.visual/comparison/criteria/0/max'},
+    {key:'low',value:'Not suited',sourcePath:'/extensions/umf.visual/comparison/criteria/0/low'},
+    {key:'high',value:'Runs locally',sourcePath:'/extensions/umf.visual/comparison/criteria/0/high'},
+   ]},
+   {id:'support',label:'Feature support',sourcePath:'/extensions/umf.visual/comparison/criteria/1',fields:[{key:'measure',value:'support',sourcePath:'/extensions/umf.visual/comparison/criteria/1/measure'}]},
+  ],
+  values:[
+   {item:'a',criterion:'fit',sourcePath:'/extensions/umf.visual/comparison/values/0',fields:[
+    {key:'rating',value:3,sourcePath:'/extensions/umf.visual/comparison/values/0/rating'},
+    {key:'note',value:'Preferred by the author',sourcePath:'/extensions/umf.visual/comparison/values/0/note'},
+   ]},
+   {item:'b',criterion:'support',sourcePath:'/extensions/umf.visual/comparison/values/1',fields:[{key:'support',value:'partial',sourcePath:'/extensions/umf.visual/comparison/values/1/support'}]},
+  ],
+  chosen:{item:'a',itemSourcePath:'/extensions/umf.visual/comparison/chosen/item',reason:'The source author selected this option.',reasonSourcePath:'/extensions/umf.visual/comparison/chosen/reason'},
+  omissions:[{text:'These are author readings, not measurements.',sourcePath:'/extensions/umf.visual/omissions/0'}],
+ });
+ expect(authoredComparisonView({comparison:{items:[],criteria:[],values:[]}})?.chosen).toBeNull();
+ expect(authoredComparisonView({comparison:{items:[],criteria:[],values:[]}})?.axes).toEqual([]);
+ expect(authoredComparisonView({title:'No comparison'})).toBeNull();
 });
 
 test('both viewers load the shared context panel and the static-site build versions its ESM helper',()=>{

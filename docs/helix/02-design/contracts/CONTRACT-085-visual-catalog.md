@@ -398,3 +398,12 @@ Unresolved or ambiguous targets MUST remain explicit rather than selecting a
 convenient match. Scene/backend changes refresh the disclosure from the current
 definition. This source inspection makes no native highlighting/activation claim,
 and MUST preserve exact source/download bytes and narrow-viewport access.
+
+
+Read-only comparison context MUST preserve declared axes, criteria fields, exact
+value records, authored choice/reason and omission caveats with full source
+pointers. Missing values MUST remain explicitly absent, never default zero or
+unsupported capability. The view MUST NOT compute ranking or present historical
+ratings as measurements/current recommendations. Exact typed or unknown field
+content remains inspectable without execution; narrow tables scroll internally
+without page overflow or source-text mutation.
