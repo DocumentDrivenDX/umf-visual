@@ -426,3 +426,26 @@ suites pass native-size/Fit, bounded zoom/pan, lifecycle cleanup/reset, keyboard
 and narrow expanded-source checks, preserving original download hashes. The
 exact Visual 1.0.0 source and its absent/default properties are unchanged; no
 native compiler/model support expansion is claimed.
+
+
+## Flat state-machine conformance
+
+Verify exact state label/detail ownership, one native transition per authored
+item, directed attachment and event/guard/action caption ownership. Separate
+initial/final helper paths from authored transition counts; reject missing,
+misattached and unrequested final markers. Preserve outgoing transitions from
+final states and initial/final overlap. Include renamed reciprocal/self and
+distinct-caption parallel controls; identical ambiguous Mermaid locator tuples
+must refuse. Mutation tests must independently fail wrong SVG IDs, changed
+captions, missing helper links and forged final outlines. Check actual title
+containment and reciprocal-caption association/clearance visually and natively.
+Unsupported composite/layout/property subsets must refuse without source edits;
+no final/guard meaning may be inferred from source labels.
+
+Cycle 10 closeout: quiet full suite passes 699 tests, zero failures and 19,949
+assertions across 104 files in 210.87 seconds. All native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual visual audits pass.
+The exact Visual 1.0.0 authority remains unchanged. Evidence qualifies the
+bounded flat state-machine profiles and disclosed Mermaid locator uniqueness;
+unsupported composite/order/property subsets remain explicit refusals, without
+vocabulary changes or expanded historical host qualification.

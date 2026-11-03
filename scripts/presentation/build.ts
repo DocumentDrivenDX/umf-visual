@@ -7,7 +7,7 @@ import {chromium,type Browser,type Page} from 'playwright';
 import mermaidPackage from 'mermaid/package.json';
 import type {Document} from '@umf/core';
 import {createVisualDocument,readVisualDocument,type Visual} from '../../src/extensions/visual';
-import {compilePresentation,type PresentationPlan,type PresentationBackend,type PresentationExecution} from '../../src/presentation';
+import {compilePresentation,type PresentationPlan,type PresentationBackend,type PresentationExecution,type PresentationDiagnostic} from '../../src/presentation';
 import {verifyPresentationQuality} from './quality';
 import {loadPresentationLini,renderPresentationLini} from './lini-runtime';
 import {visualPayloadYaml} from './payload-source';
@@ -37,6 +37,19 @@ async function command(args:string[],input?:string):Promise<{stdout:string;stder
 async function version(args:string[],regex:RegExp,label:string):Promise<string>{const r=await command(args);if(r.exit!==0)throw new Error(`${label} version command failed: ${r.stderr||r.stdout}`);const m=regex.exec(r.stdout+' '+r.stderr);if(!m)throw new Error(`Unable to parse ${label} native version.`);return m[1]!;}
 function jsonDocument(raw:string):Document {return readVisualDocument(raw,'json');}
 function visualOf(doc:Document):Visual{return doc.extensions!['umf.visual'] as unknown as Visual;}
+
+/** Number of visible Graphviz connection paths emitted by the current generic projections. */
+export function expectedGraphvizConnectionCount(visual:Visual):number{
+ if(visual.kind==='flow')return (visual.edges??[]).length;
+ if(visual.kind==='structure'&&visual.form==='entities')return (visual.structure?.references??[]).length;
+ if(visual.kind==='state'&&visual.form==='machine')return (visual.state?.transitions??[]).length+1; // renderer-owned initial marker link
+ return 0;
+}
+const capabilityRefusalCodes=new Set(['PRESENTATION_FORM','PRESENTATION_BACKEND_SUBSET','PRESENTATION_MERMAID_FIELD','PRESENTATION_MERMAID_CARDINALITY','PRESENTATION_MERMAID_RELATIONSHIP','PRESENTATION_CIRCULAR_SCOPE','PRESENTATION_MERMAID_CIRCULAR_SUBSET','PRESENTATION_STATE_SCOPE','PRESENTATION_STATE_COMPOSITE','PRESENTATION_STATE_ANNOTATION','PRESENTATION_STATE_STEPS','PRESENTATION_STATE_LAYOUT','PRESENTATION_STATE_LAYOUT_ORDER','PRESENTATION_STATE_NODE_PROPERTY','PRESENTATION_STATE_TRANSITION_PROPERTY','PRESENTATION_STATE_MULTILINE','PRESENTATION_STATE_AMBIGUOUS_TRANSITION']);
+/** True only for valid-source projection-scope refusals; malformed inputs remain failures. */
+export function isUnsupportedPresentationDiagnostics(diagnostics:readonly PresentationDiagnostic[]):boolean{
+ return diagnostics.length>0&&diagnostics.every(item=>capabilityRefusalCodes.has(item.code));
+}
 
 export function graphvizExecutionArgs(execution:PresentationExecution|undefined,format:'svg'|'json'):{command:'dot'|'neato';args:string[]}{
  if(!execution)return{command:'dot',args:['-T'+format]};
@@ -159,7 +172,7 @@ async function verifyNativeSvg(browser:Browser,svg:string,tokens:string[]):Promi
 
 async function buildRender(example:SourceExample,doc:Document,backend:PresentationBackend,browser:Browser,versions:{graphviz:string;neato:string;mermaid:string;lini:string;chromium:string},assetDirectory:string):Promise<RenderRow>{
  const plan=compilePresentation(doc,{backend,theme:'presentation/1'});
- if(!plan.ok){const refused=plan.diagnostics.every(d=>d.code==='PRESENTATION_FORM'||d.code==='PRESENTATION_BACKEND_SUBSET'||d.code==='PRESENTATION_MERMAID_FIELD'||d.code==='PRESENTATION_MERMAID_CARDINALITY'||d.code==='PRESENTATION_MERMAID_RELATIONSHIP'||d.code==='PRESENTATION_CIRCULAR_SCOPE'||d.code==='PRESENTATION_MERMAID_CIRCULAR_SUBSET');return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath:'',nativeSourceSha256:'',svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:[],omissions:[],approximations:[],status:refused?'unsupported':'failed',quality:{evidence:[]},diagnostics:plan.diagnostics};}
+ if(!plan.ok){const refused=isUnsupportedPresentationDiagnostics(plan.diagnostics);return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath:'',nativeSourceSha256:'',svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:[],omissions:[],approximations:[],status:refused?'unsupported':'failed',quality:{evidence:[]},diagnostics:plan.diagnostics};}
  const extension=backend==='graphviz'?'dot':backend==='lini'?'lini':'mmd',base=`${assetDirectory}/${safe(example.id)}/${backend}`,diskBase=`dist-site/${base}`;
  const nativeSourcePath=`${base}/source.${extension}`,svgPath=`${base}/diagram.svg`,pngPath=`${base}/diagram.png`;
  assertRelative(nativeSourcePath,'Native source path');assertRelative(svgPath,'SVG path');assertRelative(pngPath,'PNG path');
@@ -171,9 +184,9 @@ async function buildRender(example:SourceExample,doc:Document,backend:Presentati
    const ast=JSON.parse(jsonResult.output) as {objects?:{name?:string}[];edges?:{tail?:string;head?:string;tailport?:string;headport?:string}[]};nativeAst=ast;const names=new Set((ast.objects??[]).map(o=>o.name));
    const expectedNodes=plan.elementMap.filter(x=>x.kind==='node'||x.kind==='entity');const missingNodes=expectedNodes.filter(x=>!names.has(x.nativeId));
    if(missingNodes.length)throw Error('Graphviz JSON AST omitted expected native nodes: '+missingNodes.map(x=>x.nativeId).join(', '));
-   const sourceVisual=visualOf(doc);const expectedEdges=sourceVisual.kind==='flow'?(sourceVisual.edges??[]).length:(sourceVisual.form==='entities'?(sourceVisual.structure?.references??[]).length:0);
-   const semanticEdges=(ast.edges??[]).filter(e=>String((e as any).style??'')!=='invis');
-   if(semanticEdges.length!==expectedEdges)throw Error(`Graphviz JSON AST has ${semanticEdges.length} semantic edges; expected ${expectedEdges}.`);
+   const sourceVisual=visualOf(doc),expectedConnections=expectedGraphvizConnectionCount(sourceVisual);
+   const visibleConnections=(ast.edges??[]).filter(e=>String((e as any).style??'')!=='invis');
+   if(visibleConnections.length!==expectedConnections)throw Error(`Graphviz JSON AST has ${visibleConnections.length} visible connection paths; expected ${expectedConnections}, including any renderer-owned marker links.`);
    if(sourceVisual.form==='entities'){
     const missingPorts=plan.elementMap.filter(x=>x.kind==='field').filter(field=>!plan.source.includes('PORT="'+field.nativeId+'"'));
     if(missingPorts.length)throw Error('Graphviz source lacks expected field ports: '+missingPorts.map(x=>x.nativeId).join(', '));

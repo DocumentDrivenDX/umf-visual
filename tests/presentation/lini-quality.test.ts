@@ -15,8 +15,8 @@ afterAll(async()=>{await browser?.close();},{timeout:30_000});
 const required=['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows'];
 const doc=(visual:Visual)=>createVisualDocument(visual,'lini-quality:'+visual.id,'1.1.0');
 const result=(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>,name:string)=>checks.find(check=>check.check===name)?.result;
-async function renderDocument(document:ReturnType<typeof createVisualDocument>){
- const plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});
+async function renderDocument(document:ReturnType<typeof createVisualDocument>,direction:'LR'|'TB'='LR'){
+ const plan=compilePresentation(document,{backend:'lini',theme:'presentation/1',direction});
  expect(plan.ok).toBe(true);if(!plan.ok)throw Error(JSON.stringify(plan));
  const native=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900}});
  await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
@@ -258,6 +258,86 @@ describe('pinned Lini presentation quality',()=>{
    await link.evaluate(element=>element.insertAdjacentHTML('beforeend','<polygon class="lini-marker lini-marker-arrow" points="0,0 5,2 5,-2"></polygon>'));
    expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
   }finally{await good.page.close();}
+ });
+
+ it('maps a flat state machine to owned state cells and one directed native link per transition',async()=>{
+  const root=resolve(import.meta.dir,'../..'),document=readVisualDocument(readFileSync(resolve(root,'fixtures/visual/forms/helix-authoring-state.json'),'utf8'),'json'),good=await renderDocument(document);
+  try{
+   expectAll(good.checks);
+   const initial=good.plan.elementMap.find(item=>item.kind==='state-marker'&&item.sourcePath.endsWith('/state/initial'));
+   expect(initial).toBeDefined();if(!initial)return;
+   expect(initial.nativeId).toBe('n1.initial');
+   expect(await good.page.locator('g.lini-node[data-id="n1"] > g.lini-node.lini-cell[data-id="initial"] text.lini-text').textContent()).toBe('Initial');
+   const transitions=good.plan.elementMap.filter(item=>item.kind==='transition');
+   expect(transitions.map(item=>item.logicalId)).toEqual(['check-in','check-out']);
+   expect(await good.page.locator('g.lini-link.lini-style-t1').getAttribute('data-from')).toBe('visual.n1');
+   expect(await good.page.locator('g.lini-link.lini-style-t1').getAttribute('data-to')).toBe('visual.n2');
+   expect(await good.page.locator('g.lini-link.lini-style-t1 > text.lini-link-label').textContent()).toContain('check in / copy body, export and digest');
+   expect(await good.page.locator('g.lini-link.lini-style-t2').getAttribute('data-from')).toBe('visual.n2');
+   expect(await good.page.locator('g.lini-link.lini-style-t2').getAttribute('data-to')).toBe('visual.n1');
+   expect(await good.page.locator('g.lini-link.lini-style-t2 > text.lini-link-label').textContent()).toContain('check out / start the next revision');
+
+   const reverseCaption=good.page.locator('g.lini-link.lini-style-t2 > text.lini-link-label');
+   const relocation=await good.page.evaluate(()=>{
+    const forward=globalThis.document.querySelector('g.lini-link.lini-style-t1 > text.lini-link-label')?.getBoundingClientRect(),reverse=globalThis.document.querySelector('g.lini-link.lini-style-t2 > text.lini-link-label')?.getBoundingClientRect();
+    if(!forward||!reverse)throw Error('Both transition captions must be native text carriers.');
+    return{x:forward.x+forward.width/2-(reverse.x+reverse.width/2),y:forward.y+forward.height/2-(reverse.y+reverse.height/2)};
+   });
+   await reverseCaption.evaluate((element,offset)=>element.setAttribute('style',`translate: ${offset.x}px ${offset.y}px`),relocation);
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await reverseCaption.evaluate(element=>element.removeAttribute('style'));
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('pass');
+
+   const firstLink=good.page.locator('g.lini-link.lini-style-t1'),authoredTarget=await firstLink.getAttribute('data-to');
+   await firstLink.evaluate(element=>element.setAttribute('data-to','visual.n1'));
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await firstLink.evaluate((element,target)=>element.setAttribute('data-to',target??''),authoredTarget);
+
+   const initialCell=good.page.locator('g.lini-node.lini-cell[data-id="initial"]');
+   const initialText=initialCell.locator('text.lini-text');
+   await initialText.evaluate(element=>{element.textContent='Start';});
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-native-carriers')).toBe('fail');
+   await initialText.evaluate(element=>{element.textContent='Initial';});
+   await initialCell.evaluate(cell=>{const svg=(cell as SVGElement).ownerSVGElement,other=svg?.querySelector('g.lini-node[data-id="n2"]');other?.append(cell);});
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-native-carriers')).toBe('fail');
+   await initialCell.evaluate(cell=>{const svg=(cell as SVGElement).ownerSVGElement,owner=svg?.querySelector('g.lini-node[data-id="n1"]');owner?.append(cell);});
+
+   const firstLabel=good.page.locator('g.lini-link.lini-style-t1 > text.lini-link-label');
+   await firstLabel.evaluate(element=>{element.textContent='check out / copy body, export and digest';});
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-native-carriers')).toBe('fail');
+   expect(result(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-connection-endpoints')).toBe('fail');
+  }finally{await good.page.close();}
+ },{timeout:30_000});
+
+ it('keeps co-located initial and explicit final markers distinct while retaining an outgoing transition',async()=>{
+  const good=await render({id:'initial-final-overlap',kind:'state',form:'machine',question:'Which state is marked?',nodes:[{id:'active',label:'Active'},{id:'complete',label:'Complete'}],state:{initial:'active',final:['active'],transitions:[{id:'complete-transition',from:'active',to:'complete',event:'complete',guard:'ready',action:'publish'}]}});
+  try{
+   expectAll(good.checks);
+   const markers=good.plan.elementMap.filter(item=>item.kind==='state-marker');
+   expect(markers.map(item=>item.sourcePath)).toEqual(['/extensions/umf.visual/state/initial','/extensions/umf.visual/state/final/0']);
+   expect(markers.map(item=>item.nativeId)).toEqual(['n1.initial','n1.final1']);
+   const initial=good.page.locator('g.lini-node[data-id="n1"] > g.lini-node.lini-cell[data-id="initial"] text.lini-text');
+   const final=good.page.locator('g.lini-node[data-id="n1"] > g.lini-node.lini-cell[data-id="final1"] text.lini-text');
+   expect(await initial.textContent()).toBe('Initial');expect(await final.textContent()).toBe('Final');
+   expect(await good.page.locator('g.lini-link.lini-style-t1').getAttribute('data-from')).toBe('visual.n1');
+   expect(await good.page.locator('g.lini-link.lini-style-t1').getAttribute('data-to')).toBe('visual.n2');
+   expect(await good.page.locator('g.lini-link.lini-style-t1 > text.lini-link-label').textContent()).toContain('complete [ready] / publish');
+  }finally{await good.page.close();}
+ },{timeout:30_000});
+
+ it('places reciprocal state captions on opposite sides of top-to-bottom transitions',async()=>{
+  const document=createVisualDocument({id:'top-bottom-state',kind:'state',form:'machine',question:'Which way does this state move?',layout:{kind:'flow',direction:'TB'},nodes:[{id:'ready',label:'Ready'},{id:'done',label:'Done'}],state:{initial:'ready',transitions:[{id:'advance',from:'ready',to:'done',event:'advance',guard:'accepted'},{id:'reset',from:'done',to:'ready',event:'reset',action:'retry'}]}},'test:top-bottom-state','1.4.0'),good=await renderDocument(document,'TB');
+  try{
+   expectAll(good.checks);
+   expect(good.plan.source).toMatch(/\.t1 \{ along: 0\.5; \} \[ "advance \[accepted\]" \{ translate: \d+ 0; \} \]/u);
+   expect(good.plan.source).toMatch(/\.t2 \{ along: 0\.5; \} \[ "reset \/ retry" \{ translate: -\d+ 0; \} \]/u);
+  }finally{await good.page.close();}
+ },{timeout:30_000});
+
+ it('refuses parented state machines instead of flattening composite state containment',()=>{
+  const plan=compilePresentation(doc({id:'parented-state',kind:'state',form:'machine',question:'Which state is active?',nodes:[{id:'composite',label:'Composite state'},{id:'nested',label:'Nested state',parent:'composite'}],state:{initial:'nested',transitions:[{id:'transition',from:'nested',to:'composite',event:'change'}]}}),{backend:'lini',theme:'presentation/1'});
+  expect(plan.ok).toBe(false);
+  if(!plan.ok)expect(plan.diagnostics).toContainEqual(expect.objectContaining({code:'PRESENTATION_STATE_NODE_PROPERTY',path:'/extensions/umf.visual/nodes/1/parent'}));
  });
 
  it('keeps entity fields in their exact rows with types, badges, field ports, and multiplicities',async()=>{

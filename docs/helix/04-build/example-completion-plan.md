@@ -1592,13 +1592,94 @@ syntax, UI unit and diff checks pass.
 Final quiet full suite passes **679 tests, zero failures, 19,797 assertions
 across 100 files in 178.54 seconds** (`.cache/cycle09-full-tests.log`). All
 source/provenance, native-review, shared UI and independent static audits pass.
-Cycle 9 is complete and ready for commit; the commit follows in this change and
-MUST precede cycle 10. The exact authoritative source remains Visual 1.0.0,
+Cycle 9 is committed as `991a02a`. The exact authoritative source remains Visual 1.0.0,
 with absent role/kind/routing/layout and profile-default direction preserved.
 No model, native compiler, native source or artifact bytes changed in this cycle;
 shared inspection controls preserve source/download hashes while enabling
 readable native-size inspection. Earlier draft 1.4.0 and historical host scopes
 remain separate; no new host qualification, release or publication is claimed.
+
+### Tenth-cycle scope — authoring state machine
+
+Cycle 10 is in progress using exact authoritative source
+`fixtures/visual/forms/helix-authoring-state.json`, SHA-256
+`695db96052209c59f803c88eea456f30bf750ccdc9e44f8e944a5057d0ca24c8`.
+Keep envelope 0.10.0 / Visual 1.0.0, document/visual identities, two state nodes
+with exact details, explicit initial state and both reciprocal transitions with
+their exact event/action content. No guard, final/terminal classification, role,
+layout or additional lifecycle meaning is authored. Reuse exact authoritative
+provenance/downloads without enrichment or synthetic capture. The source's
+HELIX locator/view/digest remain authored metadata; retaining them is not a claim
+that this review fetched or independently verified those historical skill bytes.
+
+Acceptance requires distinct source-owned initial-state presentation, correctly
+attached directed transitions and independently owned event/action captions,
+readable state labels/details, and located disclosures for undrawn question or
+provenance. Native helper markers or lowering may implement state presentation
+but must remain renderer-owned, outside logical node/transition identity and
+portable vocabulary. Do not rewrite the source as flow or infer terminal/guard
+meaning from labels. Qualify backend/runtime profiles using actual native
+geometry and text ownership; broader state-family support needs renamed and
+reciprocal/self/optional-field controls appropriate to the implemented subset.
+Keep runtime/native options outside vocabulary and use shared generic adapters
+rather than fixture-specific dispatch. New renderer support requires affected
+native/catalog/showcase/review, browser/package and full-suite regression gates;
+explicit refusals remain honest until qualification. Commit cycle 10 before
+starting cycle 11.
+
+Direct state/machine presentation is initially unsupported on all three backends.
+Implement bounded generic flat-state helpers rather than reuse the full-scene
+projection that expands transition content into logical-looking graph nodes.
+Use the existing node carrier identity and a presentation-only transition mapping
+at the exact state transition pointer. Initial/final helpers remain native-only
+marks with separately verified authored membership. Final membership does not
+authorize suppressing outgoing transitions or inventing terminal dead-end rules.
+Parent/composite semantics must explicitly refuse until supported; do not flatten
+them silently. Map qualified root order/direction, and report/refuse unsupported
+layout combinations. Generic final/guard/self-transition controls qualify those
+features independently from this source, which does not author them.
+
+The source/interface audit approves the bounded state helpers and immutable
+source. Graphviz maps exact transition IDs; Mermaid discloses encoded endpoint/
+caption locators and refuses only identical ambiguous tuples; Lini separates
+reciprocal captions on the correct LR/TB sides. Native marker membership and
+helper counts remain distinct from authored transitions. Title containment is
+measured against the actual viewport without an invented padding requirement.
+Root visually approved Graphviz and reciprocal Lini; broader final visual/UI
+qualification remains part of closeout.
+
+The native/corpus window passes Lini quality 26 tests / 289 assertions, pinned
+Lini 1.1 and Graphviz 16.1 native checks, catalog 53 items / 532 assets /
+159 full pairs / 100 explicit approximations / zero loss or native diagnostics,
+and showcase 9 definitions / 23 qualified variants / 69 assets with 23 actual
+SVG and 23 PNG replays. Source/type and package build pass. Integrated reviews
+pass 9 definitions / 27 qualified variants / 81 assets with 27 actual SVG and
+27 PNG replays; review UI passes fifteen checks. Public-browser checks pass
+nine reviewed definitions / eighteen round trips / twenty-seven plans, and packed
+Bun/Node consumers pass. Build-tool tests pass 3 tests / 12 assertions: native
+connection counts include the initial helper separately, and an explicit known
+capability whitelist keeps malformed/unknown diagnostics as failures. Final
+shared-site/showcase UI passes on Chromium 153.0.8010.12 with no browser errors,
+including shared inspection/source zoom and reset checks. All actual native
+visual audits pass; no fixture IDs or example business labels occur in shared
+presentation, build or microsite logic.
+
+Final quiet full suite passes **699 tests, zero failures, 19,949 assertions
+across 104 files in 210.87 seconds** (`.cache/cycle10-full-tests-final.log`).
+All required native/corpus/review/UI/public-browser/package/source/type/build
+checks pass. The stale programmatic-authoring test now asserts the precise
+located order refusal and unchanged source instead of the former whole-form
+refusal; no production behavior changed for that correction.
+
+Cycle 10 is complete and ready for commit; the commit follows in this change and
+MUST precede cycle 11. Exact source Visual 1.0.0 and its absent final/guard/layout
+properties remain unchanged. New support is bounded flat state/machine native
+presentation: composite/order/property subsets explicitly refuse; Mermaid uses
+disclosed unique endpoint/caption locators and rejects identical ambiguous
+tuples; marker helpers remain distinct from authored transitions, and final
+membership does not remove outgoing transitions. No portable vocabulary change,
+host support expansion, release or publication is claimed. Earlier draft 1.4.0
+enrichments and historical host qualifications retain their separate scopes.
 
 ### Ordered cycle inventory
 
@@ -1606,7 +1687,8 @@ Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
 Cycle 3 is committed as `aa6a093`; cycle 4 is committed as `263b11f`.
 Cycle 5 is committed as `0a0f7c3`; cycle 6 is committed as `6b6b602`.
 Cycle 7 is committed as `498798c`; cycle 8 is committed as `b706901`.
-Cycle 9 is complete and ready for commit; cycles 10–68 remain pending.
+Cycle 9 is committed as `991a02a`; cycle 10 is complete and ready for commit.
+Cycles 11–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

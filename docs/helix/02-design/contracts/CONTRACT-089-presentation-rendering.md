@@ -381,3 +381,31 @@ parallel-caption lanes without adding source semantics. It MUST respect authored
 layout order, scoped direction and named endpoints. Native conformance scope and
 limits remain explicit; support for one group/layout combination does not imply
 all combinations are qualified.
+
+
+## Flat state-machine presentation
+
+A qualified flat state/machine projection MUST preserve each state node and each
+authored transition as a separately owned native carrier. Presentation mappings
+use kind `transition` at the whole `/state/transitions/i` item and kind
+`state-marker` at `/state/initial` or `/state/final/i`; these are presentation
+metadata, not portable vocabulary additions. A transition retains its directed
+endpoints and exact event, optional guard and optional action in its owned caption.
+Renderer-owned marker helpers MUST remain separate from authored transitions.
+Only explicit initial/final declarations authorize their indicators; final
+membership MUST NOT suppress outgoing transitions or infer dead-end rules.
+
+Native mapping limitations MUST be disclosed. In the qualified Mermaid state
+profile, transition `nativeId` is an encoded directed-endpoint/exact-caption
+locator, not an assigned SVG ID. Same-pair transitions with distinct captions may
+be uniquely bound; identical endpoint/caption tuples refuse until qualified.
+The `[*]` marker locator resolves through its declaration source path and native
+link endpoints. Graphviz uses exact assigned transition SVG IDs; Lini uses owned
+transition classes and explicit marker cells. Native ownership, direction, marker
+membership and readable captions MUST be verified independently from source text.
+
+The current flat subset explicitly refuses unsupported composite/parented states,
+layout combinations and node/transition properties with located diagnostics.
+Runtime policy and native helper options remain outside the portable vocabulary.
+Native title bounds MUST remain within the actual artifact viewport; no extra
+case-specific padding requirement is implied.

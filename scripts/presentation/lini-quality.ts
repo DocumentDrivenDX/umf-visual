@@ -5,6 +5,7 @@ import type {Page} from 'playwright';
 import type {Document} from '@umf/core';
 import {getVisual,type Visual,type VisualCardinality,type VisualMultiplicity} from '../../src/extensions/visual';
 import type {PresentationPlan} from '../../src/presentation';
+import {stateTransitionCaption} from '../../src/presentation/state';
 import type {PresentationQualityCheck} from './quality';
 import {verifyLiniRichPresentationQuality} from './lini-rich-quality';
 
@@ -87,11 +88,18 @@ export async function verifyLiniPresentationQuality(
  const nativeAst=typeof input.nativeAst==='string'?input.nativeAst:'';
  const maps=plan.elementMap;
  const requiredMapToken=(element:PresentationPlan['elementMap'][number]):string=>{
-  if(element.kind==='edge'||element.kind==='reference')return'.'+element.nativeId;
+  if(element.kind==='edge'||element.kind==='reference'||element.kind==='transition')return'.'+element.nativeId;
+  if(element.kind==='state-marker')return'#'+element.nativeId.split('.').at(-1);
   if(element.kind==='field'||element.kind==='port')return'#'+element.nativeId.split('.').at(-1);
   return'#'+element.nativeId;
  };
  const astAnchor=(element:PresentationPlan['elementMap'][number]):boolean=>{
+  if(element.kind==='state-marker'){
+   const [hostId,cellId]=element.nativeId.split('.'),hostToken=`#${hostId}|`,hostStart=nativeAst.indexOf(hostToken);
+   if(hostStart<0||!cellId)return false;
+   const following=nativeAst.slice(hostStart+hostToken.length).search(/#(?:n\d+|t\d+)\|/u),declaration=nativeAst.slice(hostStart,following<0?undefined:hostStart+following+hostToken.length);
+   return declaration.includes(`#${cellId}|`);
+  }
   if(element.kind!=='port')return nativeAst.includes(requiredMapToken(element));
   const match=element.sourcePath.match(/\/nodes\/(\d+)\/ports\/(\d+)$/),node=match?visual?.nodes?.[Number(match[1])]:undefined,port=match?node?.ports?.[Number(match[2])]:undefined;
   if(!match||!port)return false;
@@ -147,7 +155,22 @@ export async function verifyLiniPresentationQuality(
  const sourcePointer=(kind:string,index:number,field='')=>at(`/${kind}/${index}${field?'/'+field:''}`);
  let carriersOk=!!dom?.svg&&!!dom.carriers.length;
  const missing:string[]=[];
+ if(visual.kind==='state'){
+  const expectedTransitions=visual.state?.transitions.length??0,expectedMarkers=1+(visual.state?.final?.length??0),mappedTransitions=maps.filter(item=>item.kind==='transition').length,mappedMarkers=maps.filter(item=>item.kind==='state-marker').length;
+  if(mappedTransitions!==expectedTransitions){carriersOk=false;missing.push(`state transition map count ${mappedTransitions} does not match authored count ${expectedTransitions}`);}
+  if(mappedMarkers!==expectedMarkers){carriersOk=false;missing.push(`state marker map count ${mappedMarkers} does not match authored count ${expectedMarkers}`);}
+ }
  for(const item of maps){
+  if(item.kind==='state-marker'){
+   const initial=item.sourcePath===at('/state/initial'),finalMatch=/^\/extensions\/umf\.visual\/state\/final\/(\d+)$/u.exec(item.sourcePath),finalIndex=finalMatch?Number(finalMatch[1]):-1,expectedState=initial?visual.state?.initial:finalIndex>=0?visual.state?.final?.[finalIndex]:undefined,expectedCell=initial?'initial':finalIndex>=0?'final'+(finalIndex+1):undefined,expectedHost=expectedState?nativeFor(plan,'node',expectedState):undefined,found=expectedHost?carrier(expectedHost,'lini-node'):undefined,cell=expectedCell?found?.cells.find(candidate=>candidate.id===expectedCell&&norm(candidate.text)===(initial?'Initial':'Final')):undefined;
+   if(!expectedState||!expectedHost||item.logicalId!==expectedState||item.nativeId!==`${expectedHost}.${expectedCell}`||!cell){carriersOk=false;missing.push(`state marker ${item.sourcePath} is not mapped to its exact referenced state cell`);}
+   continue;
+  }
+  if(item.kind==='transition'){
+   const transitionIndex=visual.state?.transitions.findIndex(candidate=>candidate.id===item.logicalId)??-1,transition=transitionIndex>=0?visual.state?.transitions[transitionIndex]:undefined,link=linkFor(item),caption=transition?stateTransitionCaption(transition):'';
+   if(!transition||item.nativeId!==`t${transitionIndex+1}`||item.sourcePath!==at('/state/transitions/'+transitionIndex)||!link||link.labels.join(' ')!==norm(caption)){carriersOk=false;missing.push(`state transition ${item.logicalId} lacks its exact mapped native caption`);}
+   continue;
+  }
   if(item.kind==='edge'||item.kind==='reference'){
    const link=linkFor(item);if(!link){carriersOk=false;missing.push(`${item.kind} ${item.logicalId} (${item.nativeId})`);continue;}
    const visualEdge=item.kind==='edge'?(visual.edges??[]).find(edge=>edge.id===item.logicalId):undefined;
@@ -208,6 +231,10 @@ export async function verifyLiniPresentationQuality(
  checks.push(pass('lini-native-carriers',sourceSha256,carriersOk,carriersOk?`All ${maps.length} mapped native identities own their visible Lini carriers; all ${dom?.fontFamilies.length??0} rendered text nodes use computed single-family Arial.`:`Missing or altered native-owned carriers: ${missing.join('; ')||'the inserted SVG is not a Lini SVG'}.`));
 
  let endpointOk=!!dom?.svg;const endpointProblems:string[]=[],routingObservations:string[]=[];
+ if(visual.kind==='state'){
+  const actual=dom?.links.filter(link=>link.classes.some(className=>/^lini-style-t\d+$/u.test(className))).length??0,expected=visual.state?.transitions.length??0;
+  if(actual!==expected){endpointOk=false;endpointProblems.push(`native state transition link count ${actual} does not match authored count ${expected}`);}
+ }
  const endpoint=(nodeId:string,fieldName?:string,fieldId?:string,portId?:string):EndpointProof|undefined=>{
   const node=visual.nodes?.find(item=>item.id===nodeId);if(!node)return;
   const parentGroups=groupChain(visual,plan,nodeId),nodeNative=nativeFor(plan,'entity',nodeId)??nativeFor(plan,'node',nodeId);if(!nodeNative)return;
@@ -319,6 +346,25 @@ export async function verifyLiniPresentationQuality(
  for(let index=0;index<(visual.structure?.references??[]).length;index++){
   const reference=visual.structure!.references![index]!,item=maps.find(candidate=>candidate.kind==='reference'&&candidate.logicalId===reference.id);
   if(item)verifyLink(item,reference.from.node,reference.from.field,reference.from.fieldId,reference.to.node,reference.to.field,reference.to.fieldId,false,reference.fromCardinality,reference.fromMultiplicity,reference.toCardinality,reference.toMultiplicity,expectedReferenceLabel(reference),reference.from.portId,reference.to.portId);
+ }
+ for(let index=0;index<(visual.state?.transitions??[]).length;index++){
+  const transition=visual.state!.transitions[index]!,item=maps.find(candidate=>candidate.kind==='transition'&&candidate.logicalId===transition.id);
+  if(item){
+   const label=stateTransitionCaption(transition),link=linkFor(item);
+   verifyLink(item,transition.from,undefined,undefined,transition.to,undefined,undefined,true,undefined,undefined,undefined,undefined,label);
+   if(link?.labelBounds.length){
+    const overlaps=(a:Box,b:Box)=>a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y,fromId=nativeFor(plan,'node',transition.from),toId=nativeFor(plan,'node',transition.to),from=fromId?carrier(fromId):undefined,to=toId?carrier(toId):undefined;
+    if(link.labelClearances.some(clearance=>clearance<8)){endpointOk=false;endpointProblems.push(`${transition.id}: state transition caption is less than 8 CSS px clear of its connector`);}
+    if(link.labelBounds.some(bounds=>link.markers.some(marker=>overlaps(bounds,marker.bounds))||!!from&&overlaps(bounds,from.bounds)||!!to&&overlaps(bounds,to.bounds))){endpointOk=false;endpointProblems.push(`${transition.id}: state transition caption overlaps an endpoint marker or state node`);}
+   }
+  }
+ }
+ if(visual.kind==='state'){
+  const transitionMaps=maps.filter(item=>item.kind==='transition'),labels=transitionMaps.flatMap(item=>(linkFor(item)?.labelBounds??[]).map(bounds=>({id:item.logicalId,bounds}))),overlaps=(a:Box,b:Box)=>a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;
+  for(let left=0;left<labels.length;left++)for(let right=left+1;right<labels.length;right++)if(overlaps(labels[left]!.bounds,labels[right]!.bounds)){endpointOk=false;endpointProblems.push(`state transition captions ${labels[left]!.id} and ${labels[right]!.id} overlap each other`);}
+  const distanceToPath=(bounds:Box,link:Link)=>Math.min(Infinity,...(link.line?.samples??[]).map(point=>Math.hypot(Math.max(bounds.x-point.x,0,point.x-bounds.x-bounds.width),Math.max(bounds.y-point.y,0,point.y-bounds.y-bounds.height))));
+  for(const item of transitionMaps){const own=linkFor(item),bounds=own?.labelBounds[0];if(!own||!bounds)continue;const ownDistance=distanceToPath(bounds,own);for(const otherItem of transitionMaps){if(otherItem===item)continue;const other=linkFor(otherItem);if(!other?.line)continue;const otherDistance=distanceToPath(bounds,other);if(ownDistance>=otherDistance){endpointOk=false;endpointProblems.push(`${item.logicalId}: caption is ${ownDistance.toFixed(1)} CSS px from its owned transition and ${otherDistance.toFixed(1)} px from ${otherItem.logicalId}; it is closer to another transition`);}}
+  }
  }
  checks.push(pass('lini-connection-endpoints',sourceSha256,endpointOk,endpointOk?'Every link retains its mapped identity, full source/target path, owned label, native endpoint geometry, and authored direction/cardinality marks.'+(routingObservations.length?' Routing observations: '+routingObservations.join(' '):''):endpointProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
 

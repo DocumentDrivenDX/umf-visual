@@ -692,6 +692,44 @@
         "sourceDownloadPath": "reviews/catalog-canary-supported-flow/authoritative-source.json",
         "scope": "This exact catalog JSON is the review definition. Its Visual payload has no authored title, source locator or omissions list; these remain absent. No directed override, edge kind, route, layout or node roles are authored. The Visual 1.0 default edge direction remains applicable; no business roles are inferred from the labels."
       }
+    },
+    {
+      "id": "helix-authoring-state",
+      "title": "An externally authored artifact",
+      "description": "An exact review of the authoritative HELIX authoring-state UMF fixture, preserving its typed state identities and transitions.",
+      "kind": "state",
+      "form": "machine",
+      "definitionPath": "fixtures/visual/forms/helix-authoring-state.json",
+      "definitionSha256": "695db96052209c59f803c88eea456f30bf750ccdc9e44f8e944a5057d0ca24c8",
+      "sources": [
+        {
+          "path": "fixtures/visual/forms/helix-authoring-state.json",
+          "sha256": "695db96052209c59f803c88eea456f30bf750ccdc9e44f8e944a5057d0ca24c8",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The checked-in Visual 1.0.0 fixture JSON is the complete definition and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/forms/helix-authoring-state.json",
+          "sha256": "695db96052209c59f803c88eea456f30bf750ccdc9e44f8e944a5057d0ca24c8",
+          "outputPath": "reviews/helix-authoring-state/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/forms/helix-authoring-state.json",
+        "sourceSha256": "695db96052209c59f803c88eea456f30bf750ccdc9e44f8e944a5057d0ca24c8",
+        "documentId": "visual:helix-authoring-state",
+        "visualId": "helix-authoring-state",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-authoring-state/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. Its source locator and digest are retained as authored metadata; this provenance binds only the checked-in fixture bytes and does not attest to historical HELIX skill bytes."
+      }
     }
   ]
 }

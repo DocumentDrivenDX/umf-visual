@@ -6,6 +6,7 @@ import {liniShapeDefinition} from './lini-shapes';
 import {circularPlacement} from './circular';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
 import {compileLiniSequence,compileLiniTree} from './lini-rich';
+import {stateTransitionCaption,validateStateMachineScope} from './state';
 
 const BASE='/extensions/umf.visual';
 const pointer=(value:string)=>value.replace(/~/g,'~0').replace(/\//g,'~1');
@@ -141,11 +142,11 @@ function groupProperties(group:VisualGroup|undefined,layout:VisualLayout|undefin
   group?.emphasis==='muted'?property('opacity',0.55):undefined,
  ].filter((item):item is string=>!!item);
 }
-function nodeDeclaration(node:VisualNode,nativeId:string,placement?:{x:number;y:number;width:number}):string{
+function nodeDeclaration(node:VisualNode,nativeId:string,placement?:{x:number;y:number;width:number},extraCells:string[]=[]):string{
  const style=nodeStyle(node,placement?.width);
  const caption=node.label;
  const symbol=node.icon?liniIcon(node.icon):undefined;
- const children=[node.detail?`|cell#detail| ${q(node.detail)}`:undefined,node.role==='process'&&node.label!=='Process'&&node.detail!=='Process'?`|cell#role| ${q('Process')}`:undefined,symbol?`|icon| { symbol: ${symbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:node.icon?`|cell#icon| ${q('Icon: '+node.icon)}`:undefined,...(node.ports??[]).map((port,index)=>`|cell#p${index+1}| ${q(portCaption(port))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`)].filter((item):item is string=>!!item);
+ const children=[node.detail?`|cell#detail| ${q(node.detail)}`:undefined,node.role==='process'&&node.label!=='Process'&&node.detail!=='Process'?`|cell#role| ${q('Process')}`:undefined,symbol?`|icon| { symbol: ${symbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:node.icon?`|cell#icon| ${q('Icon: '+node.icon)}`:undefined,...extraCells,...(node.ports??[]).map((port,index)=>`|cell#p${index+1}| ${q(portCaption(port))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`)].filter((item):item is string=>!!item);
  const properties=style.properties;
  const positioned=placement?`pin: center; translate: ${Math.round(placement.x)} ${Math.round(placement.y)}; `:'';
  return `|${style.type}#${nativeId}| ${q(caption)}${properties.length||positioned?` { ${positioned}${properties.join(' ')} }`:''}${children.length?` [\n${children.map(item=>'  '+item).join('\n')}\n]`:''}`;
@@ -212,17 +213,56 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
   const fallbackLayout=visual.form==='entities'||visual.form==='stack'||visual.form==='network'?'grid':'flow';
   const rootComponents=groups.filter(group=>!group.parent).length+nodes.filter(node=>!node.group&&!node.parent).length;
   const rootColumns=visual.form==='entities'?(direction==='TB'?1:2):visual.form==='stack'?(rootLayout?.kind==='stack'&&(rootLayout.direction??direction)==='LR'?Math.max(1,visual.structure?.layers?.length??nodes.length):1):visual.form==='network'?Math.max(1,Math.min(3,rootComponents)):undefined;
+  const stateDirection=visual.kind==='state'&&rootLayout?.kind==='flow'?(rootLayout.direction??direction):direction;
+  const stateCaptionWidth=visual.kind==='state'?Math.max(0,...(visual.state?.transitions??[]).map(stateTransitionCaption).map(estimateMultilineTextWidth)):0;
+  const stateGap=stateDirection==='LR'?Math.max(72,Math.ceil(stateCaptionWidth+48)):72;
+  const stateNodeOrder=new Map(ordered(nodes,rootLayout?.kind==='flow'?rootLayout.order:undefined).map((node,index)=>[node.id,index]));
   const circularNodes=rootLayout?.kind==='circular'&&visual.kind==='flow'?ordered(nodes,rootLayout.order):[];
   const circularSizes=circularNodes.map(node=>({id:node.id,width:Math.max(120,(Math.max(node.label.length,node.detail?.length??0)*8)+32,...(node.ports??[]).map(port=>portCaption(port).length*8+190)),height:58+(node.detail?22:0)+(node.role==='process'&&node.label!=='Process'&&node.detail!=='Process'?18:0)}));
   const circle=circularNodes.length?circularPlacement(circularSizes,28):undefined;
   const circlePosition=new Map<string,{id:string;x:number;y:number;width:number}>(circle?.positions.map((position,index)=>[position.id,{...position,width:circularSizes[index]!.width}])??[]);
   if(circle){const titleCenter=Math.round((Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.width))+72)/2)-(qTitle.length*6.6/2));styleRules.push(`.lini-caption { font-size: 22; font-weight: 600; color: --blue-deep; translate: ${titleCenter} -30; }`);}
-  const rootProperties=[...(circle?['layout: flow;','direction: row;',`width: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.width))+72)};`,`height: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.height))+90)};`]:layoutProperties(rootLayout,fallbackLayout,rootColumns??1,direction)),`gap: ${visual.form==='entities'?88:visual.form==='stack'?44:72};`,`padding: 36;`,`fill: none;`,`stroke: none;`,`stroke-width: 0;`].filter((item):item is string=>!!item);
+  const rootProperties=[...(circle?['layout: flow;','direction: row;',`width: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.width))+72)};`,`height: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.height))+90)};`]:layoutProperties(rootLayout,fallbackLayout,rootColumns??1,direction)),`gap: ${visual.kind==='state'?stateGap:visual.form==='entities'?88:visual.form==='stack'?44:72};`,`padding: 36;`,`fill: none;`,`stroke: none;`,`stroke-width: 0;`].filter((item):item is string=>!!item);
   if(rootLayout?.kind==='grid'&&rootLayout.columns===1)approx(path('/layout'),'Grid layout with one column','Lini 1.1 represents a one-column grid with native column flow; requested component order and single-column containment are preserved.');
   let children:string[]=[];
   let annotationFooter:string|undefined;
 
-  if(visual.kind==='flow'){
+  if(visual.kind==='state'){
+   const state=visual.state;
+   const scopeDiagnostics=validateStateMachineScope(visual);if(scopeDiagnostics.length)return{ok:false,diagnostics:scopeDiagnostics};
+   if(!state)return failure('PRESENTATION_LINI_STATE_SCOPE',path('/state'),'A state-machine definition is required.');
+   const stateIndex=new Map(nodes.map((node,index)=>[node.id,index]));
+   const markerCells=new Map<string,string[]>();
+   const addMarker=(stateId:string,sourcePath:string,cellId:string,text:string)=>{
+    const nodeIndex=stateIndex.get(stateId);if(nodeIndex===undefined)return false;
+    const nativeId=nodeIds.get(stateId)!;
+    add(stateId,sourcePath,nativeId+'.'+cellId,'state-marker');
+    const rows=markerCells.get(stateId)??[];
+    rows.push(`|cell#${cellId}| ${quoteChecked(text,sourcePath)} { fill: --amber-wash; stroke: --amber-deep; color: --amber-ink; font-size: 12; font-weight: 700; padding: 3; }`);
+    approx(sourcePath,text+' state marker','Lini has no dedicated pseudostate; it places this exact marker label in a distinct native cell inside the referenced state carrier.');
+    markerCells.set(stateId,rows);return true;
+   };
+   if(!addMarker(state.initial,path('/state/initial'),'initial','Initial'))return failure('PRESENTATION_LINI_STATE_INITIAL',path('/state/initial'),'The initial state does not resolve to a declared node.');
+   for(let index=0;index<(state.final??[]).length;index++)if(!addMarker(state.final![index]!,path('/state/final/'+index),'final'+(index+1),'Final'))return failure('PRESENTATION_LINI_STATE_FINAL',path('/state/final/'+index),'A final state does not resolve to a declared node.');
+   for(let index=0;index<nodes.length;index++){
+    const node=nodes[index]!,nativeId=nodeIds.get(node.id)!;add(node.id,path('/nodes/'+index+'/id'),nativeId,'node');
+    if(node.evidence)omit(path('/nodes/'+index+'/evidence'),'Evidence locators remain in UMF and are not drawn in the native state view.');
+    for(const[field,requested,representation]of nodeStyle(node).approximations)approx(path('/nodes/'+index+'/'+field),requested,representation);
+    if(node.detail)approx(path('/nodes/'+index+'/detail'),'State detail','Lini renders the authored detail as a persistent secondary native cell beneath the state title.');
+   }
+   for(let index=0;index<state.transitions.length;index++){
+    const transition=state.transitions[index]!,from=nodeIds.get(transition.from),to=nodeIds.get(transition.to);
+    if(!from||!to)return failure('PRESENTATION_LINI_STATE_ENDPOINT',path('/state/transitions/'+index),'A state transition endpoint is not a declared state node.');
+    const nativeId=safeId('t',index);
+    add(transition.id,path('/state/transitions/'+index),nativeId,'transition');
+    styleRules.push(`.${nativeId} { stroke: --teal-deep; }`);
+   }
+   children=ordered(nodes,rootLayout?.kind==='flow'?rootLayout.order:undefined).map(node=>nodeDeclaration(node,nodeIds.get(node.id)!,undefined,markerCells.get(node.id)??[]));
+   children.push(...state.transitions.map((transition,index)=>{
+    const label=stateTransitionCaption(transition),parallel=state.transitions.filter(candidate=>candidate.from===transition.from&&candidate.to===transition.to),parallelIndex=parallel.indexOf(transition),offset=Math.max(40,flowCaptionOffset(stateDirection,label,nodes[stateIndex.get(transition.from)!],nodes[stateIndex.get(transition.to)!],0.5,stateGap,parallelIndex)),forward=stateNodeOrder.get(transition.from)!<=stateNodeOrder.get(transition.to)!,side=forward?-1:1,crossAxis=stateDirection==='LR'?side:-side,translate=stateDirection==='LR'?`0 ${crossAxis*offset}`:`${crossAxis*offset} 0`;
+    return`${nodeIds.get(transition.from)} -> ${nodeIds.get(transition.to)} .${safeId('t',index)} { along: 0.5; } [ ${quoteChecked(label,path('/state/transitions/'+index))} { translate: ${translate}; } ]`;
+   }));
+  }else if(visual.kind==='flow'){
     for(const node of nodes){const index=nodes.indexOf(node),id=nodeIds.get(node.id)!;add(node.id,path('/nodes/'+index+'/id'),id,'node');mapPorts(node,index,id);for(const[field,value]of [['evidence',node.evidence],['parent',node.parent]] as const)if(value!==undefined)omit(path('/nodes/'+index+'/'+field),field==='parent'?'Lini groups preserve named group membership; the node-parent containment relation has no separate native meaning in this view.':'Evidence locators remain in UMF and are not drawn.');if(node.layer)omit(path('/nodes/'+index+'/layer'),'Stack layer assignment is outside the flow/network view.');const style=nodeStyle(node);for(const [field,requested,rendered]of style.approximations)approx(path('/nodes/'+index+'/'+field),requested,rendered);if(node.detail)approx(path('/nodes/'+index+'/detail'),'Node detail','Lini renders the authored detail as a persistent secondary native cell beneath the node title.');}
    const descendants=(parent:string|undefined)=>groups.filter(group=>group.parent===parent);
    const members=(group:string|undefined)=>nodes.filter(node=>node.group===group);

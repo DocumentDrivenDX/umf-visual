@@ -31,7 +31,10 @@ test('shared shapes, composition and named anchors stay explicit in the source-g
  const source=await Bun.file(visual.source!.path).text();expect(source).toContain('Q --> AR --> AP');
 });
 
-test('the model can express state layout without inventing presentation support',()=>{
+test('the model preserves explicit state order and reports its current presentation limit',()=>{
  const document=createVisualDocument({id:'state-layout',kind:'state',form:'machine',question:'Which state follows?',nodes:[{id:'ready',label:'Ready'},{id:'done',label:'Done'}],state:{initial:'ready',final:['done'],transitions:[{id:'finish',from:'ready',to:'done',event:'finish'}]},layout:{kind:'flow',direction:'LR',order:['ready','done']}},undefined,'1.2.0');
- for(const backend of ['graphviz','mermaid','lini'] as const){const plan=compilePresentation(document,{backend});expect(plan.ok).toBe(false);if(!plan.ok)expect(plan.diagnostics.some(item=>item.code==='PRESENTATION_FORM')).toBe(true);}
+ const visual=getVisual(document),baseline=JSON.stringify(document);
+ expect(visual.layout).toEqual({kind:'flow',direction:'LR',order:['ready','done']});
+ for(const backend of ['graphviz','mermaid','lini'] as const){const plan=compilePresentation(document,{backend});expect(plan.ok).toBe(false);if(!plan.ok)expect(plan.diagnostics.some(item=>item.code==='PRESENTATION_STATE_LAYOUT_ORDER'&&item.path==='/extensions/umf.visual/layout/order')).toBe(true);}
+ expect(JSON.stringify(document)).toBe(baseline);
 });

@@ -4,12 +4,13 @@ import type {Document} from '@umf/core';
 import {getVisual,inspectVisual,type Visual,type VisualNode,type VisualGroup,type VisualField,type VisualMultiplicity,type VisualDefs} from '../extensions/visual';
 import {compileLiniPresentation} from './lini';
 import {circularPlacement} from './circular';
+import {compileStatePresentation} from './state';
 
 export type PresentationBackend='graphviz'|'mermaid'|'lini';
 export interface PresentationOptions {backend:PresentationBackend;direction?:'LR'|'TB';theme?:'presentation/1';}
 export interface PresentationDiagnostic {code:string;path:string;message:string;severity:'error'|'warning';}
 export interface PresentationExecution {runtime:'graphviz';layoutEngine:'neato';nodePositions:'fixed';}
-export interface PresentationElement {logicalId:string;sourcePath:string;nativeId:string;kind:'visual'|'group'|'node'|'edge'|'layer'|'entity'|'field'|'port'|'reference'|'participant'|'message'|'note'|'annotation';}
+export interface PresentationElement {logicalId:string;sourcePath:string;nativeId:string;kind:'visual'|'group'|'node'|'edge'|'layer'|'entity'|'field'|'port'|'reference'|'participant'|'message'|'note'|'annotation'|'transition'|'state-marker';}
 export interface PresentationOmission {sourcePath:string;reason:string;}
 export interface PresentationApproximation {sourcePath:string;requested:string;representation:string;code?:'ROUTING_SCOPE_CONFLICT'|'ROUTING_NATIVE_INTERPOLATION'|'CIRCULAR_NATIVE_GRID';}
 export interface PresentationPlan {
@@ -90,7 +91,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  const strings:{value:string;path:string}[]=[];const pending:{value:unknown;path:string}[]=[{value:visual,path:BASE}];
  while(pending.length){const current=pending.pop()!;if(typeof current.value==='string'){strings.push({value:current.value,path:current.path});continue;}if(Array.isArray(current.value)){for(let i=0;i<current.value.length;i++)pending.push({value:current.value[i],path:current.path+'/'+i});}else if(current.value&&typeof current.value==='object'){for(const[k,v]of Object.entries(current.value))pending.push({value:v,path:current.path+'/'+ptr(k)});}}
  for(const item of strings){for(let i=0;i<item.value.length;i++){const code=item.value.charCodeAt(i);if(code===13||code===0||(code<32&&code!==9&&code!==10)){return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Carriage returns and control characters other than tab/newline cannot be represented by the presentation renderers.') ]};}if(code>=0xD800&&code<=0xDBFF){const next=item.value.charCodeAt(i+1);if(!(next>=0xDC00&&next<=0xDFFF))return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Unpaired UTF-16 surrogates cannot be represented by the presentation renderers.') ]};i++;}else if(code>=0xDC00&&code<=0xDFFF)return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Unpaired UTF-16 surrogates cannot be represented by the presentation renderers.') ]};}}
- if(visual.annotations?.length&&(visual.kind!=='flow'||visual.form!=='network'))return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_SCOPE',BASE+'/annotations','Free-text annotations are currently qualified only for flow/network diagrams; this renderer does not silently drop them from another presentation form.')]};
+ if(visual.annotations?.length&&(visual.kind!=='flow'||visual.form!=='network')&&visual.kind!=='state')return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_SCOPE',BASE+'/annotations','Free-text annotations are currently qualified only for flow/network diagrams; this renderer does not silently drop them from another presentation form.')]};
  if(visual.annotations?.length&&visual.layout?.kind==='circular')return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_CIRCULAR',BASE+'/annotations','Circular layout with free-text annotations is not yet qualified: the native fixed-position flow currently has no reviewed placement policy for unanchored text.')]};
  const unsupportedCircularGroup=visual.groups?.find(group=>group.layout?.kind==='circular');
  if(unsupportedCircularGroup)return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/groups/'+visual.groups!.indexOf(unsupportedCircularGroup)+'/layout','Circular placement is not qualified for nested group scopes; no grid or flow fallback is selected.')]};
@@ -99,11 +100,13 @@ export function compilePresentation(document:Document,options:PresentationOption
  const rich=visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree';
  const supported=visual.kind==='flow'&&visual.form==='network'
   ||visual.kind==='structure'&&(visual.form==='stack'||visual.form==='entities'||visual.form==='tree')
-  ||visual.kind==='sequence'&&visual.form==='lifelines';
+  ||visual.kind==='sequence'&&visual.form==='lifelines'
+  ||visual.kind==='state'&&visual.form==='machine';
  if(!supported)return {ok:false,diagnostics:[diag('PRESENTATION_FORM',BASE+'/form','No presentation projection is qualified for '+visual.kind+'/'+visual.form+'. The current flow projection covers only network diagrams.')]};
 
  const backend=optionValues.backend as PresentationBackend,dir=(optionValues.direction??'LR') as 'LR'|'TB';
  if(rich&&backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This tree or sequence presentation is currently qualified only for the native Lini backend.')]};
+ if(visual.kind==='state'&&visual.form==='machine'&&backend!=='lini')return compileStatePresentation(visual,backend,dir);
  if(backend==='lini')return compileLiniPresentation(visual,dir);
  const errors:PresentationDiagnostic[]=[];
  const map:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];

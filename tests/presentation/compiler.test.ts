@@ -64,9 +64,9 @@ describe('presentation compiler',()=>{
   expect(plan.elementMap.filter(item=>item.kind==='field').every(item=>item.nativeId==='n1'||item.nativeId==='n2')).toBe(true);
  });
 
- it('refuses unsupported forms and preserves un-tokenizable Mermaid field identifiers in cards',()=>{
+ it('admits state/machine and preserves un-tokenizable Mermaid field identifiers in cards',()=>{
   const unsupported=document({id:'machine',kind:'state',form:'machine',question:'How does it work?',nodes:[{id:'ready',label:'Ready'}],state:{initial:'ready',transitions:[{id:'t',from:'ready',to:'ready',event:'again'}]}});
-  expect(compilePresentation(unsupported,{backend:'graphviz'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_FORM'}]});
+  expect(compilePresentation(unsupported,{backend:'graphviz'})).toMatchObject({ok:true});
   const er=document({id:'er-odd-field',kind:'structure',form:'entities',question:'Question?',nodes:[{id:'user',label:'User'}],structure:{entities:[{node:'user',fields:[{name:'display name',type:'String'}]}]}});
   const plan=compilePresentation(er,{backend:'mermaid'});expect(plan.ok).toBe(true);if(plan.ok){expect(plan.source).toContain('display#32;name:#32;String');expect(plan.elementMap.find(item=>item.kind==='field')?.nativeId).toBe('n1');}
  });

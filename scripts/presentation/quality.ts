@@ -5,6 +5,7 @@ import type {Page} from 'playwright';
 import type {Document} from '@umf/core';
 import {getVisual,type Visual,type VisualMultiplicity} from '../../src/extensions/visual';
 import type {PresentationElement,PresentationPlan} from '../../src/presentation';
+import {stateTransitionCaption} from '../../src/presentation/state';
 import {verifyLiniPresentationQuality} from './lini-quality';
 
 export interface PresentationQualityCheck {
@@ -21,6 +22,7 @@ const pass=(check:string,sourceSha256:string,ok:boolean,details:string):Presenta
 const text=(v:unknown)=>typeof v==='string'?v:'';
 const norm=(s:string)=>s.replace(/\s+/g,' ').trim();
 const normLabel=(s:string)=>norm(s).replace(/\s*\/\s*/g,'/');
+const mermaidStateText=(value:string)=>Array.from(value,(char)=>({' ':'#32;','#':'#35;','&':'#38;','"':'#34;','<':'#60;','>':'#62;',';':'#59;','(':'#40;',')':'#41;','[':'#91;',']':'#93;','{':'#123;','}':'#125;','\\':'#92;'} as Record<string,string>)[char]??char).join('');
 const hasOffsetSheetPair=(boxes:QualityBox[])=>{const unique=boxes.filter((box,index)=>!boxes.slice(0,index).some(other=>Math.abs(box.x-other.x)<1&&Math.abs(box.y-other.y)<1&&Math.abs(box.width-other.width)<1&&Math.abs(box.height-other.height)<1));for(let i=0;i<unique.length;i++)for(let j=i+1;j<unique.length;j++){const a=unique[i]!,b=unique[j]!,offset=Math.hypot(a.x+a.width/2-b.x-b.width/2,a.y+a.height/2-b.y-b.height/2),overlapWidth=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)),overlapHeight=Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)),smaller=Math.min(a.width*a.height,b.width*b.height);if(offset>2&&overlapWidth*overlapHeight>=smaller*.45)return true;}return false;};
 const decodeDotLabel=(s:string)=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&#(\d+);/g,(_,n:string)=>String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi,(_,n:string)=>String.fromCodePoint(parseInt(n,16)));
 const escRe=(s:string)=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -111,7 +113,9 @@ export async function verifyPresentationQuality(
    const length=path.getTotalLength(),matrix=path.getScreenCTM()!,lengthCss=length*Math.sqrt((matrix.a**2+matrix.b**2+matrix.c**2+matrix.d**2)/2),samples=Array.from({length:49},(_,index)=>point(length*(index+1)/50));return{id:path.getAttribute('id')??'',dataId:path.getAttribute('data-id')??'',className:path.getAttribute('class')??'',dashArray:getComputedStyle(path).strokeDasharray,d:path.getAttribute('d')??'',lengthCss,markerStart:path.getAttribute('marker-start'),markerEnd:path.getAttribute('marker-end'),start:point(0),end:point(length),samples,curveDeviation:curveDeviation(path)};
   });
   const edgeLabels=[...s.querySelectorAll('g.edgeLabel')].map(el=>({id:el.querySelector('g.label')?.getAttribute('data-id')??'',text:visibleText(el)})).filter(x=>x.text);
-  return {viewBox:{x:view.x,y:view.y,width:view.width,height:view.height},root:{width:rootRect.width,height:rootRect.height},carriers,allText,paths,edgeLabels};
+  const statePaths=[...s.querySelectorAll('g.edgePath')].map(group=>{const path=group.querySelector(':scope > path') as SVGPathElement|null;if(!path)return undefined;const length=path.getTotalLength(),matrix=path.getScreenCTM()!,point=(at:number)=>{try{const p=path.getPointAtLength(at),screen=new DOMPoint(p.x,p.y).matrixTransform(matrix);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};}catch{return null;}};return{id:group.getAttribute('id')??'',cls:group.getAttribute('class')??'',title:titleOf(group),dataId:path.getAttribute('data-id')??'',markerStart:path.getAttribute('marker-start'),markerEnd:path.getAttribute('marker-end'),d:path.getAttribute('d')??'',start:point(0),end:point(length),bounds:box(path)};}).filter((item):item is NonNullable<typeof item>=>!!item);
+  const stateNodes=carriers.filter(item=>item.cls.split(/\s+/u).includes('node')).map(item=>({id:item.id,title:item.title,cls:item.cls,ownText:item.ownText,bounds:item.bounds,shapeTags:item.shapeTags}));
+  return {viewBox:{x:view.x,y:view.y,width:view.width,height:view.height},root:{width:rootRect.width,height:rootRect.height},carriers,allText,paths,edgeLabels,statePaths,stateNodes};
  });
  const meaningfulSvg=dom.viewBox.width>0&&dom.viewBox.height>0&&svg.includes('<svg');
  checks.push(pass('native-svg-viewbox',sourceSha256,meaningfulSvg,`Native viewBox ${dom.viewBox.width} × ${dom.viewBox.height}; rendered at ${dom.root.width} × ${dom.root.height} CSS px.`));
@@ -119,7 +123,44 @@ export async function verifyPresentationQuality(
  if(plan.backend==='graphviz'){
   const ast=input.nativeAst as NativeAst|undefined;
   checks.push(pass('graphviz-native-ast',sourceSha256,!!ast&&Array.isArray(ast.objects)&&(Array.isArray(ast.edges)||(visual.edges?.length??0)===0),'Graphviz JSON AST is required for endpoint, port, and layout checks; an empty authored edge list may omit the native edge array.'));
-  if(ast&&Array.isArray(ast.objects)&&Array.isArray(ast.edges)){
+  if(visual.kind==='state'){
+   const problems:string[]=[],objects=Array.isArray(ast?.objects)?ast.objects:[],edges=Array.isArray(ast?.edges)?ast.edges:[],byName=new Map(objects.map(object=>[objectName(object),object])),byGvid=new Map(objects.map(object=>[Number(object._gvid),objectName(object)]));
+   const nodeNative=(id:string)=>nativeIdForNode(plan,id);
+   const svgNode=(id:string)=>dom.carriers.find(item=>item.cls.split(/\s+/u).includes('node')&&item.title===id);
+   const distance=(point:{x:number;y:number}|null,box:QualityBox|undefined)=>!point||!box?Infinity:Math.hypot(Math.max(box.x-point.x,0,point.x-(box.x+box.width)),Math.max(box.y-point.y,0,point.y-(box.y+box.height)));
+   const visualNodes=visual.nodes??[],state=visual.state!;
+   for(let index=0;index<visualNodes.length;index++){
+    const node=visualNodes[index]!,mapping=elementFor(plan,'node',`/extensions/umf.visual/nodes/${index}/id`),nativeId=nodeNative(node.id),record=nativeId?byName.get(nativeId):undefined,carrier=nativeId?svgNode(nativeId):undefined;
+    if(!mapping||mapping.logicalId!==node.id||mapping.nativeId!==nativeId)problems.push(`state ${node.id} has no exact source-to-native node mapping`);
+    if(!record||!carrier||!norm(carrier.ownText.join(' ')).includes(norm(node.label))||(node.detail&&!norm(carrier.ownText.join(' ')).includes(norm(node.detail))))problems.push(`state ${node.id} label/detail is not owned by its mapped native node`);
+    if(text(record?.shape)!=='box')problems.push(`state ${node.id} does not retain the qualified native state box`);
+   }
+   const transitionIds=new Set<string>();
+   for(let index=0;index<state.transitions.length;index++){
+    const transition=state.transitions[index]!,mapping=elementFor(plan,'transition',`/extensions/umf.visual/state/transitions/${index}`),from=nodeNative(transition.from),to=nodeNative(transition.to),nativeId=mapping?.nativeId;
+    if(!mapping||mapping.logicalId!==transition.id||!nativeId||transitionIds.has(nativeId)){problems.push(`transition ${transition.id} does not have one unique item-level mapping`);continue;}
+    transitionIds.add(nativeId);
+    const nativeEdges=edges.filter(edge=>text(edge.id)===nativeId),edge=nativeEdges[0],svgEdge=dom.carriers.find(item=>item.cls.split(/\s+/u).includes('edge')&&item.id===nativeId),caption=norm(stateTransitionCaption(transition));
+    if(nativeEdges.length!==1||!edge||byGvid.get(Number(edge.tail))!==from||byGvid.get(Number(edge.head))!==to||norm(text(edge.label))!==caption)problems.push(`transition ${transition.id} native AST does not preserve one exact directed event/action edge`);
+    const route=svgEdge?.paths.find(path=>path.d),sourceCarrier=from?svgNode(from):undefined,targetCarrier=to?svgNode(to):undefined;
+    if(!svgEdge||!norm(svgEdge.ownText.join(' ')).includes(caption)||!route||!svgEdge.arrow)problems.push(`transition ${transition.id} label/path/arrow is not owned by its mapped SVG edge`);
+    if(route&&(distance(route.start,sourceCarrier?.bounds)>40||distance(route.end,targetCarrier?.bounds)>40))problems.push(`transition ${transition.id} SVG path is detached from its mapped source/target states`);
+   }
+   const initialMap=elementFor(plan,'state-marker','/extensions/umf.visual/state/initial'),initialNode=nodeNative(state.initial),initialObject=byName.get('state_initial_marker'),initialEdges=edges.filter(edge=>text(edge.id)==='state_initial_link'),initialSvgEdge=dom.carriers.find(item=>item.cls.split(/\s+/u).includes('edge')&&item.id==='state_initial_link'),markerCarrier=svgNode('state_initial_marker'),initialCarrier=initialNode?svgNode(initialNode):undefined,initialRoute=initialSvgEdge?.paths.find(path=>path.d);
+   if(!initialMap||initialMap.logicalId!==state.initial||initialMap.nativeId!=='state_initial_marker'||text(initialObject?.shape)!=='point'||initialEdges.length!==1||byGvid.get(Number(initialEdges[0]?.head))!==initialNode||!initialRoute||!initialSvgEdge?.arrow||distance(initialRoute.start,markerCarrier?.bounds)>40||distance(initialRoute.end,initialCarrier?.bounds)>40)problems.push('authored initial marker is not separately mapped and connected to its exact state in native AST and SVG');
+   for(let index=0;index<(state.final??[]).length;index++){
+    const finalId=state.final![index]!,mapping=elementFor(plan,'state-marker',`/extensions/umf.visual/state/final/${index}`),nativeId=nodeNative(finalId),record=nativeId?byName.get(nativeId):undefined;
+    const finalCarrier=nativeId?svgNode(nativeId):undefined;
+    if(!mapping||mapping.logicalId!==finalId||mapping.nativeId!==nativeId||text(record?.peripheries)!=='2'||(finalCarrier?.paths.length??0)<2)problems.push(`explicit final marker ${finalId} is not separately mapped to its double-outline SVG state carrier`);
+   }
+   const finalStates=new Set(state.final??[]);
+   for(const node of visualNodes)if(!finalStates.has(node.id)){
+    const nativeId=nodeNative(node.id),record=nativeId?byName.get(nativeId):undefined,carrier=nativeId?svgNode(nativeId):undefined;
+    if((record&&text(record.peripheries)&&text(record.peripheries)!=='1')||(carrier&&carrier.paths.length>1))problems.push(`state ${node.id} has an unrequested final-state outline`);
+   }
+   if(edges.length!==state.transitions.length+1)problems.push(`native edge count ${edges.length} includes a missing or extra helper/transition path`);
+   checks.push(pass('graphviz-state-transitions-and-markers',sourceSha256,!!ast&&Array.isArray(ast.objects)&&Array.isArray(ast.edges)&&problems.length===0,problems.length?problems.join('; '):`${visualNodes.length} state nodes, ${state.transitions.length} item-mapped transitions, and the authored initial${(state.final??[]).length?' and final':''} marker(s) have native AST and SVG ownership.`));
+  }else if(ast&&Array.isArray(ast.objects)&&Array.isArray(ast.edges)){
    const objects=ast.objects,edges=ast.edges;
    const byName=new Map(objects.map(o=>[objectName(o),o]));
    const carrier=(cls:string,title:string)=>dom.carriers.find(c=>c.cls.split(/\s+/).includes(cls)&&c.title===title);
@@ -334,6 +375,37 @@ export async function verifyPresentationQuality(
  }else if(plan.backend==='lini'){
   checks.push(...await verifyLiniPresentationQuality(page,{document,plan,nativeAst:input.nativeAst}));
  }else{
+  if(visual.kind==='state'){
+   const state=visual.state!,problems:string[]=[],nodes=visual.nodes??[];
+   const stateNode=(nativeId:string)=>dom.stateNodes.find(item=>item.title===nativeId||item.id.includes(`-state-${nativeId}-`));
+   for(let index=0;index<nodes.length;index++){
+    const node=nodes[index]!,mapped=elementFor(plan,'node',`/extensions/umf.visual/nodes/${index}/id`),owner=mapped?stateNode(mapped.nativeId):undefined;
+    if(!mapped||mapped.logicalId!==node.id||!owner||!norm(owner.ownText.join(' ')).includes(norm(node.label))||(node.detail&&!norm(owner.ownText.join(' ')).includes(norm(node.detail))))problems.push(`state ${node.id} label/detail is not owned by its mapped Mermaid state node`);
+   }
+   const initial=elementFor(plan,'state-marker','/extensions/umf.visual/state/initial');
+   const initialTarget=plan.elementMap.find(item=>item.kind==='node'&&item.logicalId===state.initial)?.nativeId;
+   const initialLinks=plan.source.split('\n').filter(line=>line.trim()==='[*] --> '+initialTarget),pseudoStart=dom.stateNodes.find(item=>item.id.includes('-state-root_start-')),initialStateNode=initialTarget?stateNode(initialTarget):undefined;
+   const distance=(point:{x:number;y:number}|null,box:QualityBox|undefined)=>!point||!box?Infinity:Math.hypot(Math.max(box.x-point.x,0,point.x-(box.x+box.width)),Math.max(box.y-point.y,0,point.y-(box.y+box.height)));
+   const initialPath=dom.paths.find(path=>path.markerEnd&&!path.markerStart&&distance(path.start,pseudoStart?.bounds)<=40&&distance(path.end,initialStateNode?.bounds)<=40);
+   if(!initial||initial.logicalId!==state.initial||initial.nativeId!=='[*]'||initialLinks.length!==1||!pseudoStart||!initialPath)problems.push('authored initial marker is not separately mapped to its exact native initial-state link');
+   const finalStateMarkers=(state.final??[]).map((stateId,index)=>({stateId,index,mapping:elementFor(plan,'state-marker',`/extensions/umf.visual/state/final/${index}`)}));
+   const pseudoEnd=dom.stateNodes.find(item=>item.id.includes('-state-root_end-'));
+   for(const marker of finalStateMarkers){const nativeId=plan.elementMap.find(item=>item.kind==='node'&&item.logicalId===marker.stateId)?.nativeId,sourceState=nativeId?stateNode(nativeId):undefined,finalPath=dom.paths.find(path=>path.markerEnd&&!path.markerStart&&distance(path.start,sourceState?.bounds)<=40&&distance(path.end,pseudoEnd?.bounds)<=40);if(!marker.mapping||marker.mapping.logicalId!==marker.stateId||marker.mapping.nativeId!=='[*]'||!plan.source.split('\n').includes(`${nativeId} --> [*]`)||!pseudoEnd||!finalPath)problems.push(`explicit final marker ${marker.stateId} is not mapped to its own Mermaid final link`);}
+   for(let index=0;index<state.transitions.length;index++){
+    const transition=state.transitions[index]!,mapping=elementFor(plan,'transition',`/extensions/umf.visual/state/transitions/${index}`),from=plan.elementMap.find(item=>item.kind==='node'&&item.logicalId===transition.from)?.nativeId,to=plan.elementMap.find(item=>item.kind==='node'&&item.logicalId===transition.to)?.nativeId,caption=norm(stateTransitionCaption(transition));
+    const expectedNativeId=`${from}->${to}|${encodeURIComponent(stateTransitionCaption(transition))}`;
+    if(!mapping||mapping.logicalId!==transition.id||mapping.nativeId!==expectedNativeId){problems.push(`transition ${transition.id} has no exact endpoint-and-caption Mermaid mapping`);continue;}
+    const expectedSourceLine=`${from} --> ${to}: ${mermaidStateText(stateTransitionCaption(transition))}`;
+    const declaration=plan.source.split('\n').filter(line=>line.trim()===expectedSourceLine);
+    if(declaration.length!==1)problems.push(`transition ${transition.id} source does not preserve one exact directed caption and endpoint pair`);
+    const source=from?stateNode(from):undefined,target=to?stateNode(to):undefined;
+    const candidates=dom.paths.filter(path=>{const label=dom.edgeLabels.find(item=>item.id===path.dataId);return !!path.d&&!!path.markerEnd&&!path.markerStart&&label!==undefined&&norm(label.text)===caption&&distance(path.start,source?.bounds)<=40&&distance(path.end,target?.bounds)<=40;});
+    if(candidates.length!==1)problems.push(`transition ${transition.id} does not have one unique directed native path with its exact owned caption and endpoint pair`);
+   }
+   const expectedPathCount=state.transitions.length+1+(state.final?.length??0);
+   if(dom.paths.length!==expectedPathCount)problems.push(`native Mermaid path count ${dom.paths.length} differs from the ${state.transitions.length} authored transitions plus ${expectedPathCount-state.transitions.length} explicit marker links`);
+   checks.push(pass('mermaid-state-transitions-and-markers',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${nodes.length} state nodes, ${state.transitions.length} mapped directed transitions, and authored initial/final markers are visible in their native carriers.`));
+  }else{
   // Mermaid IDs are generated by Mermaid but preserve the compiler's safe native IDs.
   const blockCircular=visual.layout?.kind==='circular'&&plan.source.includes('\nblock-beta\n');
   const mermaidNodeCarrier=(nativeId:string)=>dom.carriers.find(c=>blockCircular?c.id.endsWith('-'+nativeId):c.id.includes(`flowchart-${nativeId}-`)||c.id.includes(`entity-${nativeId}-`)||c.title===nativeId);
@@ -516,6 +588,7 @@ export async function verifyPresentationQuality(
     if(centers.some(c=>c.x===undefined)||centers.some((c,i)=>i>0&&Number(c.x)<=Number(centers[i-1]?.x)))problems.push('Mermaid layer geometry does not follow the authored left-to-right order');
    }
    checks.push(pass('mermaid-containment-and-order',sourceSha256,problems.length===0,problems.length?problems.join('; '):visual.form==='stack'?'Mapped layer subgraphs contain their nodes and follow authored left-to-right geometry.':'Mapped Mermaid subgraphs geometrically contain each child group and grouped node.'));
+  }
   }
  }
 
