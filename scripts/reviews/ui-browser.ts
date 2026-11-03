@@ -38,10 +38,11 @@ async function exerciseViewerZoom(page:Page,expectedSvgSha256:string,selectionCh
  const viewer=page.locator('#diagram-viewer'),frame=page.locator('#viewer-image-frame'),level=page.locator('#viewer-zoom-level');
  await page.locator('#enlarge-diagram').click();if(!(await viewer.isVisible()))throw Error('Review diagram viewer did not open.');
  await page.locator('#viewer-image').evaluate(async element=>{await (element as HTMLImageElement).decode();});
- if(!(await level.innerText()).trim().startsWith('Fit'))throw Error('Opening the review viewer did not start in Fit mode.');
+ const fitLabel=(await level.innerText()).trim(),fitPercent=Number(/Fit · (\d+)%/u.exec(fitLabel)?.[1]);
+ if(!fitLabel.startsWith('Fit')||!Number.isFinite(fitPercent))throw Error('Opening the review viewer did not expose its effective Fit percentage.');
  const fit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
  if(fit.width>fit.frameWidth+1||fit.height>fit.frameHeight+1)throw Error('Review viewer Fit mode exceeds its available viewport.');
- await page.locator('#viewer-zoom-in').focus();await page.keyboard.press('Enter');if((await level.innerText()).trim()!=='125%')throw Error('Review zoom in did not advance by 25%.');
+ await page.locator('#viewer-zoom-in').focus();await page.keyboard.press('Enter');if((await level.innerText()).trim()!==`${Math.min(400,fitPercent+25)}%`)throw Error(`Review zoom in did not advance Fit's ${fitPercent}% effective scale by 25 points.`);
  await page.locator('#viewer-actual-size').click();if((await level.innerText()).trim()!=='100%')throw Error('Review viewer actual size did not select 100%.');
  const actual=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight,scrollWidth:f.scrollWidth,scrollHeight:f.scrollHeight,clientWidth:f.clientWidth,clientHeight:f.clientHeight,tabIndex:f.tabIndex};});
  if(Math.abs(actual.width-actual.naturalWidth)>2||Math.abs(actual.height-actual.naturalHeight)>2)throw Error('Review 100% mode does not display intrinsic SVG dimensions.');

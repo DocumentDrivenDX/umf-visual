@@ -1200,6 +1200,58 @@
         "sourceDownloadPath": "reviews/beacon-ci-ci/authoritative-source.json",
         "scope": "The original UMF fixture remains the authoritative source for its five node IDs, labels, four directed edge IDs/endpoints, title, question, audience, and historical source locator; its bytes remain available unchanged. This separate reviewed Visual 1.0.0 definition adds runner and single-command annotations, plus the concise takeaway, from the exact checked-in workflow YAML snapshot whose SHA-256 matches the locator digest in the original UMF source. It preserves three independent lint/test/migrations prerequisites to build and the build-to-deploy dependency, without inferring serial order among prerequisites. The historical source locator does not establish current workflow contents, execution, or repository state."
       }
+    },
+    {
+      "id": "beacon-ci-nightly",
+      "title": "Nightly",
+      "description": "A source-backed review of the authored nightly dependency graph and the matching checked-in workflow snapshot.",
+      "kind": "flow",
+      "form": "pipeline",
+      "definitionPath": "fixtures/reviews/definitions/beacon-ci-nightly.json",
+      "definitionSha256": "3415525eaf8e253ad95ffff2696dc894982897ba531f029b3b826993a8729d98",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-ci-nightly.json",
+          "sha256": "98c57c8abfc9f2ad7058c76577d8e51fafffa4330c74e42141852f6c95beb427",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 source fixture supplies the original IDs, title, question, graph, and provenance fields."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/workflows/nightly.yml",
+          "sha256": "2ceec4ca0d9eef1e92f16bb2b86ca25281bad95ec1a1f8126ad7924bfe323c1a",
+          "pointer": "/",
+          "label": "Checked-in nightly workflow snapshot",
+          "description": "The local YAML snapshot bytes match the digest cited in the original UMF source. The review derives the raw schedule expression, manual-dispatch trigger, runner, and eval command from this snapshot."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-ci-nightly.json",
+          "sha256": "98c57c8abfc9f2ad7058c76577d8e51fafffa4330c74e42141852f6c95beb427",
+          "outputPath": "reviews/beacon-ci-nightly/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes; this original remains available unchanged."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/workflows/nightly.yml",
+          "sha256": "2ceec4ca0d9eef1e92f16bb2b86ca25281bad95ec1a1f8126ad7924bfe323c1a",
+          "outputPath": "reviews/beacon-ci-nightly/nightly.yml",
+          "mediaType": "application/yaml",
+          "description": "Exact checked-in workflow snapshot bytes used for the reviewed schedule, manual-dispatch, runner, and command annotations."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-ci-nightly.json",
+        "sourceSha256": "98c57c8abfc9f2ad7058c76577d8e51fafffa4330c74e42141852f6c95beb427",
+        "documentId": "visual:beacon-ci-nightly",
+        "visualId": "beacon-ci-nightly",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-ci-nightly/authoritative-source.json",
+        "scope": "The original UMF fixture remains the authoritative source for its two node IDs and labels, one directed edge ID/endpoints, title, question, audience, and historical source locator; its bytes remain available unchanged. This separate reviewed Visual 1.0.0 definition adds the raw schedule expression `0 3 * * *`, the workflow_dispatch claim, and the eval runner/command from the exact checked-in nightly YAML snapshot whose SHA-256 matches the locator digest in the original UMF source. It preserves the report node's authored reusable-workflow path without inferring that workflow's internals. The historical source locator does not establish timezone, current workflow contents, execution, report behavior, or repository state."
+      }
     }
   ]
 }

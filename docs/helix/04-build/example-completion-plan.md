@@ -2449,6 +2449,58 @@ expansion is introduced. Commit follows in this change; git history is authorita
 Cycle 23 remains pending until cycle 22 is committed. Earlier pending checkpoints
 above record intermediate states; this final closeout resolves their gate holds.
 
+### Twenty-third-cycle scope — source-backed nightly pipeline
+
+Cycle 23 implementation and verification are complete, ready for commit, using original authoritative source
+`fixtures/visual/inventory/beacon-ci-nightly.json`, SHA-256
+`98c57c8abfc9f2ad7058c76577d8e51fafffa4330c74e42141852f6c95beb427`.
+The checked-in originating snapshot
+`fixtures/visual/sources/beacon/workflows/nightly.yml` matches its declared digest,
+`2ceec4ca0d9eef1e92f16bb2b86ca25281bad95ec1a1f8126ad7924bfe323c1a`.
+Preserve Visual 1.0.0 / envelope 0.10.0, two nodes/labels and one eval-to-report
+edge. A separate source-backed definition may retain the exact eval runner/command
+and literal cron `0 3 * * *` plus workflow_dispatch using existing detail/takeaway
+fields. The report invokes a local reusable workflow path; no callee contents or
+runner are evidenced. Do not infer timezone, current execution or schedule success.
+Original JSON and YAML bytes remain independently published/hash-bound.
+
+Reuse the existing qualified pipeline runtime. For a data-only result, run focused
+source/provenance/round-trip checks, actual new-case native G/M/L renders/replays,
+review/site builds and affected UI/download/hash/race plus browser/packed-consumer
+checks. Retain prior unchanged runtime/corpus evidence without redundant fetch,
+full catalog/native-oracle or extraction suites. Any concrete runtime/proof change
+reopens applicable AGENTS gates. Commit cycle 23 before starting cycle 24.
+
+### Twenty-third-cycle closeout — 2026-11-03
+
+This data-only review preserves original JSON and matching YAML evidence, deriving
+only exact eval runner/command and literal cron/manual-dispatch prose. Report
+reuse-path meaning, IDs/DAG/version and historical scope remain unchanged; no
+callee, timezone or current execution claims are introduced. Existing pipeline
+runtime/model/interface capabilities are reused without implementation changes.
+The test-only shared viewer assertion now checks +25 points from actual Fit scale,
+retaining independent 100% intrinsic sizing, clamps/reset/mobile coverage.
+
+Observed focused evidence passes **four source tests/67 assertions and one native
+test/38 assertions**, with typecheck/diff clean. Fresh reviews cover 22 documents,
+48 qualified variants, zero failed variants, 18 unsupported variants, 144 assets
+and 48 native SVG/PNG replays. Site build and 22-example review UI pass, including
+one positively observed late hash-matched YAML URL created/revoked without stale
+links or browser errors. Showcase UI passes nine examples/23 qualified variants
+with corrected effective-Fit assertions. Public browser passes 53 fixtures/106 round
+trips and 22 reviewed definitions/48 plans without errors. Installed packed-consumer
+checks are valid/complete, including nine full-profile cases.
+
+Root independently verified built derived definition SHA-256
+`3415525eaf8e253ad95ffff2696dc894982897ba531f029b3b826993a8729d98`,
+unchanged original JSON and matching YAML bindings. Actual Lini PNG SHA-256
+`19891d963afe86917e7b84f2ae2c367671f229280bdb8da94db91300d293a3e6`
+matches the approved native preview byte-for-byte. Model/interface/modularity and
+actual visual audits pass. No runtime, source-authority or vocabulary change was
+made; unchanged full/native/catalog suites were intentionally not repeated.
+Commit follows in this change; git history is authoritative. Cycle 24 remains
+pending until cycle 23 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2461,8 +2513,8 @@ Cycle 13 is committed as `51405f3`; cycle 14 is committed as `c5212bf`.
 Cycle 15 is committed as `a4f89f1`; cycle 16 is committed as `fc841bd`.
 Cycle 17 is committed as `af9ba07`; cycle 18 is committed as `8b0bbe8`.
 Cycle 19 is committed as `122e5c6`; cycle 20 is committed as `adefa85`.
-Cycle 21 is committed as `b9257c8`; cycle 22 is complete and ready for commit.
-Cycles 23–68 remain pending.
+Cycle 21 is committed as `b9257c8`; cycle 22 is committed as `ae58a76`.
+Cycle 23 is complete and ready for commit; cycles 24–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

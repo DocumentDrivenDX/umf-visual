@@ -74,11 +74,12 @@ async function exerciseViewerZoom(page:import('playwright').Page,expectedSvgSha2
   await page.locator('#enlarge-diagram').click();
   if(!(await viewer.isVisible()))throw new Error('The diagram viewer did not open.');
   await image.evaluate(async element=>{await (element as HTMLImageElement).decode();});
-  if(!(await level.innerText()).trim().startsWith('Fit'))throw new Error('Opening the diagram viewer did not start in Fit mode.');
+  const fitLabel=(await level.innerText()).trim(),fitPercent=Number(/Fit · (\d+)%/u.exec(fitLabel)?.[1]);
+  if(!fitLabel.startsWith('Fit')||!Number.isFinite(fitPercent))throw new Error('Opening the diagram viewer did not expose its effective Fit percentage.');
   const fit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
   if(fit.width>fit.frameWidth+1||fit.height>fit.frameHeight+1)throw new Error('Fit mode exceeds the available diagram viewport.');
   await page.locator('#viewer-zoom-in').focus();await page.keyboard.press('Enter');
-  if((await level.innerText()).trim()!=='125%')throw new Error('Zoom in did not advance by one 25% step.');
+  if((await level.innerText()).trim()!==`${Math.min(400,fitPercent+25)}%`)throw new Error(`Zoom in did not advance Fit's ${fitPercent}% effective scale by 25 points.`);
   await page.locator('#viewer-actual-size').click();
   if((await level.innerText()).trim()!=='100%')throw new Error('Actual size did not select 100%.');
   const actual=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight,scrollWidth:f.scrollWidth,scrollHeight:f.scrollHeight,clientWidth:f.clientWidth,clientHeight:f.clientHeight,tabIndex:f.tabIndex};});
