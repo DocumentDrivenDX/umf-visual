@@ -651,3 +651,22 @@ their actual grid cells; native insets require measured screen-space scaling.
 Original full strings are validated before wrapping, and actual AST/visible lines
 must reconstruct complete authored content. Unknown content remains preserved with
 located accounting; vocabulary and historical source claims are unchanged.
+
+
+## Dependency-pipeline composition
+
+A compatible pipeline MAY reuse generic flow rendering while preserving every
+source node, directed dependency and original pointer. Declaration order MUST NOT
+create a serial dependency between independent roots. With no authored layout,
+a renderer MAY use dependency-depth ranks and stable source-order ties; explicit
+qualified layout takes precedence. Cycles, headless links or unresolved endpoints
+MUST NOT be silently removed to manufacture a DAG. Return-link rank exclusion
+requires explicit view disclosure while retaining the actual link.
+
+Rank placement is target composition, not elapsed time, concurrency guarantees or
+new source meaning. Native checks MUST preserve exact node/edge inventories,
+endpoints and full text independently of rank styling. Authored question/takeaway
+carriers require exact visible ownership where drawn; other backend views retain
+truthful metadata omissions and source/context access without claiming those
+meanings are present in standalone artifacts. No trigger or business-specific
+vocabulary is inferred from authored prose.

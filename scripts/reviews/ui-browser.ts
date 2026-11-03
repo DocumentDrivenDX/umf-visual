@@ -9,6 +9,15 @@ import {authoredComparisonView,authoredFocusTargets,authoredMetricView,authoredS
 const siteRoot=resolve('dist-site'),receipt=await Bun.file(join(siteRoot,'reviews.json')).json();
 if(receipt.schemaVersion!==1||!Array.isArray(receipt.examples)||receipt.examples.length===0)throw Error('Build source-derived review presentations first.');
 const reviews=receipt.examples,sha=(bytes:Uint8Array)=>createHash('sha256').update(bytes).digest('hex');
+function citationAssets(review:any){
+ const evidence=review.originalEvidence,primary=new Set([evidence?.sourceDownloadPath,evidence?.capturePath].filter((value:any)=>typeof value==='string'));
+ const published=Array.isArray(review.publishedAssets)?review.publishedAssets:[];
+ return (Array.isArray(review.sources)?review.sources:[]).flatMap((source:any)=>{
+  const item=typeof source==='string'?{path:source}:source;
+  if(!item||typeof item.path!=='string'||typeof item.sha256!=='string')return [];
+  return published.filter((asset:any)=>asset?.path===item.path&&asset.sha256===item.sha256&&typeof asset.outputPath==='string'&&!primary.has(asset.outputPath));
+ });
+}
 const raceProbe=structuredClone(reviews[0]);raceProbe.id='race-probe';raceProbe.title=`${raceProbe.title} selection race`;raceProbe.originalEvidence={...raceProbe.originalEvidence,integrationCaseId:'race-probe'};
 const uiReviews=[...reviews,raceProbe];
 async function downloadBytes(page:Page,selector:string,target:string):Promise<{filename:string;bytes:Uint8Array}>{
@@ -195,27 +204,32 @@ async function assertRenderingNotes(page:Page,row:any,reviewId:string,backend:st
  if(expectedCircularGrid&&!(await caveat.innerText()).includes('native block grid approximates circular node placement while retaining the authored clockwise order'))throw Error(`${reviewId}/${backend} circular native-grid approximation is not explained beside the preview.`);
  if(expected.length&&await notesPanel.evaluate(element=>(element as HTMLDetailsElement).open))await notesPanel.locator(':scope > summary').click();
 }
-const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
+const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.yaml':'application/yaml;charset=utf-8','.yml':'application/yaml;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
 let corruptPath:string|undefined;
 let delayedCapturePath:string|undefined,delayedCaptureCount=0,signalDelayedRequest!:()=>void;
+let corruptCitationChecked=false,delayedCitationPath:string|undefined,delayedCitationCount=0,signalDelayedCitation!:()=>void,signalDelayedCitationFulfilled!:()=>void;
 let includeRaceProbe=true;
 let previousRecipeUrl:string|undefined;
 const delayedCaptureRequested=new Promise<void>(resolve=>{signalDelayedRequest=resolve;});
+const delayedCitationRequested=new Promise<void>(resolve=>{signalDelayedCitation=resolve;});
+const delayedCitationFulfilled=new Promise<void>(resolve=>{signalDelayedCitationFulfilled=resolve;});
 const browser=await chromium.launch({headless:true}),errors:string[]=[],checks:string[]=[];
 await mkdir('.cache',{recursive:true});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000},acceptDownloads:true});page.on('pageerror',e=>errors.push(String(e)));
  let contextModuleLoaded=false;page.on('response',response=>{if(new URL(response.url()).pathname.endsWith('/authored-context.js'))contextModuleLoaded=response.ok();});
- await page.addInitScript(()=>{const original=URL.revokeObjectURL.bind(URL);(window as any).__revokedBlobUrls=[];URL.revokeObjectURL=(url:string)=>{(window as any).__revokedBlobUrls.push(url);original(url);};});
+ await page.addInitScript(()=>{const original=URL.revokeObjectURL.bind(URL),create=URL.createObjectURL.bind(URL);(window as any).__revokedBlobUrls=[];(window as any).__createdBlobUrls=[];URL.revokeObjectURL=(url:string)=>{(window as any).__revokedBlobUrls.push(url);original(url);};URL.createObjectURL=(blob:Blob)=>{const url=create(blob),record:{url:string;type:string;size:number;sha256?:string}={url,type:blob.type,size:blob.size};(window as any).__createdBlobUrls.push(record);void blob.arrayBuffer().then(bytes=>crypto.subtle.digest('SHA-256',bytes)).then(digest=>{record.sha256=[...new Uint8Array(digest)].map(value=>value.toString(16).padStart(2,'0')).join('');});return url;};});
  await page.route('https://umf-review.local/**',async route=>{
   const url=new URL(route.request().url()),pathname=decodeURIComponent(url.pathname);
   if(pathname==='/reviews.json'){await route.fulfill({status:200,body:JSON.stringify({...receipt,examples:includeRaceProbe?uiReviews:reviews}),contentType:'application/json'});return;}
   if(delayedCapturePath&&pathname===`/${delayedCapturePath}`&&delayedCaptureCount++===0){signalDelayedRequest();await new Promise(resolve=>setTimeout(resolve,700));}
+  if(delayedCitationPath&&pathname===`/${delayedCitationPath}`&&delayedCitationCount++===0){signalDelayedCitation();await new Promise(resolve=>setTimeout(resolve,700));}
   if(corruptPath&&pathname===`/${corruptPath}`){await route.fulfill({status:200,body:'corrupt-content',contentType:'image/svg+xml'});return;}
   const filePath=resolve(siteRoot,`.${pathname==='/'?'/reviews.html':pathname}`);
   if(filePath===siteRoot||!filePath.startsWith(siteRoot+sep)){await route.fulfill({status:404,body:'Not found'});return;}
   const file=Bun.file(filePath);if(!(await file.exists())){await route.fulfill({status:404,body:'Not found'});return;}
   await route.fulfill({status:200,body:Buffer.from(await file.arrayBuffer()),contentType:mime[extname(filePath)]||'application/octet-stream',headers:{'cache-control':'no-store'}});
+  if(delayedCitationPath&&pathname===`/${delayedCitationPath}`)signalDelayedCitationFulfilled();
  });
  const first=reviews[0];
  await page.goto(`https://umf-review.local/reviews.html?review=${encodeURIComponent(first.id)}`,{waitUntil:'networkidle'});
@@ -299,6 +313,22 @@ try{
    const citations=await page.locator('#source-citations').innerText();
    for(const source of review.sources as Array<{label?:string;path?:string}>){
     if(source.label&&(!citations.includes(source.label)||!citations.includes(source.path?.split('/').pop()??'')))throw Error(`${review.id} source details do not expose its labeled source citation ${source.label}.`);
+   }
+  }
+  for(const asset of citationAssets(review)){
+   const selector=`.source-asset-download[data-output-path="${asset.outputPath}"]`;
+   await page.waitForFunction(path=>[...document.querySelectorAll('.source-asset-download')].some(element=>(element as HTMLAnchorElement).dataset.outputPath===path&&element.getAttribute('aria-disabled')==='false'),asset.outputPath,{timeout:10000});
+   const downloaded=await downloadBytes(page,selector,`.cache/review-${review.id}-${String(asset.path).split('/').pop()}`);
+   const expected=await readFile(resolve(siteRoot,asset.outputPath));
+   if(downloaded.filename!==String(asset.path).split('/').pop()||sha(downloaded.bytes)!==asset.sha256||!Buffer.from(downloaded.bytes).equals(expected))throw Error(`${review.id} cited source asset ${asset.path} download differs from its exact hash-verified published bytes.`);
+   checks.push(`${review.id} cited source asset ${asset.path} downloads exact hash-verified bytes`);
+   if(!corruptCitationChecked){
+    const next=reviews.find((candidate:any)=>candidate.id!==review.id);if(!next)throw Error('No second review exists for the corrupt cited-source control.');
+    corruptPath=asset.outputPath;await page.locator(`[data-example-id="${next.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,next.title,{timeout:30000});
+    await page.locator(`[data-example-id="${review.id}"]`).click();await page.waitForFunction(path=>{const link=[...document.querySelectorAll('.source-asset-download')].find(element=>(element as HTMLAnchorElement).dataset.outputPath===path) as HTMLAnchorElement|undefined;return !!link&&link.getAttribute('aria-disabled')==='true'&&link.title.includes('hash does not match');},asset.outputPath,{timeout:10000});
+    corruptPath=undefined;await page.locator(`[data-example-id="${next.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,next.title,{timeout:30000});
+    await page.locator(`[data-example-id="${review.id}"]`).click();await page.waitForFunction(path=>[...document.querySelectorAll('.source-asset-download')].some(element=>(element as HTMLAnchorElement).dataset.outputPath===path&&element.getAttribute('aria-disabled')==='false'),asset.outputPath,{timeout:10000});
+    corruptCitationChecked=true;checks.push(`${review.id} corrupt cited source asset is hash-refused and recovers on a fresh selection`);
    }
   }
   if(evidence?.kind==='synthetic-integration-witness'){
@@ -396,6 +426,29 @@ try{
   }
  }
  checks.push('every review selection exposes exact parsed/copyable YAML, declared source provenance, and hash-verified SVG, PNG and native-source outcomes for all three backends');
+
+ const citationReview=reviews.find((review:any)=>citationAssets(review).some((asset:any)=>/\.ya?ml$/i.test(asset.outputPath)));
+ if(!citationReview)throw Error('No review source has a matching additional published YAML asset to verify.');
+ const citationAsset=citationAssets(citationReview).find((asset:any)=>/\.ya?ml$/i.test(asset.outputPath))!,away=reviews.find((review:any)=>review.id!==citationReview.id)!;
+ await page.locator(`[data-example-id="${away.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,away.title,{timeout:30000});
+ delayedCitationPath=citationAsset.outputPath;delayedCitationCount=0;
+ const createdCitationCount=await page.evaluate(()=>((window as any).__createdBlobUrls as Array<{url:string}>).length);
+ await page.locator(`[data-example-id="${citationReview.id}"]`).click();
+ await Promise.race([delayedCitationRequested,new Promise((_,reject)=>setTimeout(()=>reject(Error('The delayed cited-source asset request did not start.')),5000))]);
+ await page.locator(`[data-example-id="${away.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,away.title,{timeout:30000});
+ await Promise.race([delayedCitationFulfilled,new Promise((_,reject)=>setTimeout(()=>reject(Error('The delayed cited-source response did not fulfill.')),5000))]);
+ await page.waitForFunction(({createdCount,hash})=>((window as any).__createdBlobUrls as Array<{sha256?:string}>).slice(createdCount).some(item=>item.sha256===hash),{createdCount:createdCitationCount,hash:citationAsset.sha256},{timeout:5000});
+ await page.waitForTimeout(900);
+ const staleCitationState=await page.evaluate(({path,createdCount,hash})=>{
+  const links=[...document.querySelectorAll('.source-asset-download')] as HTMLAnchorElement[];
+  const created=(window as any).__createdBlobUrls as Array<{url:string;sha256?:string}>;
+  const revoked=new Set((window as any).__revokedBlobUrls as string[]);
+  const late=created.slice(createdCount).filter(item=>item.sha256===hash);
+  return{staleLink:links.some(link=>link.dataset.outputPath===path),matchingLateBlobCount:late.length,matchingLateBlobRevoked:late.length>0&&late.every(item=>revoked.has(item.url))};
+ },{path:citationAsset.outputPath,createdCount:createdCitationCount,hash:citationAsset.sha256});
+ if(delayedCitationCount!==1||staleCitationState.staleLink||staleCitationState.matchingLateBlobCount===0||!staleCitationState.matchingLateBlobRevoked)throw Error(`Late cited-source asset survived selection cleanup: ${JSON.stringify({...staleCitationState,delayedRequests:delayedCitationCount})}.`);
+ delayedCitationPath=undefined;
+ checks.push(`late cited-source downloads are revoked and never appear in the newly selected review (${staleCitationState.matchingLateBlobCount} hash-matched late Blob URL${staleCitationState.matchingLateBlobCount===1?'':'s'} created; all revoked)`);
 
  const probe=reviews.find((review:any)=>review.renders?.some((item:any)=>item.backend==='graphviz'&&item.status==='qualified'));
  if(!probe)throw Error('No review has a qualified Graphviz render for corrupt-asset and modal checks.');

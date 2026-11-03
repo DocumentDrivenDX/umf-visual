@@ -1148,6 +1148,58 @@
         "sourceDownloadPath": "reviews/umf-extensions/authoritative-source.json",
         "scope": "This exact UMF fixture JSON is the review definition. Its nine node IDs, labels, parent relationships, and child order are source-authored; the modules list is empty. The source path and digest are locator metadata, not verification of the referenced repository path. The tree preserves the fixture's historical claim and does not assert a current or exhaustive listing of implemented extensions."
       }
+    },
+    {
+      "id": "beacon-ci-ci",
+      "title": "CI",
+      "description": "A source-backed review of the authored CI dependency graph and the matching checked-in workflow snapshot.",
+      "kind": "flow",
+      "form": "pipeline",
+      "definitionPath": "fixtures/reviews/definitions/beacon-ci-ci.json",
+      "definitionSha256": "a01a4537fb37124b1b12642c42efe5b27142bbf2f2cca1c706173d3704dc2573",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-ci-ci.json",
+          "sha256": "33f9ecfe707727e71f8a8a57c93995184f70f751ab14969a64d1ecdda8b8c084",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 source fixture supplies the original IDs, title, question, graph, and provenance fields."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/workflows/ci.yml",
+          "sha256": "2a117bf9b9372c2c4e10d26c1abc40bc0c994bce5084a4c0c4b4af00036fe9c2",
+          "pointer": "/",
+          "label": "Checked-in CI workflow snapshot",
+          "description": "The local YAML snapshot bytes match the digest cited in the original UMF source. The review derives runner, command, and trigger text from this snapshot."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-ci-ci.json",
+          "sha256": "33f9ecfe707727e71f8a8a57c93995184f70f751ab14969a64d1ecdda8b8c084",
+          "outputPath": "reviews/beacon-ci-ci/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes; this original remains available unchanged."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/workflows/ci.yml",
+          "sha256": "2a117bf9b9372c2c4e10d26c1abc40bc0c994bce5084a4c0c4b4af00036fe9c2",
+          "outputPath": "reviews/beacon-ci-ci/ci.yml",
+          "mediaType": "application/yaml",
+          "description": "Exact checked-in workflow snapshot bytes used for the reviewed runner, command, and trigger annotations."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-ci-ci.json",
+        "sourceSha256": "33f9ecfe707727e71f8a8a57c93995184f70f751ab14969a64d1ecdda8b8c084",
+        "documentId": "visual:beacon-ci-ci",
+        "visualId": "beacon-ci-ci",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-ci-ci/authoritative-source.json",
+        "scope": "The original UMF fixture remains the authoritative source for its five node IDs, labels, four directed edge IDs/endpoints, title, question, audience, and historical source locator; its bytes remain available unchanged. This separate reviewed Visual 1.0.0 definition adds runner and single-command annotations, plus the concise takeaway, from the exact checked-in workflow YAML snapshot whose SHA-256 matches the locator digest in the original UMF source. It preserves three independent lint/test/migrations prerequisites to build and the build-to-deploy dependency, without inferring serial order among prerequisites. The historical source locator does not establish current workflow contents, execution, or repository state."
+      }
     }
   ]
 }

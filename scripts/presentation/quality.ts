@@ -606,6 +606,8 @@ export async function verifyPresentationQuality(
     if(distance(path.start,sourceCarrier?.bounds)>32||distance(path.end,targetCarrier?.bounds)>32)failures.push(`${edge.id} path is detached from its mapped Mermaid node shapes`);
     if(edge.label&&!dom.edgeLabels.some(l=>l.text===norm(edge.label!)&&l.id===path.dataId))failures.push(`${edge.id} label is not owned by its native Mermaid edge-label carrier`);
    });
+   const unownedVisiblePaths=dom.paths.filter(path=>path.d&&!path.className.includes('invisible')&&!usedPaths.has(path.id||path.dataId));
+   if(unownedVisiblePaths.length)failures.push(`${unownedVisiblePaths.length} visible Mermaid flow path(s) have no authored edge owner`);
    checks.push(pass('mermaid-flow-paths',sourceSha256,failures.length===0,failures.length?failures.join('; '):`${visual.edges?.length??0} authored flow connections have native SVG paths with exact mapped endpoint IDs and their declared direction.${routeFallbacks.length?' Located routing fallback: '+routeFallbacks.join('; ')+'.':''}`));
   }
   if(visual.kind==='flow'||(visual.kind==='structure'&&visual.form==='stack')){

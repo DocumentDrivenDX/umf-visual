@@ -708,3 +708,27 @@ midpoint/interval geometry, hidden/phantom controls and overlap subtracks retain
 independent source ownership without imposing private packing choices. Exact
 Visual 1.0.0 authority and historical PRD/status limits remain unchanged; no elapsed
 time, current delivery verification, vocabulary or host expansion is inferred.
+
+
+## Dependency-pipeline conformance
+
+Verify converging independent roots and downstream dependencies across native
+backends, with exact node/edge identity and no extra serial/helper dependencies.
+Test DAG source-order ties, both presentation directions, explicit layout precedence,
+cycles/headless fallback and retained return links. Native moved-rank, redirected
+endpoint and extra/missing node/edge controls must fail their applicable checks.
+Where native question/takeaway are drawn, verify exact text/owner maps and remove
+stale omission claims; backend-specific retained omissions remain explicit. Shared
+flow fit/clipping/font/overlap, caption ownership and mandatory check inventories
+remain required without inferred timing, business status or producer semantics.
+
+
+Cycle 22 closeout: isolated full suite passes 849 tests, zero failures and
+22,520 assertions across 142 files in 151.97 seconds. All required runtime/corpus
+and final affected review/UI, public-browser, packed-consumer, source/type/build
+and actual visual/model/interface checks pass. Generic dependency ranking preserves
+DAG edges and explicit layouts; source-backed review enrichment retains original
+JSON plus matching YAML as separately hash-bound evidence. Positive late-Blob
+creation/revocation, exact source downloads and fresh native replays pass. Existing
+Visual 1.0.0 fields carry runner/command/trigger prose without new domain vocabulary,
+current-workflow verification or host-support expansion.

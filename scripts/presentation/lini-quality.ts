@@ -5,6 +5,7 @@ import type {Page} from 'playwright';
 import type {Document} from '@umf/core';
 import {getVisual,type Visual,type VisualCardinality,type VisualMultiplicity} from '../../src/extensions/visual';
 import type {PresentationPlan} from '../../src/presentation';
+import {directedDagRanks} from '../../src/presentation/dag-layout';
 import {planDateHistoryEvents} from '../../src/presentation/timeline-layout';
 import {stateTransitionCaption} from '../../src/presentation/state';
 import type {PresentationQualityCheck} from './quality';
@@ -203,7 +204,7 @@ export async function verifyLiniPresentationQuality(
   else if(item.kind==='group')expected=visual.groups?.find(group=>group.id===item.logicalId)?.label??'';
   else if(item.kind==='layer')expected=visual.structure?.layers?.find(layer=>layer.id===item.logicalId)?.label??'';
   else if(item.kind==='entity')expected=visual.nodes?.find(node=>node.id===item.logicalId)?.label??'';
-  else if(item.kind==='annotation')expected=visual.annotations?.find(annotation=>annotation.id===item.logicalId)?.text??'';
+  else if(item.kind==='annotation')expected=item.sourcePath===at('/question')?visual.question:item.sourcePath===at('/takeaway')?visual.takeaway??'':visual.annotations?.find(annotation=>annotation.id===item.logicalId)?.text??'';
   else if(item.kind==='event'){
    const match=item.sourcePath.match(/\/timeline\/events\/(\d+)$/u),event=match?visual.timeline?.events?.[Number(match[1])]:undefined;
    expected=event?event.label+' · '+event.at:'';
@@ -213,6 +214,8 @@ export async function verifyLiniPresentationQuality(
   const shape=visual.nodes?.find(node=>node.id===item.logicalId)?.shape,visibleShapeFallback=!!shape&&found.texts.some(text=>text.startsWith(norm(expected)+' (shape: '+shape+')'));
   if(expected&&!visibleLabel&&!visibleShapeFallback){carriersOk=false;missing.push(`${item.kind} label ${item.logicalId}`);}
   if(item.kind==='annotation'){
+   const metadataPointer=item.sourcePath===at('/question')||item.sourcePath===at('/takeaway');
+   if(metadataPointer&&(item.logicalId!==item.sourcePath||item.nativeId!==(item.sourcePath===at('/question')?'pipeline-question-caption':'pipeline-takeaway-footer'))){carriersOk=false;missing.push(`pipeline text ${item.sourcePath} is not mapped to its exact native source carrier`);}
    const borderless=found.classes.includes('lini-box')&&found.style.includes('fill: none')&&found.style.includes('stroke: none')&&found.style.includes('stroke-width: 0');
    const connected=dom?.links.some(link=>[link.from,link.to].some(endpoint=>!!endpoint&&endpoint.split('.').includes(item.nativeId)));
    if(!borderless){carriersOk=false;missing.push(`annotation ${item.logicalId} is not a borderless native text carrier`);}
@@ -250,6 +253,13 @@ export async function verifyLiniPresentationQuality(
  checks.push(pass('lini-native-carriers',sourceSha256,carriersOk,carriersOk?`All ${maps.length} mapped native identities own their visible Lini carriers; all ${dom?.fontFamilies.length??0} rendered text nodes use computed single-family Arial.`:`Missing or altered native-owned carriers: ${missing.join('; ')||'the inserted SVG is not a Lini SVG'}.`));
 
  let endpointOk=!!dom?.svg;const endpointProblems:string[]=[],routingObservations:string[]=[];
+ if(visual.kind==='flow'){
+  const expectedEdges=maps.filter(item=>item.kind==='edge'),expectedNativeIds=new Set(expectedEdges.map(item=>item.nativeId));
+  const actualEdgeIds=(dom?.links??[]).flatMap(link=>link.classes.filter(className=>/^lini-style-e\d+$/u.test(className)).map(className=>className.slice('lini-style-'.length)));
+  if((dom?.links.length??0)!==expectedEdges.length||actualEdgeIds.length!==expectedEdges.length||new Set(actualEdgeIds).size!==actualEdgeIds.length||actualEdgeIds.some(nativeId=>!expectedNativeIds.has(nativeId))||expectedEdges.some(item=>!actualEdgeIds.includes(item.nativeId))){
+   endpointOk=false;endpointProblems.push(`native flow link inventory (${actualEdgeIds.join(', ')||'none'}; ${(dom?.links.length??0)} total native links) does not exactly match the ${expectedEdges.length} authored edge carriers (${expectedEdges.map(item=>item.nativeId).join(', ')||'none'})`);
+  }
+ }
  if(visual.kind==='state'){
   const actual=dom?.links.filter(link=>link.classes.some(className=>/^lini-style-t\d+$/u.test(className))).length??0,expected=visual.state?.transitions.length??0;
   if(actual!==expected){endpointOk=false;endpointProblems.push(`native state transition link count ${actual} does not match authored count ${expected}`);}
@@ -463,6 +473,31 @@ export async function verifyLiniPresentationQuality(
   }
  }
  checks.push(pass('lini-containment-and-order',sourceSha256,containmentOk,containmentOk?`Native group/layer bounds contain their authored members; nested group captions clear both parent and child boundaries${nestedCaptionClearances.length?` (${nestedCaptionClearances.join(', ')})`:''}; stack layers retain authored order${stackCaptionClearances.length?`; native stack caption clearance from preceding layer boundary: ${stackCaptionClearances.join(', ')}.`:'.'}`:containmentProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
+
+ if(visual.kind==='flow'&&visual.form==='pipeline'&&plan.approximations.some(item=>item.sourcePath===at('/form')&&item.requested==='Pipeline with no authored layout')){
+  const nodes=visual.nodes??[],edges=visual.edges??[],ranks=directedDagRanks(nodes.map(node=>node.id),edges.filter(edge=>edge.kind!=='return')),problems:string[]=[];
+  const expectedNative=new Set(maps.filter(item=>item.kind==='node').map(item=>item.nativeId)),metadataNative=new Set(maps.filter(item=>item.kind==='annotation').map(item=>item.nativeId)),actualNative=(dom?.carriers??[]).filter(item=>item.classes.includes('lini-box')&&!metadataNative.has(item.id)).map(item=>item.id);
+  if(!ranks||ranks.size!==nodes.length)problems.push('authored non-return edges do not form the disclosed dependency-rank DAG');
+  if(expectedNative.size!==nodes.length||actualNative.length!==nodes.length||actualNative.some(id=>!expectedNative.has(id))||[...expectedNative].some(id=>!actualNative.includes(id)))problems.push('native pipeline node inventory differs from its mapped source-node inventory');
+  const directionSource=plan.source.split('\n').find(line=>line.trimStart().startsWith('|group#diagram-content|'))??plan.source.split('\n').find(line=>line.trimStart().startsWith('|group#visual|'))??'',direction=/direction:\s*(row|column);/u.exec(directionSource)?.[1],axis=direction==='row'?'x':direction==='column'?'y':undefined,cross=axis==='x'?'y':'x';
+  if(!axis)problems.push('compiled native dependency-rank direction is missing');
+  const center=(id:string,coordinate:'x'|'y')=>{const item=carrier(id),box=item?.containerBounds;return box?box[coordinate]+box[coordinate==='x'?'width':'height']/2:undefined;};
+  let previousRank=Number.NEGATIVE_INFINITY;
+  if(ranks&&axis){
+   const rankNumbers=[...new Set([...ranks.values()])].sort((a,b)=>a-b);
+   for(const rank of rankNumbers){
+    const members=nodes.filter(node=>ranks.get(node.id)===rank),rankCenters=members.map(node=>center(nativeFor(plan,'node',node.id)??'',axis)),crossCenters=members.map(node=>center(nativeFor(plan,'node',node.id)??'',cross));
+    if(rankCenters.some(value=>value===undefined)||crossCenters.some(value=>value===undefined)){problems.push(`dependency rank ${rank} has a missing native node center`);continue;}
+    const primary=rankCenters as number[],secondary=crossCenters as number[],rankCenter=primary.reduce((sum,value)=>sum+value,0)/primary.length;
+    if(primary.some(value=>Math.abs(value-rankCenter)>4))problems.push(`dependency rank ${rank} nodes do not share their renderer-owned ${axis}-axis position`);
+    if(rankCenter<=previousRank+8)problems.push(`dependency rank ${rank} does not follow its predecessor along native ${axis}`);
+    previousRank=rankCenter;
+    for(let index=1;index<secondary.length;index++)if(secondary[index]!<=secondary[index-1]!+1)problems.push(`dependency rank ${rank} does not preserve source sibling order along native ${cross}`);
+   }
+   for(const edge of edges.filter(item=>item.kind!=='return'))if((ranks.get(edge.to)??-1)<=(ranks.get(edge.from)??Number.MAX_SAFE_INTEGER))problems.push(`authored dependency ${edge.id} does not point to a later native rank`);
+  }
+  checks.push(pass('lini-pipeline-dependency-ranks',sourceSha256,problems.length===0,problems.length?problems.join('; '):`All ${nodes.length} mapped source nodes occupy native longest-path ranks in compiled ${direction==='row'?'left-to-right':'top-to-bottom'} order; ties retain declaration order, and every authored non-return edge advances rank. No extra native node or dependency is present.`));
+ }
 
  if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')){
   const events=visual.timeline?.events??[],datePlan=planDateHistoryEvents(events),eventMaps=maps.filter(item=>item.kind==='event'),problems:string[]=[];

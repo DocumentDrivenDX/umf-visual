@@ -17,7 +17,7 @@ const ui = {
   payload: $('visual-payload'), visualVersion: $('visual-version'), programmaticCode: $('programmatic-code'),
   compileTargetNote: $('compile-target-note'), authoredContext: $('authored-context'), authoredContextContent: $('authored-context-content'),
 };
-const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, historicalToken: 0, historicalUrl: null, historicalResizeObserver: null, objectUrls: new Set(), renderUrls: new Set(), currentVariant: null, currentImageUrl: null, viewerMode:'fit',viewerScale:1};
+const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, historicalToken: 0, historicalUrl: null, historicalResizeObserver: null, objectUrls: new Set(), renderUrls: new Set(), citationToken:0,citationId:null,citationUrls:new Set(),currentVariant: null, currentImageUrl: null, viewerMode:'fit',viewerScale:1};
 const HASH = /^[a-f0-9]{64}$/i;
 const pageConfig = {manifest: document.body.dataset.manifest || 'showcase.json', assetPrefix: document.body.dataset.assetPrefix || 'showcase', legacyRedirect: document.body.dataset.legacyRedirect !== 'false', selectionParam: document.body.dataset.selectionParam || 'id'};
 const LEGACY_HASHES = new Set(['#coverage', '#six-target-section', '#integrations', '#examples', '#language', '#kind-reference-grid']);
@@ -191,11 +191,18 @@ function formatSourcePath(path, hash) {
 }
 
 function renderCitations(example) {
+  if (state.citationId === example.id) return;
+  clearCitationDownloads();
+  state.citationId = example.id;
+  const token = state.citationToken;
   ui.citations.replaceChildren();
   const path = formatSourcePath(example.definitionPath, example.definitionSha256);
   const lead = document.createElement('span');
   lead.textContent = 'Definition source · ';
   ui.citations.append(lead, path);
+  const publishedAssets = Array.isArray(example.publishedAssets) ? example.publishedAssets : [];
+  const evidence = example.originalEvidence;
+  const primaryEvidencePaths = new Set([evidence?.sourceDownloadPath, evidence?.capturePath].filter(value => typeof value === 'string'));
   for (const source of Array.isArray(example.sources) ? example.sources : []) {
     const item = typeof source === 'string' ? {path: source} : source;
     if (!item || typeof item.path !== 'string') continue;
@@ -204,8 +211,39 @@ function renderCitations(example) {
     const title = document.createElement('span');
     title.textContent = `${safeText(item.label, 'Reference')} · `;
     row.append(title, formatSourcePath(item.path, item.sha256));
+    const asset = publishedAssets.find(candidate => candidate && candidate.path === item.path && candidate.sha256 === item.sha256 &&
+      typeof candidate.outputPath === 'string' && HASH.test(candidate.sha256 || '') &&
+      !primaryEvidencePaths.has(candidate.outputPath) && candidate.outputPath !== evidence?.sourceDownloadPath && candidate.outputPath !== evidence?.capturePath);
+    if (asset) {
+      const download = document.createElement('a');
+      download.className = 'source-asset-download';
+      download.dataset.outputPath = asset.outputPath;
+      download.href = '#';
+      download.download = pathLabel(asset.path);
+      download.textContent = 'Download exact source file';
+      download.setAttribute('aria-disabled', 'true');
+      row.append(download);
+      void loadVerifiedAsset(asset.outputPath, asset.sha256).then(url => {
+        if (token !== state.citationToken || state.selectedId !== example.id || state.citationId !== example.id) { URL.revokeObjectURL(url); return; }
+        state.citationUrls.add(url); state.objectUrls.add(url);
+        download.href = url;
+        download.setAttribute('aria-disabled', 'false');
+        download.title = `Verified SHA-256 ${asset.sha256}`;
+      }).catch(error => {
+        if (token !== state.citationToken || state.selectedId !== example.id || state.citationId !== example.id) return;
+        download.title = `Download unavailable: ${error instanceof Error ? error.message : String(error)}`;
+      });
+    }
     ui.citations.append(row);
   }
+}
+
+function clearCitationDownloads() {
+  state.citationToken++;
+  for (const url of state.citationUrls) { URL.revokeObjectURL(url); state.objectUrls.delete(url); }
+  state.citationUrls.clear();
+  state.citationId = null;
+  ui.citations.replaceChildren();
 }
 
 async function renderOriginalEvidence(example) {
@@ -594,7 +632,7 @@ function renderAuthoredContext(example) {
 }
 
 async function loadVerifiedAsset(path, expectedHash) {
-  const extension = typeof path === 'string' ? /\.(svg|png|jpe?g|json)$/i.exec(path)?.[0].toLowerCase() : '';
+  const extension = typeof path === 'string' ? /\.(svg|png|jpe?g|json|ya?ml)$/i.exec(path)?.[0].toLowerCase() : '';
   if (!extension || !safeAssetPath(path, extension)) throw new Error('Asset path is outside the configured presentation namespace');
   const response = await fetch(`./${path}`, {cache: 'no-store'});
   if (!response.ok) throw new Error(`Asset request failed (${response.status})`);
@@ -750,6 +788,7 @@ async function renderSelected() {
 
 function selectExample(id,updateHistory=true) {
   if (!getExample(id)) return;
+  if (state.selectedId !== id) clearCitationDownloads();
   state.selectedId = id;
   if (updateHistory) { const url = new URL(location.href);url.searchParams.set(pageConfig.selectionParam,id);history.pushState({exampleId:id},'',url); }
   document.querySelectorAll('.scenario-button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.exampleId === id)));

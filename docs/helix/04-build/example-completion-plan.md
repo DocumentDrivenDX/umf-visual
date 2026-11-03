@@ -2333,6 +2333,122 @@ current-state verification, vocabulary, strict-interchange or host capability
 expansion is claimed. Commit follows in this change; git history is authoritative.
 Cycle 22 remains pending until cycle 21 is committed.
 
+### Twenty-second-cycle scope — dependency pipeline
+
+Cycle 22 implementation and verification are complete, ready for commit, using original authoritative source
+`fixtures/visual/inventory/beacon-ci-ci.json`, SHA-256
+`33f9ecfe707727e71f8a8a57c93995184f70f751ab14969a64d1ecdda8b8c084`.
+Preserve Visual 1.0.0 / envelope 0.10.0, five node identities/labels/details and
+four directed dependency edges. Three independent roots converge on one build
+node, followed by a deployment node; source-array order does not add dependencies
+or serialize independent jobs. Title/question/takeaway/audience remain authored
+metadata. Historical YAML locator/digest does not verify today's workflow behavior.
+
+Reuse generic graph rendering for compatible flow/pipeline semantics, retaining
+native node/edge ownership, directed endpoints, full text and original source
+pointers. Renderer layout may compose the DAG without extra dependency arrows,
+statuses, dates, conditions or source enrichment. Additional annotation/circular
+subsets retain their own qualification boundaries. Pipeline admission must select
+the same mandatory graph checks across compilation, native build and replay.
+
+Runtime guard/projection changes require AGENTS public/native/catalog commands,
+affected flow regressions and native topology mutation controls; source provenance,
+review/UI and consumer gates remain required. No new vocabulary is indicated.
+Commit cycle 22 before starting cycle 23.
+
+### Twenty-second-cycle source-evidence refinement
+
+The local workflow snapshot `fixtures/visual/sources/beacon/workflows/ci.yml`
+exists and matches the legacy Visual source digest
+`sha256:2a117bf9b9372c2c4e10d26c1abc40bc0c994bce5084a4c0c4b4af00036fe9c2`.
+It explicitly qualifies push to main and supplies one exact make command per job.
+The review therefore derives a distinct source-backed definition using existing
+node detail and takeaway fields: runner plus command, and precise trigger prose.
+Original Visual JSON bytes/hash/download and YAML bytes/hash/download remain
+separately bound; IDs, DAG, envelope/model version and historical scope remain
+unchanged. This is declared review enrichment from a matching local snapshot,
+not mutation of the original or verification of a current remote workflow.
+
+Earlier runtime/corpus evidence remains valid. After this definition-only change,
+repeat affected source/provenance, native review renders/replays, site/UI and
+consumer checks, then final shared UI/full suite. Do not repeat unchanged native
+fetch/catalog/showcase gates without a new runtime or proof change. Completion
+remains pending refreshed definition evidence and final gate counts.
+
+### Originating-snapshot review method refinement
+
+Before freezing each inventory-cycle review definition, resolve any available
+checked-in originating snapshot, verify its declared digest and compare concrete
+semantically relevant facts against the Visual's stated question. Preserve original
+bytes and provenance. Derive a separate explicitly source-backed review only for
+relevant omissions grounded in that matching snapshot, using existing generic
+fields where adequate. Do not infer live/current state, silently replace original
+authority or introduce domain-specific model fields. Perform this audit before
+rendering and gate execution; unavailable or mismatched snapshots remain explicit
+unknowns rather than fabricated evidence.
+
+### Twenty-second-cycle refreshed artifact checkpoint
+
+The real built review manifest binds derived definition
+`a01a4537fb37124b1b12642c42efe5b27142bbf2f2cca1c706173d3704dc2573`
+and publishes unchanged original JSON
+`33f9ecfe707727e71f8a8a57c93995184f70f751ab14969a64d1ecdda8b8c084`
+and matching YAML
+`2a117bf9b9372c2c4e10d26c1abc40bc0c994bce5084a4c0c4b4af00036fe9c2`.
+Fresh review build/verification covers 21 documents/45 qualified variants and
+45 native SVG/PNG replays; site build passes. Root verified real Lini PNG hash
+`f231284611bd83b73ec1fa8b490f38193432c27f1a8ddd3c9949750352dafa4e`
+byte-for-byte against the approved enriched rendering. Generic citation downloads
+bind matching published source path/hash, verify bytes before enabling download,
+reject stale selection responses and revoke owned URLs without source-specific
+branches. Final affected UI/consumer/shared-site/full-suite gates remain pending;
+cycle 22 is not complete or ready for commit.
+
+### Twenty-second-cycle citation-race checkpoint
+
+The refreshed review UI passes all 21 examples without browser errors. Its delayed
+citation control observes a fulfilled response followed by exactly one newly
+created Blob whose SHA-256 matches the published YAML; that URL is revoked and
+no stale link appears in the newly selected review. This is positive late-Blob
+cleanup evidence, not a vacuous zero-URL or cancellation assertion. Corrupt-byte
+refusal/recovery and exact source downloads also pass. Runtime and definition bytes
+remain unchanged. Final refreshed consumer/shared-site/full-suite results remain
+pending; cycle 22 is not complete or ready for commit.
+
+### Twenty-second-cycle final affected-gate checkpoint
+
+Refreshed source/definition provenance passes three tests/59 assertions. Public
+browser checks pass 53 fixtures/106 round trips and 21 reviewed definitions/42 round
+trips/45 plans without errors; packed Bun/Node consumers are valid. Review UI
+passes 21 examples, including the positively observed late hash-matched Blob cleanup.
+Shared catalog UI passes 214 native SVGs and showcase UI passes nine examples/
+23 qualified variants/46 SVG/PNG previews, both without browser errors. Earlier
+unchanged native/catalog/showcase gates remain valid; fresh real review verification
+covers 45 native SVG/PNG replays and the separate derived/original/YAML hashes.
+Only the final isolated full-suite result remains pending; no completion or
+commit-readiness claim is made yet.
+
+### Twenty-second-cycle closeout — 2026-11-03
+
+The isolated full suite passes **849 tests, zero failures, 22,520 assertions
+across 142 files in 151.97 seconds** (`.cache/cycle 22/full-tests.log`). All
+required original runtime/corpus gates and final affected source/review/UI,
+public-browser, packed-consumer, source/type/build and actual visual/model/interface
+and modularity audits pass. The refreshed 21-document/45-variant review cohort
+replays exact native SVG/PNG assets from the derived definition; original JSON and
+matching YAML remain separately published and hash-bound. Final review UI positively
+observes one late hash-matched Blob created/revoked without a stale link.
+
+Generic pipeline admission preserves exact DAG topology with target-owned ranks,
+explicit layout precedence and truthful backend metadata views. Source-backed
+runner/command/branch enrichment uses existing detail/takeaway fields, preserving
+original IDs/DAG/version and explicitly distinguishing historical snapshot evidence
+from current workflow execution. No domain-specific vocabulary, silent source
+mutation, inferred serial dependencies, strict-interchange or host capability
+expansion is introduced. Commit follows in this change; git history is authoritative.
+Cycle 23 remains pending until cycle 22 is committed. Earlier pending checkpoints
+above record intermediate states; this final closeout resolves their gate holds.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2345,7 +2461,8 @@ Cycle 13 is committed as `51405f3`; cycle 14 is committed as `c5212bf`.
 Cycle 15 is committed as `a4f89f1`; cycle 16 is committed as `fc841bd`.
 Cycle 17 is committed as `af9ba07`; cycle 18 is committed as `8b0bbe8`.
 Cycle 19 is committed as `122e5c6`; cycle 20 is committed as `adefa85`.
-Cycle 21 is complete and ready for commit; cycles 22–68 remain pending.
+Cycle 21 is committed as `b9257c8`; cycle 22 is complete and ready for commit.
+Cycles 23–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

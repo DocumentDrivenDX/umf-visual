@@ -4,6 +4,7 @@ import type {Visual,VisualCardinality,VisualEdge,VisualEntity,VisualGroup,Visual
 import {quoteLiniProfile} from '../interchange/lini/profile-syntax';
 import {liniShapeDefinition} from './lini-shapes';
 import {circularPlacement} from './circular';
+import {directedDagRanks} from './dag-layout';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
 import {compileLiniSequence,compileLiniTree} from './lini-rich';
 import {compileLiniTimelinePresentation} from './lini-timeline';
@@ -195,10 +196,11 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
  const approx=(sourcePath:string,requested:string,representation:string,code?:PresentationPlan['approximations'][number]['code'])=>approximations.push({sourcePath,requested,representation,...(code?{code}:{})});
  const path=(part:string)=>at(part);
  const title=visual.title??visual.question;
+  const pipelineContext=visual.kind==='flow'&&visual.form==='pipeline';
  try{
   add(visual.id,path('/id'),'visual','visual');
-  if(visual.title&&visual.question!==visual.title)omit(path('/question'),'The reader question remains in the UMF document; Lini displays the concise title in the native diagram frame.');
-  if(visual.takeaway)omit(path('/takeaway'),'Takeaway remains in the definition source and is not drawn as diagram content.');
+  if(visual.title&&visual.question!==visual.title&&!pipelineContext)omit(path('/question'),'The reader question remains in the UMF document; Lini displays the concise title in the native diagram frame.');
+  if(visual.takeaway&&!pipelineContext)omit(path('/takeaway'),'Takeaway remains in the definition source and is not drawn as diagram content.');
   if(visual.source)omit(path('/source'),'Source provenance remains in UMF and is not embedded in diagram geometry.');
   if(visual.omissions)for(let i=0;i<visual.omissions.length;i++)omit(path('/omissions/'+i),'Authored omission inventory remains in UMF and is not drawn.');
   if(visual.steps)omit(path('/steps'),'Walkthrough steps remain in UMF and are not part of this static Lini view.');
@@ -223,8 +225,22 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
   const circularSizes=circularNodes.map(node=>({id:node.id,width:Math.max(120,(Math.max(node.label.length,node.detail?.length??0)*8)+32,...(node.ports??[]).map(port=>portCaption(port).length*8+190)),height:58+(node.detail?22:0)+(node.role==='process'&&node.label!=='Process'&&node.detail!=='Process'?18:0)}));
   const circle=circularNodes.length?circularPlacement(circularSizes,28):undefined;
   const circlePosition=new Map<string,{id:string;x:number;y:number;width:number}>(circle?.positions.map((position,index)=>[position.id,{...position,width:circularSizes[index]!.width}])??[]);
-  if(circle){const titleCenter=Math.round((Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.width))+72)/2)-(qTitle.length*6.6/2));styleRules.push(`.lini-caption { font-size: 22; font-weight: 600; color: --blue-deep; translate: ${titleCenter} -30; }`);}
-  const rootProperties=[...(circle?['layout: flow;','direction: row;',`width: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.width))+72)};`,`height: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.height))+90)};`]:layoutProperties(rootLayout,fallbackLayout,rootColumns??1,direction)),`gap: ${visual.kind==='state'?stateGap:visual.form==='entities'?88:visual.form==='stack'?44:72};`,`padding: 36;`,`fill: none;`,`stroke: none;`,`stroke-width: 0;`].filter((item):item is string=>!!item);
+  const dagRanks=visual.kind==='flow'&&visual.form==='pipeline'&&!rootLayout&&!groups.length&&nodes.every(node=>!node.group&&!node.parent)?directedDagRanks(nodes.map(node=>node.id),edges.filter(edge=>edge.kind!=='return')):undefined;
+  const dagLayers=dagRanks?Array.from({length:Math.max(0,...dagRanks.values())+1},(_,rank)=>nodes.filter(node=>dagRanks.get(node.id)===rank)):[];
+  const dagNodeWidths=new Map(nodes.map(node=>[node.id,Math.max(240,estimateTextWidth(node.label)+48,node.detail?estimateTextWidth(node.detail)+48:0)]));
+  const dagNodeHeight=(node:VisualNode)=>72+(node.detail?28:0)+(node.role==='process'&&node.label!=='Process'&&node.detail!=='Process'?18:0);
+  const dagRowGap=40,dagColumnGap=176,dagRankGap=176,dagPadding=36;
+  const dagColumnWidths=dagLayers.map(layer=>Math.max(0,...layer.map(node=>dagNodeWidths.get(node.id)!)));
+  const dagLayerWidths=dagLayers.map(layer=>direction==='LR'?Math.max(0,...layer.map(node=>dagNodeWidths.get(node.id)!)):layer.reduce((sum,node)=>sum+dagNodeWidths.get(node.id)!,0)+Math.max(0,layer.length-1)*dagColumnGap);
+  const dagLayerHeights=dagLayers.map(layer=>direction==='LR'?layer.reduce((sum,node)=>sum+dagNodeHeight(node),0)+Math.max(0,layer.length-1)*dagRowGap:Math.max(0,...layer.map(dagNodeHeight)));
+  const dagWidth=dagRanks?direction==='LR'?dagPadding*2+dagColumnWidths.reduce((sum,width)=>sum+width,0)+Math.max(0,dagLayers.length-1)*dagRankGap:dagPadding*2+Math.max(0,...dagLayerWidths):0;
+  const dagHeight=dagRanks?direction==='LR'?120+Math.max(0,...dagLayerHeights):120+dagLayerHeights.reduce((sum,height)=>sum+height,0)+Math.max(0,dagLayers.length-1)*dagRankGap:0;
+  const dagPosition=new Map<string,{id:string;x:number;y:number;width:number}>();
+  if(dagRanks&&direction==='LR'){let x=-dagWidth/2+dagPadding;for(let rank=0;rank<dagLayers.length;rank++){const layer=dagLayers[rank]!,columnWidth=Math.max(0,...layer.map(node=>dagNodeWidths.get(node.id)!)),height=dagLayerHeights[rank]!;let y=-height/2;for(const node of layer){const itemHeight=dagNodeHeight(node),width=dagNodeWidths.get(node.id)!;dagPosition.set(node.id,{id:node.id,x:x+columnWidth/2,y:y+itemHeight/2,width});y+=itemHeight+dagRowGap;}x+=columnWidth+dagRankGap;}}
+  if(dagRanks&&direction==='TB'){let y=-dagHeight/2+60;for(let rank=0;rank<dagLayers.length;rank++){const layer=dagLayers[rank]!,width=dagLayerWidths[rank]!;let x=-width/2;for(const node of layer){const nodeWidth=dagNodeWidths.get(node.id)!;dagPosition.set(node.id,{id:node.id,x:x+nodeWidth/2,y:y+dagLayerHeights[rank]!/2,width:nodeWidth});x+=nodeWidth+dagColumnGap;}y+=dagLayerHeights[rank]!+dagRankGap;}}
+  if(circle||dagRanks){const sceneWidth=circle?Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.width))+72):dagWidth,titleCenter=Math.round(sceneWidth/2-estimateTextWidth(qTitle)/2);styleRules.push(`.lini-caption { font-size: 22; font-weight: 600; color: --blue-deep; translate: ${titleCenter} -30; }`);}
+  const rootProperties=[...(circle?['layout: flow;','direction: row;',`width: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.width))+72)};`,`height: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.height))+90)};`]:dagRanks?['layout: flow;',`direction: ${direction==='LR'?'row':'column'};`,`width: ${dagWidth};`,`height: ${dagHeight};`]:layoutProperties(rootLayout,fallbackLayout,rootColumns??1,direction)),`gap: ${visual.kind==='state'?stateGap:visual.form==='entities'?88:visual.form==='stack'?44:72};`,`padding: 36;`,`fill: none;`,`stroke: none;`,`stroke-width: 0;`].filter((item):item is string=>!!item);
+  if(dagRanks)approx(path('/form'),'Pipeline with no authored layout','Renderer-owned dependency-depth ranks follow the requested presentation direction and use only authored directed non-return links; declaration order is preserved within each rank. Return links remain drawn but do not set rank. Placement adds no links and makes no concurrency claim.');
   if(rootLayout?.kind==='grid'&&rootLayout.columns===1)approx(path('/layout'),'Grid layout with one column','Lini 1.1 represents a one-column grid with native column flow; requested component order and single-column containment are preserved.');
   let children:string[]=[];
   let annotationFooter:string|undefined;
@@ -328,14 +344,23 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     if(group.tier!==undefined)omit(path('/groups/'+index+'/tier'),'Tier remains in the UMF source; Lini group rendering has no persistent tier carrier.');
     return groupDeclaration(id,labelGroup(group),props,childRows,indent);
    };
-   for(const item of rootItems){if(groups.includes(item as VisualGroup))children.push(renderGroup(item as VisualGroup));else children.push(nodeDeclaration(item as VisualNode,nodeIds.get(item.id)!,circlePosition.get(item.id)));}
+   for(const item of rootItems){if(groups.includes(item as VisualGroup))children.push(renderGroup(item as VisualGroup));else children.push(nodeDeclaration(item as VisualNode,nodeIds.get(item.id)!,circlePosition.get(item.id)??dagPosition.get(item.id)));}
    children.push(...(edgeRowsByScope.get(undefined)??[]));
    if(rootRouteKinds?.size===1){const route=rootRouteKinds.values().next().value;rootProperties.push('routing: '+(route==='curved'?'natural':'straight')+';');}else if(!rootRouteKinds&&straightRootRouting)rootProperties.push('routing: straight;');
    if(rootLayout?.kind==='flow'&&rootLayout.order)approx(path('/layout/order'),'Explicit root component order','Declarations follow the requested order; native graph layout can still route links around that order.');
-   if(visual.annotations?.length){
+  if(visual.annotations?.length||pipelineContext&&((visual.title&&visual.question!==visual.title)||visual.takeaway)){
     const footerChildren:string[]=[];
-    for(let i=0;i<visual.annotations.length;i++){
-     const annotation=visual.annotations[i]!,id=safeId('a',i),width=Math.max(180,Math.min(440,annotation.text.length*8.5+24));
+    if(pipelineContext&&visual.title&&visual.question!==visual.title){
+     const nativeId='pipeline-question-caption';add(path('/question'),path('/question'),nativeId,'annotation');
+     footerChildren.push(`|box#${nativeId}| ${quoteChecked(visual.question,path('/question'))} { width: ${Math.ceil(Math.max(360,Math.min(1000,estimateTextWidth(visual.question)+40)))}; padding: 8; fill: none; stroke: none; stroke-width: 0; font-size: 16; font-weight: 400; color: --gray-ink; }`);
+    }
+    if(pipelineContext&&visual.takeaway){
+     const nativeId='pipeline-takeaway-footer';add(path('/takeaway'),path('/takeaway'),nativeId,'annotation');
+     footerChildren.push(`|box#${nativeId}| ${quoteChecked(visual.takeaway,path('/takeaway'))} { width: ${Math.ceil(Math.max(360,Math.min(1000,estimateTextWidth(visual.takeaway)+40)))}; padding: 8; fill: none; stroke: none; stroke-width: 0; font-size: 16; font-weight: 600; color: --blue-deep; }`);
+    }
+    const annotations=visual.annotations??[];
+    for(let i=0;i<annotations.length;i++){
+     const annotation=annotations[i]!,id=safeId('a',i),width=Math.max(180,Math.min(440,annotation.text.length*8.5+24));
      add(annotation.id,path('/annotations/'+i+'/id'),id,'annotation');
      footerChildren.push(`|box#${id}| ${quoteChecked(annotation.text,path('/annotations/'+i+'/text'))} { width: ${Math.ceil(width)}; padding: 0; fill: none; stroke: none; stroke-width: 0; font-size: 16; font-weight: 400; color: --gray-ink; }`);
      approx(path('/annotations/'+i+'/text'),'Unanchored annotation placement','Lini places this exact text in a borderless native text carrier inside a renderer-owned trailing column. The source has no anchor or coordinates.');

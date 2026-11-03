@@ -106,7 +106,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  if(visual.layout?.kind==='circular'&&(visual.kind!=='flow'||visual.form!=='network'))return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/layout','Circular placement is currently qualified only for a root flow/network presentation.')]};
  if(visual.layout?.kind==='circular'&&((visual.groups?.length??0)>0||(visual.nodes??[]).some(node=>node.group||node.parent)))return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/layout','Circular placement is currently qualified only for ungrouped root flow/network nodes; no nested-layout fallback is selected.')]};
  const rich=visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree';
- const supported=visual.kind==='flow'&&visual.form==='network'
+ const supported=visual.kind==='flow'&&(visual.form==='network'||visual.form==='pipeline')
   ||visual.kind==='structure'&&(visual.form==='stack'||visual.form==='entities'||visual.form==='tree')
   ||visual.kind==='sequence'&&(visual.form==='lifelines'||visual.form==='ladder')
   ||visual.kind==='state'&&visual.form==='machine'
@@ -114,7 +114,7 @@ export function compilePresentation(document:Document,options:PresentationOption
   ||visual.kind==='timeline'&&visual.form==='roadmap'
   ||visual.kind==='comparison'&&(visual.form==='quadrant'||visual.form==='before-after')
   ||visual.kind==='metric'&&(visual.form==='meter'||visual.form==='stat'||visual.form==='bar'||visual.form==='line');
- if(!supported)return {ok:false,diagnostics:[diag('PRESENTATION_FORM',BASE+'/form','No presentation projection is qualified for '+visual.kind+'/'+visual.form+'. The current flow projection covers only network diagrams.')]};
+ if(!supported)return {ok:false,diagnostics:[diag('PRESENTATION_FORM',BASE+'/form','No presentation projection is qualified for '+visual.kind+'/'+visual.form+'.')]};
 
  const backend=optionValues.backend as PresentationBackend,dir=(optionValues.direction??'LR') as 'LR'|'TB';
  if(visual.kind==='timeline'&&visual.form==='roadmap'){
