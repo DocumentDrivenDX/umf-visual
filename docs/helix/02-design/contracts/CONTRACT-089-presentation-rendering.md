@@ -567,3 +567,25 @@ anchors and preserve profile-specific source/map checks. Negative and degenerate
 domains remain renderer policy, without a semantic maximum or invented aggregate.
 Unknown category extension content MUST remain preserved and receive located
 unknown/unsupported accounting, not newly inferred typed meaning.
+
+
+## Multi-series temporal-line presentation
+
+A bounded temporal-line profile MUST share UTC-day and raw-value scales across
+all admitted series while retaining original series/point pointers. Display
+sorting MUST NOT mutate source order or join observations by array position.
+Sparse dates remain absent readings, not zero-filled observations. A date-by-series
+table MUST bind every value to both its exact date row and its own series column.
+Repeated dates retain each original observation without aggregation, jitter or a
+selected winner. Stable source-index ties MAY order renderer guides, with no
+intra-day measurement claim; zero-length guides MAY be omitted. A single-date
+view containing multiple observations MAY use disclosed renderer-selected date
+padding without inventing readings. Core line cardinality remains authoritative;
+a singleton is a located source-form validation error, not native inability.
+
+Series identity styling is renderer policy independent of business labels. A
+global authored good-direction cue MUST NOT become inferred per-series status.
+Each guide joins adjacent dated observations only within its source series;
+visible guide disclosures and exact owned metadata remain required. Shared pure
+numeric-scale planning MUST preserve raw coordinate facts independently of
+rounded labels, with finite bounds and explicit unsupported magnitude handling.

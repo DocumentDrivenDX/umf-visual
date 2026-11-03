@@ -40,7 +40,7 @@ test('public meter compilation preserves the authored metric and maps every visi
  expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/metric'&&item.representation.includes('8% range padding'))).toBe(true);
 });
 
-test('meter projection refuses other backends and other metric forms with located diagnostics',()=>{
+test('meter projection refuses other backends while stat retains its precise temporal scope',()=>{
  for(const backend of ['graphviz','mermaid'] as const){
   const result=compile(source,backend);expect(result.ok).toBe(false);if(result.ok)continue;
   expect(result.diagnostics[0]?.code).toBe('PRESENTATION_BACKEND_SUBSET');
@@ -49,10 +49,6 @@ test('meter projection refuses other backends and other metric forms with locate
  const stat={...source,extensions:{...source.extensions,'umf.visual':{...visual,form:'stat'}}} as unknown as Document;
  const statResult=compile(stat);expect(statResult.ok).toBe(false);if(statResult.ok)return;
  expect(statResult.diagnostics).toContainEqual(expect.objectContaining({code:'PRESENTATION_LINI_STAT_SCOPE',path:'/extensions/umf.visual/metric/axis'}));
- const lineVisual={...visual,form:'line' as const,metric:{...visual.metric!,axis:{kind:'time' as const},series:[{...visual.metric!.series[0]!,points:[{at:'2026-10-01',value:1},{at:'2026-10-02',value:2}]}]}};
- const unsupportedForm={...source,extensions:{...source.extensions,'umf.visual':lineVisual}} as unknown as Document;
- const unsupportedResult=compile(unsupportedForm);expect(unsupportedResult.ok).toBe(false);if(unsupportedResult.ok)return;
- expect(unsupportedResult.diagnostics).toContainEqual(expect.objectContaining({code:'PRESENTATION_FORM',path:'/extensions/umf.visual/form'}));
 });
 
 test('optional takeaway, format, and reference owners exist exactly once in the public native source map',()=>{

@@ -6,6 +6,7 @@ import type {Document} from '@umf/core';
 import {getVisual,type Visual} from '../../src/extensions/visual';
 import type {PresentationPlan} from '../../src/presentation';
 import {utcCalendarDate,utcCalendarDay} from '../../src/presentation/calendar';
+import {niceMetricStep,planMetricNumericScale} from '../../src/presentation/numeric-scale';
 import type {PresentationQualityCheck} from './quality';
 
 type Box={x:number;y:number;width:number;height:number};
@@ -20,17 +21,9 @@ const pass=(sourceSha256:string,ok:boolean,details:string):PresentationQualityCh
 const close=(a:number,b:number,tolerance=2)=>Math.abs(a-b)<=tolerance;
 const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
 const displayNumber=(value:number,decimals:number|undefined)=>decimals===undefined?String(Object.is(value,-0)?'-0':value):decimals===0?value.toFixed(0):value.toFixed(decimals);
-const niceStep=(span:number)=>{const rough=span/5||1,power=10**Math.floor(Math.log10(rough)),fraction=rough/power;return(fraction<=1?1:fraction<=2?2:fraction<=2.5?2.5:fraction<=5?5:10)*power;};
-const stepPrecision=(step:number)=>{const exponent=Math.floor(Math.log10(step)),mantissa=step/10**exponent;return Math.max(0,-exponent+(Math.abs(mantissa-2.5)<1e-9?1:0));};
-const cleanTick=(value:number,step:number)=>{const rounded=Number(value.toFixed(stepPrecision(step)));return Object.is(rounded,-0)?0:rounded;};
-
 function nativeId(plan:PresentationPlan,kind:string,logicalId:string){return plan.elementMap.find(item=>item.kind===kind&&item.logicalId===logicalId)?.nativeId;}
 function expectedDomain(visual:Visual){
- const values=visual.metric!.series[0]!.points.map(point=>point.value),minimum=Math.min(...values),maximum=Math.max(...values),low=Math.min(minimum,0),high=Math.max(maximum,0),span=high-low;
- const step=niceStep(span||Math.max(Math.abs(high),1)),padding=(span||step)*.08;
- let min=minimum>=0?0:Math.floor((low-padding)/step)*step,max=Math.ceil((high+padding)/step)*step;
- if(min===max){min-=step;max+=step;}if(min===low&&low<0)min-=step;if(max===high&&high>0)max+=step;
- return{min,max,step};
+ return planMetricNumericScale(visual.metric!.series[0]!.points.map(point=>point.value))!;
 }
 
 /** The caller inserts the exact native Lini SVG into #frame before running this check. */
@@ -96,7 +89,7 @@ export async function verifyLiniStatPresentationQuality(page:Page,input:{documen
  for(const [suffix,reason]of [['/source','Source provenance remains in the source document and is not rendered as a measurement.'],['/audience','Audience metadata remains in the source document.'],['/steps','Walkthrough steps remain in the source and are outside this static temporal-stat plot.']] as const){const authored=suffix==='/source'?visual.source!==undefined:suffix==='/audience'?visual.audience!==undefined:visual.steps!==undefined;if(authored&&!input.plan.omissions.some(item=>item.sourcePath===at(suffix)&&item.reason===reason)){visibleOk=false;problems.push(`${suffix} metadata lacks a located retention record`);}}
  const good=metric.good?carrier('metric-stat-good'):undefined;if(metric.good&&(!good?.visible||!good.text.includes('Better: '+metric.good))){visibleOk=false;problems.push('authored good direction is not visibly owned');}
  if(metric.good&&!map('/metric/good','metric-stat-good',metric.good,'metric-reference')){visibleOk=false;problems.push('good-direction source pointer is not mapped to its visible carrier');}
- const first=dateRows[0]?.day,last=dateRows.at(-1)?.day,span=first!==undefined&&last!==undefined?last-first:0,tickStep=Math.max(1,Math.ceil(niceStep(span||1))),expectedTickDays=new Set<number>([first??0,last??0]);if(span>7&&first!==undefined&&last!==undefined)for(let day=first+tickStep;day<last;day+=tickStep)expectedTickDays.add(day);
+ const first=dateRows[0]?.day,last=dateRows.at(-1)?.day,span=first!==undefined&&last!==undefined?last-first:0,tickStep=Math.max(1,Math.ceil(niceMetricStep(span||1))),expectedTickDays=new Set<number>([first??0,last??0]);if(span>7&&first!==undefined&&last!==undefined)for(let day=first+tickStep;day<last;day+=tickStep)expectedTickDays.add(day);
  const expectedTicks=[...expectedTickDays].sort((a,b)=>a-b),actualTickLabels=dom.carriers.filter(item=>/^metric-stat-x-tick-label-\d+$/u.test(item.id)).sort((a,b)=>Number(a.id.split('-').at(-1))-Number(b.id.split('-').at(-1))),actualTickMarks=expectedTicks.map((_,index)=>line(`metric-stat-x-tick-${index+1}`));
  if(actualTickLabels.length!==expectedTicks.length||actualTickMarks.some(item=>!item)){visibleOk=false;problems.push('native date tick count does not match the integral UTC-day tick plan');}
  for(let index=0;index<Math.min(actualTickLabels.length,expectedTicks.length);index++){const day=expectedTicks[index]!,date=utcCalendarDate(day),tick=actualTickLabels[index]!,tickLine=actualTickMarks[index],expectedLabel=date?.slice(5),expectedX=first!==undefined&&last!==undefined&&last!==first?xLeft+(day-first)/(last-first)*(xRight-xLeft):(xLeft+xRight)/2;if(!date||tick.text!==expectedLabel||!tick.visible||!tickLine||!close((tick.bounds.x+tick.bounds.width/2),expectedX,3)||!close((tickLine.start.x+tickLine.end.x)/2,expectedX,2)){visibleOk=false;problems.push(`date tick ${index} does not own the exact UTC date ${date??'from the supported calendar'} at its affine x position`);}}
@@ -108,7 +101,7 @@ export async function verifyLiniStatPresentationQuality(page:Page,input:{documen
  if(dateAxisLabel&&observationsHeading&&observationsHeading.bounds.y<dateAxisLabel.bounds.y+dateAxisLabel.bounds.height+3||observationsHeading&&orderedCaptions[0]&&orderedCaptions[0].bounds.y<observationsHeading.bounds.y+observationsHeading.bounds.height+3){visibleOk=false;problems.push('date-axis, observation-list heading, and first data row overlap');}
  for(let index=1;index<orderedCaptions.length;index++){const previous=orderedCaptions[index-1]!,current=orderedCaptions[index]!,previousY=previous.bounds.y+previous.bounds.height/2,currentY=current.bounds.y+current.bounds.height/2,previousX=previous.bounds.x+previous.bounds.width/2,currentX=current.bounds.x+current.bounds.width/2;if(currentY<previousY-3||close(currentY,previousY,3)&&currentX<=previousX){visibleOk=false;problems.push(`observation captions do not follow chronological row order at ${index}`);}}
  if(dom.lines.some(item=>/^metric-stat-callout-\d+$/u.test(item.id))){visibleOk=false;problems.push('native marker callout lines cross the plot/axis reading area; point captions must remain in the separate date/value list');}
- const expectedYTicks=Array.from({length:Math.max(0,Math.round((domain.max-domain.min)/domain.step))+1},(_,index)=>cleanTick(domain.min+index*domain.step,domain.step));
+ const expectedYTicks=domain.ticks;
  const actualYLabels=dom.carriers.filter(item=>/^metric-stat-y-tick-\d+$/u.test(item.id)).sort((a,b)=>Number(a.id.split('-').at(-1))-Number(b.id.split('-').at(-1)));
  if(actualYLabels.length!==expectedYTicks.length){visibleOk=false;problems.push('native value tick count differs from the renderer-selected raw-value axis');}
  for(let index=0;index<Math.min(actualYLabels.length,expectedYTicks.length);index++){const label=actualYLabels[index]!,grid=line(`metric-stat-y-grid-${index+1}`),raw=expectedYTicks[index]!,expectedY=yBottom-(raw-domain.min)/(domain.max-domain.min)*(yBottom-yTop),labelY=label.bounds.y+label.bounds.height/2,gridY=grid?(grid.start.y+grid.end.y)/2:NaN;if(!label.visible||label.text!==displayNumber(raw,decimals)||!grid||!close(labelY,expectedY,3)||!close(gridY,expectedY,2)){visibleOk=false;problems.push(`value tick ${index} label=${JSON.stringify(label.text)} expected=${JSON.stringify(displayNumber(raw,decimals))} raw=${raw} y(label/grid/expected)=${labelY.toFixed(2)}/${gridY.toFixed(2)}/${expectedY.toFixed(2)}`);}}

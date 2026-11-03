@@ -958,6 +958,44 @@
         "sourceDownloadPath": "reviews/umf-ac-status/authoritative-source.json",
         "scope": "This exact UMF fixture JSON is the review definition. Its five category identifiers and labels, declared category order, series order, point category references, values including zero, unit, and number format are source-authored. Category labels are not interpreted as status styling or business roles. The source path and digest are locator metadata; this review does not retrieve or verify the referenced acceptance-criteria ledger, infer an aggregate, or make a current status claim."
       }
+    },
+    {
+      "id": "umf-ac-trend",
+      "title": "Acceptance criteria over time",
+      "description": "An exact review of the authored two-series date history, preserving source series and point order, shared dates, and number format.",
+      "kind": "metric",
+      "form": "line",
+      "definitionPath": "fixtures/visual/forms/umf-ac-trend.json",
+      "definitionSha256": "8f8ed01cab2c6fd07470dfe7004631429849b06123ef139b866e17e207ccc5c9",
+      "sources": [
+        {
+          "path": "fixtures/visual/forms/umf-ac-trend.json",
+          "sha256": "8f8ed01cab2c6fd07470dfe7004631429849b06123ef139b866e17e207ccc5c9",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The checked-in Visual 1.0.0 fixture JSON is the complete definition and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/forms/umf-ac-trend.json",
+          "sha256": "8f8ed01cab2c6fd07470dfe7004631429849b06123ef139b866e17e207ccc5c9",
+          "outputPath": "reviews/umf-ac-trend/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/forms/umf-ac-trend.json",
+        "sourceSha256": "8f8ed01cab2c6fd07470dfe7004631429849b06123ef139b866e17e207ccc5c9",
+        "documentId": "visual:umf-ac-trend",
+        "visualId": "umf-ac-trend",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/umf-ac-trend/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. Its two series, nine date/value points per series, source order, shared time axis, unit, global good direction, and number format are source-authored. The global `good: up` value is not interpreted as a per-series preference or ranking. The source path and digest are locator metadata; this review does not retrieve or verify the referenced acceptance-criteria ledger, derive totals or growth claims, or treat the observations as current status."
+      }
     }
   ]
 }

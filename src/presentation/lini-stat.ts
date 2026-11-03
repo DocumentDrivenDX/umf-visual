@@ -3,6 +3,7 @@
 import type {Visual} from '../extensions/visual';
 import {quoteLiniProfile} from '../interchange/lini/profile-syntax';
 import {utcCalendarDate,utcCalendarDay} from './calendar';
+import {niceMetricStep,planMetricNumericScale} from './numeric-scale';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
 
 const BASE='/extensions/umf.visual';
@@ -17,13 +18,6 @@ interface PointPlacement {sourceIndex:number;point:{at?:string;value:number};day
 // Conservative text budget for collision packing only; actual SVG text bounds
 // are measured by the native quality check before qualification.
 const estimateTextWidth=(text:string)=>Array.from(text).reduce((sum,char)=>sum+9.4*(/[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uff01-\uff60]/u.test(char)?1:/[ilI.,'`!|:;]/u.test(char)?0.42:/[MW@#%&]/u.test(char)?0.9:0.62),0);
-const niceStep=(span:number)=>{
- const rough=span/5||1,power=10**Math.floor(Math.log10(rough)),fraction=rough/power;
- const unit=fraction<=1?1:fraction<=2?2:fraction<=2.5?2.5:fraction<=5?5:10;
- return unit*power;
-};
-const stepPrecision=(step:number)=>{const exponent=Math.floor(Math.log10(step)),mantissa=step/10**exponent;return Math.max(0,-exponent+(Math.abs(mantissa-2.5)<1e-9?1:0));};
-const cleanTick=(value:number,step:number)=>{const rounded=Number(value.toFixed(stepPrecision(step)));return Object.is(rounded,-0)?0:rounded;};
 
 function validate(visual:Visual):PresentationFailure|undefined {
  if(visual.kind!=='metric'||visual.form!=='stat'||!visual.metric)return fail('PRESENTATION_LINI_STAT_SCOPE','/form','The Lini temporal-stat projection requires a metric/stat payload.');
@@ -55,13 +49,9 @@ export function compileLiniStatPresentation(visual:Visual):PresentationPlan|Pres
 
  const latest=points.at(-1)!,latestGroup=points.filter(row=>row.day===latest.day);
  const firstDay=points[0]!.day,lastDay=latest.day,plotWidth=1120,plotLeft=-plotWidth/2,plotRight=plotWidth/2,plotTop=-160,plotBottom=150,plotHeight=plotBottom-plotTop;
- const rawValues=points.map(row=>row.point.value),rawMin=Math.min(...rawValues),rawMax=Math.max(...rawValues),includeZeroMin=Math.min(rawMin,0),includeZeroMax=Math.max(rawMax,0),rawSpan=includeZeroMax-includeZeroMin,step=niceStep(rawSpan||Math.max(Math.abs(includeZeroMax),1)),padding=(rawSpan||step)*0.08;
- let axisMin=rawMin>=0?0:Math.floor((includeZeroMin-padding)/step)*step,axisMax=Math.ceil((includeZeroMax+padding)/step)*step;
- if(axisMin===axisMax){axisMin-=step;axisMax+=step;}
- if(axisMin===includeZeroMin&&includeZeroMin<0)axisMin-=step;
- if(axisMax===includeZeroMax&&includeZeroMax>0)axisMax+=step;
- if(!Number.isFinite(axisMin)||!Number.isFinite(axisMax)||!(axisMin<axisMax))return fail('PRESENTATION_LINI_STAT_SCOPE','/metric/series/0/points','Finite source observations exceed the bounded native value-axis range.');
- const tickCount=Math.max(0,Math.round((axisMax-axisMin)/step)),valueTicks=Array.from({length:tickCount+1},(_,index)=>cleanTick(axisMin+index*step,step)).filter(value=>value<=axisMax+step*1e-9);
+ const scale=planMetricNumericScale(points.map(row=>row.point.value));
+ if(!scale)return fail('PRESENTATION_LINI_STAT_SCOPE','/metric/series/0/points','Finite source observations exceed the bounded native value-axis range.');
+ const {min:axisMin,max:axisMax,step,ticks:valueTicks}=scale;
  const xFor=(day:number)=>firstDay===lastDay?0:plotLeft+(day-firstDay)/(lastDay-firstDay)*plotWidth;
  const yFor=(value:number)=>plotBottom-(value-axisMin)/(axisMax-axisMin)*plotHeight;
  const labelText=(row:typeof points[number])=>`${row.point.at} · ${displayNumber(row.point.value,decimals)} ${metric.unit}`;
@@ -100,7 +90,7 @@ export function compileLiniStatPresentation(visual:Visual):PresentationPlan|Pres
  const titleText=`Latest dated observation${latestGroup.length>1?'s':''}: ${latest.point.at} · ${latestGroup.map(row=>displayNumber(row.point.value,decimals)+' '+metric.unit).join(' / ')}`;
  const firstYear=points[0]!.point.at!.slice(0,4),lastYear=latest.point.at!.slice(0,4);
  // Date-only labels must always land on whole UTC calendar days.
- const tickStep=Math.max(1,Math.ceil(niceStep(lastDay-firstDay||1))),xTicks=new Set<number>([firstDay,lastDay]);
+ const tickStep=Math.max(1,Math.ceil(niceMetricStep(lastDay-firstDay||1))),xTicks=new Set<number>([firstDay,lastDay]);
  if(lastDay-firstDay>7)for(let day=firstDay+tickStep;day<lastDay;day+=tickStep)xTicks.add(day);
  const lines=[
   '{\n  --lini-font-family: Arial;\n  .lini-text { font-family: Arial; }\n  .lini-block { font-family: Arial; }\n}',

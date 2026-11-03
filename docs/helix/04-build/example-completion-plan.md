@@ -2044,12 +2044,71 @@ Final shared catalog/showcase UI passes on Chromium 153.0.8010.12 with no errors
 
 Final isolated full suite passes **782 tests, zero failures, 21,218 assertions
 across 124 files in 148.18 seconds** (`.cache/cycle16-full-tests.log`). All
-required gates and actual visual/model/interface audits pass. Cycle 16 is complete
-and ready for commit; the commit follows in this change and MUST precede cycle 17.
+required gates and actual visual/model/interface audits pass. Cycle 16 is committed as `fc841bd`.
 Exact Visual 1.0.0 categories/values/format/unit and historical source limits are
 unchanged. No inferred status palette, aggregate, recommendation, vocabulary
 change, strict-interchange change, host-support expansion, release or publication
 claim is introduced.
+
+### Seventeenth-cycle scope — dated multi-series lines
+
+Cycle 17 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/forms/umf-ac-trend.json`, SHA-256
+`8f8ed01cab2c6fd07470dfe7004631429849b06123ef139b866e17e207ccc5c9`.
+Preserve Visual 1.0.0 / envelope 0.10.0, IDs, two series with nine dated points
+each, exact October 2026 observations/plateaus, unit criteria, number format with
+zero decimals and global good up. No references or aggregates are authored.
+Historical source locator/digest and audience do not imply current-ledger
+verification. Global good metadata does not authorize per-series business/status
+desirability inferred from labels.
+
+Qualify a generic temporal line view with shared UTC/value scales, distinguishable
+neutral source-bound legend/styles and exact original series/point mappings.
+Every point retains date/value/series ownership; native guides stay within their
+own series and do not imply smoothing, measured intermediates, growth rates,
+causation or sums. Preserve equal-date/plateau observations and true uneven date
+spacing. Unequal series date sets must share actual UTC coordinates rather than
+index-zipping or fabricating missing values. Reuse private calendar/domain/tick
+and placement helpers where they remove duplicate fragile logic; no portable
+vocabulary or strict-interchange changes are needed.
+
+Shared metric context preserves every raw series/point/pointer without derived
+recommendations. Qualify reordered series/points, unequal date sets, coincident
+observations and legend/guide ownership controls. Replace the old valid-line
+unsupported-form test expectation with precise current scope checks while keeping
+a genuinely unsupported-form sentinel. Run affected native/corpus/review/UI,
+browser/package/full-suite gates. Commit cycle 17 before starting cycle 18.
+
+### Seventeenth-cycle closeout — 2026-11-03
+
+The bounded Lini temporal-line projection preserves shared UTC/raw-value scales,
+original series/point indexes, neutral identity legend and exact date-by-series
+readings. Sparse dates remain blank; repeated-date observations retain separate
+source-order display rows without cross-series pairing or intra-day chronology.
+Same-date guides are omitted. Valid one-series lines remain supported; public
+singletons retain the core line-cardinality validation boundary. Shared pure
+numeric-scale planning preserves stat behavior and raw precision independently
+from rounded labels. No vocabulary, strict-interchange or host capability changed.
+
+All affected native/corpus gates pass: Lini 1.1 and Graphviz 16.1 canaries;
+53 catalog items, 532 assets and 159 full pairs with zero loss/diagnostics;
+nine showcase examples with 23 qualified variants, four unsupported variants,
+69 assets and 23 SVG/PNG replays. Reviewed coverage is 16 documents with
+36 qualified variants, 12 unsupported variants, 108 assets and 36 SVG/PNG
+native replays. Public-browser coverage includes 53 fixtures/106 round trips
+and 16 reviewed definitions/32 round trips/36 plans; packed Bun/Node consumers,
+SDK/site builds, source/type checks and review/catalog/showcase UI pass.
+Chromium 153 reports no browser errors. Root approved the fresh trend PNG,
+SHA-256 `ea87ec80f49ab64577a42afb75907c03711e38c1df7f84573cb36a73c531624a`.
+
+The isolated full suite passes **802 tests, zero failures, 21,620 assertions
+across 128 files in 152.99 seconds** (`.cache/cycle17-full-tests.log`). All
+visual/model/interface/modularity audits pass, including column ownership,
+question/unit visibility and within-series guide controls. Exact Visual 1.0.0
+source and historical locator limits remain unchanged; no current-ledger,
+aggregate, causal, status-based desirability or publication claim is introduced.
+Commit follows in this change; git history is authoritative. Cycle 18 remains
+pending and may start only after cycle 17 is committed.
 
 ### Ordered cycle inventory
 
@@ -2059,7 +2118,9 @@ Cycle 5 is committed as `0a0f7c3`; cycle 6 is committed as `6b6b602`.
 Cycle 7 is committed as `498798c`; cycle 8 is committed as `b706901`.
 Cycle 9 is committed as `991a02a`; cycle 10 is committed as `2d50cc2`.
 Cycle 11 is committed as `5bcc704`; cycle 12 is committed as `fa45a72`.
-Cycle 13 is committed as `51405f3`; cycle 14 is in progress.
+Cycle 13 is committed as `51405f3`; cycle 14 is committed as `c5212bf`.
+Cycle 15 is committed as `a4f89f1`; cycle 16 is committed as `fc841bd`.
+Cycle 17 is complete and ready for commit; cycles 18–68 remain pending.
 Cycles 15–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.

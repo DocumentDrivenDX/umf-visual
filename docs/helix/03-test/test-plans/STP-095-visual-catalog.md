@@ -589,3 +589,29 @@ audits pass. Category-ID joins, exact zero rows, structural locators and shared
 raw-tick calibration qualify the bounded native bar profile without changing
 source values or inferring status semantics/aggregates. Exact Visual 1.0.0 source,
 strict interchange and historical locator limits remain unchanged.
+
+
+## Multi-series temporal-line conformance
+
+Verify shared UTC/value scales with reordered series/points, unequal date sets,
+plateaus, fractional/default precision and source immutability. Bind each exact
+value cell to its date row and source-series column; swapping columns, changing
+dates or redirecting a guide across series must fail. Inspect source-order neutral
+legend identity, every original point mapping and visible title/question/unit,
+format, global good-direction and admitted optional text carriers. Missing dates
+must remain blank. Include valid single-series and repeated-date controls retaining all original
+pointers, with no invented intra-day measurements or duplicate zero-length guides.
+A public singleton must retain the located core VISUAL_FORM_RULE boundary rather
+than become a target capability refusal.
+Shared numeric-scale extraction retains stat regressions, raw tick calibration and
+finite-domain checks; standard native fit/clipping/font/overlap remain mandatory.
+
+
+Cycle 17 closeout: isolated full suite passes 802 tests, zero failures and
+21,620 assertions across 128 files in 152.99 seconds. All native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual visual/model/interface
+checks pass. Shared UTC/raw-value scales, exact source-indexed date/series cells,
+neutral legend and within-series guide ownership qualify the bounded Lini line
+profile. Sparse/repeated dates, raw/default precision and existing stat behavior
+remain covered. Exact Visual 1.0.0 authority, core cardinality, historical locator
+limits, strict interchange and host qualification remain unchanged.

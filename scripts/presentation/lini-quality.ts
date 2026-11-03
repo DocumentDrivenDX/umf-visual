@@ -13,6 +13,7 @@ import {verifyLiniQuadrantPresentationQuality} from './lini-quadrant-quality';
 import {verifyLiniMeterPresentationQuality} from './lini-meter-quality';
 import {verifyLiniStatPresentationQuality} from './lini-stat-quality';
 import {verifyLiniBarPresentationQuality} from './lini-bar-quality';
+import {verifyLiniTrendPresentationQuality} from './lini-trend-quality';
 
 type Box={x:number;y:number;width:number;height:number};
 type Carrier={id:string;classes:string[];texts:string[];title:string;style:string;bounds:Box;containerBounds:Box;rectRadii:number[];sheetPaths:number;sheetGeometry:Array<{bounds:Box;signature:string}>;groups:string[];parentId:string|null;cells:Array<{id:string|null;text:string;bounds:Box}>};
@@ -94,6 +95,7 @@ export async function verifyLiniPresentationQuality(
  if(visual?.kind==='metric'&&visual.form==='meter')return verifyLiniMeterPresentationQuality(page,input);
  if(visual?.kind==='metric'&&visual.form==='stat')return verifyLiniStatPresentationQuality(page,input);
  if(visual?.kind==='metric'&&visual.form==='bar')return verifyLiniBarPresentationQuality(page,input);
+ if(visual?.kind==='metric'&&visual.form==='line')return verifyLiniTrendPresentationQuality(page,input);
  const nativeAst=typeof input.nativeAst==='string'?input.nativeAst:'';
  const maps=plan.elementMap;
  const requiredMapToken=(element:PresentationPlan['elementMap'][number]):string=>{

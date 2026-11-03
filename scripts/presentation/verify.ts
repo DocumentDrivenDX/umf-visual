@@ -39,6 +39,8 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
   ?['lini-native-ast','lini-native-carriers','lini-stat-events-and-date-scale']
   :visual.kind==='metric'&&visual.form==='bar'
   ?['lini-native-ast','lini-native-carriers','lini-category-bar-values-and-category-ownership']
+  :visual.kind==='metric'&&visual.form==='line'
+  ?['lini-native-ast','lini-trend-series-and-date-value-geometry']
   :visual.kind==='timeline'&&visual.form==='history'
   ?['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-timeline-events-and-date-scale','lini-entity-field-rows']
   :visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
