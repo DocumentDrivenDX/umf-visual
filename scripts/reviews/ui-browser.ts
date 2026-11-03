@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import {mkdir,readFile} from 'node:fs/promises';
 import {extname,join,resolve,sep} from 'node:path';
 import {readJsonValue} from '@umf/core';
+import {authoredFocusTargets,authoredStepListPolicy} from '../../microsite/authored-context.js';
 
 const siteRoot=resolve('dist-site'),receipt=await Bun.file(join(siteRoot,'reviews.json')).json();
 if(receipt.schemaVersion!==1||!Array.isArray(receipt.examples)||receipt.examples.length===0)throw Error('Build source-derived review presentations first.');
@@ -82,6 +83,50 @@ async function assertWidePreviewFits(page:Page,reviewId:string,backend:string):P
  const layout=await page.locator('#diagram-image').evaluate(element=>{const image=element as HTMLImageElement,frame=image.parentElement!,box=frame.getBoundingClientRect(),style=getComputedStyle(image),paddingTop=parseFloat(style.paddingTop),paddingBottom=parseFloat(style.paddingBottom),paddingLeft=parseFloat(style.paddingLeft),paddingRight=parseFloat(style.paddingRight);return{ratio:image.naturalWidth/image.naturalHeight,frameHeight:box.height,frameWidth:box.width,expectedHeight:(box.width-2-paddingLeft-paddingRight)/(image.naturalWidth/image.naturalHeight)+paddingTop+paddingBottom+2};});
  if(layout.ratio>3&&layout.frameHeight>layout.expectedHeight+8)throw Error(`${reviewId}/${backend} wide diagram is letterboxed in an unnecessarily tall preview frame: ${JSON.stringify(layout)}.`);
 }
+async function assertAuthoredContext(page:Page,review:any):Promise<void>{
+ const details=page.locator('#authored-context'),summary=details.locator(':scope > summary'),visual=review.definition?.extensions?.['umf.visual'];
+ if(!visual||typeof visual!=='object'){
+  if(await details.isVisible())throw Error(`${review.id} shows authored context without a Visual definition.`);
+  return;
+ }
+ if(await details.evaluate(element=>(element as HTMLDetailsElement).open))throw Error(`${review.id} inherited an open authored-context panel from another selection.`);
+ if(await details.getAttribute('hidden')!==null)throw Error(`${review.id} authored context is hidden despite a verified Visual definition.`);
+ await summary.focus();await page.keyboard.press('Enter');
+ if(!(await details.evaluate(element=>(element as HTMLDetailsElement).open)))throw Error(`${review.id} authored context did not open from the keyboard.`);
+ const content=page.locator('#authored-context-content'),text=await content.innerText();
+ for(const key of ['title','question','takeaway','audience'])if(typeof visual[key]==='string'){
+  if(!text.includes(visual[key])||!(await content.locator('code').allTextContents()).includes(`/extensions/umf.visual/${key}`))throw Error(`${review.id} authored ${key} is missing or has no full source pointer.`);
+ }
+ if(visual.source&&typeof visual.source==='object'){
+  for(const key of ['path','view','digest'])if(typeof visual.source[key]==='string'&&(!text.includes(visual.source[key])||!(await content.locator('code').allTextContents()).includes(`/extensions/umf.visual/source/${key}`)))throw Error(`${review.id} authored source ${key} is missing or has no full source pointer.`);
+  if(!text.includes('does not independently retrieve or verify the referenced resource'))throw Error(`${review.id} source locator is presented as externally verified.`);
+ }
+ const steps=Array.isArray(visual.steps)?visual.steps:[],items=content.locator('.authored-step-list > li');
+ if(await items.count()!==steps.length)throw Error(`${review.id} authored step count differs from its Visual payload.`);
+ const policy=authoredStepListPolicy(steps),targets=authoredFocusTargets(visual);
+ for(let stepIndex=0;stepIndex<steps.length;stepIndex++){
+  const step=steps[stepIndex],item=items.nth(stepIndex);
+  if(await item.getAttribute('data-step-id')!==step.id)throw Error(`${review.id} authored step identity/order changed at ${stepIndex}.`);
+  const isNumbered=await item.evaluate(element=>!(element as HTMLElement).classList.contains('authored-step-unordered'));
+  if(isNumbered!==policy[stepIndex]?.numbered)throw Error(`${review.id} authored step numbering does not preserve the source when policy.`);
+  if(typeof step.when==='string'&&await item.getAttribute('data-when')!==step.when)throw Error(`${review.id} authored step when value changed.`);
+  for(const field of ['title','caption','when','tag'] as const)if(typeof step[field]==='string'&&!(await item.innerText()).includes(step[field]))throw Error(`${review.id} step ${step.id} omits authored ${field}.`);
+  const focus=Array.isArray(step.focus)?step.focus:[],focusItems=item.locator('.authored-focus-list > li');
+  if(!focus.length){if(await focusItems.count()!==1||!(await focusItems.first().innerText()).includes('No focus IDs authored.'))throw Error(`${review.id} step ${step.id} empty focus state is not explicit.`);continue;}
+  if(await focusItems.count()!==focus.length)throw Error(`${review.id} step ${step.id} focus reference count changed.`);
+  for(let focusIndex=0;focusIndex<focus.length;focusIndex++){
+   const id=focus[focusIndex],focusItem=focusItems.nth(focusIndex),candidate=targets.get(id)||[];
+   if(await focusItem.getAttribute('data-focus-id')!==id||!(await focusItem.innerText()).includes(`/extensions/umf.visual/steps/${stepIndex}/focus/${focusIndex}`))throw Error(`${review.id} step ${step.id} focus pointer/identity changed.`);
+   if(!candidate.length){if(!(await focusItem.innerText()).includes('Unresolved focus ID'))throw Error(`${review.id} unresolved focus ${id} was dropped or guessed.`);}
+   else for(const target of candidate){
+    const targetRows=focusItem.locator('.authored-focus-targets > li'),rows=await targetRows.allInnerTexts();
+    if(!rows.some(row=>row.includes(target.kind)&&row.includes(target.label)&&row.includes(target.sourcePath)))throw Error(`${review.id} focus ${id} lost typed target ${target.kind} at ${target.sourcePath}.`);
+   }
+  }
+ }
+ await summary.focus();await page.keyboard.press('Enter');
+ if(await details.evaluate(element=>(element as HTMLDetailsElement).open))throw Error(`${review.id} authored context did not close from the keyboard.`);
+}
 function expectedRenderingNoteGroups(row:any){
  const entries=[...(Array.isArray(row.omissions)?row.omissions.map((note:any)=>({label:'Omission',note})):[]),...(Array.isArray(row.approximations)?row.approximations.map((note:any)=>({label:'Native representation',note})):[])],groups=new Map<string,{label:string;note:unknown;sourcePaths:string[]}>();
  for(const entry of entries){const note=entry.note,sourcePath=note&&typeof note==='object'&&!Array.isArray(note)&&typeof note.sourcePath==='string'?note.sourcePath:undefined,content=note&&typeof note==='object'&&!Array.isArray(note)?Object.fromEntries(Object.entries(note).filter(([key])=>key!=='sourcePath')):note,key=JSON.stringify([entry.label,content]);if(!groups.has(key))groups.set(key,{label:entry.label,note:content,sourcePaths:[]});if(sourcePath)groups.get(key)!.sourcePaths.push(sourcePath);}
@@ -128,6 +173,7 @@ const browser=await chromium.launch({headless:true}),errors:string[]=[],checks:s
 await mkdir('.cache',{recursive:true});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000},acceptDownloads:true});page.on('pageerror',e=>errors.push(String(e)));
+ let contextModuleLoaded=false;page.on('response',response=>{if(new URL(response.url()).pathname.endsWith('/authored-context.js'))contextModuleLoaded=response.ok();});
  await page.addInitScript(()=>{const original=URL.revokeObjectURL.bind(URL);(window as any).__revokedBlobUrls=[];URL.revokeObjectURL=(url:string)=>{(window as any).__revokedBlobUrls.push(url);original(url);};});
  await page.route('https://umf-review.local/**',async route=>{
   const url=new URL(route.request().url()),pathname=decodeURIComponent(url.pathname);
@@ -141,6 +187,7 @@ try{
  });
  const first=reviews[0];
  await page.goto(`https://umf-review.local/reviews.html?review=${encodeURIComponent(first.id)}`,{waitUntil:'networkidle'});
+ if(!contextModuleLoaded)throw Error('The reviews page did not load its packaged authored-context ES module.');
  await page.locator('#scenario-list .scenario-button').first().waitFor();
  if(await page.locator('#scenario-list .scenario-button').count()!==uiReviews.length)throw Error('Review selector count differs from the review source manifest plus its browser-only race fixture.');
  if(new URL(page.url()).pathname!=='/reviews.html'||new URL(page.url()).searchParams.get('review')!==first.id)throw Error('Review deep link did not select the requested reviewed document.');
@@ -164,7 +211,7 @@ try{
   if(sha(raceDownload.bytes)!==raceCapture.captureSha256)throw Error('A delayed prior review revoked or replaced the selected capture download.');
   const captureUrlBeforeBackendChange=await page.locator('#historical-capture-download').getAttribute('href');
   await page.locator('[data-backend="mermaid"]').click();
-  await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'||document.querySelector('#diagram-status')?.textContent?.includes('No qualified Mermaid')===true,undefined,{timeout:30000});
+  await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'||document.querySelector('#diagram-status')?.classList.contains('error')===true,undefined,{timeout:30000});
   if(await page.locator('#historical-capture-download').getAttribute('href')!==captureUrlBeforeBackendChange)throw Error('Changing render backend replaced the still-current historical capture URL.');
   await assertHistoricalImageFits(page,raceCapture.integrationCaseId);
   const captureAfterBackendChange=await downloadBytes(page,'#historical-capture-download',`.cache/review-${first.id}-after-backend-change${extname(raceCapture.capturePath)}`);
@@ -175,11 +222,42 @@ try{
  includeRaceProbe=false;
  await page.locator('[data-example-id="race-probe"]').evaluate(element=>element.remove());
 
+ const stepReview=reviews.find((candidate:any)=>(candidate.definition?.extensions?.['umf.visual']?.steps?.length??0)>0);
+ if(stepReview){
+  const disclosure=page.locator('#authored-context'),summary=disclosure.locator(':scope > summary');
+  await page.locator(`[data-example-id="${stepReview.id}"]`).click();
+  await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,stepReview.title,{timeout:30000});
+  const stepLini=stepReview.renders.find((render:any)=>render.backend==='lini'&&render.status==='qualified');
+  if(!stepLini)throw Error('The authored walkthrough review has no qualified Lini backend for reset coverage.');
+  await page.locator('[data-backend="lini"]').click();
+  await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false',undefined,{timeout:30000});
+  if(await page.locator('[data-backend="lini"]').getAttribute('aria-pressed')!=='true')throw Error('The walkthrough scene did not switch to its qualified Lini backend.');
+  await assertAuthoredContext(page,stepReview);
+  await summary.focus();await page.keyboard.press('Enter');
+  await page.locator('[data-backend="mermaid"]').click();
+  await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'||document.querySelector('#diagram-status')?.classList.contains('error')===true,undefined,{timeout:30000});
+  if(await page.locator('[data-backend="mermaid"]').getAttribute('aria-pressed')!=='true')throw Error('The walkthrough scene did not switch to the selected Mermaid backend.');
+  if(await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))throw Error('Changing backend did not collapse the authored walkthrough.');
+  const other=reviews.find((candidate:any)=>candidate.id!==stepReview.id&&candidate.definition?.extensions?.['umf.visual']);
+  if(other){
+   await summary.focus();await page.keyboard.press('Enter');
+   await page.locator(`[data-example-id="${other.id}"]`).click();
+   await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,other.title,{timeout:30000});
+   if(await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))throw Error('Changing review selection did not collapse the authored walkthrough.');
+   const otherVisual=other.definition.extensions?.['umf.visual'],otherContext=await page.locator('#authored-context-content').textContent()??'';
+   if(typeof otherVisual.question==='string'&&!otherContext.includes(otherVisual.question))throw Error('Changing review selection left stale authored context.');
+   await page.locator(`[data-example-id="${first.id}"]`).click();
+   await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,first.title,{timeout:30000});
+  }
+  checks.push('authored walkthrough keyboard, typed focus, backend reset, and scene reset are verified');
+ }
+
  for(const review of reviews){
   if(review.id!==first.id)await page.locator(`[data-example-id="${review.id}"]`).click();
   await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,review.title,{timeout:30000});
   if(await page.locator('#diagram-title').innerText()!==review.title)throw Error(`${review.id} selection did not show its title.`);
   if(new URL(page.url()).searchParams.get('review')!==review.id)throw Error(`${review.id} selection did not update its deep link.`);
+  await assertAuthoredContext(page,review);
   const yaml=await page.locator('#visual-payload').innerText(),parsed=readJsonValue(yaml,'yaml');
   if(yaml!==review.visualPayloadYaml||JSON.stringify(parsed)!==JSON.stringify(review.definition.extensions['umf.visual']))throw Error(`${review.id} visible YAML differs from its exact UMF payload.`);
   await page.locator('#copy-payload').click();if(await page.evaluate(()=>navigator.clipboard.readText())!==yaml)throw Error(`${review.id} payload copy differs from its exact visible YAML.`);
@@ -299,9 +377,9 @@ try{
  checks.push('corrupt rendered assets fail hash verification and disable stale downloads');
 
  await page.setViewportSize({width:375,height:812});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
- for(const selector of ['#source-details','#review-evidence-disclosure','#rendering-notes']){const disclosure=page.locator(selector);if(await disclosure.count())await disclosure.evaluate(element=>{(element as HTMLDetailsElement).open=true;});}
+ for(const selector of ['#source-details','#review-evidence-disclosure','#authored-context','#rendering-notes']){const disclosure=page.locator(selector);if(await disclosure.count())await disclosure.evaluate(element=>{(element as HTMLDetailsElement).open=true;});}
  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Expanded review source/evidence panels cause horizontal page overflow at 375px.');
- for(const selector of ['#source-details','#review-evidence-disclosure','#rendering-notes']){const disclosure=page.locator(selector);if(await disclosure.count()&&await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))await disclosure.evaluate(element=>{(element as HTMLDetailsElement).open=false;});}
+ for(const selector of ['#source-details','#review-evidence-disclosure','#authored-context','#rendering-notes']){const disclosure=page.locator(selector);if(await disclosure.count()&&await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))await disclosure.evaluate(element=>{(element as HTMLDetailsElement).open=false;});}
  await page.setViewportSize({width:1440,height:1000});
  const alternateBackend=probe.renders.find((item:any)=>item.status==='qualified'&&item.backend!=='graphviz');
  const nextReview=reviews.find((review:any)=>review.id!==probe.id&&review.renders?.some((item:any)=>item.backend==='graphviz'&&item.status==='qualified'));

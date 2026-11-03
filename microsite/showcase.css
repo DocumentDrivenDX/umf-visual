@@ -63,6 +63,25 @@
 .execution-provenance{display:grid;gap:6px;padding:10px 12px;border-bottom:1px solid #ffffff24;background:#ffffff08;color:#bdcbc3;font-size:10px;line-height:1.5}
 .execution-provenance code{font:10px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#e1e9e3;overflow-wrap:anywhere;white-space:pre-wrap}
 .execution-provenance[hidden]{display:none}
+.authored-context-content{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:24px;padding:18px 0 20px;color:#dce8df;font-size:11px;line-height:1.55}
+.authored-context-content section{min-width:0}
+.authored-context-content h5{margin:0 0 12px;color:#f5f5ef;font-size:13px;font-weight:650}
+.authored-context-metadata dl{display:grid;grid-template-columns:minmax(84px,.28fr) minmax(0,1fr);gap:8px 14px;margin:0}
+.authored-context-metadata dt{color:#aebeb5;font-weight:600}
+.authored-context-metadata dd{display:grid;gap:3px;min-width:0;margin:0;color:#eff1ed;overflow-wrap:anywhere}
+.authored-context-content code{color:#e9ad8c;font:9px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere;word-break:break-word}
+.authored-source-locator-note{margin:12px 0 0;color:#aebeb5;font-size:10px;line-height:1.5}
+.authored-step-list{margin:0;padding:0 0 0 24px;display:grid;gap:12px}
+.authored-step{padding-left:3px}
+.authored-step-unordered{list-style:none;margin-left:-24px;padding-left:3px}
+.authored-step h6{margin:0 0 4px;color:#f5f5ef;font-size:11px;font-weight:650}
+.authored-step p{margin:3px 0;color:#bdcbc3;font-size:10px}
+.authored-focus-list{display:grid;gap:5px;margin:5px 0 0;padding:0;list-style:none}
+.authored-focus-list>li{min-width:0;color:#dce8df;overflow-wrap:anywhere}
+.authored-focus-targets{display:grid;gap:3px;margin:5px 0 0;padding:0 0 0 14px;list-style:disc}
+.authored-focus-targets li{min-width:0;overflow-wrap:anywhere}
+.authored-focus-kind{color:#aebeb5;font-size:9px;text-transform:uppercase;letter-spacing:.04em}
+@media(max-width:720px){.authored-context-content{grid-template-columns:minmax(0,1fr);gap:20px}.authored-context-metadata dl{grid-template-columns:82px minmax(0,1fr)}.authored-step-list{padding-left:21px}.authored-step-unordered{margin-left:-21px}}
 .rendering-note-sources{grid-column:1/-1;margin-top:3px}
 .rendering-note-sources>summary{padding:4px 0;color:#9eb2a7;font:9px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer}
 .rendering-note-sources ul{display:grid;gap:3px;margin:0;padding:2px 0 6px 12px;list-style:none}

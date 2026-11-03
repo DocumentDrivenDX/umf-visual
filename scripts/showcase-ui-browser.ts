@@ -3,6 +3,7 @@ import {createHash} from 'node:crypto';
 import {mkdir} from 'node:fs/promises';
 import {extname,join,resolve,sep} from 'node:path';
 import {readJsonValue} from '@umf/core';
+import {authoredFocusTargets,authoredStepListPolicy} from '../microsite/authored-context.js';
 
 const siteRoot=resolve('dist-site');
 const showcase=await Bun.file(join(siteRoot,'showcase.json')).json() as {schemaVersion:number;examples:Array<any>};
@@ -10,6 +11,34 @@ if(showcase.schemaVersion!==1||showcase.examples.length===0)throw new Error('Bui
 const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
 const browser=await chromium.launch({headless:true});
 const errors:string[]=[];const checks:string[]=[];
+async function assertAuthoredContext(page:import('playwright').Page,example:any):Promise<void>{
+  const details=page.locator('#authored-context'),summary=details.locator(':scope > summary'),visual=example.definition?.extensions?.['umf.visual'];
+  if(!visual||typeof visual!=='object'){if(await details.isVisible())throw new Error(`${example.id} shows authored context without a Visual payload.`);return;}
+  if(await details.evaluate(element=>(element as HTMLDetailsElement).open))throw new Error(`${example.id} inherited an open authored-context panel from a previous selection.`);
+  await summary.focus();await page.keyboard.press('Enter');
+  if(!(await details.evaluate(element=>(element as HTMLDetailsElement).open)))throw new Error(`${example.id} authored context does not open from the keyboard.`);
+  const content=page.locator('#authored-context-content'),text=await content.innerText();
+  for(const key of ['title','question','takeaway','audience'])if(typeof visual[key]==='string'&&(!text.includes(visual[key])||!(await content.locator('code').allTextContents()).includes(`/extensions/umf.visual/${key}`)))throw new Error(`${example.id} authored ${key} is missing or lacks its full source pointer.`);
+  if(visual.source&&typeof visual.source==='object')for(const key of ['path','view','digest'])if(typeof visual.source[key]==='string'&&(!text.includes(visual.source[key])||!(await content.locator('code').allTextContents()).includes(`/extensions/umf.visual/source/${key}`)))throw new Error(`${example.id} authored source ${key} is missing or lacks its full source pointer.`);
+  const steps=Array.isArray(visual.steps)?visual.steps:[],items=content.locator('.authored-step-list > li'),policy=authoredStepListPolicy(steps),targets=authoredFocusTargets(visual);
+  if(await items.count()!==steps.length)throw new Error(`${example.id} authored step list differs from its Visual payload.`);
+  for(let i=0;i<steps.length;i++){
+    const step=steps[i],item=items.nth(i),unordered=await item.evaluate(element=>(element as HTMLElement).classList.contains('authored-step-unordered'));
+    if(await item.getAttribute('data-step-id')!==step.id||unordered===policy[i]?.numbered)throw new Error(`${example.id} authored step identity, order, or numbering changed.`);
+    for(const field of ['title','caption','when','tag'] as const)if(typeof step[field]==='string'&&!(await item.innerText()).includes(step[field]))throw new Error(`${example.id} step ${step.id} omits authored ${field}.`);
+    const focus=Array.isArray(step.focus)?step.focus:[],focusItems=item.locator('.authored-focus-list > li');
+    if(!focus.length){if(await focusItems.count()!==1||!(await focusItems.first().innerText()).includes('No focus IDs authored.'))throw new Error(`${example.id} step ${step.id} empty focus state is not explicit.`);continue;}
+    if(await focusItems.count()!==focus.length)throw new Error(`${example.id} step ${step.id} focus IDs changed.`);
+    for(let j=0;j<focus.length;j++){
+      const id=focus[j],focusItem=focusItems.nth(j),matches=targets.get(id)||[];
+      if(await focusItem.getAttribute('data-focus-id')!==id||!(await focusItem.innerText()).includes(`/extensions/umf.visual/steps/${i}/focus/${j}`))throw new Error(`${example.id} step ${step.id} focus path/identity changed.`);
+      if(!matches.length){if(!(await focusItem.innerText()).includes('Unresolved focus ID'))throw new Error(`${example.id} unresolved focus ${id} was guessed or hidden.`);}
+      else for(const target of matches){const rows=await focusItem.locator('.authored-focus-targets > li').allInnerTexts();if(!rows.some(row=>row.includes(target.kind)&&row.includes(target.label)&&row.includes(target.sourcePath)))throw new Error(`${example.id} focus ${id} target ${target.kind} was not shown.`);}
+    }
+  }
+  await summary.focus();await page.keyboard.press('Enter');
+  if(await details.evaluate(element=>(element as HTMLDetailsElement).open))throw new Error(`${example.id} authored context does not close from the keyboard.`);
+}
 async function exerciseViewerZoom(page:import('playwright').Page,expectedSvgSha256:string,selectionChanges:Array<()=>Promise<void>>):Promise<void>{
   const viewer=page.locator('#diagram-viewer'),frame=page.locator('#viewer-image-frame'),image=page.locator('#viewer-image'),level=page.locator('#viewer-zoom-level');
   await page.locator('#enlarge-diagram').click();
@@ -67,6 +96,7 @@ await mkdir('.cache',{recursive:true});
 try{
   const page=await browser.newPage({viewport:{width:1440,height:1050},acceptDownloads:true});
   page.on('pageerror',error=>errors.push(String(error)));
+  let contextModuleLoaded=false;page.on('response',response=>{if(new URL(response.url()).pathname.endsWith('/authored-context.js'))contextModuleLoaded=response.ok();});
   await page.route('https://umf.local/**',async route=>{
     let pathname:string;
     try{pathname=decodeURIComponent(new URL(route.request().url()).pathname);}catch{await route.fulfill({status:400,body:'Invalid path'});return;}
@@ -76,6 +106,7 @@ try{
     await route.fulfill({status:200,body:Buffer.from(await file.arrayBuffer()),contentType:mime[extname(filePath)]||'application/octet-stream',headers:{'cache-control':'no-store'}});
   });
   await page.goto('https://umf.local/',{waitUntil:'networkidle'});
+  if(!contextModuleLoaded)throw new Error('The homepage did not load its packaged authored-context ES module.');
   await page.locator('#scenario-list .scenario-button').first().waitFor();
   if(await page.locator('#scenario-list .scenario-button').count()!==showcase.examples.length)throw new Error('The homepage scenario list differs from the curated source manifest.');
   await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false);
@@ -132,6 +163,17 @@ try{
     if(visibleYaml!==example.visualPayloadYaml||JSON.stringify(visiblePayload)!==JSON.stringify(example.definition.extensions?.['umf.visual']))throw new Error(`Scenario ${example.id} YAML does not parse to its exact umf.visual payload.`);
     await page.locator('#copy-payload').click();
     if(await page.evaluate(()=>navigator.clipboard.readText())!==visibleYaml)throw new Error(`Scenario ${example.id} does not copy its exact YAML payload.`);
+    await assertAuthoredContext(page,example);
+    if(index===0){
+      const context=page.locator('#authored-context'),summary=context.locator(':scope > summary');
+      await summary.focus();await page.keyboard.press('Enter');
+      const currentBackend=await page.locator('#backend-options [aria-pressed="true"]').getAttribute('data-backend');
+      const resetBackend=example.renders.find((render:any)=>render.status==='qualified'&&render.backend!==currentBackend)?.backend;
+      if(!resetBackend)throw new Error('The first showcase example has no alternate qualified backend for context-reset coverage.');
+      await page.locator(`[data-backend="${resetBackend}"]`).click();
+      if(await page.locator(`[data-backend="${resetBackend}"]`).getAttribute('aria-pressed')!=='true')throw new Error('The context reset probe did not switch to an alternate backend.');
+      if(await context.evaluate(element=>(element as HTMLDetailsElement).open))throw new Error('Changing backend did not collapse the authored-context panel.');
+    }
     if(await page.locator('#visual-version').innerText()!==String(example.definition.vocabularies?.['umf.visual']?.version))throw new Error(`Scenario ${example.id} shows the wrong umf.visual version.`);
     for(const backend of ['lini','graphviz','mermaid']){
       const button=page.locator(`[data-backend="${backend}"]`);
@@ -166,6 +208,16 @@ try{
         const actualHash=await page.evaluate(async url=>{const response=await fetch(url);const bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');},href);
         if(actualHash!==hash)throw new Error(`${example.id}/${backend} ${label} download link bytes differ from its verified receipt.`);
       }
+    }
+    if(index===0&&showcase.examples.length>1){
+      const context=page.locator('#authored-context'),summary=context.locator(':scope > summary');
+      await summary.focus();await page.keyboard.press('Enter');
+      await selected.nth(1).click();
+      const next=showcase.examples[1];
+      if(await context.evaluate(element=>(element as HTMLDetailsElement).open))throw new Error('Changing scenario did not collapse the authored-context panel.');
+      const nextVisual=next.definition?.extensions?.['umf.visual'],contextText=await page.locator('#authored-context-content').textContent()??'';
+      if(typeof nextVisual?.question==='string'&&!contextText.includes(nextVisual.question))throw new Error('Changing scenario left stale authored context instead of the new question.');
+      await selected.nth(0).click();
     }
   }
   checks.push('all available native renderers are selected per scenario; unavailable choices clear stale previews and downloads');
@@ -244,9 +296,10 @@ try{
   if(showcase.examples.length>1)resetSelections.push(async()=>{await selected.nth(1).click();await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');});
   await page.setViewportSize({width:375,height:812});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   await page.locator('#source-details').evaluate(element=>{(element as HTMLDetailsElement).open=true;});
+  await page.locator('#authored-context').evaluate(element=>{(element as HTMLDetailsElement).open=true;});
   if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw new Error('Expanded source inspection causes horizontal page overflow at 375px.');
   await page.locator('#source-details').evaluate(element=>{(element as HTMLDetailsElement).open=false;});
-  for(const selector of ['#source-details','#rendering-notes']){const disclosure=page.locator(selector);if(await disclosure.count()&&await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))await disclosure.evaluate(element=>{(element as HTMLDetailsElement).open=false;});}
+  for(const selector of ['#source-details','#authored-context','#rendering-notes']){const disclosure=page.locator(selector);if(await disclosure.count()&&await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))await disclosure.evaluate(element=>{(element as HTMLDetailsElement).open=false;});}
   await page.setViewportSize({width:1440,height:1050});
   await exerciseViewerZoom(page,selectedReceipt.svgSha256,resetSelections);
   checks.push('enlarged diagram supports Fit/100%, bounded 25% zoom, keyboard controls, a focusable scroll viewport, reset after scene/backend changes, and preserves the SVG hash');

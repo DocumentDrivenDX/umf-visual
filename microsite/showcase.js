@@ -1,3 +1,5 @@
+import {authoredFocusTargets,authoredStepListPolicy} from './authored-context.js';
+
 const $ = id => document.getElementById(id);
 const ui = {
   scenarioList: $('scenario-list'), state: $('diagram-status'), image: $('diagram-image'), title: $('diagram-title'),
@@ -13,7 +15,7 @@ const ui = {
   viewerCaption: $('viewer-caption'), viewerSvg: $('viewer-svg-download'),
   caveat: $('render-caveat'), renderNotes: $('rendering-notes'), renderNotesList: $('rendering-notes-list'),
   payload: $('visual-payload'), visualVersion: $('visual-version'), programmaticCode: $('programmatic-code'),
-  compileTargetNote: $('compile-target-note'),
+  compileTargetNote: $('compile-target-note'), authoredContext: $('authored-context'), authoredContextContent: $('authored-context-content'),
 };
 const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, historicalToken: 0, historicalUrl: null, historicalResizeObserver: null, objectUrls: new Set(), renderUrls: new Set(), currentVariant: null, currentImageUrl: null, viewerMode:'fit',viewerScale:1};
 const HASH = /^[a-f0-9]{64}$/i;
@@ -391,6 +393,89 @@ export function editAndCompile(payload: Visual) {
 }`;
 }
 
+function renderAuthoredContext(example) {
+  const disclosure = ui.authoredContext, content = ui.authoredContextContent;
+  if (!disclosure || !content) return;
+  content.replaceChildren();
+  disclosure.open = false;
+  const visual = example?.definition?.extensions?.['umf.visual'];
+  if (!visual || typeof visual !== 'object') { disclosure.hidden = true; return; }
+  disclosure.hidden = false;
+  const metadata = document.createElement('section');
+  metadata.className = 'authored-context-metadata';
+  const contextTitle = document.createElement('h5'); contextTitle.textContent = 'Authored context'; metadata.append(contextTitle);
+  const rows = [];
+  for (const [key, label] of [['title','Title'],['question','Question'],['takeaway','Takeaway'],['audience','Audience']]) {
+    if (typeof visual[key] === 'string') rows.push({label, path:`/extensions/umf.visual/${key}`, value:visual[key]});
+  }
+  const source = visual.source;
+  if (source && typeof source === 'object') {
+    for (const [key, label] of [['path','Source path'],['view','Source view'],['digest','Source digest']]) {
+      if (typeof source[key] === 'string') rows.push({label, path:`/extensions/umf.visual/source/${key}`, value:source[key]});
+    }
+  }
+  const definitionList = document.createElement('dl');
+  for (const row of rows) {
+    const term = document.createElement('dt'); term.textContent = row.label;
+    const value = document.createElement('dd'); const text = document.createElement('span'); text.textContent = row.value;
+    const pointer = document.createElement('code'); pointer.textContent = row.path;
+    value.append(text, pointer); definitionList.append(term, value);
+  }
+  metadata.append(definitionList);
+  if (source && typeof source === 'object') {
+    const locatorNote = document.createElement('p'); locatorNote.className = 'authored-source-locator-note';
+    locatorNote.textContent = 'The source locator and digest are authored metadata; this view does not independently retrieve or verify the referenced resource.';
+    metadata.append(locatorNote);
+  }
+  content.append(metadata);
+
+  const steps = Array.isArray(visual.steps) ? visual.steps : [];
+  const walkthrough = document.createElement('section'); walkthrough.className = 'authored-walkthrough';
+  const walkthroughTitle = document.createElement('h5'); walkthroughTitle.textContent = 'Authored steps and focus'; walkthrough.append(walkthroughTitle);
+  if (!steps.length) {
+    const empty = document.createElement('p'); empty.textContent = 'No authored walkthrough steps.'; walkthrough.append(empty);
+  } else {
+    const targets = authoredFocusTargets(visual), ordered = document.createElement('ol'); ordered.className = 'authored-step-list';
+    const stepPolicy = authoredStepListPolicy(steps);
+    steps.forEach((step, stepIndex) => {
+      const policy = stepPolicy[stepIndex], item = document.createElement('li');
+      item.className = policy?.numbered ? 'authored-step' : 'authored-step authored-step-unordered'; item.value = policy?.listValue ?? stepIndex + 1;
+      item.dataset.stepId = safeText(step.id); if (typeof step.when === 'string') item.dataset.when = step.when;
+      const heading = document.createElement('h6');
+      heading.append(document.createTextNode(`${safeText(step.id)} · ${safeText(step.title)}`)); item.append(heading);
+      const stepMeta = [];
+      if (typeof step.caption === 'string') stepMeta.push({label:'Caption',value:step.caption});
+      if (typeof step.when === 'string') stepMeta.push({label:'When',value:step.when});
+      if (typeof step.tag === 'string') stepMeta.push({label:'Tag',value:step.tag});
+      for (const meta of stepMeta) { const line = document.createElement('p'); const label = document.createElement('strong'); label.textContent = `${meta.label}: `; line.append(label, document.createTextNode(meta.value)); item.append(line); }
+      const focus = Array.isArray(step.focus) ? step.focus : [], focusList = document.createElement('ul'); focusList.className = 'authored-focus-list';
+      if (!focus.length) { const empty = document.createElement('li'); empty.textContent = 'No focus IDs authored.'; focusList.append(empty); }
+      focus.forEach((id, focusIndex) => {
+        const focusItem = document.createElement('li'); focusItem.dataset.focusId = safeText(id);
+        const focusPointer = document.createElement('code'); focusPointer.textContent = `/extensions/umf.visual/steps/${stepIndex}/focus/${focusIndex}`;
+        const idCode = document.createElement('code'); idCode.textContent = safeText(id);
+        const matches = targets.get(id) || [];
+        focusItem.append(idCode, document.createTextNode(' · '));
+        if (!matches.length) focusItem.append(document.createTextNode('Unresolved focus ID; no matching typed item is present in this visual payload. '));
+        else {
+          const targetList = document.createElement('ul'); targetList.className = 'authored-focus-targets';
+          for (const target of matches) {
+            const targetItem = document.createElement('li'), type = document.createElement('span'), label = document.createElement('span'), targetPath = document.createElement('code');
+            type.className = 'authored-focus-kind'; type.textContent = target.kind;
+            label.textContent = target.label; targetPath.textContent = target.sourcePath;
+            targetItem.append(type, document.createTextNode(' · '), label, document.createTextNode(' · '), targetPath); targetList.append(targetItem);
+          }
+          focusItem.append(targetList);
+        }
+        focusItem.append(focusPointer); focusList.append(focusItem);
+      });
+      item.append(focusList); ordered.append(item);
+    });
+    walkthrough.append(ordered);
+  }
+  content.append(walkthrough);
+}
+
 async function loadVerifiedAsset(path, expectedHash) {
   const extension = typeof path === 'string' ? /\.(svg|png|jpe?g|json)$/i.exec(path)?.[0].toLowerCase() : '';
   if (!extension || !safeAssetPath(path, extension)) throw new Error('Asset path is outside the configured presentation namespace');
@@ -448,7 +533,7 @@ function clearRenderUrls() {
 
 async function renderSelected() {
   const example = getExample(state.selectedId);
-  if (!example) return;
+  if (!example) { renderAuthoredContext(undefined); return; }
   const token = ++state.renderToken;
   clearRenderUrls();
   state.viewerMode='fit';state.viewerScale=1;ui.viewerZoomLevel.textContent='Fit';
@@ -458,6 +543,7 @@ async function renderSelected() {
   ui.description.textContent = safeText(example.description);
   ui.kicker.textContent = `${safeText(example.kind).toUpperCase()} / ${safeText(example.form).toUpperCase()}`;
   renderAuthoredPayload(example);
+  renderAuthoredContext(example);
   const visualVersion = example.definition?.vocabularies?.['umf.visual']?.version;
   ui.sourceNote.textContent = typeof visualVersion === 'string'
     ? `umf.visual ${visualVersion} · sourced definition`

@@ -474,3 +474,29 @@ pass. Exact G/L date geometry, same-date ownership and the visible categorical
 Mermaid ledger qualify their bounded profiles; all Lini base checks remain
 required. The exact Visual 1.0.0 authority and historical locator limits are
 unchanged, without vocabulary or host-support expansion.
+
+
+## Sequence adaptation and authored-context checks
+
+Verify disclosed ladder/lifelines adaptation, native title containment and exact
+participant/message order, endpoints and kinds. Inspect owned detail/role/status
+cells in both native structure and actual SVG; independently mutate text or
+move a cell to another participant and require failure. Recheck process-role
+conventions and other sequence shape/note/frame profiles after shared carrier
+changes. Assert actual SVG has no unrequested activation intervals.
+
+Shared context tests must cover the validator's global focus declaration universe,
+full source pointers, explicit unresolved/ambiguous targets, exclusion of local
+fields/ports, and numbering unaffected by when/tag steps. Verify exact authored
+metadata and ordered focus lists on both pages, without a native highlighting
+claim. Check scene/backend refresh, digest-versioned shared helper deployment,
+expanded mobile bounds and unchanged source/download hashes.
+
+Cycle 12 closeout: quiet full suite passes 720 tests, zero failures and 20,440
+assertions across 110 files in 152.09 seconds. All native/corpus/review/shared UI,
+public-browser, packed-consumer, source/type/build and actual visual/interface
+audits pass. Evidence qualifies owned participant metadata, suppressed native
+activation, disclosed ladder/lifelines adaptation and read-only authored-context
+inspection. Exact Visual 1.0.0 source and historical locator limits remain
+unchanged; unsupported backends remain explicit, without vocabulary or host
+support expansion.

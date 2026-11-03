@@ -383,3 +383,18 @@ scrolling; long source references and hashes MAY wrap without changing their
 content. Expanded source disclosures and enlarged diagrams MUST NOT force the
 whole page beyond the viewport. These are shared inspection requirements, not
 portable vocabulary fields or new native-renderer qualification claims.
+
+
+## Authored context and walkthrough inspection
+
+Shared inspection MAY expose a read-only authored-context disclosure with exact
+question, takeaway, audience and source locator metadata. A locator/digest MUST
+NOT imply retrieval or independent verification of its referenced resource.
+Walkthrough inspection MUST preserve authored step titles, captions, when/tag
+values and focus IDs; only absent-when steps receive sequential numbering.
+Resolve focus through the Visual global declaration namespace to typed labels
+and full document JSON pointers, excluding locally scoped field/port identities.
+Unresolved or ambiguous targets MUST remain explicit rather than selecting a
+convenient match. Scene/backend changes refresh the disclosure from the current
+definition. This source inspection makes no native highlighting/activation claim,
+and MUST preserve exact source/download bytes and narrow-viewport access.

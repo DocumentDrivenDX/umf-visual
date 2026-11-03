@@ -12,6 +12,7 @@ const fail=(code:string,sourcePath:string,message:string):PresentationFailure=>(
 const id=(prefix:string,index:number)=>prefix+(index+1);
 const orderBy=<T extends {id:string}>(rows:T[],order?:string[])=>order?rows.map((item,index)=>({item,index})).sort((a,b)=>(order.indexOf(a.item.id)<0?Number.MAX_SAFE_INTEGER:order.indexOf(a.item.id))-(order.indexOf(b.item.id)<0?Number.MAX_SAFE_INTEGER:order.indexOf(b.item.id))||a.index-b.index).map(row=>row.item):rows;
 const quoteText=(text:string,sourcePath:string)=>{try{return q(text);}catch(reason){throw Object.assign(new Error(reason instanceof Error?reason.message:'Text cannot be encoded by Lini.'),{sourcePath});}};
+export function liniSequenceParticipantFieldText(field:'detail'|'role'|'status',value:string):string{return field==='detail'?value:field==='role'?(value==='process'?'Process':'Role: '+value):'Status: '+value;}
 const nativeIcons=new Set(['user','rocket','seal','presentation','heart','gear','cloud','house','database','folder-simple','cpu','bell','star','ghost','video-camera','wall','check','warning','globe','lock','key','lightning','magnifying-glass','arrow-right']);
 const iconToken=(value:string)=>nativeIcons.has(value)?value:undefined;
 type Rich = {visual:Visual;direction:'LR'|'TB'};
@@ -75,22 +76,28 @@ export function compileLiniSequence(visual:Visual):PresentationPlan|Presentation
  const participantIds=new Map(participants.map((participant,index)=>[participant.id,'p'+(index+1)]));
  const messageIds=new Map(messages.map((message,index)=>[message.id,'m'+(index+1)]));
  const noteIds=new Map(notes.map((note,index)=>[note.id,'n'+(index+1)]));
+ const participantFieldLine=(participant:typeof participants[number],index:number,nativeId:string,field:'detail'|'role'|'status',value:string)=>{
+  const fieldId=nativeId+'-'+field,fieldPath=path('/sequence/participants/'+index+'/'+field),text=liniSequenceParticipantFieldText(field,value);
+  add(participant.id,fieldPath,fieldId,'participant-field');
+  return `|cell#${fieldId}| ${quoteText(text,fieldPath)} { font-size: ${field==='detail'?12:10}; color: --gray-deep; padding: 0; fill: none; stroke: none; stroke-width: 0; }`;
+ };
  const participantLines=participants.map((participant,index)=>{
   const nativeId=participantIds.get(participant.id)!;add(participant.id,path('/sequence/participants/'+index+'/id'),nativeId,'participant');
   const shape=liniShapeDefinition(participant.shape,'sequence');
   const requestedIcon=participant.icon??(participant.role==='actor'?'user':undefined),icon=requestedIcon?iconToken(requestedIcon):undefined;
   if(shape?.approximation)approximations.push({sourcePath:path('/sequence/participants/'+index+'/shape'),requested:'Participant shape '+participant.shape,representation:shape.approximation});
   if(requestedIcon&&!icon)approximations.push({sourcePath:path('/sequence/participants/'+index+'/icon'),requested:'Icon '+requestedIcon,representation:'The icon name is retained visibly as a text caption because it is outside the pinned Lini Phosphor symbol subset.'});
-  if(participant.role==='process')approximations.push({sourcePath:path('/sequence/participants/'+index+'/role'),requested:'Participant role process',representation:'The native participant owns a visible “Process” caption; this denotes a depicted process/activity and does not change the authored shape.'});
+  if(participant.role==='process')approximations.push({sourcePath:path('/sequence/participants/'+index+'/role'),requested:'Participant role process',representation:'The visible “Process” caption denotes a depicted process/activity, not an operating-system process or executable; the authored participant shape is preserved.'});
   const props:string[]=[];
   if(icon)props.push('symbol: '+icon+';');
   if(shape)props.push(...shape.properties);
   const style=participant.role==='actor'?'--rose-deep':participant.role==='own'?'--teal-deep':participant.role==='platform'?'--sky-deep':participant.role==='external'?'--gray-deep':participant.role==='store'?'--blue-deep':participant.role==='document'?'--purple-deep':participant.role==='process'?'--rose-deep':'--blue-deep';
   props.push('stroke: '+style+';');
-  const children=[shape?.caption?`|cell#shape| ${quoteText(shape.caption,path('/sequence/participants/'+index+'/shape'))}`:undefined,participant.role==='process'&&participant.label!=='Process'?`|cell#role| ${quoteText('Process',path('/sequence/participants/'+index+'/role'))}`:undefined,icon?`|icon| { symbol: ${icon}; width: 18; height: 18; fill: none; stroke: ${style}; }`:undefined].filter((item):item is string=>!!item);
+  const fields:Array<string|undefined>=[participant.detail===undefined?undefined:participantFieldLine(participant,index,nativeId,'detail',participant.detail),participant.role===undefined?undefined:participantFieldLine(participant,index,nativeId,'role',participant.role),participant.status===undefined?undefined:participantFieldLine(participant,index,nativeId,'status',participant.status)];
+  const children=[shape?.caption?`|cell#shape| ${quoteText(shape.caption,path('/sequence/participants/'+index+'/shape'))}`:undefined,...fields,icon?`|icon| { symbol: ${icon}; width: 18; height: 18; fill: none; stroke: ${style}; }`:undefined].filter((item):item is string=>!!item);
   const childSource=children.length?' [\n    '+children.join('\n    ')+'\n  ]':'';
   const line=`|${shape?.type??'box'}#${nativeId}| ${quoteText(participant.label+(requestedIcon&&!icon?' (icon: '+requestedIcon+')':''),path('/sequence/participants/'+index+'/label'))} { ${props.filter(value=>!value.startsWith('symbol:')).join(' ')} }${childSource}`;
-  for(const field of ['detail','evidence','status','emphasis'] as const)if(participant[field]!==undefined)omissions.push({sourcePath:path('/sequence/participants/'+index+'/'+field),reason:'Retained in UMF; this Lini sequence profile does not render the participant field.'});
+  for(const field of ['evidence','emphasis'] as const)if(participant[field]!==undefined)omissions.push({sourcePath:path('/sequence/participants/'+index+'/'+field),reason:'Retained in UMF; this bounded Lini sequence profile does not render participant evidence or emphasis.'});
   return line;
  });
  const indexByMessage=new Map(messages.map((message,index)=>[message.id,index]));
@@ -133,10 +140,11 @@ export function compileLiniSequence(visual:Visual):PresentationPlan|Presentation
   body.push(messageLine(row,groupOpen.has(row)?groupOpen.get(row)!.length:loops.size&&messages[row]!.group?nestedDepth(groupById.get(messages[row]!.group!)!)+1:0));
   for(const line of groupClose.get(row)??[])body.push(line);
  }
- const title=visual.title??visual.question,titleLine=`|caption#visual-title| ${quoteText(title,path(visual.title?'/title':'/question'))} { pin: top left; font-size: 18; font-weight: bold; color: --blue-deep; }`;
- const source=[`{ layout: sequence; font-family: Arial; --lini-font-family: Arial;\n  .lini-block { font-family: Arial; }\n  .lini-text { font-family: Arial; }\n  .lini-slant { font-family: Arial; }\n  .lini-sequence-message { font-family: Arial; }\n  .lini-sequence-guard { font-family: Arial; }\n  .lini-sequence-tab { font-family: Arial; }${messageRules.length||frameRules.length?'\n  '+[...messageRules,...frameRules].join('\n  '):''}\n}`,titleLine,...participantLines,...body].join('\n')+'\n';
+ const title=visual.title??visual.question,titleLine=`  |block#visual-title| ${quoteText(title,path(visual.title?'/title':'/question'))} { width: 1280; font-size: 22; font-weight: bold; color: --blue-deep; fill: none; stroke: none; stroke-width: 0; }`;
+ const source=[`{ font-family: Arial; --lini-font-family: Arial;\n  .lini-block { font-family: Arial; }\n  .lini-text { font-family: Arial; }\n  .lini-slant { font-family: Arial; }\n  .lini-sequence-message { font-family: Arial; }\n  .lini-sequence-guard { font-family: Arial; }\n  .lini-sequence-tab { font-family: Arial; }${messageRules.length||frameRules.length?'\n  '+[...messageRules,...frameRules].join('\n  '):''}\n}`,`|column#sequence-stage| { width: 1280; gap: 20; align: center; padding: 20; fill: none; stroke: none; stroke-width: 0; } [`,titleLine,`  |sequence#sequence-body| { activation: none; gap: 48 80; } [`,...participantLines,...body,'  ]',']'].join('\n')+'\n';
  add(visual.id,path('/id'),'visual-title','visual');
+ if(visual.form==='ladder')approximations.push({sourcePath:path('/form'),requested:'Sequence ladder form',representation:'Pinned Lini presents the unchanged participants across the top and messages down a native lifeline sequence. This is a disclosed lifelines adaptation, not a narrow-screen ladder layout.'});
  if(visual.title&&visual.title!==visual.question)omissions.push({sourcePath:path('/question'),reason:'The concise title is visible in the native sequence caption; the reader question remains in UMF.'});
- for(const field of ['takeaway','source','audience','steps','edges','nodes','structure','omissions'] as const)if(visual[field]!==undefined)omissions.push({sourcePath:path('/'+field),reason:'Retained in UMF; not part of this native Lini sequence.'});
+ for(const field of ['takeaway','source','audience','steps','edges','nodes','structure','omissions'] as const)if(visual[field]!==undefined)omissions.push({sourcePath:path('/'+field),reason:field==='steps'?'Ordered walkthrough titles and focus IDs remain in UMF and the review authored-context panel; the static sequence SVG does not duplicate or animate them.':'Retained in UMF; not part of this native Lini sequence.'});
  return plan(visual,source,elements,omissions,approximations);
 }

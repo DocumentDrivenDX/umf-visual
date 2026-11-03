@@ -436,3 +436,28 @@ properties, layouts and date forms MUST refuse with located diagnostics. Native
 fixed-position execution remains under the existing typed target boundary, not
 portable model options. Source tag locators/digests do not certify retrieved
 external history.
+
+
+## Sequence adaptation and participant metadata
+
+A renderer MAY adapt a ladder form to a qualified native lifeline sequence only
+with a located form/layout approximation; it MUST retain the authored source
+form and MUST NOT claim a native narrow-screen ladder realization. Participant
+order and identities, message order/endpoints/kinds and exact owned captions
+remain independently verified. Native stage/title wrappers are presentation
+helpers, not logical participants or messages.
+
+Kind `participant-field` maps an authored participant property at its exact
+source pointer to an owned native detail, role or status carrier. Each rendered
+field MUST preserve its exact value or declared textual convention on the correct
+participant in both native structure and rendered SVG. Matching text elsewhere
+MUST NOT satisfy ownership. Missing, changed or reparented fields MUST fail the
+corresponding realization proof. These mapping rows do not declare new Visual
+identities or vocabulary fields.
+
+Native automatic activation intervals MUST be suppressed where the source does
+not authorize them. Explicitly typed call/return styling does not authorize
+invented execution durations. Static sequence artifacts MAY retain walkthrough
+steps as located native omissions while shared authored-context inspection
+provides exact step/focus meaning under CONTRACT-085; this MUST NOT be advertised
+as native focus activation or animation.

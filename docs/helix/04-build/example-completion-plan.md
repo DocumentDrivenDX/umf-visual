@@ -1737,13 +1737,75 @@ inspection found no fixture IDs or source business-label dispatch branches.
 Final quiet full suite passes **712 tests, zero failures, 20,317 assertions
 across 108 files in 178.83 seconds** (`.cache/cycle11-full-tests.log`). All
 required source/type/build, native/corpus/review/UI/public-browser/package and
-actual visual audits pass. Cycle 11 is complete and ready for commit; the commit
-follows in this change and MUST precede cycle 12. The exact Visual 1.0.0 source,
+actual visual audits pass. Cycle 11 is committed as `5bcc704`. The exact Visual 1.0.0 source,
 all dates/IDs and historical locator qualification remain unchanged. Support is
 bounded date/history presentation, with exact G/L date geometry and a visibly
 disclosed categorical Mermaid ledger; packing is not a lane or measure and no
 causal/duration meaning is invented. No vocabulary change, host capability
 expansion, release or publication is claimed.
+
+### Twelfth-cycle scope — request ladder
+
+Cycle 12 is in progress using exact authoritative source
+`fixtures/visual/forms/helix-request-ladder.json`, SHA-256
+`4cbfdea885f1e336ebf9602e06c8fcaef19d9be781280d99512609f636ff949e`.
+Preserve envelope 0.10.0 / Visual 1.0.0, document/visual IDs, six participants
+with authored detail/role/status, six ordered messages (five calls and one return),
+and six ordered steps focusing their exact message IDs. Title, distinct question,
+takeaway, audience and historical source locator/digest remain source authority;
+no external-byte verification is implied. Do not infer activation, duration,
+additional roles or control semantics from business labels.
+
+Prefer a well-qualified generic Lini ladder adaptation over unnecessary new
+backend families; other backends may remain explicit unsupported. If the target
+uses a lifeline-style layout, disclose that form adaptation rather than rewrite
+the source form. Native acceptance binds participant identities and readable
+metadata, exact message labels/endpoints/order/kind and individual caption
+ownership. Inspect the actual narrow-screen and enlarged/native-size views.
+Remaining static-view omissions must be located and visible as limits.
+
+Represent authored steps as a read-only ordered walkthrough/focus list in the
+shared UI when the native artifact is static; raw YAML alone is insufficient.
+Preserve exact step titles and focus IDs resolved to typed labels and source
+pointers, with generic scene/backend reset and unavailable-carrier behavior.
+This list does not claim native focus activation or interactive highlighting. Do not add portable coordinates or
+fixture-specific dispatch. Qualify renamed participant/message/step controls and
+affected sequence/native/UI/corpus/browser/package/full-suite gates for changed
+shared implementations. Commit cycle 12 before starting cycle 13.
+
+The final source/interface/native audit approves the generic native column/title
+stage, exact owned participant detail/role/status cells, activation suppression
+and disclosed ladder-to-lifelines adaptation. Native proof includes text/change,
+reparenting, containment and injected-activation negatives; all exact message
+identities, endpoints, kinds and order remain intact. Root approved the final
+1600 × 900 PNG (59,622 bytes), SHA-256
+`2ce288c4c6cf378d338c8dd38179631e3526760513d563824228fd58764ccf7b`.
+Shared authored context resolves the global typed focus namespace to exact labels
+and full pointers, preserves when/tag numbering semantics and displays unresolved
+or ambiguous targets without guessing. Its packaged ESM helper is digest-versioned;
+no native highlighting or external locator verification is claimed.
+
+Focused compiler/native quality passes 8 tests / 82 assertions and 5 tests /
+102 assertions. Native Graphviz 16.1 / Lini 1.1, fetch, catalog and showcase gates
+pass. Integrated reviews pass 11 definitions / 31 qualified variants /
+2 explicit unsupported variants / 93 assets, with 31 actual SVG and 31 PNG
+replays. Review UI checks all eleven definitions, including real backend/scene
+resets, keyboard focus, full pointers and 375-pixel expanded context. Public
+browser checks load eleven reviewed definitions and thirty-one plans on Chromium
+153.0.8010.12; packed Bun/Node, source/type, SDK/review/site build and diff checks
+pass. Shared site checks 214 native SVG assets; showcase checks nine definitions /
+23 qualified variants and all 46 SVG/PNG assets with exact hashes, source,
+viewer, mobile and context behavior. Browser error inventories are empty.
+
+Final quiet full suite passes **720 tests, zero failures, 20,440 assertions
+across 110 files in 152.09 seconds** (`.cache/cycle12-full-tests.log`). All
+required gates and actual visual/interface audits pass, with no fixture-specific
+production dispatch. Cycle 12 is complete and ready for commit; its commit follows
+in this change and MUST precede cycle 13. Exact Visual 1.0.0 source, role/status,
+message and step meanings remain unchanged. Support is a bounded Lini lifelines
+adaptation with honest unsupported Graphviz/Mermaid variants and read-only shared
+context; no vocabulary change, native narrow-screen ladder claim, expanded host
+qualification, release or publication is made.
 
 ### Ordered cycle inventory
 
@@ -1752,7 +1814,8 @@ Cycle 3 is committed as `aa6a093`; cycle 4 is committed as `263b11f`.
 Cycle 5 is committed as `0a0f7c3`; cycle 6 is committed as `6b6b602`.
 Cycle 7 is committed as `498798c`; cycle 8 is committed as `b706901`.
 Cycle 9 is committed as `991a02a`; cycle 10 is committed as `2d50cc2`.
-Cycle 11 is complete and ready for commit; cycles 12–68 remain pending.
+Cycle 11 is committed as `5bcc704`; cycle 12 is complete and ready for commit.
+Cycles 13–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

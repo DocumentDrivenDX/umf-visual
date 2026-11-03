@@ -768,6 +768,44 @@
         "sourceDownloadPath": "reviews/helix-releases/authoritative-source.json",
         "scope": "This exact UMF fixture JSON is the review definition. Event IDs, labels, dates, and authored array order are preserved. The source path and digest are locator metadata; this review does not validate external HELIX tag history or infer release roles or durations."
       }
+    },
+    {
+      "id": "helix-request-ladder",
+      "title": "A request becomes a governing document",
+      "description": "An exact review of the authoritative request-ladder source, preserving its participant, message, and step identities and authored order.",
+      "kind": "sequence",
+      "form": "ladder",
+      "definitionPath": "fixtures/visual/forms/helix-request-ladder.json",
+      "definitionSha256": "4cbfdea885f1e336ebf9602e06c8fcaef19d9be781280d99512609f636ff949e",
+      "sources": [
+        {
+          "path": "fixtures/visual/forms/helix-request-ladder.json",
+          "sha256": "4cbfdea885f1e336ebf9602e06c8fcaef19d9be781280d99512609f636ff949e",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The checked-in Visual 1.0.0 fixture JSON is the complete definition and is used byte-for-byte as the review definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/forms/helix-request-ladder.json",
+          "sha256": "4cbfdea885f1e336ebf9602e06c8fcaef19d9be781280d99512609f636ff949e",
+          "outputPath": "reviews/helix-request-ladder/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/forms/helix-request-ladder.json",
+        "sourceSha256": "4cbfdea885f1e336ebf9602e06c8fcaef19d9be781280d99512609f636ff949e",
+        "documentId": "visual:helix-request-ladder",
+        "visualId": "helix-request-ladder",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-request-ladder/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. Participant, message, and step IDs, labels, roles, statuses, endpoints, kinds, focus references, and array order remain source-authored. The path and digest are locator metadata and do not verify bytes of the referenced architecture file. The directed call/return message sequence adds no inferred lanes, activation periods, durations, or business-role meaning."
+      }
     }
   ]
 }

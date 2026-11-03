@@ -13,29 +13,50 @@ const required=['lini-rich-native-semantics','lini-rich-svg-ownership-geometry',
 const names=(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>)=>checks.map(check=>check.check);
 const status=(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>,name:string)=>checks.find(check=>check.check===name)?.result;
 const root=import.meta.dir+'/../..';
-async function render(id:string){
- const document=readVisualDocument(await Bun.file(`${root}/fixtures/showcase/definitions/${id}.json`).text(),'json');
- const plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});expect(plan.ok,`${id} must compile`).toBe(true);if(!plan.ok)throw Error(JSON.stringify(plan));
+async function renderDocument(document:ReturnType<typeof readVisualDocument>){
+ const plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});expect(plan.ok,`${document.id} must compile`).toBe(true);if(!plan.ok)throw Error(JSON.stringify(plan));
  const native=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900}});
  await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden;background:#fff}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
  await page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},native.svg);
  const checks=await verifyLiniPresentationQuality(page,{document,plan,nativeAst:native.nativeAst});return{document,plan,page,nativeAst:native.nativeAst,checks};
 }
+async function render(id:string){
+ const document=readVisualDocument(await Bun.file(`${root}/fixtures/showcase/definitions/${id}.json`).text(),'json');
+ return renderDocument(document);
+}
 async function recheck(page:Page,document:Awaited<ReturnType<typeof render>>['document'],plan:PresentationPlan,nativeAst:unknown){return verifyLiniPresentationQuality(page,{document,plan,nativeAst});}
 function expectPass(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>){expect(names(checks)).toEqual(required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw Error(JSON.stringify(failed));}
 
 describe('pinned Lini rich layouts',()=>{
+ it('proves the ladder adaptation, exact participant metadata cells, and native title margins',async()=>{
+  const document=readVisualDocument(await Bun.file(`${root}/fixtures/visual/forms/helix-request-ladder.json`).text(),'json'),good=await renderDocument(document);
+  try{
+   expectPass(good.checks);expect(good.plan.elementMap.filter(item=>item.kind==='participant')).toHaveLength(6);expect(good.plan.elementMap.filter(item=>item.kind==='participant-field')).toHaveLength(18);expect(good.plan.elementMap.filter(item=>item.kind==='message')).toHaveLength(6);
+   expect(good.plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/form'&&item.representation.includes('lifelines adaptation'))).toBe(true);
+   for(const item of good.plan.elementMap.filter(item=>item.kind==='participant-field'))expect(item.sourcePath).toMatch(/^\/extensions\/umf\.visual\/sequence\/participants\/\d+\/(detail|role|status)$/u);
+   const title=await good.page.locator('g.lini-node[data-id="visual-title"]').boundingBox(),svg=await good.page.locator('#frame svg').boundingBox();expect(title).not.toBeNull();expect(svg).not.toBeNull();if(title&&svg){expect(title.x-svg.x).toBeGreaterThanOrEqual(2);expect(title.y-svg.y).toBeGreaterThanOrEqual(2);expect(svg.x+svg.width-title.x-title.width).toBeGreaterThanOrEqual(2);expect(svg.y+svg.height-title.y-title.height).toBeGreaterThanOrEqual(2);}
+   const statusCell=good.page.locator('g.lini-node[data-id="p1"] > g.lini-node.lini-cell[data-id="p1-status"]');expect(await statusCell.locator('text.lini-text').textContent()).toBe('Status: built');
+   await statusCell.locator('text.lini-text').evaluate(element=>{element.textContent='Status: pending';});expect(status(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-rich-svg-ownership-geometry')).toBe('fail');
+   await statusCell.locator('text.lini-text').evaluate(element=>{element.textContent='Status: built';});
+   const statusMarkup=await statusCell.evaluate(element=>element.outerHTML);await statusCell.evaluate(element=>element.remove());await good.page.locator('g.lini-node[data-id="p2"]').evaluate((element,markup)=>element.insertAdjacentHTML('beforeend',markup),statusMarkup);
+   expect(status(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-rich-svg-ownership-geometry')).toBe('fail');
+   const movedCell=good.page.locator('g.lini-node[data-id="p2"] > g.lini-node.lini-cell[data-id="p1-status"]');await movedCell.evaluate(element=>element.remove());await good.page.locator('g.lini-node[data-id="p1"]').evaluate((element,markup)=>element.insertAdjacentHTML('beforeend',markup),statusMarkup);
+   const changedSource=good.nativeAst.replace('"sets intent"','"changes intent"');expect(changedSource).not.toBe(good.nativeAst);expect(status(await recheck(good.page,good.document,good.plan,changedSource),'lini-rich-native-semantics')).toBe('fail');
+   const sequence=good.page.locator('g.lini-node.lini-sequence');await sequence.evaluate(element=>{const bar=element.ownerDocument.createElementNS('http://www.w3.org/2000/svg','rect');bar.setAttribute('width','10');bar.setAttribute('height','80');element.appendChild(bar);});expect(status(await recheck(good.page,good.document,good.plan,good.nativeAst),'lini-rich-svg-ownership-geometry')).toBe('fail');await sequence.locator(':scope > rect').last().evaluate(element=>element.remove());expectPass(await recheck(good.page,good.document,good.plan,good.nativeAst));
+  }finally{await good.page.close();}
+ },{timeout:30_000});
+
  it('renders and owns the sequence process role caption',async()=>{
   const document=createVisualDocument({id:'sequence-process-role',kind:'sequence',form:'lifelines',question:'Which activity is depicted?',sequence:{participants:[{id:'activity',label:'Reconcile records',detail:'Apply authored rules',role:'process'},{id:'shop',label:'Storefront',role:'own'},{id:'pay',label:'Payments',role:'platform'},{id:'store',label:'Records',role:'store',shape:'parallelogram'}],messages:[{id:'place',from:'activity',to:'shop',label:'place order',kind:'call'},{id:'charge',from:'shop',to:'pay',label:'charge amount',kind:'call'},{id:'verify',from:'pay',to:'pay',label:'verify card',kind:'call'},{id:'receipt',from:'pay',to:'shop',label:'receipt',kind:'return'},{id:'write',from:'shop',to:'store',label:'write order',kind:'call'},{id:'stored',from:'store',to:'shop',label:'stored',kind:'return'},{id:'finish',from:'shop',to:'activity',label:'order accepted',kind:'return'},{id:'track',from:'activity',to:'shop',label:'track order',kind:'async'}]}},'test:sequence-process-role','1.4.0');
   const plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});expect(plan.ok).toBe(true);if(!plan.ok)return;
-  expect(plan.source).toContain('|cell#role| "Process"');
+  expect(plan.source).toContain('|cell#p1-role| "Process"');
   expect(plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/sequence/participants/0/role'&&item.representation.includes('depicted process/activity'))).toBe(true);
   const native=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900}});
   await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden;background:#fff}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
   await page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},native.svg);
   try{
    const checks=await verifyLiniPresentationQuality(page,{document,plan,nativeAst:native.nativeAst});expectPass(checks);
-   const caption=page.locator('g.lini-node[data-id="p1"] > g.lini-node.lini-cell[data-id="role"] text.lini-text');
+   const caption=page.locator('g.lini-node[data-id="p1"] > g.lini-node.lini-cell[data-id="p1-role"] text.lini-text');
    expect(await caption.textContent()).toBe('Process');
    await caption.evaluate(element=>{element.textContent='Activity';});
    expect(status(await recheck(page,document,plan,native.nativeAst),'lini-rich-svg-ownership-geometry')).toBe('fail');
