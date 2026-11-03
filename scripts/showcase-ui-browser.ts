@@ -167,6 +167,9 @@ try{
   if(!(await page.locator('#native-source').innerText()).trim())throw new Error('The exact emitted native source is not available for inspection.');
   const selectedReceipt=showcase.examples[0].renders.find((render:any)=>render.backend===sourceBackend&&render.status==='qualified');
   if((selectedReceipt.omissions||[]).length+(selectedReceipt.approximations||[]).length)await page.locator('#rendering-notes > summary').click();
+  for(const disclosure of await page.locator('#rendering-notes-list details').all()){
+    if(!(await disclosure.evaluate(element=>(element as HTMLDetailsElement).open)))await disclosure.locator(':scope > summary').click();
+  }
   const notesText=await page.locator('#rendering-notes-list').innerText();
   for(const note of [...(selectedReceipt.omissions||[]),...(selectedReceipt.approximations||[])])if(!notesText.includes(note.sourcePath))throw new Error(`Rendering note for ${note.sourcePath} is not visible in the source inspection disclosure.`);
   const [definitionDownload]=await Promise.all([page.waitForEvent('download'),page.locator('#download-full-umf').click()]);

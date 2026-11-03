@@ -89,17 +89,17 @@ export async function verifyPresentationQuality(
   const box=(el:Element)=>{const r=el.getBoundingClientRect();return{x:r.x-rootRect.x,y:r.y-rootRect.y,width:r.width,height:r.height};};
   const curveDeviation=(path:SVGPathElement)=>{const length=path.getTotalLength();if(length<=0)return 0;const point=(at:number)=>{const p=path.getPointAtLength(at),matrix=path.getScreenCTM();return matrix?new DOMPoint(p.x,p.y).matrixTransform(matrix):p;},a=point(0),b=point(length),dx=b.x-a.x,dy=b.y-a.y,span=Math.hypot(dx,dy)||1;let deviation=0;for(let index=1;index<12;index++){const p=point(length*index/12);deviation=Math.max(deviation,Math.abs(dy*p.x-dx*p.y+b.x*a.y-b.y*a.x)/span);}return deviation;};
   const titleOf=(g:Element)=>normalize(g.querySelector(':scope > title')?.textContent??'');
-  const carriers=[...s.querySelectorAll('g.node,g.cluster,g.edge')].map(g=>{const nativePolygons=[...g.querySelectorAll(':scope > polygon')].map(box),primaryPolygon=[...nativePolygons].sort((a,b)=>b.width*b.height-a.width*a.height)[0];return({
-   cls:g.getAttribute('class')??'',title:titleOf(g),id:g.getAttribute('id')??'',
+  const carriers=[...s.querySelectorAll('g.node,g.cluster,g.edge,g.lini-node[data-id]')].map(g=>{const nativePolygons=[...g.querySelectorAll(':scope > polygon')].map(box),primaryPolygon=[...nativePolygons].sort((a,b)=>b.width*b.height-a.width*a.height)[0];return({
+   cls:g.getAttribute('class')??'',title:titleOf(g),id:g.getAttribute('id')??g.getAttribute('data-id')??'',shapeTags:[...g.querySelectorAll(':scope > rect,:scope > polygon,:scope > ellipse,:scope > path,:scope > circle')].map(shape=>({tag:shape.tagName.toLowerCase(),radius:Number(shape.getAttribute('rx')??0)})),polygonPoints:[...g.querySelectorAll(':scope > polygon')].map(polygon=>{const element=polygon as SVGPolygonElement,points=[...element.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(element.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};});return points.length>1&&Math.hypot(points[0]!.x-points.at(-1)!.x,points[0]!.y-points.at(-1)!.y)<.5?points.slice(0,-1):points;}),
    ancestorClusters:(()=>{const ids:string[]=[];let p=g.parentElement;while(p&&p.tagName.toLowerCase()!=='svg'){if(p.matches('g.cluster'))ids.push(p.getAttribute('id')??'');p=p.parentElement;}return ids;})(),
-   ownText:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge')===g).map(visibleText).filter(Boolean),
-   ownTextDetails:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge')===g).map(el=>({value:visibleText(el),bounds:box(el)})).filter(x=>x.value),
+   ownText:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge,g.lini-node[data-id]')===g).map(visibleText).filter(Boolean),
+   ownTextDetails:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge,g.lini-node[data-id]')===g).map(el=>({value:visibleText(el),bounds:box(el)})).filter(x=>x.value),
    bounds:box(g),
    polygon:primaryPolygon??null,
    polygons:nativePolygons,
    paths:[...g.querySelectorAll(':scope path')].map(p=>{
     const path=p as SVGPathElement,point=(at:number)=>{try{const q=path.getPointAtLength(at),screen=new DOMPoint(q.x,q.y).matrixTransform(path.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};}catch{return null;}};
-    const length=path.getTotalLength();return{d:path.getAttribute('d')??'',markerEnd:path.getAttribute('marker-end'),bounds:box(p),start:point(0),end:point(length),curveDeviation:curveDeviation(path)};
+    const length=path.getTotalLength(),matrix=path.getScreenCTM()!,lengthCss=length*Math.sqrt((matrix.a**2+matrix.b**2+matrix.c**2+matrix.d**2)/2);return{d:path.getAttribute('d')??'',length,lengthCss,dashArray:getComputedStyle(path).strokeDasharray,markerEnd:path.getAttribute('marker-end'),bounds:box(p),start:point(0),end:point(length),curveDeviation:curveDeviation(path)};
    }),
    arrow:g.querySelector(':scope > polygon')!==null,
    arrowPoints:(()=>{const polygon=g.querySelector(':scope > polygon') as SVGPolygonElement|null;if(!polygon||polygon.points.numberOfItems<3)return[];return[...polygon.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(polygon.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};});})(),
@@ -108,7 +108,7 @@ export async function verifyPresentationQuality(
   const allText=[...s.querySelectorAll('text,foreignObject')].map(el=>({value:visibleText(el),bounds:box(el),size:el instanceof SVGTextElement?parseFloat(getComputedStyle(el).fontSize):parseFloat(getComputedStyle(el).fontSize),owner:(el.closest('g.node,g.cluster,g.edge')?.querySelector(':scope > title')?.textContent??'').trim()})).filter(x=>x.value);
   const paths=[...s.querySelectorAll('path[data-edge="true"]')].map(p=>{
    const path=p as SVGPathElement,point=(at:number)=>{try{const q=path.getPointAtLength(at),screen=new DOMPoint(q.x,q.y).matrixTransform(path.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};}catch{return null;}};
-   return{id:path.getAttribute('id')??'',dataId:path.getAttribute('data-id')??'',className:path.getAttribute('class')??'',d:path.getAttribute('d')??'',markerStart:path.getAttribute('marker-start'),markerEnd:path.getAttribute('marker-end'),start:point(0),end:point(path.getTotalLength()),curveDeviation:curveDeviation(path)};
+   const length=path.getTotalLength(),matrix=path.getScreenCTM()!,lengthCss=length*Math.sqrt((matrix.a**2+matrix.b**2+matrix.c**2+matrix.d**2)/2),samples=Array.from({length:49},(_,index)=>point(length*(index+1)/50));return{id:path.getAttribute('id')??'',dataId:path.getAttribute('data-id')??'',className:path.getAttribute('class')??'',dashArray:getComputedStyle(path).strokeDasharray,d:path.getAttribute('d')??'',lengthCss,markerStart:path.getAttribute('marker-start'),markerEnd:path.getAttribute('marker-end'),start:point(0),end:point(length),samples,curveDeviation:curveDeviation(path)};
   });
   const edgeLabels=[...s.querySelectorAll('g.edgeLabel')].map(el=>({id:el.querySelector('g.label')?.getAttribute('data-id')??'',text:visibleText(el)})).filter(x=>x.text);
   return {viewBox:{x:view.x,y:view.y,width:view.width,height:view.height},root:{width:rootRect.width,height:rootRect.height},carriers,allText,paths,edgeLabels};
@@ -118,7 +118,7 @@ export async function verifyPresentationQuality(
 
  if(plan.backend==='graphviz'){
   const ast=input.nativeAst as NativeAst|undefined;
-  checks.push(pass('graphviz-native-ast',sourceSha256,!!ast&&Array.isArray(ast.objects)&&Array.isArray(ast.edges),'Graphviz JSON AST is required for endpoint, port, and layout checks.'));
+  checks.push(pass('graphviz-native-ast',sourceSha256,!!ast&&Array.isArray(ast.objects)&&(Array.isArray(ast.edges)||(visual.edges?.length??0)===0),'Graphviz JSON AST is required for endpoint, port, and layout checks; an empty authored edge list may omit the native edge array.'));
   if(ast&&Array.isArray(ast.objects)&&Array.isArray(ast.edges)){
    const objects=ast.objects,edges=ast.edges;
    const byName=new Map(objects.map(o=>[objectName(o),o]));
@@ -216,9 +216,11 @@ export async function verifyPresentationQuality(
     if(svgEdge)usedSvgEdges.add(svgEdge.id||svgEdge.title);
     const drawn=svgEdge?.paths.find(p=>p.d.trim()&&p.start&&p.end);
     if(!svgEdge||!drawn||(exp.directed&&!svgEdge.arrow))endpointFailures.push(`${exp.id} has no native SVG path${exp.directed?' and arrow':''}`);
+    const sourceEdge=visual.kind==='flow'?visual.edges?.find(candidate=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===candidate.id):undefined;
+    if(sourceEdge?.kind==='data'&&(!edge||text(edge.style)!=='dashed'||!drawn?.dashArray||drawn.dashArray==='none'))endpointFailures.push(`${exp.id} data connection is not carried by an owned dashed native edge`);
     if(exp.routeIntent&&drawn){const sourceIndex=visual.edges?.findIndex(candidate=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===candidate.id)??-1,records=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${sourceIndex}/routing`),record=records.length===1?records[0]:undefined;if(record?.code){const nativeCurve=/[CcQqSsAa]/u.test(drawn.d),geometryKind=drawn.curveDeviation<1.5?'collinear':nativeCurve&&drawn.curveDeviation>=2?'curved':'bent-polyline';routingObservations.push(`${exp.id} requested ${exp.routeIntent}; observed ${geometryKind} native path with ${drawn.curveDeviation.toFixed(1)}px chord deviation; admitted ${record.code}.`);}}
     if(exp.routing==='curved'&&(!drawn||!/[CcQqSsAa]/u.test(drawn.d)||drawn.curveDeviation<2)){const sourceIndex=visual.edges?.findIndex(edge=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===edge.id)??-1,policy=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${sourceIndex}/routing`),edge=visual.edges?.[sourceIndex],hasInferredSides=!!edge&&!edge.fromPort&&!edge.toPort,declaredRoutes=[...new Set((visual.edges??[]).flatMap(item=>item.routing?[item.routing.kind]:[]))],expectedCode=declaredRoutes.length>1?'ROUTING_SCOPE_CONFLICT':hasInferredSides?undefined:'ROUTING_NATIVE_INTERPOLATION';if(!(drawn&&drawn.curveDeviation<1.5&&policy.length===1&&policy[0]?.code===expectedCode&&expectedCode==='ROUTING_NATIVE_INTERPOLATION'))endpointFailures.push(`${exp.id} requested curved routing but its owned Graphviz path lacks a native curved segment with visible non-collinearity (${drawn?.curveDeviation.toFixed(1)??'missing'}px deviation)`);}
-    if(exp.routing==='straight'&&drawn&&drawn.curveDeviation>1.5)endpointFailures.push(`${exp.id} requested straight routing but its owned Graphviz path deviates ${drawn.curveDeviation.toFixed(1)}px from a straight chord`);
+    if(exp.routing==='straight'&&drawn){const chord=drawn.start&&drawn.end?Math.hypot(drawn.end.x-drawn.start.x,drawn.end.y-drawn.start.y):0,fixedNative=plan.execution?.runtime==='graphviz'&&plan.execution.layoutEngine==='neato'&&plan.execution.nodePositions==='fixed'&&/splines=line/u.test(plan.source),tolerance=1.5,lengthRatio=chord?drawn.lengthCss/chord:Infinity;if(drawn.curveDeviation>tolerance||fixedNative&&lengthRatio>1.02)endpointFailures.push(`${exp.id} requested straight routing but its owned Graphviz path has ${drawn.curveDeviation.toFixed(1)}px chord deviation over ${chord.toFixed(1)}px (${(lengthRatio*100).toFixed(2)}% path/chord length; limits 1.5px and 102%).`);else if(fixedNative)routingObservations.push(`${exp.id} requested straight; fixed-position Graphviz native path measured ${drawn.curveDeviation.toFixed(1)}px deviation over ${chord.toFixed(1)}px chord (${(lengthRatio*100).toFixed(2)}% path/chord length; limits 1.5px and 102%).`);}
     if(!exp.directed&&svgEdge?.arrow)endpointFailures.push(`${exp.id} is undirected but has a native arrowhead`);
     const authoredLabel=visual.kind==='flow'?visual.edges?.find(e=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===e.id)?.label:visual.structure?.references?.[Number(exp.sourcePath.split('/').at(-1))]?.label;
     if(authoredLabel&&!svgEdge?.ownText.some(t=>norm(t)===norm(authoredLabel)))endpointFailures.push(`${exp.id} label is not owned by its native edge carrier`);
@@ -323,6 +325,8 @@ export async function verifyPresentationQuality(
   checks.push(...await verifyLiniPresentationQuality(page,{document,plan,nativeAst:input.nativeAst}));
  }else{
   // Mermaid IDs are generated by Mermaid but preserve the compiler's safe native IDs.
+  const blockCircular=visual.layout?.kind==='circular'&&plan.source.includes('\nblock-beta\n');
+  const mermaidNodeCarrier=(nativeId:string)=>dom.carriers.find(c=>blockCircular?c.id.endsWith('-'+nativeId):c.id.includes(`flowchart-${nativeId}-`)||c.id.includes(`entity-${nativeId}-`)||c.title===nativeId);
   const missing:string[]=[];
   for(const e of plan.elementMap){
    if(e.kind==='visual'||e.kind==='reference'||e.kind==='field'||e.kind==='edge')continue;
@@ -344,11 +348,11 @@ export async function verifyPresentationQuality(
    return owner&&owner.paths.length>=requiredPaths&&hasOffsetStack&&hasDeclaredShape?[]:[`${node.id} ${node.shape} native path composition${node.shape==='multiple-documents'?' with offset sheet geometry':''}`];
   }):[];
   const ownLabelsMissing=expectedNodeLabels.filter(({nativeId,label,requiredText,processRole})=>{
-   const expectedCarrier=dom.carriers.find(c=>c.id.includes(`flowchart-${nativeId}-`)||c.id.includes(`entity-${nativeId}-`)||c.title===nativeId);
+   const expectedCarrier=mermaidNodeCarrier(nativeId);
    const owned=expectedCarrier?normLabel(expectedCarrier.ownText.join(' ')):'';
    return !label||!expectedCarrier||!owned.includes(normLabel(label))||(processRole&&!owned.includes(normLabel(requiredText)));
   }).map(x=>`${x.nativeId}:${x.processRole?'process role caption / ':''}${x.label}`);
-  const processRoleMissing=expectedNodeLabels.filter(({nativeId,processRole})=>{if(!processRole)return false;const owner=dom.carriers.find(c=>c.id.includes(`flowchart-${nativeId}-`)||c.id.includes(`entity-${nativeId}-`)||c.title===nativeId);return!owner?.cls.split(/\s+/u).includes('role_process');}).map(item=>`${item.nativeId}:role_process carrier class`);
+  const processRoleMissing=expectedNodeLabels.filter(({nativeId,processRole})=>{if(!processRole)return false;const owner=mermaidNodeCarrier(nativeId);return!owner?.cls.split(/\s+/u).includes('role_process');}).map(item=>`${item.nativeId}:role_process carrier class`);
   checks.push(pass('mermaid-native-node-carriers',sourceSha256,missing.length===0&&ownLabelsMissing.length===0&&shapeFailures.length===0&&processRoleMissing.length===0,missing.length||ownLabelsMissing.length||shapeFailures.length||processRoleMissing.length?`Missing native node carriers: ${[...missing,...ownLabelsMissing.map(x=>'label '+x),...shapeFailures,...processRoleMissing].join(', ')}.`:`${expectedNodeLabels.length} source labels and all requested document shapes appear in their exact ID-mapped Mermaid node/entity carriers.`));
   if(visual.form==='entities'){
    // Mermaid ER has entity-level relationship endpoints, never field-port attachment.
@@ -384,10 +388,21 @@ export async function verifyPresentationQuality(
    const usedPaths=new Set<string>();
    visual.edges?.forEach(edge=>{
     const from=nativeIdForNode(plan,edge.from),to=nativeIdForNode(plan,edge.to),mapped=plan.elementMap.find(item=>item.kind==='edge'&&item.logicalId===edge.id);
-    const candidates=dom.paths.filter(p=>!usedPaths.has(p.id||p.dataId)&&p.d&&!p.className.includes('invisible')&&(p.dataId===mapped?.nativeId||p.id===mapped?.nativeId||p.dataId.startsWith(`L_${from}_${to}_`)));
+    const candidates=dom.paths.filter(p=>!usedPaths.has(p.id||p.dataId)&&p.d&&!p.className.includes('invisible')&&(blockCircular?p.dataId.endsWith('-'+mapped?.nativeId):(p.dataId===mapped?.nativeId||p.id===mapped?.nativeId||p.dataId.startsWith(`L_${from}_${to}_`))));
     const path=candidates.find(p=>!edge.label||dom.edgeLabels.some(label=>label.id===p.dataId&&label.text===norm(edge.label!)))??candidates[0];
     if(!path||!path.d){failures.push(`${edge.id} has no Mermaid path ${from} to ${to}`);return;}
-    if(edge.routing){
+    if(edge.routing&&blockCircular){
+     const routePolicy=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${visual.edges!.indexOf(edge)}/routing`);
+     if(routePolicy.length!==1||routePolicy[0]?.code!=='ROUTING_NATIVE_INTERPOLATION')failures.push(`${edge.id} needs exactly one located native-interpolation receipt for Mermaid block routing`);
+     const chord=path.start&&path.end?Math.hypot(path.end.x-path.start.x,path.end.y-path.start.y):0,ratio=chord?path.lengthCss/chord:Infinity,validBlockPolicy=plan.source.includes('\nblock-beta\n')&&edge.routing.kind==='straight'&&(edge.kind===undefined||edge.kind==='data')&&edge.directed!==false&&routePolicy.length===1&&routePolicy[0]?.code==='ROUTING_NATIVE_INTERPOLATION';
+     if(!validBlockPolicy)failures.push(`${edge.id} native interpolation fallback is not justified by the exact block-beta straight edge profile`);
+     const operator=edge.kind==='data'?`${from} -.-> ${to}`:`${from} --> ${to}`;
+     if(!mapped||mapped.nativeId!==`${from}-${to}`||!plan.source.split('\n').some(line=>line.trim()===operator))failures.push(`${edge.id} mapped Mermaid block edge is absent or its source/target identity differs from the authored endpoints`);
+     else if(path.curveDeviation>10||ratio>1.08)failures.push(`${edge.id} native block route exceeds the bounded straight approximation (${path.curveDeviation.toFixed(1)}px chord deviation, ${(ratio*100).toFixed(1)}% path/chord length)`);
+     else routeFallbacks.push(`${edge.id} native block connector observed ${path.curveDeviation.toFixed(1)}px deviation over ${chord.toFixed(1)}px chord (${(ratio*100).toFixed(1)}% path/chord); admitted ROUTING_NATIVE_INTERPOLATION`);
+     const nonincident=(visual.nodes??[]).filter(node=>node.id!==edge.from&&node.id!==edge.to),hit=nonincident.find(node=>{const carrier=mermaidNodeCarrier(nativeIdForNode(plan,node.id)??'');return !!carrier&&path.samples.some(point=>point&&point.x>=carrier.bounds.x+1&&point.x<=carrier.bounds.x+carrier.bounds.width-1&&point.y>=carrier.bounds.y+1&&point.y<=carrier.bounds.y+carrier.bounds.height-1);});
+     if(hit)failures.push(`${edge.id} native path crosses nonincident node ${hit.id}`);
+    }else if(edge.routing){
      const curve=edge.routing.kind==='curved'?'natural':'linear',config=new RegExp(`^[ \\t]*${mapped?.nativeId}@\\{\\s*curve:\\s*${curve}\\s*\\}$`,'mu');
      const routePolicy=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${visual.edges!.indexOf(edge)}/routing`);
      if(routePolicy.length!==1||routePolicy[0]?.code!=='ROUTING_NATIVE_INTERPOLATION')failures.push(`${edge.id} needs exactly one Mermaid ROUTING_NATIVE_INTERPOLATION record for its per-edge curve request`);
@@ -402,10 +417,11 @@ export async function verifyPresentationQuality(
       else failures.push(`${edge.id} requested straight routing but its owned Mermaid path is curved or deviates ${path.curveDeviation.toFixed(1)}px from a straight chord`);
      }
     }
+    if(blockCircular&&edge.kind==='data'&&!/\b6px,\s*4px\b/u.test(path.dashArray))failures.push(`${edge.id} data edge class does not retain the source-configured dashed stroke pattern (${path.dashArray})`);
     if(edge.directed!==false&&!path.markerEnd)failures.push(`${edge.id} has no directed target marker`);
     if(edge.directed===false&&(path.markerStart||path.markerEnd))failures.push(`${edge.id} is undirected but has a native arrow marker`);
     usedPaths.add(path.id||path.dataId);
-    const sourceCarrier=dom.carriers.find(c=>c.id.includes(`flowchart-${from}-`)),targetCarrier=dom.carriers.find(c=>c.id.includes(`flowchart-${to}-`));
+    const sourceCarrier=from?mermaidNodeCarrier(from):undefined,targetCarrier=to?mermaidNodeCarrier(to):undefined;
     const distance=(p:{x:number;y:number}|null,b:any)=>!p||!b?Infinity:Math.hypot(Math.max(b.x-p.x,0,p.x-(b.x+b.width)),Math.max(b.y-p.y,0,p.y-(b.y+b.height)));
     if(distance(path.start,sourceCarrier?.bounds)>32||distance(path.end,targetCarrier?.bounds)>32)failures.push(`${edge.id} path is detached from its mapped Mermaid node shapes`);
     if(edge.label&&!dom.edgeLabels.some(l=>l.text===norm(edge.label!)&&l.id===path.dataId))failures.push(`${edge.id} label is not owned by its native Mermaid edge-label carrier`);
@@ -492,5 +508,21 @@ export async function verifyPresentationQuality(
  checks.push(pass('presentation-clipping',sourceSha256,fit.out.length===0,fit.out.length?`SVG text exceeds the rendered viewport: ${fit.out.join(' | ')}.`:`${fit.texts} visible text carriers fit within the 1600×900 presentation viewport.`));
  checks.push(pass('presentation-font-legibility',sourceSha256,fit.small.length===0,fit.small.length?`Text falls below 10 CSS px when fitted: ${fit.small.join(' | ')}.`:'All measured text remains at least 10 CSS px when fitted to 1600×900.'));
  checks.push(pass('presentation-text-overlap',sourceSha256,fit.overlaps.length===0,fit.overlaps.length?`Intersecting text bounds: ${fit.overlaps.join('; ')}.`:'No measured text bounds overlap at the presentation viewport.'));
+ if(visual.layout?.kind==='circular'){
+  const order=visual.layout.order??(visual.nodes??[]).map(node=>node.id),items=order.map(id=>{
+   const mapped=nativeIdForNode(plan,id),carrier=dom.carriers.find(candidate=>candidate.id===mapped||candidate.title===mapped||candidate.id.endsWith('-'+mapped));
+   const node=visual.nodes?.find(candidate=>candidate.id===id);
+   return{id,node,carrier,center:carrier?{x:carrier.bounds.x+carrier.bounds.width/2,y:carrier.bounds.y+carrier.bounds.height/2}:undefined};
+  });
+  const missing=items.filter(item=>!item.node||!item.carrier||!item.center).map(item=>item.id),centers=items.flatMap(item=>item.center?[item.center]:[]),mean=centers.length?{x:centers.reduce((sum,item)=>sum+item.x,0)/centers.length,y:centers.reduce((sum,item)=>sum+item.y,0)/centers.length}:undefined,radii=centers.map(item=>Math.hypot(item.x-mean!.x,item.y-mean!.y)),radius=radii.length?radii.reduce((sum,item)=>sum+item,0)/radii.length:0,radialDeviation=radius?Math.max(...radii.map(value=>Math.abs(value-radius)))/radius:Infinity;
+  const angles=items.flatMap(item=>item.center&&mean?[Math.atan2(item.center.y-mean.y,item.center.x-mean.x)]:[]),clockwiseSteps=angles.map((angle,index)=>{let delta=angles[(index+1)%angles.length]!-angle;while(delta<=0)delta+=Math.PI*2;return delta;}),clockwiseSweep=clockwiseSteps.reduce((sum,delta)=>sum+delta,0);
+  const layoutRecords=plan.approximations.filter(item=>item.sourcePath==='/extensions/umf.visual/layout'),mermaidApprox=plan.backend==='mermaid'&&plan.source.includes('\nblock-beta\n')&&layoutRecords.length===1&&layoutRecords[0]?.code==='CIRCULAR_NATIVE_GRID';
+  const radialLimit=mermaidApprox?.24:.06,orderOk=!visual.layout.order||angles.length===order.length&&(angles.length<3||clockwiseSteps.every(step=>step<Math.PI))&&Math.abs(clockwiseSweep-Math.PI*2)<.08,radialError=centers.length===1?0:radialDeviation;
+  const shapesOk=items.every(item=>{if(!item.node?.shape||item.node.shape!=='rectangle')return true;if(item.carrier?.shapeTags.some(shape=>shape.tag==='rect'&&shape.radius<=.5))return true;if(plan.backend!=='graphviz')return false;const object=(input.nativeAst as NativeAst|undefined)?.objects?.find(candidate=>objectName(candidate)===item.carrier?.title),outline=item.carrier?.polygonPoints.find(points=>points.length===4),axisAligned=!!outline&&outline.every((point,index)=>{const next=outline[(index+1)%outline.length]!;return Math.abs(point.x-next.x)<.5||Math.abs(point.y-next.y)<.5;});return text(object?.shape)==='box'&&axisAligned;});
+  const boxes=items.flatMap(item=>item.carrier?[item.carrier.bounds]:[]),overlap=boxes.some((a,index)=>boxes.slice(index+1).some(b=>Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)>1&&Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)>1)),layoutCodeOk=plan.backend==='mermaid'?mermaidApprox:layoutRecords.length===0;
+  const ok=!missing.length&&radialError<=radialLimit&&orderOk&&shapesOk&&!overlap&&layoutCodeOk;
+  const details=missing.length?`Missing mapped circular node carriers: ${missing.join(', ')}.`:`${items.length} native node carriers; mean radius ${radius.toFixed(1)}px, maximum normalized radial deviation ${(radialError*100).toFixed(1)}% (limit ${(radialLimit*100).toFixed(0)}%); clockwise cyclic order ${visual.layout.order?'matches the authored sequence':'unspecified'}; authored rectangle geometry ${shapesOk?'retained':'not proven'}; node boxes ${overlap?'overlap':'do not overlap'}; located approximation code ${mermaidApprox?'CIRCULAR_NATIVE_GRID':'none'}.`;
+  checks.push(pass('presentation-circular-layout',sourceSha256,ok,details));
+ }
  return checks;
 }

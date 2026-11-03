@@ -42,10 +42,47 @@ async function assertWidePreviewFits(page:Page,reviewId:string,backend:string):P
  const layout=await page.locator('#diagram-image').evaluate(element=>{const image=element as HTMLImageElement,frame=image.parentElement!,box=frame.getBoundingClientRect(),style=getComputedStyle(image),paddingTop=parseFloat(style.paddingTop),paddingBottom=parseFloat(style.paddingBottom),paddingLeft=parseFloat(style.paddingLeft),paddingRight=parseFloat(style.paddingRight);return{ratio:image.naturalWidth/image.naturalHeight,frameHeight:box.height,frameWidth:box.width,expectedHeight:(box.width-2-paddingLeft-paddingRight)/(image.naturalWidth/image.naturalHeight)+paddingTop+paddingBottom+2};});
  if(layout.ratio>3&&layout.frameHeight>layout.expectedHeight+8)throw Error(`${reviewId}/${backend} wide diagram is letterboxed in an unnecessarily tall preview frame: ${JSON.stringify(layout)}.`);
 }
+function expectedRenderingNoteGroups(row:any){
+ const entries=[...(Array.isArray(row.omissions)?row.omissions.map((note:any)=>({label:'Omission',note})):[]),...(Array.isArray(row.approximations)?row.approximations.map((note:any)=>({label:'Native representation',note})):[])],groups=new Map<string,{label:string;note:unknown;sourcePaths:string[]}>();
+ for(const entry of entries){const note=entry.note,sourcePath=note&&typeof note==='object'&&!Array.isArray(note)&&typeof note.sourcePath==='string'?note.sourcePath:undefined,content=note&&typeof note==='object'&&!Array.isArray(note)?Object.fromEntries(Object.entries(note).filter(([key])=>key!=='sourcePath')):note,key=JSON.stringify([entry.label,content]);if(!groups.has(key))groups.set(key,{label:entry.label,note:content,sourcePaths:[]});if(sourcePath)groups.get(key)!.sourcePaths.push(sourcePath);}
+ return [...groups.values()];
+}
+function stableJson(value:any):any{
+ if(Array.isArray(value))return value.map(stableJson);
+ if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(key=>[key,stableJson(value[key])]));
+ return value;
+}
+async function assertRenderingNotes(page:Page,row:any,reviewId:string,backend:string):Promise<void>{
+ const expected=expectedRenderingNoteGroups(row),sourceDetails=page.locator('#source-details');
+ if(!(await sourceDetails.evaluate(element=>(element as HTMLDetailsElement).open)))await sourceDetails.locator(':scope > summary').click();
+ const notesPanel=page.locator('#rendering-notes');
+ if(expected.length&&!(await notesPanel.evaluate(element=>(element as HTMLDetailsElement).open)))await notesPanel.locator(':scope > summary').click();
+ const list=page.locator('#rendering-notes-list'),actual=list.locator(':scope > li');
+ if(await actual.count()!==expected.length)throw Error(`${reviewId}/${backend} rendering notes were not grouped by content while retaining all source pointers.`);
+ for(const[index,group]of expected.entries()){
+  const item=actual.nth(index),detail=await item.locator(':scope > code').textContent(),expectedDetail=typeof group.note==='string'?group.note:JSON.stringify(group.note);
+  let detailMatches=detail===expectedDetail;
+  if(!detailMatches&&group.note&&typeof group.note==='object')try{detailMatches=JSON.stringify(stableJson(JSON.parse(detail??'')))===JSON.stringify(stableJson(group.note));}catch{}
+  const actualLabel=await item.locator(':scope > strong').textContent();
+  if(!(actualLabel??'').includes(group.label)||!detailMatches)throw Error(`${reviewId}/${backend} rendering note content differs from its receipt: expected ${JSON.stringify(stableJson(group.note))} / ${group.label}, received ${JSON.stringify(detail)} / ${actualLabel}.`);
+  const disclosure=item.locator(':scope > details.rendering-note-sources');
+  if(group.sourcePaths.length){
+   if(await disclosure.count()!==1)throw Error(`${reviewId}/${backend} grouped rendering note hid source pointers without a disclosure.`);
+   await disclosure.locator(':scope > summary').click();
+   const visiblePaths=await disclosure.locator('li code').allTextContents();
+   if(JSON.stringify(visiblePaths)!==JSON.stringify(group.sourcePaths))throw Error(`${reviewId}/${backend} grouped rendering note omitted or changed source paths.`);
+   await disclosure.locator(':scope > summary').click();
+  }else if(await disclosure.count())throw Error(`${reviewId}/${backend} added a source-path disclosure with no source pointers.`);
+ }
+ const expectedCircularGrid=(row.approximations??[]).some((item:any)=>item.code==='CIRCULAR_NATIVE_GRID'),caveat=page.locator('#render-caveat');
+ if(expectedCircularGrid&&!(await caveat.innerText()).includes('native block grid approximates circular node placement while retaining the authored clockwise order'))throw Error(`${reviewId}/${backend} circular native-grid approximation is not explained beside the preview.`);
+ if(expected.length&&await notesPanel.evaluate(element=>(element as HTMLDetailsElement).open))await notesPanel.locator(':scope > summary').click();
+}
 const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
 let corruptPath:string|undefined;
 let delayedCapturePath:string|undefined,delayedCaptureCount=0,signalDelayedRequest!:()=>void;
 let includeRaceProbe=true;
+let previousRecipeUrl:string|undefined;
 const delayedCaptureRequested=new Promise<void>(resolve=>{signalDelayedRequest=resolve;});
 const browser=await chromium.launch({headless:true}),errors:string[]=[],checks:string[]=[];
 await mkdir('.cache',{recursive:true});
@@ -85,8 +122,15 @@ try{
   await openHistoricalDisclosure(page);
   const raceDownload=await downloadBytes(page,'#historical-capture-download',`.cache/review-${first.id}-race-original${extname(raceCapture.capturePath)}`);
   if(sha(raceDownload.bytes)!==raceCapture.captureSha256)throw Error('A delayed prior review revoked or replaced the selected capture download.');
+  const captureUrlBeforeBackendChange=await page.locator('#historical-capture-download').getAttribute('href');
+  await page.locator('[data-backend="mermaid"]').click();
+  await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'||document.querySelector('#diagram-status')?.textContent?.includes('No qualified Mermaid')===true,undefined,{timeout:30000});
+  if(await page.locator('#historical-capture-download').getAttribute('href')!==captureUrlBeforeBackendChange)throw Error('Changing render backend replaced the still-current historical capture URL.');
+  await assertHistoricalImageFits(page,raceCapture.integrationCaseId);
+  const captureAfterBackendChange=await downloadBytes(page,'#historical-capture-download',`.cache/review-${first.id}-after-backend-change${extname(raceCapture.capturePath)}`);
+  if(sha(captureAfterBackendChange.bytes)!==raceCapture.captureSha256)throw Error('Changing render backend revoked or changed the selected historical capture.');
   delayedCapturePath=undefined;
-  checks.push('rapid review changes keep the latest original capture and its download when an earlier capture resolves last');
+  checks.push('A→B→A late captures and backend changes preserve the current historical capture and hash-verified download');
  }
  includeRaceProbe=false;
  await page.locator('[data-example-id="race-probe"]').evaluate(element=>element.remove());
@@ -132,15 +176,43 @@ try{
   for(const backend of ['graphviz','mermaid','lini'] as const){
    const row=review.renders.find((item:any)=>item.backend===backend);if(!row)throw Error(`${review.id} is missing ${backend} render state.`);
    await page.locator(`[data-backend="${backend}"]`).click();
+   if(previousRecipeUrl){
+    await page.waitForFunction(url=>(window as any).__revokedBlobUrls.includes(url),previousRecipeUrl,{timeout:5000});
+    previousRecipeUrl=undefined;
+   }
    if(row.status==='qualified'){
     await page.waitForFunction(()=>(document.querySelector('#download-native-source')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false),undefined,{timeout:30000});
     await assertWidePreviewFits(page,review.id,backend);
+    await assertRenderingNotes(page,row,review.id,backend);
     if(!(await page.locator('#engine-caption').innerText()).toLowerCase().includes(backend))throw Error(`${review.id}/${backend} selection does not show its target identity.`);
     for(const [selector,path,hash] of [['#download-svg',row.svgPath,row.svgSha256],['#download-png',row.pngPath,row.pngSha256],['#download-native-source',row.nativeSourcePath,row.nativeSourceSha256]] as const){
      if(selector==='#download-native-source')await page.locator('#source-details').evaluate(element=>{(element as HTMLDetailsElement).open=true;});
      const target=`.cache/review-${review.id}-${backend}-${path.split('/').pop()}`;
      const download=await downloadBytes(page,selector,target);
      if(sha(download.bytes)!==hash||download.filename!==path.split('/').pop())throw Error(`${review.id}/${backend} download differs from its asset hash.`);
+     if(selector==='#download-native-source'){
+      const executionPanel=page.locator('#execution-provenance');
+      if(row.execution){
+       if(!(await executionPanel.isVisible()))throw Error(`${review.id}/${backend} execution provenance is not shown with its native source.`);
+       const metadata=JSON.parse(await page.locator('#execution-metadata').innerText());
+       if(JSON.stringify(metadata)!==JSON.stringify(row.execution))throw Error(`${review.id}/${backend} execution metadata differs from the selected receipt row.`);
+       const visibleSource=await page.locator('#native-source').textContent();
+       const downloadedSource=new TextDecoder().decode(download.bytes);
+       if(visibleSource!==downloadedSource)throw Error(`${review.id}/${backend} displayed source differs from its hash-verified execution input download.`);
+        const execution=row.execution;
+        const command=backend==='graphviz'&&Object.keys(execution).sort().join(',')==='layoutEngine,nodePositions,runtime'&&execution.runtime==='graphviz'&&execution.layoutEngine==='neato'&&execution.nodePositions==='fixed'?['neato','-n2','-Tsvg',row.nativeSourcePath.split('/').pop()]:undefined;
+        if(command){
+         if(await page.locator('#execution-command').innerText()!==command.map(value=>JSON.stringify(value)).join(' '))throw Error(`${review.id}/${backend} displayed command differs from its execution metadata.`);
+         const recipeDownload=await downloadBytes(page,'#download-execution-recipe',`.cache/review-${review.id}-${backend}-execution-recipe.json`);
+         previousRecipeUrl=await page.locator('#download-execution-recipe').getAttribute('href')??undefined;
+         if(previousRecipeUrl&&await page.evaluate(url=>(window as any).__revokedBlobUrls.includes(url),previousRecipeUrl))throw Error(`${review.id}/${backend} execution recipe URL was revoked before the current selection changed.`);
+         const recipe=JSON.parse(new TextDecoder().decode(recipeDownload.bytes));
+         const expectedRecipe={schemaVersion:1,execution:row.execution,nativeVersion:row.nativeVersion,sourcePath:row.nativeSourcePath,sourceSha256:row.nativeSourceSha256,command};
+         if(recipeDownload.filename!==`${review.id}-${backend}-execution-recipe.json`||JSON.stringify(recipe)!==JSON.stringify(expectedRecipe))throw Error(`${review.id}/${backend} downloaded execution recipe differs from the verified render row.`);
+         checks.push(`${review.id}/${backend} execution recipe download, provenance, and source bytes match the verified render row`);
+        }else if(await page.locator('#download-execution-recipe').getAttribute('aria-disabled')!=='true'||!(await page.locator('#download-execution-recipe').evaluate(element=>(element as HTMLElement).hidden)))throw Error(`${review.id}/${backend} exposed a recipe for unsupported execution metadata.`);
+      }else if(await executionPanel.isVisible())throw Error(`${review.id}/${backend} retained execution provenance from another render.`);
+     }
     }
    }else{
     const renderer=backend==='graphviz'?'Graphviz':backend==='mermaid'?'Mermaid':'Lini';

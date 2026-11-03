@@ -3,6 +3,7 @@
 import type {Visual,VisualCardinality,VisualEntity,VisualGroup,VisualNode,VisualMultiplicity,VisualLayout} from '../extensions/visual';
 import {quoteLiniProfile} from '../interchange/lini/profile-syntax';
 import {liniShapeDefinition} from './lini-shapes';
+import {circularPlacement} from './circular';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
 import {compileLiniSequence,compileLiniTree} from './lini-rich';
 
@@ -53,14 +54,14 @@ const groupColors:Record<string,ColorSet>={
  alternative:{fill:'--rose-wash',stroke:'--rose-deep',color:'--rose-ink'},
 };
 
-function nodeStyle(node:VisualNode):{type:string;properties:string[];approximations:Array<[string,string,string]>}{
+function nodeStyle(node:VisualNode,width?:number):{type:string;properties:string[];approximations:Array<[string,string,string]>}{
  const palette=node.role?roles[node.role]:undefined;
  const fill=palette?.fill??(node.status?({built:'--green-wash',placeholder:'--amber-wash',decided:'--sky-wash',unknown:'--gray-wash'} as Record<string,string>)[node.status]:undefined);
  const stroke=node.status?statuses[node.status]:palette?.stroke;
  const color=palette?.color??stroke;
  const portLabels=(node.ports??[]).map(port=>portCaption(port).length);
  const portWidth=portLabels.length?Math.max(320,Math.max(...portLabels)*8+190):240;
- const shape=liniShapeDefinition(node.shape),props=[fill?property('fill',fill):undefined,stroke?property('stroke',stroke):undefined,color?property('color',color):undefined,node.emphasis==='focus'?property('stroke-width',3):node.emphasis==='muted'?property('opacity',0.55):undefined,...(shape?.properties??[]),property('width',portWidth)];
+ const shape=liniShapeDefinition(node.shape),props=[fill?property('fill',fill):undefined,stroke?property('stroke',stroke):undefined,color?property('color',color):undefined,node.emphasis==='focus'?property('stroke-width',3):node.emphasis==='muted'?property('opacity',0.55):undefined,...(shape?.properties??[]),property('width',width??portWidth)];
  const approximations:Array<[string,string,string]>=[];
  if(node.role)approximations.push(['role',`Node role ${node.role}`,node.role==='process'?'Lini shows the “Process” role caption and process palette while preserving the authored shape; this denotes a depicted process/activity.':node.shape?`Lini role ${node.role} palette color is shown independently from the authored native ${node.shape} shape.`:`Lini node shape/color convention (${palette?.shape??'box'} with palette ${node.role}).`]);
  if(node.status)approximations.push(['status',`Node status ${node.status}`,'Lini fill/stroke color convention.']);
@@ -91,13 +92,14 @@ function groupProperties(group:VisualGroup|undefined,layout:VisualLayout|undefin
   group?.emphasis==='muted'?property('opacity',0.55):undefined,
  ].filter((item):item is string=>!!item);
 }
-function nodeDeclaration(node:VisualNode,nativeId:string):string{
- const style=nodeStyle(node);
+function nodeDeclaration(node:VisualNode,nativeId:string,placement?:{x:number;y:number;width:number}):string{
+ const style=nodeStyle(node,placement?.width);
  const caption=node.label;
  const symbol=node.icon?liniIcon(node.icon):undefined;
  const children=[node.detail?`|cell#detail| ${q(node.detail)}`:undefined,node.role==='process'&&node.label!=='Process'&&node.detail!=='Process'?`|cell#role| ${q('Process')}`:undefined,symbol?`|icon| { symbol: ${symbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:node.icon?`|cell#icon| ${q('Icon: '+node.icon)}`:undefined,...(node.ports??[]).map((port,index)=>`|cell#p${index+1}| ${q(portCaption(port))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`)].filter((item):item is string=>!!item);
  const properties=style.properties;
- return `|${style.type}#${nativeId}| ${q(caption)}${properties.length?` { ${properties.join(' ')} }`:''}${children.length?` [\n${children.map(item=>'  '+item).join('\n')}\n]`:''}`;
+ const positioned=placement?`pin: center; translate: ${Math.round(placement.x)} ${Math.round(placement.y)}; `:'';
+ return `|${style.type}#${nativeId}| ${q(caption)}${properties.length||positioned?` { ${positioned}${properties.join(' ')} }`:''}${children.length?` [\n${children.map(item=>'  '+item).join('\n')}\n]`:''}`;
 }
 function groupDeclaration(id:string,label:string,properties:string[],children:string[],indent=''):string{
  const body=children.map(line=>line.split('\n').map((part,index)=>index===0?indent+'  '+part:indent+'  '+part).join('\n')).join('\n');
@@ -161,7 +163,12 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
   const fallbackLayout=visual.form==='entities'||visual.form==='stack'||visual.form==='network'?'grid':'flow';
   const rootComponents=groups.filter(group=>!group.parent).length+nodes.filter(node=>!node.group&&!node.parent).length;
   const rootColumns=visual.form==='entities'?(direction==='TB'?1:2):visual.form==='stack'?(rootLayout?.kind==='stack'&&(rootLayout.direction??direction)==='LR'?Math.max(1,visual.structure?.layers?.length??nodes.length):1):visual.form==='network'?Math.max(1,Math.min(3,rootComponents)):undefined;
-  const rootProperties=[...layoutProperties(rootLayout,fallbackLayout,rootColumns??1,direction),`gap: ${visual.form==='entities'?88:visual.form==='stack'?44:72};`,`padding: 36;`,`fill: none;`,`stroke: none;`,`stroke-width: 0;`].filter((item):item is string=>!!item);
+  const circularNodes=rootLayout?.kind==='circular'&&visual.kind==='flow'?ordered(nodes,rootLayout.order):[];
+  const circularSizes=circularNodes.map(node=>({id:node.id,width:Math.max(120,(Math.max(node.label.length,node.detail?.length??0)*8)+32,...(node.ports??[]).map(port=>portCaption(port).length*8+190)),height:58+(node.detail?22:0)+(node.role==='process'&&node.label!=='Process'&&node.detail!=='Process'?18:0)}));
+  const circle=circularNodes.length?circularPlacement(circularSizes,28):undefined;
+  const circlePosition=new Map<string,{id:string;x:number;y:number;width:number}>(circle?.positions.map((position,index)=>[position.id,{...position,width:circularSizes[index]!.width}])??[]);
+  if(circle){const titleCenter=Math.round((Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.width))+72)/2)-(qTitle.length*6.6/2));styleRules.push(`.lini-caption { font-size: 22; font-weight: 600; color: --blue-deep; translate: ${titleCenter} -30; }`);}
+  const rootProperties=[...(circle?['layout: flow;','direction: row;',`width: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.width))+72)};`,`height: ${Math.ceil(circle.radius*2+Math.max(...circularSizes.map(item=>item.height))+90)};`]:layoutProperties(rootLayout,fallbackLayout,rootColumns??1,direction)),`gap: ${visual.form==='entities'?88:visual.form==='stack'?44:72};`,`padding: 36;`,`fill: none;`,`stroke: none;`,`stroke-width: 0;`].filter((item):item is string=>!!item);
   if(rootLayout?.kind==='grid'&&rootLayout.columns===1)approx(path('/layout'),'Grid layout with one column','Lini 1.1 represents a one-column grid with native column flow; requested component order and single-column containment are preserved.');
   let children:string[]=[];
 
@@ -228,7 +235,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     if(group.tier!==undefined)omit(path('/groups/'+index+'/tier'),'Tier remains in the UMF source; Lini group rendering has no persistent tier carrier.');
     return groupDeclaration(id,labelGroup(group),props,childRows,indent);
    };
-   for(const item of rootItems){if(groups.includes(item as VisualGroup))children.push(renderGroup(item as VisualGroup));else children.push(nodeDeclaration(item as VisualNode,nodeIds.get(item.id)!));}
+   for(const item of rootItems){if(groups.includes(item as VisualGroup))children.push(renderGroup(item as VisualGroup));else children.push(nodeDeclaration(item as VisualNode,nodeIds.get(item.id)!,circlePosition.get(item.id)));}
    children.push(...(edgeRowsByScope.get(undefined)??[]));
    const rootRouteKinds=routeKindsByScope.get(undefined);if(rootRouteKinds?.size===1){const route=rootRouteKinds.values().next().value;rootProperties.push('routing: '+(route==='curved'?'natural':'straight')+';');}else if(!rootRouteKinds&&straightRootRouting)rootProperties.push('routing: straight;');
    if(rootLayout?.kind==='flow'&&rootLayout.order)approx(path('/layout/order'),'Explicit root component order','Declarations follow the requested order; native graph layout can still route links around that order.');

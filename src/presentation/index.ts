@@ -3,16 +3,18 @@
 import type {Document} from '@umf/core';
 import {getVisual,inspectVisual,type Visual,type VisualNode,type VisualGroup,type VisualField,type VisualMultiplicity,type VisualDefs} from '../extensions/visual';
 import {compileLiniPresentation} from './lini';
+import {circularPlacement} from './circular';
 
 export type PresentationBackend='graphviz'|'mermaid'|'lini';
 export interface PresentationOptions {backend:PresentationBackend;direction?:'LR'|'TB';theme?:'presentation/1';}
 export interface PresentationDiagnostic {code:string;path:string;message:string;severity:'error'|'warning';}
+export interface PresentationExecution {runtime:'graphviz';layoutEngine:'neato';nodePositions:'fixed';}
 export interface PresentationElement {logicalId:string;sourcePath:string;nativeId:string;kind:'visual'|'group'|'node'|'edge'|'layer'|'entity'|'field'|'port'|'reference'|'participant'|'message'|'note';}
 export interface PresentationOmission {sourcePath:string;reason:string;}
-export interface PresentationApproximation {sourcePath:string;requested:string;representation:string;code?:'ROUTING_SCOPE_CONFLICT'|'ROUTING_NATIVE_INTERPOLATION';}
+export interface PresentationApproximation {sourcePath:string;requested:string;representation:string;code?:'ROUTING_SCOPE_CONFLICT'|'ROUTING_NATIVE_INTERPOLATION'|'CIRCULAR_NATIVE_GRID';}
 export interface PresentationPlan {
  ok:true;profileId:'umf.visual.presentation/1';backend:PresentationBackend;nativeFormat:'dot'|'mermaid'|'lini';source:string;
- elementMap:PresentationElement[];omissions:PresentationOmission[];approximations:PresentationApproximation[];
+ elementMap:PresentationElement[];omissions:PresentationOmission[];approximations:PresentationApproximation[];execution?:PresentationExecution;
 }
 export interface PresentationFailure {ok:false;diagnostics:PresentationDiagnostic[];}
 export type PresentationResult=PresentationPlan|PresentationFailure;
@@ -78,6 +80,10 @@ export function compilePresentation(document:Document,options:PresentationOption
  const strings:{value:string;path:string}[]=[];const pending:{value:unknown;path:string}[]=[{value:visual,path:BASE}];
  while(pending.length){const current=pending.pop()!;if(typeof current.value==='string'){strings.push({value:current.value,path:current.path});continue;}if(Array.isArray(current.value)){for(let i=0;i<current.value.length;i++)pending.push({value:current.value[i],path:current.path+'/'+i});}else if(current.value&&typeof current.value==='object'){for(const[k,v]of Object.entries(current.value))pending.push({value:v,path:current.path+'/'+ptr(k)});}}
  for(const item of strings){for(let i=0;i<item.value.length;i++){const code=item.value.charCodeAt(i);if(code===13||code===0||(code<32&&code!==9&&code!==10)){return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Carriage returns and control characters other than tab/newline cannot be represented by the presentation renderers.') ]};}if(code>=0xD800&&code<=0xDBFF){const next=item.value.charCodeAt(i+1);if(!(next>=0xDC00&&next<=0xDFFF))return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Unpaired UTF-16 surrogates cannot be represented by the presentation renderers.') ]};i++;}else if(code>=0xDC00&&code<=0xDFFF)return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Unpaired UTF-16 surrogates cannot be represented by the presentation renderers.') ]};}}
+ const unsupportedCircularGroup=visual.groups?.find(group=>group.layout?.kind==='circular');
+ if(unsupportedCircularGroup)return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/groups/'+visual.groups!.indexOf(unsupportedCircularGroup)+'/layout','Circular placement is not qualified for nested group scopes; no grid or flow fallback is selected.')]};
+ if(visual.layout?.kind==='circular'&&(visual.kind!=='flow'||visual.form!=='network'))return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/layout','Circular placement is currently qualified only for a root flow/network presentation.')]};
+ if(visual.layout?.kind==='circular'&&((visual.groups?.length??0)>0||(visual.nodes??[]).some(node=>node.group||node.parent)))return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/layout','Circular placement is currently qualified only for ungrouped root flow/network nodes; no nested-layout fallback is selected.')]};
  const rich=visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree';
  const supported=visual.kind==='flow'&&visual.form==='network'
   ||visual.kind==='structure'&&(visual.form==='stack'||visual.form==='entities'||visual.form==='tree')
@@ -90,7 +96,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  const errors:PresentationDiagnostic[]=[];
  const map:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];
  const addMap=(logicalId:string,sourcePath:string,nativeId:string,kind:PresentationElement['kind'])=>map.push({logicalId,sourcePath,nativeId,kind});
- const approx=(sourcePath:string,requested:string,representation:string)=>approximations.push({sourcePath,requested,representation});
+ const approx=(sourcePath:string,requested:string,representation:string,code?:PresentationApproximation['code'])=>approximations.push({sourcePath,requested,representation,...(code?{code}:{})});
  const omit=(sourcePath:string,reason:string)=>omissions.push({sourcePath,reason});
  addMap(visual.id,BASE,'visual','visual');
  const title=visual.title??visual.question;
@@ -303,18 +309,26 @@ export function compilePresentation(document:Document,options:PresentationOption
  const routeApproximation=(i:number,edge:NonNullable<Visual['edges']>[number],backendName:string,applicable:boolean,code?:PresentationApproximation['code'])=>{const reason=applicable?backendName:`${backendName} cannot apply both curved and straight edge intent per edge; this edge keeps the backend's default route and its requested ${edge.routing!.kind} geometry is not guaranteed.`;approximations.push({sourcePath:path('/edges/'+i+'/routing'),requested:'Edge routing '+edge.routing!.kind,representation:reason,...(code?{code}:{})});};
  if(backend==='graphviz'){
   const rootLayout=visual.layout,flowDirection=layoutDirection(rootLayout,rootLayout?.kind==='stack'||rootLayout?.kind==='grid'?'TB':dir);
+  const circular=rootLayout?.kind==='circular'&&visual.kind==='flow'?ordered(nodes,rootLayout.order):[];
+  const circularSize=(node:VisualNode)=>{const text=labelNode(node).split('\n'),portWidth=Math.max(0,...(node.ports??[]).map(port=>(port.label??port.id).length+port.id.length+8)),width=Math.max(1.35,...text.map(line=>line.length*.105+.38),portWidth*.085+.45),height=Math.max(.58,text.length*.22+.22);return{id:node.id,width,height};};
+  const circleSizes=circular.map(circularSize);
+  const circle=circular.length?circularPlacement(circleSizes,0.38):undefined;
+  const circlePosition=new Map(circle?.positions.map(position=>[position.id,{x:position.x*72,y:-position.y*72}])??[]);
   const splines=routeMode==='curved'&&!mixedRouteIntent?'curved':routeMode==='straight'&&!mixedRouteIntent?'line':'true';
-  const lines=['digraph UMFPresentation {','  graph [rankdir='+dot(flowDirection)+', bgcolor="transparent", pad="0.34", nodesep="0.46", ranksep="0.62", splines='+splines+', overlap=false, compound=true, fontname="Arial", fontsize=22, fontcolor="#203746", labelloc="t", label='+dot(displayTitle(visual))+'];','  node [shape=box, style="rounded,filled", fillcolor="#e8f2f3", color="#577782", penwidth=1.7, fontname="Arial", fontsize=16, fontcolor="#203746", margin="0.22,0.17", width=2.35, height=1.08];','  edge [fontname="Arial", fontsize=12, color="#617984", fontcolor="#304652", penwidth=1.7, arrowsize=0.85];'];
+  const nodeDefaults=circle?'margin="0.12,0.10"':'margin="0.22,0.17", width=2.35, height=1.08';
+  const lines=['digraph UMFPresentation {','  graph ['+(circle?'layout="neato",':'rankdir='+dot(flowDirection)+',')+' bgcolor="transparent", pad="0.34", nodesep="0.46", ranksep="0.62", splines='+splines+', overlap=false, compound=true, fontname="Arial", fontsize=22, fontcolor="#203746", labelloc="t", label='+dot(displayTitle(visual))+'];','  node [shape=box, style="rounded,filled", fillcolor="#e8f2f3", color="#577782", penwidth=1.7, fontname="Arial", fontsize=16, fontcolor="#203746", '+nodeDefaults+'];','  edge [fontname="Arial", fontsize=12, color="#617984", fontcolor="#304652", penwidth=1.7, arrowsize=0.85];'];
   const nodeStatement=(n:VisualNode):string=>{
    const id=nodeIds.get(n.id)!;
    if(n.shape==='multiple-documents'){
     approx(path('/nodes/'+nodes.indexOf(n)+'/shape'),'Node shape multiple-documents','Graphviz uses one native HTML-like node label with a bordered front sheet and offset top/right backing-sheet strokes. The page layers are one logical node; they do not encode a document count.');
     return graphvizMultipleDocumentStatement(n,id);
    }
-   if(!n.ports?.length)return '  '+id+' [label='+dot(labelNode(n))+nodeStyle(n)+shapeOverride(n)+'];';
+   const position=circlePosition.get(n.id),fixed=position?`, pos="${position.x.toFixed(2)},${position.y.toFixed(2)}!", pin=true`:'';
+   const measured=position?circularSize(n):undefined,sizeAttrs=measured?`, width="${measured.width.toFixed(2)}", height="${measured.height.toFixed(2)}"`:'';
+   if(!n.ports?.length)return '  '+id+' [label='+dot(labelNode(n))+nodeStyle(n)+shapeOverride(n)+sizeAttrs+fixed+'];';
    const portHtml=n.ports.map((port,portIndex)=>`<TR><TD PORT="p${portIndex+1}" ALIGN="LEFT" CELLPADDING="4" BORDER="1" COLOR="#c8d6da"><FONT COLOR="#536e78" POINT-SIZE="11">${dotHtml(port.label??port.id)} · ${port.id}${port.side?' · '+port.side:''}</FONT></TD></TR>`).join('');
    const roleCaption=processRoleCaption(n)?'<BR/><FONT POINT-SIZE="11">Process</FONT>':'';
-   return '  '+id+' [label=< <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD ALIGN="LEFT" CELLPADDING="8"><B>'+dotHtml(n.label)+'</B>'+(n.detail?'<BR/><FONT POINT-SIZE="11">'+dotHtml(n.detail)+'</FONT>':'')+roleCaption+'</TD></TR>'+portHtml+'</TABLE> >'+nodeStyle(n)+shapeOverride(n)+'];';
+   return '  '+id+' [label=< <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD ALIGN="LEFT" CELLPADDING="8"><B>'+dotHtml(n.label)+'</B>'+(n.detail?'<BR/><FONT POINT-SIZE="11">'+dotHtml(n.detail)+'</FONT>':'')+roleCaption+'</TD></TR>'+portHtml+'</TABLE> >'+nodeStyle(n)+shapeOverride(n)+sizeAttrs+fixed+'];';
   };
   const representative=(id:string):string|undefined=>{
    const node=nodes.find(n=>n.id===id);if(node)return nodeIds.get(id);
@@ -344,14 +358,14 @@ export function compilePresentation(document:Document,options:PresentationOption
   for(const n of nodes)if(n.parent){
    const parent=nodeIds.get(n.parent),nid=nodeIds.get(n.id);if(parent&&nid){lines.push('  '+nid+' [label='+dot(labelNode(n))+nodeStyle(n)+shapeOverride(n)+'];');approx(path('/nodes/'+nodes.indexOf(n)+'/parent'),'Nested node parent','Parent relation shown as a dotted hierarchy connector.');lines.push('  '+parent+' -> '+nid+' [style=dotted, arrowhead=none, color="#aab9bd", constraint=false];');}
   }
-  layoutConstraints(rootLayout,'  ',path('/layout'));
+  if(!circle)layoutConstraints(rootLayout,'  ',path('/layout'));
   edges.forEach((e,i)=>{
    const fromNode=nodes.find(n=>n.id===e.from),toNode=nodes.find(n=>n.id===e.to),fromPort=findPort(fromNode,e.fromPort),toPort=findPort(toNode,e.toPort);
    if((e.fromPort&&!fromPort)||(e.toPort&&!toPort)){errors.push(diag('PRESENTATION_PORT',path('/edges/'+i),'A flow edge port reference does not resolve within its endpoint node.'));return;}
    const style=e.kind==='data'?'dashed':e.kind==='control'?'dotted':e.kind==='return'?'bold':'solid';
    const inferredBoundarySides=e.routing?.kind==='curved'&&!mixedRouteIntent&&!fromPort&&!toPort;
    const graphUsesCurvedSplines=routeMode==='curved'&&!mixedRouteIntent;
-   const attrs=[e.label?(graphUsesCurvedSplines?'xlabel':'label')+'='+dot(e.label):undefined,e.why?'tooltip='+dot(e.why):undefined,'style='+dot(style),e.directed===false?'dir=none':undefined,inferredBoundarySides?'tailport=e, headport=s':undefined,e.status==='placeholder'?'color="#ba8745"':e.status==='built'?'color="#668f78"':undefined,e.emphasis==='focus'?'penwidth=2.8':e.emphasis==='muted'?'color="#b8c4c7"':undefined].filter(Boolean).join(', ');
+   const attrs=[e.label?(graphUsesCurvedSplines?'xlabel':'label')+'='+dot(e.label):undefined,e.why?'tooltip='+dot(e.why):undefined,'style='+dot(style),e.directed===false?'dir=none':undefined,inferredBoundarySides?'tailport=e':undefined,inferredBoundarySides?'headport=s':undefined,e.status==='placeholder'?'color="#ba8745"':e.status==='built'?'color="#668f78"':undefined,e.emphasis==='focus'?'penwidth=2.8':e.emphasis==='muted'?'color="#b8c4c7"':undefined].filter(Boolean).join(', ');
    const sideCode={north:'n',east:'e',south:'s',west:'w'} as const;
    const fromNative=nodeIds.get(e.from)!+(fromPort?':p'+(fromNode!.ports!.indexOf(fromPort)+1)+(fromPort.side?':'+sideCode[fromPort.side]:''):inferredBoundarySides?':e':''),toNative=nodeIds.get(e.to)!+(toPort?':p'+(toNode!.ports!.indexOf(toPort)+1)+(toPort.side?':'+sideCode[toPort.side]:''):inferredBoundarySides?':s':'');
    lines.push('  '+fromNative+' -> '+toNative+' [id='+dot(edgeIds.get(e.id)!) +(attrs?', '+attrs:'')+'];');
@@ -374,9 +388,37 @@ export function compilePresentation(document:Document,options:PresentationOption
   if(visual.audience)omit(path('/audience'),'Audience metadata is retained in UMF but not drawn.');
   if(visual.source){} // already inventoried
   lines.push('}');
-  return {ok:true,profileId:'umf.visual.presentation/1',backend,nativeFormat:'dot',source:lines.join('\n')+'\n',elementMap:map,omissions,approximations};
+  return {ok:true,profileId:'umf.visual.presentation/1',backend,nativeFormat:'dot',source:lines.join('\n')+'\n',elementMap:map,omissions,approximations,...(circle?{execution:{runtime:'graphviz' as const,layoutEngine:'neato' as const,nodePositions:'fixed' as const}}:{})};
  }
  const rootLayout=visual.layout,flowDirection=layoutDirection(rootLayout,rootLayout?.kind==='stack'||rootLayout?.kind==='grid'?'TB':dir);
+ if(rootLayout?.kind==='circular'&&backend==='mermaid'){
+  if(nodes.some(node=>node.shape!==undefined&&node.shape!=='rectangle'||node.ports?.length||node.role||node.status||node.emphasis||node.icon)||edges.some(edge=>edge.kind!==undefined&&edge.kind!=='data'||edge.directed===false||edge.routing!==undefined&&edge.routing.kind!=='straight'||edge.label||edge.status||edge.emphasis))return {ok:false,diagnostics:[diag('PRESENTATION_MERMAID_CIRCULAR_SUBSET',BASE+'/layout','Mermaid circular block projection currently admits rectangular nodes without ports, roles, or node styling and directed, unlabeled, unstyled edges with absent or data kind and absent or straight routing.') ]};
+  const pairs=new Set<string>();for(const edge of edges){const key=edge.from+'\0'+edge.to;if(pairs.has(key))return {ok:false,diagnostics:[diag('PRESENTATION_MERMAID_CIRCULAR_SUBSET',BASE+'/edges','Mermaid block connectors do not expose stable edge IDs; parallel links with identical endpoints are refused rather than conflated.') ]};pairs.add(key);}
+  const circular=ordered(nodes,rootLayout.order),side=Math.max(5,Math.ceil(Math.sqrt(Math.max(1,circular.length))*3.5+1)|1),center=(side-1)/2,radius=center*.92,occupied=new Set<string>(),locations=new Map<string,{row:number;column:number}>();
+  for(let i=0;i<circular.length;i++){
+   const angle=2*Math.PI*i/circular.length,desired=circular.length===1?{column:center,row:center}:{column:center+radius*Math.cos(angle),row:center+radius*Math.sin(angle)};
+   const candidates=Array.from({length:side*side},(_,index)=>({row:Math.floor(index/side),column:index%side})).sort((a,b)=>Math.hypot(a.row-desired.row,a.column-desired.column)-Math.hypot(b.row-desired.row,b.column-desired.column)||Math.abs(Math.hypot(a.row-center,a.column-center)-radius)-Math.abs(Math.hypot(b.row-center,b.column-center)-radius));
+   const chosen=candidates.find(point=>!occupied.has(point.row+','+point.column));if(!chosen)return {ok:false,diagnostics:[diag('PRESENTATION_MERMAID_CIRCULAR_SUBSET',BASE+'/layout','This circular order cannot be placed on distinct Mermaid block cells without adding logical helper nodes.') ]};
+   occupied.add(chosen.row+','+chosen.column);locations.set(circular[i]!.id,chosen);
+  }
+  const labelWidths=circular.map(node=>Math.max(node.label.length,node.detail?.length??0)),nodeWidth=Math.max(90,...labelWidths.map(length=>Math.ceil(length*9+24))),nodeHeight=Math.max(68,...circular.map(node=>node.detail?88:68));
+  const blockText=(value:string)=>mermaidText(value).replace(/#32;/g,' ');
+  const lines=['---','title: '+JSON.stringify(displayTitle(visual)),"config:",'  themeCSS: '.concat(JSON.stringify('.edge-pattern-dotted { stroke-dasharray: 6 4 !important; }')),'---','block-beta',`  columns ${side}`,`  heading["${blockText(displayTitle(visual))}"]:${side}`];
+  for(let row=0;row<side;row++){const cells:string[]=[];for(let column=0;column<side;column++){const node=circular.find(item=>{const point=locations.get(item.id);return point?.row===row&&point.column===column;});if(!node)cells.push('space');else{const label=[node.label,node.detail,processRoleCaption(node)].filter((value):value is string=>!!value).map(blockText).join('<br/>');cells.push(`${nodeIds.get(node.id)}["${label}"]`);}}lines.push('  '+cells.join(' '));}
+  lines.push(`  style heading fill:none,stroke:none,color:#203746,font-size:22px,height:46px,width:${side*nodeWidth}px`);
+  for(const node of circular){const palette=node.role==='process'?'fill:#f4eef4,stroke:#8c6b87':node.role==='store'?'fill:#e8efff,stroke:#637cae':node.status==='built'?'fill:#e8f2ec,stroke:#668f78':'fill:#e8f2f3,stroke:#577782',id=nodeIds.get(node.id)!;lines.push(`  style ${id} ${palette},stroke-width:1.5px,width:${nodeWidth}px,height:${nodeHeight}px,font-size:16px`);}
+  for(let i=0;i<edges.length;i++){
+   const edge=edges[i]!,from=nodeIds.get(edge.from),to=nodeIds.get(edge.to);if(!from||!to)return {ok:false,diagnostics:[diag('PRESENTATION_ENDPOINT',path('/edges/'+i),'A circular edge endpoint is not a declared visual node.')]};
+   const nativeId=`${from}-${to}`,mapIndex=map.findIndex(item=>item.kind==='edge'&&item.logicalId===edge.id);if(mapIndex>=0)map[mapIndex]={...map[mapIndex]!,nativeId};else addMap(edge.id,path('/edges/'+i),nativeId,'edge');const operator=edge.kind==='data'?'-.->':'-->';lines.push(`  ${from} ${operator} ${to}`);
+   if(edge.routing)approx(path('/edges/'+i+'/routing'),'Edge routing straight','Mermaid block-beta routes block links through native smooth interpolation that can deviate from a direct chord; endpoint ownership and direction are checked against the emitted path.', 'ROUTING_NATIVE_INTERPOLATION');
+   if(edge.kind==='data')approx(path('/edges/'+i+'/kind'),'Connection kind data','Mermaid 12.2 block-beta has a dotted native arrow but no native dashed connector selector. This source embeds a Mermaid frontmatter themeCSS rule that renders the data connector pattern dashed.');
+   if(edge.why)omit(path('/edges/'+i+'/why'),'Connection rationale is retained in UMF but not visible in the static block diagram.');
+  }
+  approx(path('/layout'),'Circular node placement','Mermaid 12.2 block-beta places the authored clockwise node order on grid-quantized circular cells. Cell centers approximate the circle; native cells, edge paths, and endpoints remain individually visible.','CIRCULAR_NATIVE_GRID');
+  if(visual.steps)omit(path('/steps'),'Walkthrough steps are retained in the UMF source and are not part of the static circular diagram.');
+  if(visual.audience)omit(path('/audience'),'Audience metadata is retained in UMF but not drawn.');
+  return {ok:true,profileId:'umf.visual.presentation/1',backend,nativeFormat:'mermaid',source:lines.join('\n')+'\n',elementMap:map,omissions,approximations};
+ }
  const lines=[...mermaidHeader(visual),'flowchart '+flowDirection];
  let mermaidLinkIndex=0;
  const children=(id:string)=>groups.filter(g=>g.parent===id),members=(id:string)=>nodes.filter(n=>n.group===id&&!n.parent);

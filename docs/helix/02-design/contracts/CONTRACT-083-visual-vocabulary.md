@@ -380,6 +380,25 @@ identity only with source-bound evidence. Unknown extensions and exact native
 geometry remain preserved under the existing rules. Version 1.4.0 is unreleased;
 this addition does not mutate frozen 1.3.0 or older interpretation/defaults.
 
+### Draft 1.4.0 circular composition
+
+`layout` and `group.layout` MAY declare `{kind: 'circular', order?: Id[]}` wherever
+the existing flow/grid composition scopes are admitted: root node-based flow,
+structure and state views, and groups in flow/structure views. It requests direct
+children arranged around one circular perimeter. A supplied order MUST be an
+exact permutation of that container's direct nodes and subgroups, traversed
+clockwise. Absence leaves angular order unspecified. Starting angle, rotation,
+radius, spacing and exact coordinates remain interpreter choices. Decorative
+placement MUST NOT create edges, hierarchy, execution order or temporal meaning.
+Existing state top-level membership and stack layer-order consistency rules
+remain in force; this addition does not widen sequence or quantitative layout.
+
+Native support scope belongs to each interpreter. An admitted circular scope
+MUST be realized, explicitly approximated at its source layout path, or refused;
+a backend's initial root-network subset MUST NOT narrow this shared definition.
+Earlier model versions retain their exact interpretation and unknown-content
+behavior. Draft 1.4.0 remains unreleased.
+
 ## Non-Normative Notes
 
 The renderer, layout engines, theme mapping and checks of the drawing (clipped text, crossings,

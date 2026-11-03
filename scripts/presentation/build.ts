@@ -7,7 +7,7 @@ import {chromium,type Browser,type Page} from 'playwright';
 import mermaidPackage from 'mermaid/package.json';
 import type {Document} from '@umf/core';
 import {createVisualDocument,readVisualDocument,type Visual} from '../../src/extensions/visual';
-import {compilePresentation,type PresentationPlan,type PresentationBackend} from '../../src/presentation';
+import {compilePresentation,type PresentationPlan,type PresentationBackend,type PresentationExecution} from '../../src/presentation';
 import {verifyPresentationQuality} from './quality';
 import {loadPresentationLini,renderPresentationLini} from './lini-runtime';
 import {visualPayloadYaml} from './payload-source';
@@ -17,14 +17,15 @@ const defaultSourceManifestPath='fixtures/showcase/showcase-sources.json';
 const defaultOutputPath='dist-site/showcase.json';
 const sha=(data:string|Uint8Array)=>createHash('sha256').update(data).digest('hex');
 const posix=(s:string)=>s.split(sep).join('/');
-const safe=(s:string)=>s.replace(/[^a-zA-Z0-9_-]+/g,'-');
+export const safePresentationSeed=(s:string)=>s.replace(/[^a-zA-Z0-9_-]+/g,'-');
+const safe=safePresentationSeed;
 const errorText=(e:unknown)=>e instanceof Error?e.message:String(e);
 
 interface PublishedAsset {path:string;sha256:string;outputPath:string;mediaType?:string;description?:string;}
 interface SourceExample {id:string;title:string;description:string;kind:string;form:string;definitionPath:string;definitionSha256:string;sources:unknown[];publishedAssets?:PublishedAsset[];}
 interface SourceManifest {schemaVersion:1;examples:SourceExample[];}
 interface QualityCheck {check:string;sourceSha256:string;result:'pass'|'fail';details:string;}
-interface RenderRow {backend:PresentationBackend;engine:string;nativeVersion:string;nativeSourcePath:string;nativeSourceSha256:string;svgPath:string;svgSha256:string;pngPath:string;pngSha256:string;width:number;height:number;elementMap:unknown[];omissions:unknown[];approximations:unknown[];status:'qualified'|'unsupported'|'failed'|'unqualified';quality:{evidence:QualityCheck[]};diagnostics?:unknown[];error?:string;}
+interface RenderRow {backend:PresentationBackend;engine:string;nativeVersion:string;nativeSourcePath:string;nativeSourceSha256:string;svgPath:string;svgSha256:string;pngPath:string;pngSha256:string;width:number;height:number;elementMap:unknown[];omissions:unknown[];approximations:unknown[];execution?:PresentationExecution;status:'qualified'|'unsupported'|'failed'|'unqualified';quality:{evidence:QualityCheck[]};diagnostics?:unknown[];error?:string;}
 
 function assertRelative(path:string,label:string):void {if(!path||path.startsWith('/')||path.split(/[\\/]/).includes('..'))throw new Error(`${label} must be a safe relative path.`);}
 async function command(args:string[],input?:string):Promise<{stdout:string;stderr:string;exit:number}> {
@@ -37,14 +38,22 @@ async function version(args:string[],regex:RegExp,label:string):Promise<string>{
 function jsonDocument(raw:string):Document {return readVisualDocument(raw,'json');}
 function visualOf(doc:Document):Visual{return doc.extensions!['umf.visual'] as unknown as Visual;}
 
-async function renderDot(source:string,format:'svg'|'json'):Promise<{output:string;diagnostics:string}> {
- const r=await command(['dot','-T'+format],source);
+export function graphvizExecutionArgs(execution:PresentationExecution|undefined,format:'svg'|'json'):{command:'dot'|'neato';args:string[]}{
+ if(!execution)return{command:'dot',args:['-T'+format]};
+ if(typeof execution!=='object'||Array.isArray(execution)||(Object.getPrototypeOf(execution)!==Object.prototype&&Object.getPrototypeOf(execution)!==null))throw new Error('Graphviz execution metadata must be a plain data object.');
+ const descriptors=Object.getOwnPropertyDescriptors(execution),keys=Reflect.ownKeys(descriptors),expected=['layoutEngine','nodePositions','runtime'];
+ if(keys.some(key=>typeof key!=='string'||!expected.includes(key))||keys.length!==expected.length||keys.some(key=>!('value'in descriptors[key as keyof typeof descriptors]!)))throw new Error('Graphviz execution metadata contains unknown keys or accessors.');
+ if(execution.runtime!=='graphviz'||execution.layoutEngine!=='neato'||execution.nodePositions!=='fixed')throw new Error('Unsupported or inconsistent Graphviz execution plan.');
+ return{command:'neato',args:['-n2','-T'+format]};
+}
+async function renderDot(source:string,format:'svg'|'json',execution?:PresentationExecution):Promise<{output:string;diagnostics:string}> {
+ const invocation=graphvizExecutionArgs(execution,format),r=await command([invocation.command,...invocation.args],source);
  if(r.exit!==0)throw new Error(`Graphviz ${format} compile failed: ${(r.stderr||r.stdout).trim()}`);
  if(r.stderr.trim())throw new Error(`Graphviz emitted diagnostics: ${r.stderr.trim()}`);
  return {output:r.stdout,diagnostics:r.stderr};
 }
 
-async function mermaidSvg(page:Page,source:string,seed:string):Promise<{svg:string;version:string}> {
+export async function mermaidSvg(page:Page,source:string,seed:string):Promise<{svg:string;version:string}> {
  await page.setContent('<!doctype html><meta charset="utf-8"><body><main id="out"></main></body>',{waitUntil:'domcontentloaded'});
  let external:string|undefined;const diagnostics:string[]=[];
  const listener=(msg:import('playwright').ConsoleMessage)=>{if(msg.type()==='error'||msg.type()==='warning')diagnostics.push(msg.type()+': '+msg.text());};
@@ -148,9 +157,9 @@ async function verifyNativeSvg(browser:Browser,svg:string,tokens:string[]):Promi
  }finally{await page.close();}
 }
 
-async function buildRender(example:SourceExample,doc:Document,backend:PresentationBackend,browser:Browser,versions:{graphviz:string;mermaid:string;lini:string;chromium:string},assetDirectory:string):Promise<RenderRow>{
+async function buildRender(example:SourceExample,doc:Document,backend:PresentationBackend,browser:Browser,versions:{graphviz:string;neato:string;mermaid:string;lini:string;chromium:string},assetDirectory:string):Promise<RenderRow>{
  const plan=compilePresentation(doc,{backend,theme:'presentation/1'});
- if(!plan.ok){const refused=plan.diagnostics.every(d=>d.code==='PRESENTATION_FORM'||d.code==='PRESENTATION_BACKEND_SUBSET'||d.code==='PRESENTATION_MERMAID_FIELD'||d.code==='PRESENTATION_MERMAID_CARDINALITY'||d.code==='PRESENTATION_MERMAID_RELATIONSHIP');return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath:'',nativeSourceSha256:'',svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:[],omissions:[],approximations:[],status:refused?'unsupported':'failed',quality:{evidence:[]},diagnostics:plan.diagnostics};}
+ if(!plan.ok){const refused=plan.diagnostics.every(d=>d.code==='PRESENTATION_FORM'||d.code==='PRESENTATION_BACKEND_SUBSET'||d.code==='PRESENTATION_MERMAID_FIELD'||d.code==='PRESENTATION_MERMAID_CARDINALITY'||d.code==='PRESENTATION_MERMAID_RELATIONSHIP'||d.code==='PRESENTATION_CIRCULAR_SCOPE'||d.code==='PRESENTATION_MERMAID_CIRCULAR_SUBSET');return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath:'',nativeSourceSha256:'',svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:[],omissions:[],approximations:[],status:refused?'unsupported':'failed',quality:{evidence:[]},diagnostics:plan.diagnostics};}
  const extension=backend==='graphviz'?'dot':backend==='lini'?'lini':'mmd',base=`${assetDirectory}/${safe(example.id)}/${backend}`,diskBase=`dist-site/${base}`;
  const nativeSourcePath=`${base}/source.${extension}`,svgPath=`${base}/diagram.svg`,pngPath=`${base}/diagram.png`;
  assertRelative(nativeSourcePath,'Native source path');assertRelative(svgPath,'SVG path');assertRelative(pngPath,'PNG path');
@@ -158,7 +167,7 @@ async function buildRender(example:SourceExample,doc:Document,backend:Presentati
  try{
   let svg:string,nativeVersion:string,nativeAst:unknown;
   if(backend==='graphviz'){
-   const [svgResult,jsonResult]=await Promise.all([renderDot(plan.source,'svg'),renderDot(plan.source,'json')]);svg=svgResult.output;nativeVersion=versions.graphviz;
+   const [svgResult,jsonResult]=await Promise.all([renderDot(plan.source,'svg',plan.execution),renderDot(plan.source,'json',plan.execution)]);svg=svgResult.output;nativeVersion=plan.execution?versions.neato:versions.graphviz;
    const ast=JSON.parse(jsonResult.output) as {objects?:{name?:string}[];edges?:{tail?:string;head?:string;tailport?:string;headport?:string}[]};nativeAst=ast;const names=new Set((ast.objects??[]).map(o=>o.name));
    const expectedNodes=plan.elementMap.filter(x=>x.kind==='node'||x.kind==='entity');const missingNodes=expectedNodes.filter(x=>!names.has(x.nativeId));
    if(missingNodes.length)throw Error('Graphviz JSON AST omitted expected native nodes: '+missingNodes.map(x=>x.nativeId).join(', '));
@@ -177,10 +186,10 @@ async function buildRender(example:SourceExample,doc:Document,backend:Presentati
   const image=await screenshotSvg(browser,svg,join(root,'dist-site',pngPath));
   await writeFile(join(root,'dist-site',svgPath),svg);
   const svgSha256=sha(svg),pngBytes=await readFile(join(root,'dist-site',pngPath)),pngSha256=sha(pngBytes);
-  const row:RenderRow={backend,engine:backend,nativeVersion,nativeSourcePath,nativeSourceSha256,svgPath,svgSha256,pngPath,pngSha256,width:image.width,height:image.height,elementMap:plan.elementMap,omissions:plan.omissions,approximations:plan.approximations,status:q,quality:{evidence}};
+  const row:RenderRow={backend,engine:backend,nativeVersion,nativeSourcePath,nativeSourceSha256,svgPath,svgSha256,pngPath,pngSha256,width:image.width,height:image.height,elementMap:plan.elementMap,omissions:plan.omissions,approximations:plan.approximations,...(plan.execution?{execution:plan.execution}:{}),status:q,quality:{evidence}};
   if(q!=='qualified')row.error='One or more source-bound native presentation checks did not pass.';
   return row;
- }catch(error){return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath,nativeSourceSha256,svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:plan.elementMap,omissions:plan.omissions,approximations:plan.approximations,status:'failed',quality:{evidence:[]},error:errorText(error)};}
+ }catch(error){return {backend,engine:backend,nativeVersion:backend==='graphviz'?(plan.execution?versions.neato:versions.graphviz):backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath,nativeSourceSha256,svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:plan.elementMap,omissions:plan.omissions,approximations:plan.approximations,...(plan.execution?{execution:plan.execution}:{}),status:'failed',quality:{evidence:[]},error:errorText(error)};}
 }
 
 export interface BuildShowcaseOptions {manifestPath?:string;outputPath?:string;assetDirectory?:string;}
@@ -209,7 +218,7 @@ export async function buildShowcase(options:BuildShowcaseOptions={}):Promise<{ou
    if(sha(await readFile(join(root,asset.path)))!==asset.sha256)throw Error(`Published asset hash mismatch for ${example.id} at ${asset.path}.`);
   }
  }
- const graphviz=await version(['dot','-V'],/graphviz version\s+([^\s(]+)/i,'Graphviz');
+ const [graphviz,neato]=await Promise.all([version(['dot','-V'],/graphviz version\s+([^\s(]+)/i,'Graphviz dot'),version(['neato','-V'],/graphviz version\s+([^\s(]+)/i,'Graphviz neato')]);
  const lini=(await loadPresentationLini()).version;
  if(typeof mermaidPackage.version!=='string')throw Error('Mermaid package version is unavailable.');
  const browser=await chromium.launch({headless:true});const chromiumVersion=browser.version();const rows=[];let nativeProbes;
@@ -241,7 +250,7 @@ export async function buildShowcase(options:BuildShowcaseOptions={}):Promise<{ou
    if(visual.id!==example.id.replace(/^umf-/,'' )&&visual.id!==example.id)throw Error(`Definition id ${visual.id} does not match showcase id ${example.id}.`);
    if(visual.kind!==example.kind||visual.form!==example.form)throw Error(`Definition kind/form does not match manifest for ${example.id}.`);
    const renders:RenderRow[]=[];
-   for(const backend of ['graphviz','mermaid','lini'] as const)renders.push(await buildRender(example,doc,backend,browser,{graphviz,mermaid:mermaidPackage.version,lini,chromium:chromiumVersion},assetDirectory));
+   for(const backend of ['graphviz','mermaid','lini'] as const)renders.push(await buildRender(example,doc,backend,browser,{graphviz,neato,mermaid:mermaidPackage.version,lini,chromium:chromiumVersion},assetDirectory));
    rows.push({...example,definition:JSON.parse(raw),visualPayloadYaml:visualPayloadYaml(doc),renders});
   }
  }finally{await browser.close();}

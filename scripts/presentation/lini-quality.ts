@@ -296,6 +296,7 @@ export async function verifyLiniPresentationQuality(
  type LayoutMember={id:string;carrier:Carrier};
  const layoutSequence=(scope:string,layout:NonNullable<Visual['layout']>,members:LayoutMember[],defaultDirection:'LR'|'TB')=>{
   if(!members.length)return;
+  if(layout.kind==='circular')return; // Dedicated presentation-circular-layout proof checks angular order and radius.
   const ids=new Set(members.map(member=>member.id)),ranked=(layout.order??[]).filter(id=>ids.has(id)),expected=[...ranked,...members.map(member=>member.id).filter(id=>!ranked.includes(id))];
   const center=(member:LayoutMember)=>({x:member.carrier.containerBounds.x+member.carrier.containerBounds.width/2,y:member.carrier.containerBounds.y+member.carrier.containerBounds.height/2});
   const direction=layout.kind==='flow'||layout.kind==='stack'?(layout.direction??defaultDirection):undefined;

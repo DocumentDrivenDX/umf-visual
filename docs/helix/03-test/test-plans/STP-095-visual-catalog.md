@@ -296,3 +296,30 @@ single-code, no-curve interpolation approximations; require measured geometry an
 visible caveat. Curved-request angular-polyline negative controls MUST still fail.
 Graphviz document stacks must have genuinely offset sheet geometry; concentric
 peripheries fail the stack claim even when text and outlines remain present.
+
+
+## Third-cycle circular composition checks
+
+Verify circular layout admission in existing root/group composition scopes,
+optional exact direct-child clockwise order, state top-level membership, stack
+order consistency, JSON/YAML persistence and frozen-model behavior. Test located
+renderer refusal/approximation outside the actually qualified circular subset.
+For supported native output, bind all node/edge identities and labels, perimeter
+placement, cyclic clockwise order and actual endpoints. Scrambled-order,
+off-perimeter and missing/reconnected-edge controls must fail their claims.
+Review manifests must distinguish a new circular presentation choice based on
+historical host output from the native witness's separate 4×4 geometry; neither
+arrangement silently replaces the other's source identity.
+
+
+Circular execution checks bind the optional typed Graphviz engine/fixed-position
+descriptor to native source, receipt, replay and client-derived recipe JSON.
+Unknown engine/mode combinations and forged descriptor/source pairs refuse.
+Verify recipe source hash, native version and downloaded basename; never infer
+executable options from arbitrary source text. For neato/fixed native line routes,
+measure actual CSS deviation and unit-consistent chord ratio, retain the strict
+qualified straightness checks, and reject bowed or backtracking mutations.
+Compare unrequested compass anchors with natural boundary clipping; preserve
+authored ports and curved-route policies. Circular Lini output replaces
+only linear-order proof with circular-order proof; ownership, attachment and
+containment checks remain in force.

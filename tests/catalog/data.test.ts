@@ -36,6 +36,7 @@ describe('visual interchange catalogue data', () => {
     expect(schemaDefinition.$id).toBe('urn:umf:visual:1.4.0');
     expect(schemaDefinition.$defs.multiplicity).toBeDefined();
     expect(schemaDefinition.$defs.layout).toBeDefined();
+    expect(schemaDefinition.$defs.layout.oneOf.some((layout: any) => layout.properties?.kind?.const === 'circular')).toBe(true);
     expect(schemaDefinition.$defs.port).toBeDefined();
     expect(schemaDefinition.$defs.node.properties.shape).toBeDefined();
     expect(schemaDefinition.$defs.node.properties.shape.enum).toContain('document');

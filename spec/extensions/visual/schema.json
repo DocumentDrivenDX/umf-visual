@@ -1384,6 +1384,26 @@
               "uniqueItems": true
             }
           }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "description": "A circular arrangement of direct layout members. Geometry such as rotation and radius is renderer policy.",
+          "properties": {
+            "kind": {
+              "const": "circular"
+            },
+            "order": {
+              "description": "Optional clockwise traversal order of the direct members. When omitted, angular order is unspecified.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/id"
+              },
+              "uniqueItems": true
+            }
+          }
         }
       ]
     }

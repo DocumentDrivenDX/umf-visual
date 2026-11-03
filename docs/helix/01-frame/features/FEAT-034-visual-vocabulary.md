@@ -185,3 +185,13 @@ authored native stencil identity. They remain independent of semantic document
 role and numeric cardinality. A sheet-stack glyph does not establish an exact
 count or business minimum, and neither addition reinterprets folded-corner.
 Interpreters expose actual shape realization or a located approximation/refusal.
+
+
+## Circular container composition
+
+Draft 1.4.0 adds generic circular composition alongside existing container layout
+intent. Clockwise direct-child order is independent of edge topology, hierarchy
+and temporal meaning. The shared model reuses existing composition scopes;
+interpreter limitations require explicit approximation/refusal, not narrowing
+meaning to the first reviewed network. Source-native coordinates and review-authored
+presentation choices retain separate provenance.

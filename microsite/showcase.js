@@ -4,6 +4,7 @@ const ui = {
   description: $('diagram-description'), kicker: $('diagram-kicker'), sourceNote: $('scenario-provenance'),
   engine: $('engine-caption'), quality: $('quality-caption'), svg: $('download-svg'), png: $('download-png'),
   sourceType: $('native-source-type'), sourcePath: $('native-source-path'), source: $('native-source'),
+  execution: $('execution-provenance'), executionMetadata: $('execution-metadata'), executionCommand: $('execution-command'), downloadRecipe: $('download-execution-recipe'),
   definitionPath: $('definition-path'), definition: $('definition-source'), citations: $('source-citations'),
   downloadSource: $('download-native-source'), downloadDefinition: $('download-definition'), frame: $('diagram-frame'), dimensionNote: $('dimension-note'),
   enlarge: $('enlarge-diagram'), viewer: $('diagram-viewer'), viewerImage: $('viewer-image'), viewerTitle: $('viewer-title'),
@@ -12,7 +13,7 @@ const ui = {
   payload: $('visual-payload'), visualVersion: $('visual-version'), programmaticCode: $('programmatic-code'),
   compileTargetNote: $('compile-target-note'),
 };
-const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, historicalToken: 0, historicalUrl: null, historicalResizeObserver: null, objectUrls: new Set(), currentVariant: null, currentImageUrl: null};
+const state = {examples: [], selectedId: null, backend: 'graphviz', renderToken: 0, historicalToken: 0, historicalUrl: null, historicalResizeObserver: null, objectUrls: new Set(), renderUrls: new Set(), currentVariant: null, currentImageUrl: null};
 const HASH = /^[a-f0-9]{64}$/i;
 const pageConfig = {manifest: document.body.dataset.manifest || 'showcase.json', assetPrefix: document.body.dataset.assetPrefix || 'showcase', legacyRedirect: document.body.dataset.legacyRedirect !== 'false', selectionParam: document.body.dataset.selectionParam || 'id'};
 const LEGACY_HASHES = new Set(['#coverage', '#six-target-section', '#integrations', '#examples', '#language', '#kind-reference-grid']);
@@ -41,6 +42,36 @@ function variantQualified(variant) {
 }
 
 function safeText(value, fallback = '') { return typeof value === 'string' ? value : fallback; }
+function groupRenderingNotes(entries) {
+  const groups = new Map();
+  for (const entry of entries) {
+    const note = entry.note;
+    const sourcePath = note && typeof note === 'object' && !Array.isArray(note) && typeof note.sourcePath === 'string' ? note.sourcePath : undefined;
+    const content = note && typeof note === 'object' && !Array.isArray(note)
+      ? Object.fromEntries(Object.entries(note).filter(([key]) => key !== 'sourcePath'))
+      : note;
+    const key = JSON.stringify([entry.label, content]);
+    if (!groups.has(key)) groups.set(key, {label: entry.label, note: content, sourcePaths: []});
+    if (sourcePath) groups.get(key).sourcePaths.push(sourcePath);
+  }
+  return [...groups.values()];
+}
+function executionRecipe(variant) {
+  const execution = variant?.execution;
+  const executionKeys = execution && typeof execution === 'object' && !Array.isArray(execution) ? Object.keys(execution).sort() : [];
+  if (variant?.backend !== 'graphviz' || executionKeys.join(',') !== 'layoutEngine,nodePositions,runtime' ||
+      execution.runtime !== 'graphviz' || execution.layoutEngine !== 'neato' || execution.nodePositions !== 'fixed' ||
+      !safeAssetPath(variant.nativeSourcePath, '.dot') || !HASH.test(variant.nativeSourceSha256 || '') ||
+      typeof variant.nativeVersion !== 'string' || !variant.nativeVersion) return undefined;
+  return {
+    schemaVersion: 1,
+    execution,
+    nativeVersion: variant.nativeVersion,
+    sourcePath: variant.nativeSourcePath,
+    sourceSha256: variant.nativeSourceSha256,
+    command: ['neato', '-n2', '-Tsvg', pathLabel(variant.nativeSourcePath)],
+  };
+}
 function getExample(id) { return state.examples.find(example => example.id === id); }
 function getVariant(example, backend) { return example?.renders?.find(render => render.backend === backend); }
 function qualifiedVariant(example, backend) { const variant = getVariant(example, backend); return variantQualified(variant) ? variant : undefined; }
@@ -165,7 +196,12 @@ async function renderOriginalEvidence(example) {
     image.src = captureUrl;
     image.alt = `Historical ${safeText(evidence.rendererId)} capture for ${safeText(evidence.integrationCaseId)}`;
     await image.decode();
-    if (token !== state.historicalToken || state.selectedId !== example.id) { URL.revokeObjectURL(captureUrl); state.objectUrls.delete(captureUrl); state.historicalUrl = null; return; }
+    if (token !== state.historicalToken || state.selectedId !== example.id) {
+      URL.revokeObjectURL(captureUrl);
+      state.objectUrls.delete(captureUrl);
+      if (state.historicalUrl === captureUrl) state.historicalUrl = null;
+      return;
+    }
     image.width = image.naturalWidth;
     image.height = image.naturalHeight;
     image.hidden = false;
@@ -196,6 +232,16 @@ function renderSource(example, variant, nativeSource = '') {
   ui.sourcePath.textContent = variant ? pathLabel(variant.nativeSourcePath) : 'No qualified source';
   ui.source.textContent = variant ? nativeSource || 'Loading the verified native source…' : 'The selected backend has no qualified native source for this example.';
   ui.sourceType.textContent = variant ? `${String(variant.backend).toUpperCase()} NATIVE SOURCE` : 'NATIVE SOURCE UNAVAILABLE';
+  const execution = variant?.execution;
+  const hasExecution = execution && typeof execution === 'object' && !Array.isArray(execution) && Object.keys(execution).length > 0;
+  const recipe = executionRecipe(variant);
+  ui.execution.hidden = true;
+  ui.executionMetadata.textContent = hasExecution ? JSON.stringify(execution, null, 2) : '';
+  ui.executionCommand.textContent = recipe?.command.map(value => JSON.stringify(value)).join(' ') || 'No reviewed invocation is available for these execution fields.';
+  ui.downloadRecipe.href = '#';
+  ui.downloadRecipe.download = '';
+  ui.downloadRecipe.hidden = true;
+  ui.downloadRecipe.setAttribute('aria-disabled', 'true');
   ui.downloadSource.href = '#';
   ui.downloadSource.download = variant ? pathLabel(variant.nativeSourcePath) : '';
   ui.downloadSource.setAttribute('aria-disabled', 'true');
@@ -203,15 +249,31 @@ function renderSource(example, variant, nativeSource = '') {
   ui.renderNotesList.replaceChildren();
   const notes = variant ? [
     ...(Array.isArray(variant.omissions) ? variant.omissions.map(note => ({label: 'Omission', note})) : []),
-    ...(Array.isArray(variant.approximations) ? variant.approximations.map(note => ({label: 'Visual approximation', note})) : []),
+    ...(Array.isArray(variant.approximations) ? variant.approximations.map(note => ({label: 'Native representation', note})) : []),
   ] : [];
-  for (const entry of notes) {
+  for (const entry of groupRenderingNotes(notes)) {
     const row = document.createElement('li');
     const title = document.createElement('strong');
     title.textContent = entry.label;
     const detail = document.createElement('code');
     detail.textContent = typeof entry.note === 'string' ? entry.note : JSON.stringify(entry.note);
     row.append(title, document.createTextNode(' '), detail);
+    if (entry.sourcePaths.length) {
+      const disclosure = document.createElement('details');
+      disclosure.className = 'rendering-note-sources';
+      const summary = document.createElement('summary');
+      summary.textContent = `${entry.sourcePaths.length} source path${entry.sourcePaths.length === 1 ? '' : 's'}`;
+      const paths = document.createElement('ul');
+      for (const sourcePath of entry.sourcePaths) {
+        const item = document.createElement('li');
+        const code = document.createElement('code');
+        code.textContent = sourcePath;
+        item.append(code);
+        paths.append(item);
+      }
+      disclosure.append(summary, paths);
+      row.append(disclosure);
+    }
     ui.renderNotesList.append(row);
   }
   ui.renderNotes.hidden = !notes.length;
@@ -248,7 +310,7 @@ export function editAndCompile(payload: Visual) {
   }));
   const output = compilePresentation(edited, { backend: '${backend}' });
   if (!output.ok) return output.diagnostics;
-  return { visual, format: output.nativeFormat, source: output.source };
+  return { visual, format: output.nativeFormat, source: output.source, execution: output.execution };
 }`;
 }
 
@@ -274,7 +336,7 @@ async function loadVerifiedText(path, expectedHash) {
 }
 
 function clearDownloads() {
-  for (const anchor of [ui.svg, ui.png, ui.downloadSource, ui.viewerSvg]) {
+  for (const anchor of [ui.svg, ui.png, ui.downloadSource, ui.downloadRecipe, ui.viewerSvg]) {
     anchor.href = '#';
     anchor.removeAttribute('download');
     anchor.setAttribute('aria-disabled', 'true');
@@ -283,10 +345,26 @@ function clearDownloads() {
   ui.png.setAttribute('aria-disabled', 'true');
 }
 
+function addRenderUrl(url) {
+  state.objectUrls.add(url);
+  state.renderUrls.add(url);
+}
+
+function clearRenderUrls() {
+  if (ui.viewer.open) ui.viewer.close();
+  for (const url of state.renderUrls) {
+    URL.revokeObjectURL(url);
+    state.objectUrls.delete(url);
+  }
+  state.renderUrls.clear();
+  state.currentImageUrl = null;
+}
+
 async function renderSelected() {
   const example = getExample(state.selectedId);
   if (!example) return;
   const token = ++state.renderToken;
+  clearRenderUrls();
   const variant = qualifiedVariant(example, state.backend);
   state.currentVariant = variant ?? null;
   ui.title.textContent = safeText(example.title, 'Untitled visual');
@@ -317,10 +395,10 @@ async function renderSelected() {
       loadVerifiedText(variant.nativeSourcePath, variant.nativeSourceSha256),
     ]);
     if (token !== state.renderToken) { URL.revokeObjectURL(svgUrl); URL.revokeObjectURL(pngUrl); return; }
-    state.objectUrls.add(svgUrl);
-    state.objectUrls.add(pngUrl);
+    addRenderUrl(svgUrl);
+    addRenderUrl(pngUrl);
     const sourceUrl = URL.createObjectURL(new Blob([nativeSource], {type: 'text/plain;charset=utf-8'}));
-    state.objectUrls.add(sourceUrl);
+    addRenderUrl(sourceUrl);
     state.currentImageUrl = svgUrl;
     ui.source.textContent = nativeSource;
     ui.image.src = svgUrl;
@@ -338,7 +416,8 @@ async function renderSelected() {
     if (state.backend === 'mermaid' && example.form === 'entities') caveats.push('Mermaid connects entities; field bindings are labelled rather than shown as field-port attachments.');
     const approximationCodes = new Set((variant.approximations || []).map(item => item?.code).filter(Boolean));
     if (approximationCodes.has('ROUTING_SCOPE_CONFLICT')) caveats.push('This renderer uses one routing style for the connection scope, so conflicting per-edge route requests cannot all be represented.');
-    if (approximationCodes.has('ROUTING_NATIVE_INTERPOLATION')) caveats.push('This renderer may approximate the requested route; the selected native preview does not guarantee visibly curved geometry or exact control points.');
+    if (approximationCodes.has('ROUTING_NATIVE_INTERPOLATION')) caveats.push('This renderer uses native interpolation for the requested route; exact path shape, control points and attachments remain backend-defined.');
+    if (approximationCodes.has('CIRCULAR_NATIVE_GRID')) caveats.push('This renderer’s native block grid approximates circular node placement while retaining the authored clockwise order.');
     ui.caveat.hidden = !caveats.length;
     ui.caveat.textContent = caveats.join(' ');
     ui.svg.href = svgUrl;
@@ -350,6 +429,18 @@ async function renderSelected() {
     ui.downloadSource.href = sourceUrl;
     ui.downloadSource.download = pathLabel(variant.nativeSourcePath);
     ui.downloadSource.setAttribute('aria-disabled', 'false');
+    const execution = variant.execution;
+    ui.execution.hidden = !execution || typeof execution !== 'object' || Array.isArray(execution) || Object.keys(execution).length === 0;
+    const recipe = executionRecipe(variant);
+    if (recipe) {
+      const recipeUrl = URL.createObjectURL(new Blob([JSON.stringify(recipe, null, 2) + '\n'], {type: 'application/json;charset=utf-8'}));
+      addRenderUrl(recipeUrl);
+      ui.execution.hidden = false;
+      ui.downloadRecipe.href = recipeUrl;
+      ui.downloadRecipe.download = `${example.id}-${state.backend}-execution-recipe.json`;
+      ui.downloadRecipe.hidden = false;
+      ui.downloadRecipe.setAttribute('aria-disabled', 'false');
+    }
     ui.dimensionNote.textContent = `${variant.width} × ${variant.height} px · PNG and SVG downloaded from this render.`;
     ui.viewerImage.src = svgUrl;
     ui.viewerImage.alt = ui.image.alt;

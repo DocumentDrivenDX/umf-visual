@@ -1141,10 +1141,90 @@ receipts retain their original model/profile scope. Cycle 2 implementation and
 verification are complete. Its commit follows in this change; source control
 supplies that identity. Cycle 3 has not started and MUST wait for the commit.
 
+### Third-cycle scope — sixteen-node network
+
+Cycle 2 is committed as `ad714b5`; cycle 3 implementation and verification are
+complete. Preserve the common
+1.1.0 graph's 16 nodes, 24 edges, identities, labels and direction. Its source hash
+is `dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4`;
+the synthetic native witness hash is
+`95b1bb93b735eec01191f729df5319ea3563c67be76be75cac190daf2de736d8`.
+The witness authors a 4×4 arrangement, whereas historical Miro output shows a
+ring. Circular order is an explicit new review-authored presentation choice
+based on that output, not an assertion that the witness coordinates describe a
+circle. Keep both observations and their hashed evidence separate.
+
+Add circular composition to unreleased 1.4.0 under the same root/group scope
+rules as existing flow/grid layout; exact clockwise direct-child order is visual
+composition only. Do not invent ring edges or causal/temporal meaning. Radius,
+rotation and source pixel geometry remain outside the authored declaration.
+Native mappings qualify their observed subset and versions; broader valid
+circular scopes require explicit refusal/located approximation. Empirical neato
+comparison found that removing only unrequested straight-edge compass anchors
+produces direct native boundary-clipped chords: all 24 paths measure 0.0px
+deviation and 100.00% path/chord length. Preserve authored ports and curved-route
+policy; no special numerical allowance or precision-approximation rows are needed. No target is
+qualified by a planned mapping or an unrelated chart-radial mode.
+
+The bounded packages are shared schema/semantic validation and source provenance,
+generic native placement/connector mapping with typed execution metadata and a
+verified-source reproduction recipe, independent circular-order/geometry
+negative controls, then complete review UI and original-host comparisons. Preserve
+all first/second-cycle receipts and qualify renderer changes across affected
+consumers. Finish the focused public model/browser/package/native checks and
+integrated gates appropriate to this addition, review touched interfaces for
+encapsulation and absence of example-ID branches, and commit cycle 3 before
+starting cycle 4. No new host support or publication is claimed.
+
+### Third-cycle closeout — ready for commit
+
+Sol approves the bounded source/model and generic renderer/execution interfaces.
+The final no-Chromium checks pass 18 tests with 139 assertions across four files,
+covering circular scope/order/frozen behavior, source identities/provenance,
+existing compiler behavior and exact native replay version/SVG binding. The
+reviewed definition hash is
+`21db1f774c3e4fbdc4feb8971129f4375040cdc6d12bee002140f972ef98298e`.
+It preserves all 16 original node IDs/labels and 24 directed data connections,
+adds explicitly sourced rectangle shapes, and separates historical ring-inspired
+composition from synthetic 4×4 witness geometry. No example-ID renderer dispatch
+or old-host qualification promotion remains in the reviewed changes.
+
+Root reports renderer checks passing 20 tests with 254 assertions, with actual
+native circle/endpoint/shape negative controls and one/two-node circular cases.
+Graphviz uses typed neato/fixed execution and natural boundary-clipped straight
+chords, without a numerical waiver. Lini circular proof replaces only linear
+order checks. Mermaid's coded native-grid circular approximation reports measured
+18.8% radial deviation and source-contained data-line styling; it is not certified
+as exact circular placement. Unsupported circular scopes refuse explicitly.
+
+All three review definitions now have nine qualified portable variants with nine
+actual native SVG and nine PNG replays. Root reports public browser checks over
+53 examples plus three reviews/nine plans, fresh packed Bun/Node consumers with
+execution metadata, review UI recipe/download/YAML/race/corruption checks and
+catalog/showcase regressions passing. Typed execution is receipt/recompilation-
+bound, recipes are client-derived from verified source hashes, and native versions
+are checked against the selected runtime. The
+cycle 3 commit follows in this change; cycle 4 MUST wait for that commit.
+
+The final quiet suite passes 644 tests, zero failures and 19,322 assertions across
+94 files in 160.48 seconds (`.cache/cycle03-full-tests-final.log`). An earlier
+negative fixture accidentally named the actual installed Mermaid version as
+forged; it was corrected to `0.0.0`. The focused verifier checks then passed eight
+tests with 13 assertions before this successful full rerun; no production change
+was required. All source, TypeScript, build, native, catalog, showcase, review,
+public-browser, fresh packed Bun/Node and three site-UI gates pass. Root approves
+the final three native diagram PNGs and their real source provenance.
+Implementation and verification are complete; the commit follows in this change.
+Draft 1.4.0 remains unreleased, historical cycle-3 host receipts remain qualified
+for their original 1.1.0 sources, and Mermaid's measured coded native-grid
+approximation remains explicit. No new host qualification or publication follows
+from this closeout.
+
 ### Ordered cycle inventory
 
-Cycle 1 is committed as `284974f`. Cycle 2 is verified and ready for the commit
-that follows in this change; cycles 3–68 remain pending.
+Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
+Cycle 3 is verified and ready for the commit that follows in this change;
+cycles 4–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

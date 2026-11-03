@@ -1,0 +1,377 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:miro-network-16x24",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.4.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "miro-network-16x24",
+      "kind": "flow",
+      "form": "network",
+      "title": "Sixteen-node network",
+      "question": "What connections form this network?",
+      "nodes": [
+        {
+          "id": "n01",
+          "label": "Node 01",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n02",
+          "label": "Node 02",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n03",
+          "label": "Node 03",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n04",
+          "label": "Node 04",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n05",
+          "label": "Node 05",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n06",
+          "label": "Node 06",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n07",
+          "label": "Node 07",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n08",
+          "label": "Node 08",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n09",
+          "label": "Node 09",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n10",
+          "label": "Node 10",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n11",
+          "label": "Node 11",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n12",
+          "label": "Node 12",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n13",
+          "label": "Node 13",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n14",
+          "label": "Node 14",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n15",
+          "label": "Node 15",
+          "shape": "rectangle"
+        },
+        {
+          "id": "n16",
+          "label": "Node 16",
+          "shape": "rectangle"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e01",
+          "from": "n01",
+          "to": "n02",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e02",
+          "from": "n02",
+          "to": "n03",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e03",
+          "from": "n03",
+          "to": "n04",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e04",
+          "from": "n04",
+          "to": "n05",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e05",
+          "from": "n05",
+          "to": "n06",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e06",
+          "from": "n06",
+          "to": "n07",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e07",
+          "from": "n07",
+          "to": "n08",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e08",
+          "from": "n08",
+          "to": "n09",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e09",
+          "from": "n09",
+          "to": "n10",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e10",
+          "from": "n10",
+          "to": "n11",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e11",
+          "from": "n11",
+          "to": "n12",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e12",
+          "from": "n12",
+          "to": "n13",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e13",
+          "from": "n13",
+          "to": "n14",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e14",
+          "from": "n14",
+          "to": "n15",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e15",
+          "from": "n15",
+          "to": "n16",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e16",
+          "from": "n16",
+          "to": "n01",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e17",
+          "from": "n01",
+          "to": "n05",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e18",
+          "from": "n02",
+          "to": "n06",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e19",
+          "from": "n03",
+          "to": "n07",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e20",
+          "from": "n04",
+          "to": "n08",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e21",
+          "from": "n05",
+          "to": "n09",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e22",
+          "from": "n06",
+          "to": "n10",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e23",
+          "from": "n07",
+          "to": "n11",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "e24",
+          "from": "n08",
+          "to": "n12",
+          "kind": "data",
+          "directed": true,
+          "routing": {
+            "kind": "straight"
+          }
+        }
+      ],
+      "layout": {
+        "kind": "circular",
+        "order": [
+          "n01",
+          "n02",
+          "n03",
+          "n04",
+          "n05",
+          "n06",
+          "n07",
+          "n08",
+          "n09",
+          "n10",
+          "n11",
+          "n12",
+          "n13",
+          "n14",
+          "n15",
+          "n16"
+        ]
+      },
+      "takeaway": "The review preserves the source topology and uses a review-authored clockwise circular arrangement informed by the historical Miro composition.",
+      "audience": "developer",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/network-16x24.json",
+        "view": "Source-derived topology with review-authored clockwise circular placement informed by the historical Miro capture and straight connector routing guided by the synthetic native witness. The ring layout and 4x4 native geometry are distinct choices.",
+        "digest": "sha256:dc6d021a3a59b30bf45475e36b6bdfa86000e3e6d1b9291ed203bc6b604417d4"
+      },
+      "omissions": [
+        "The common and native documents are synthetic witnesses. The native witness records a 4x4 arrangement; the circular order in this review is an authored presentation choice informed by the historical Miro output, not a fact extracted from the common source or synthetic grid.",
+        "The optional circular order expresses clockwise relative placement only; start angle and radius remain renderer policy. It does not add temporal or business order or causal meaning to the 24 directed data edges.",
+        "Straight routing on the 24 edges is an explicit review choice guided by the synthetic native witness and historical capture. Combined with circular placement, this is an authored synthesis, not an exact reproduction of the native 4x4 arrangement or historical drawing.",
+        "The historical Miro, Google Slides, and PowerPoint/LibreOffice outputs use Visual 1.1 sources. They are provenance for the reviewed source and historical composition, not qualification evidence for Visual 1.4 renderers."
+      ]
+    }
+  },
+  "modules": []
+}

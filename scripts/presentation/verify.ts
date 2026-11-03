@@ -6,21 +6,30 @@ import {join,resolve} from 'node:path';
 import {compilePresentation,type PresentationBackend} from '../../src/presentation';
 import {readVisualDocument,type Visual} from '../../src/extensions/visual';
 import {chromium} from 'playwright';
+import mermaidPackage from 'mermaid/package.json';
 import {verifyPresentationQuality} from './quality';
-import {screenshotSvg} from './build';
+import {mermaidSvg,safePresentationSeed,screenshotSvg} from './build';
 import {renderPresentationLini} from './lini-runtime';
 import {visualPayloadYaml} from './payload-source';
+import {graphvizExecutionArgs} from './build';
 
 const root=resolve(import.meta.dir,'../..');
 const sha=(data:string|Uint8Array)=>createHash('sha256').update(data).digest('hex');
 const relative=(value:unknown):value is string=>typeof value==='string'&&/^[A-Za-z0-9._/-]+$/.test(value)&&!value.startsWith('/')&&!value.split('/').includes('..');
 const same=(a:unknown,b:unknown)=>JSON.stringify(a)===JSON.stringify(b);
+export function assertNativeVersionMatches(exampleId:string,backend:PresentationBackend,receiptVersion:string,actualVersion:string):void{
+ if(receiptVersion!==actualVersion)throw Error(`${exampleId}/${backend} native version ${receiptVersion} does not match selected executable/runtime ${actualVersion}.`);
+}
+export function assertNativeSvgMatchesReceipt(exampleId:string,backend:PresentationBackend,svg:string,expectedSha256:string):void{
+ const actual=sha(svg);if(actual!==expectedSha256)throw Error(`${exampleId}/${backend} native SVG replay hash ${actual} differs from receipt ${expectedSha256}.`);
+}
 export interface ShowcaseVerification {examples:number;qualified:number;unsupported:number;assets:number;nativeReplayed?:number;pngReplayed?:number;}
 export type ArtifactReader=(path:string)=>Promise<Uint8Array>;
 
 /** Explicit proof obligations; a renderer load or arbitrary passing check cannot replace them. */
 export function requiredPresentationChecks(backend:PresentationBackend,visual:Visual):string[]{
  const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-svg-fit','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
+ if(visual.layout?.kind==='circular')checks.push('presentation-circular-layout');
  if(backend==='graphviz')checks.push('graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order');
  else if(backend==='lini')checks.push(...(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
   ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']
@@ -64,6 +73,7 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
   for(const backend of ['graphviz','mermaid','lini'] as const){
    const row=rows.get(backend);if(!row)throw Error(`${example.id} is missing ${backend} render evidence.`);
    if(row.engine!==backend||typeof row.nativeVersion!=='string'||!row.nativeVersion.trim()||row.nativeVersion.includes('unknown'))throw Error(`${example.id}/${backend} has no exact native engine version.`);
+   if(backend==='mermaid'&&(!row.nativeVersion.startsWith(`${mermaidPackage.version} / Chromium `)||!/^\d+\.\d+\.\d+\.\d+$/.test(row.nativeVersion.slice(`${mermaidPackage.version} / Chromium `.length))))throw Error(`${example.id}/mermaid native version does not match the pinned Mermaid bundle and a concrete Chromium version.`);
    const plan=compilePresentation(document,{backend,theme:'presentation/1'});
    if(row.status==='unsupported'){
     if(plan.ok||!same(row.diagnostics,plan.diagnostics)||row.nativeSourcePath||row.svgPath||row.pngPath||row.quality?.evidence?.length)throw Error(`${example.id}/${backend} is mislabeled unsupported.`);
@@ -71,6 +81,7 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
    }
    if(row.status!=='qualified'||!plan.ok)throw Error(`${example.id}/${backend} is not qualified by the current presentation compiler.`);
    if(!same(row.elementMap,plan.elementMap)||!same(row.omissions,plan.omissions)||!same(row.approximations,plan.approximations))throw Error(`${example.id}/${backend} has a stale presentation map or view inventory.`);
+   if(!same(row.execution,plan.execution))throw Error(`${example.id}/${backend} execution metadata differs from the current typed compiler plan.`);
    if(sha(plan.source)!==row.nativeSourceSha256)throw Error(`${example.id}/${backend} source is not the current compiled presentation.`);
    const checks=row.quality?.evidence;
    if(!Array.isArray(checks)||checks.some((check:any)=>!check||check.result!=='pass'||check.sourceSha256!==row.nativeSourceSha256||typeof check.details!=='string'||!check.details.trim()))throw Error(`${example.id}/${backend} has incomplete or failing source-bound quality evidence.`);
@@ -101,8 +112,9 @@ export async function verifyShowcase(options:VerifyShowcaseOptions={}):Promise<S
  const receipt=JSON.parse(await readFile(join(root,receiptPath),'utf8'));
  const readArtifact:ArtifactReader=path=>readFile(join(root,path.startsWith(assetDirectory+'/')?'dist-site':'',path));
  const summary=await verifyShowcaseData(manifest,receipt,readArtifact,{assetDirectory});
- const browser=await chromium.launch({headless:true});let replayed=0;
+ const browser=await chromium.launch({headless:true});let nativeReplayed=0,pngReplayed=0;
  try{
+  const chromiumVersion=browser.version();
   for(const example of receipt.examples){
    const document=readVisualDocument(new TextDecoder().decode(await readArtifact(example.definitionPath)),'json');
    const visual=document.extensions!['umf.visual'] as unknown as Visual;
@@ -111,14 +123,35 @@ export async function verifyShowcase(options:VerifyShowcaseOptions={}):Promise<S
     if(!plan.ok)throw Error('Current compiler refused an admitted presentation.');
     let nativeAst:unknown;
     if(row.backend==='graphviz'){
-     const child=Bun.spawn(['dot','-Tjson'],{stdin:'pipe',stdout:'pipe',stderr:'pipe'});
-     child.stdin.write(plan.source);child.stdin.end();
-     const [output,error,code]=await Promise.all([new Response(child.stdout).text(),new Response(child.stderr).text(),child.exited]);
-     if(code!==0||error.trim())throw Error(`Graphviz replay failed: ${error}`);
+     const versionInvocation=graphvizExecutionArgs(plan.execution,'json'),versionChild=Bun.spawn([versionInvocation.command,'-V'],{stdout:'pipe',stderr:'pipe'}),[versionOut,versionErr,versionExit]=await Promise.all([new Response(versionChild.stdout).text(),new Response(versionChild.stderr).text(),versionChild.exited]);
+     if(versionExit!==0)throw Error(`${example.id}/graphviz version probe failed: ${versionErr||versionOut}`);
+     const actualVersion=/graphviz version\s+([^\s(]+)/i.exec(versionOut+' '+versionErr)?.[1];if(!actualVersion)throw Error(`${example.id}/graphviz selected executable did not report a version.`);
+     assertNativeVersionMatches(example.id,'graphviz',row.nativeVersion,actualVersion);
+     const svgInvocation=graphvizExecutionArgs(plan.execution,'svg'),svgChild=Bun.spawn([svgInvocation.command,...svgInvocation.args],{stdin:'pipe',stdout:'pipe',stderr:'pipe'});
+     svgChild.stdin.write(plan.source);svgChild.stdin.end();
+     const [nativeSvg,svgError,svgExit]=await Promise.all([new Response(svgChild.stdout).text(),new Response(svgChild.stderr).text(),svgChild.exited]);
+     if(svgExit!==0||svgError.trim())throw Error(`${example.id}/graphviz SVG replay failed: ${svgError||nativeSvg}`);
+     assertNativeSvgMatchesReceipt(example.id,'graphviz',nativeSvg,row.svgSha256);
+     const jsonInvocation=graphvizExecutionArgs(plan.execution,'json'),astChild=Bun.spawn([jsonInvocation.command,...jsonInvocation.args],{stdin:'pipe',stdout:'pipe',stderr:'pipe'});
+     astChild.stdin.write(plan.source);astChild.stdin.end();
+     const [output,error,code]=await Promise.all([new Response(astChild.stdout).text(),new Response(astChild.stderr).text(),astChild.exited]);
+     if(code!==0||error.trim())throw Error(`Graphviz native AST replay failed: ${error||output}`);
      nativeAst=JSON.parse(output);
+     nativeReplayed++;
+    }else if(row.backend==='mermaid'){
+     const page=await browser.newPage();
+     try{
+      const rendered=await mermaidSvg(page,plan.source,safePresentationSeed(example.id));
+      assertNativeVersionMatches(example.id,'mermaid',row.nativeVersion,`${rendered.version} / Chromium ${chromiumVersion}`);
+      if(rendered.version!==mermaidPackage.version)throw Error(`${example.id}/mermaid rendered bundle version ${rendered.version} differs from pinned package ${mermaidPackage.version}.`);
+      assertNativeSvgMatchesReceipt(example.id,'mermaid',rendered.svg,row.svgSha256);
+     }finally{await page.close();}
+     nativeReplayed++;
     }else if(row.backend==='lini'){
      const rendered=await renderPresentationLini(plan.source);nativeAst=rendered.nativeAst;
-     if(rendered.version!==row.nativeVersion||sha(rendered.svg)!==row.svgSha256)throw Error(`${example.id}/lini SVG is not the current pinned compiler output.`);
+     assertNativeVersionMatches(example.id,'lini',row.nativeVersion,rendered.version);
+     assertNativeSvgMatchesReceipt(example.id,'lini',rendered.svg,row.svgSha256);
+     nativeReplayed++;
     }
     const svg=new TextDecoder('utf-8',{fatal:true}).decode(await readArtifact(row.svgPath));
     const page=await browser.newPage();
@@ -129,10 +162,10 @@ export async function verifyShowcase(options:VerifyShowcaseOptions={}):Promise<S
     const pngPath=join(root,'.cache/presentation/replay',assetDirectory,example.id,row.backend+'.png');
     await screenshotSvg(browser,svg,pngPath);
     if(sha(await readFile(pngPath))!==row.pngSha256)throw Error(`${example.id}/${row.backend} PNG does not match the native SVG derivative.`);
-    replayed++;
+    pngReplayed++;
    }
   }
  }finally{await browser.close();}
- return {...summary,nativeReplayed:replayed,pngReplayed:replayed};
+ return {...summary,nativeReplayed,pngReplayed};
 }
 if(import.meta.main)console.log(JSON.stringify(await verifyShowcase(),null,2));

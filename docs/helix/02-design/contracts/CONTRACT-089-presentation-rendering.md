@@ -247,3 +247,62 @@ This exception MUST NOT broaden curved-request fallback: its interpolation
 fallback remains collinear only; an angular polyline does not realize a curve.
 Carrier, label, direction and endpoint checks remain mandatory. Other backends
 retain their separately qualified routing conditions.
+
+
+## Circular composition qualification
+
+Draft circular layout is authored composition independent of graph topology.
+Interpreters MUST identify their actually qualified forms, nesting and native
+versions. Broader shared-model admission does not qualify renderer support;
+unimplemented circular scopes MUST refuse or report a located layout
+approximation instead of silently using grid/flow placement.
+
+Native circle qualification MUST bind every direct child to its own drawn
+carrier, inspect perimeter placement and authored clockwise order independently
+of arbitrary rotation, and retain all actual connector identities, labels,
+direction and endpoints. Scrambled order, displaced off-perimeter carriers and
+missing/reconnected chords MUST fail the corresponding claim. Radius and pixel
+coordinates MUST NOT be certified as source-exact without separate evidence.
+A review-authored circular presentation based on a historical host output MUST
+be distinguished from a source-native arrangement preserved in its witness.
+
+
+## Typed native execution and route fidelity
+
+A presentation plan and its render row MAY include optional
+`execution: {runtime: 'graphviz', layoutEngine: 'neato', nodePositions: 'fixed'}`. It describes native execution, not authored visual
+meaning. Absence preserves the existing dot/automatic route. Host executors MUST
+validate supported combinations and translate them through a closed mapping;
+source vocabulary MUST NOT carry arbitrary native CLI options. The qualified
+neato/fixed route executes fixed node positions while retaining native edge
+routing. Native DOT declares its engine, positions and pins; those declarations
+MUST agree with the typed execution descriptor.
+
+Build receipts and replay verification MUST bind execution to the recompiled
+plan, exact source hash and native version. A client MAY derive a downloadable
+recipe JSON containing execution, nativeVersion, sourcePath, sourceSha256 and
+command argv from that verified row. The neato/fixed recipe uses the fixed argv
+`['neato', '-n2', '-Tsvg', downloadedSourceBasename]`. The basename identifies the
+hash-verified source download; the original artifact path remains recipe metadata.
+Unknown execution combinations MUST NOT become commands. A generated recipe is
+a derived reproduction instruction, not separately captured execution evidence.
+
+Native route geometry MUST be measured in consistent coordinates. Absolute
+screen/CSS deviation requires transforming sampled points; path/chord ratios
+require matching units. Source direction, carrier ownership, endpoint attachment
+and backtracking checks remain mandatory. Circular straight edges without authored
+ports use native boundary clipping; interpreters MUST NOT force unrequested
+compass anchors and then certify the resulting bends as source fidelity. Native
+straight-path checks retain their qualified limits and reject bowed or
+backtracking negative controls.
+
+
+Circular Mermaid block-grid approximation uses stable
+`PresentationApproximation.code: CIRCULAR_NATIVE_GRID` at the exact source layout
+path. Admission requires one such record, the actually qualified native block
+projection, retained clockwise order/owned carriers, and measured perimeter
+deviation within its declared bounded policy. It MUST remain visibly distinct
+from exact circular placement. Native data-line styling belongs in controlled
+emitted Mermaid target configuration, not hidden host source-sniffing patches;
+downloaded source and declared execution instructions must reproduce the qualified
+style or disclose the remaining host-configuration requirement.

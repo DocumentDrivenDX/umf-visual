@@ -123,6 +123,7 @@ describe('microsite catalogue UI contract',()=>{
     expect(viewer).toContain('example.visualPayloadYaml');
     expect(viewer).toContain('createVisualDocument(payload, undefined, modelVersion)');
     expect(viewer).toContain('editAndCompile(payload: Visual)');
+    expect(viewer).toContain('source: output.source, execution: output.execution');
     expect(viewer).toContain('Start with the umf.visual value shown above as a Visual object.');
     expect(viewer).toContain('const modelVersion: VisualVersion = \'${modelVersion}\';');
     expect(viewer).toContain("@documentdrivendx/umf-visual/presentation");
