@@ -24,13 +24,15 @@ const safeId=(prefix:string,index:number)=>prefix+(index+1);
 const ptr=(s:string)=>s.replace(/~/g,'~0').replace(/\//g,'~1');
 const dot=(s:string)=>'"'+s.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'\\r').replace(/\n/g,'\\n').replace(/\t/g,'\\t')+'"';
 const dotHtml=(s:string)=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<BR ALIGN="LEFT"/>');
+const graphvizDefaultRanksep=0.62;
+const graphvizCurvedLabelMinlen=(label:string)=>Math.max(2,Math.ceil((Array.from(label).length*6.3+24)/(graphvizDefaultRanksep*96))+1);
 const dotRolePalette:Record<string,{fill:string;stroke:string}>={actor:{fill:'#fff4dc',stroke:'#be8741'},own:{fill:'#e8f2ec',stroke:'#668f78'},platform:{fill:'#e8f2f3',stroke:'#577782'},external:{fill:'#f5f4ef',stroke:'#96988e'},store:{fill:'#e8efff',stroke:'#637cae'},document:{fill:'#f2ecfb',stroke:'#8b72a6'},process:{fill:'#f4eef4',stroke:'#8c6b87'}};
 const dotStatusPalette:Record<string,{fill:string;stroke:string}>={built:{fill:'#e8f2ec',stroke:'#668f78'},placeholder:{fill:'#fff5e4',stroke:'#ba8745'},decided:{fill:'#edf2f8',stroke:'#71869b'},unknown:{fill:'#f2f3f3',stroke:'#98a3a6'}};
 function graphvizMultipleDocumentLabel(node:VisualNode):string{
  const palette=(node.status?dotStatusPalette[node.status]:undefined)??(node.role?dotRolePalette[node.role]:undefined)??{fill:'#e8f2f3',stroke:'#577782'},width='170',height='68';
  const roleCaption=processRoleCaption(node)?'<BR/><FONT POINT-SIZE="11">Process</FONT>':'';
  const lines=(node.icon?'<FONT POINT-SIZE="9">Icon: '+dotHtml(node.icon)+'</FONT><BR/>':'')+'<B>'+dotHtml(node.label)+'</B>'+(node.detail?'<BR/><FONT POINT-SIZE="11">'+dotHtml(node.detail)+'</FONT>':'')+roleCaption;
- const ports=(node.ports??[]).map((port,index)=>`<TR><TD PORT="p${index+1}" ALIGN="LEFT" CELLPADDING="4" BORDER="1" COLOR="#c8d6da"><FONT COLOR="#536e78" POINT-SIZE="11">${dotHtml(port.label??port.id)} · ${dotHtml(port.id)}${port.side?' · '+port.side:''}</FONT></TD></TR>`).join('');
+ const ports=(node.ports??[]).map((port,index)=>`<TR><TD PORT="p${index+1}" ALIGN="LEFT" CELLPADDING="4" BORDER="1" COLOR="#c8d6da"><FONT COLOR="#536e78" POINT-SIZE="11">${dotHtml(portCaption(port))}</FONT></TD></TR>`).join('');
  const front=`<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="${palette.stroke}" BGCOLOR="${palette.fill}"><TR><TD ALIGN="LEFT" WIDTH="${width}" HEIGHT="${height}">${lines}</TD></TR>${ports}</TABLE>`;
  return `<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD BORDER="1" SIDES="T" WIDTH="${width}" HEIGHT="8" COLOR="${palette.stroke}" BGCOLOR="${palette.fill}"></TD><TD BORDER="1" SIDES="TR" WIDTH="8" HEIGHT="8" COLOR="${palette.stroke}" BGCOLOR="${palette.fill}"></TD></TR><TR><TD>${front}</TD><TD BORDER="1" SIDES="R" WIDTH="8" HEIGHT="68" COLOR="${palette.stroke}" BGCOLOR="${palette.fill}"></TD></TR></TABLE>`;
 }
@@ -49,6 +51,7 @@ const shapeOptions:Record<NonNullable<VisualNode['shape']>,{dot:string;mermaid:s
 };
 const nativePortId=(nodeId:string,portIndex:number)=>nodeId+'.p'+(portIndex+1);
 const findPort=(node:VisualNode|undefined,id:string|undefined)=>id===undefined?undefined:node?.ports?.find(port=>port.id===id);
+const portCaption=(port:NonNullable<VisualNode['ports']>[number])=>`${port.label!==undefined&&port.label!==port.id?port.label+' · ':''}${port.id}${port.side?' · '+port.side:''}`;
 const portRows=(node:VisualNode)=>node.ports??[];
 const processRoleCaption=(node:VisualNode)=>node.role==='process'&&node.label!=='Process'&&node.detail!=='Process'?'Process':undefined;
 const mermaidHeader=(visual:Visual)=>['---','title: '+JSON.stringify(displayTitle(visual)),'---'];
@@ -114,7 +117,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  const edgeIds=new Map(edges.map((e,i)=>[e.id,safeId('e',i)]));
  const layerIds=new Map((visual.structure?.layers??[]).map((l,i)=>[l.id,safeId('l',i)]));
  const wrap=(text:string,limit=22)=>text.split('\n').flatMap(line=>{const words=line.split(/\s+/);const out:string[]=[];let current='';for(const word of words){if(current&&current.length+1+word.length>limit){out.push(current);current=word;}else current=current?current+' '+word:word;}if(current)out.push(current);return out;}).join('\n');
- const labelNode=(n:VisualNode)=>[n.icon?wrap('Icon: '+n.icon):undefined,wrap(n.label),n.detail?wrap(n.detail,38):undefined,processRoleCaption(n),...(n.ports??[]).map(port=>wrap('Port '+port.id+(port.label?' · '+port.label:'')+(port.side?' · '+port.side:''),32))].filter(Boolean).join('\n');
+ const labelNode=(n:VisualNode)=>[n.icon?wrap('Icon: '+n.icon):undefined,wrap(n.label),n.detail?wrap(n.detail,38):undefined,processRoleCaption(n),...(n.ports??[]).map(port=>wrap('Port '+portCaption(port),32))].filter(Boolean).join('\n');
  const labelGroup=(g:VisualGroup)=>[wrap(g.label),g.detail?wrap(g.detail,38):undefined].filter(Boolean).join('\n');
  const labelLayer=(layer:{label:string;detail?:string})=>[wrap(layer.label),layer.detail?wrap(layer.detail,38):undefined].filter(Boolean).join('\n');
  const mapPorts=(node:VisualNode,index:number)=>node.ports?.forEach((port,portIndex)=>{
@@ -160,7 +163,7 @@ export function compilePresentation(document:Document,options:PresentationOption
      const left=[keys,nullable].filter(Boolean).join(' · ');const right=[f.name,f.type].filter(Boolean).join(': ');
      rows.push(`<TR><TD PORT="${port}" ALIGN="LEFT" CELLPADDING="6" BORDER="1" COLOR="#c8d6da">${left?'<FONT COLOR="#5b7480" POINT-SIZE="12">'+dotHtml(left)+'</FONT>  ':''}${dotHtml(right)}</TD></TR>`);
     }
-    for(let j=0;j<(n.ports??[]).length;j++){const port=n.ports![j]!;rows.push(`<TR><TD PORT="p${j+1}" ALIGN="LEFT" CELLPADDING="4" BORDER="1" COLOR="#8aa0a7"><FONT COLOR="#536e78" POINT-SIZE="11">${dotHtml(port.label??port.id)} · ${dotHtml(port.id)}${port.side?' · '+port.side:''}</FONT></TD></TR>`);}
+    for(let j=0;j<(n.ports??[]).length;j++){const port=n.ports![j]!;rows.push(`<TR><TD PORT="p${j+1}" ALIGN="LEFT" CELLPADDING="4" BORDER="1" COLOR="#8aa0a7"><FONT COLOR="#536e78" POINT-SIZE="11">${dotHtml(portCaption(port))}</FONT></TD></TR>`);}
     if(!e.fields.length)rows.push('<TR><TD ALIGN="LEFT" CELLPADDING="6"><FONT COLOR="#607780">(no fields declared)</FONT></TD></TR>');
     entityRows.set(e.node,'  '+id+' [label=< <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0" BGCOLOR="white">'+rows.join('')+'</TABLE> >, tooltip='+dot(n.label)+'];');
    }
@@ -319,7 +322,7 @@ export function compilePresentation(document:Document,options:PresentationOption
   const circlePosition=new Map(circle?.positions.map(position=>[position.id,{x:position.x*72,y:-position.y*72}])??[]);
   const splines=routeMode==='curved'&&!mixedRouteIntent?'curved':routeMode==='straight'&&!mixedRouteIntent?'line':'true';
   const nodeDefaults=circle?'margin="0.12,0.10"':'margin="0.22,0.17", width=2.35, height=1.08';
-  const lines=['digraph UMFPresentation {','  graph ['+(circle?'layout="neato",':'rankdir='+dot(flowDirection)+',')+' bgcolor="transparent", pad="0.34", nodesep="0.46", ranksep="0.62", splines='+splines+', overlap=false, compound=true, fontname="Arial", fontsize=22, fontcolor="#203746", labelloc="t", label='+dot(displayTitle(visual))+'];','  node [shape=box, style="rounded,filled", fillcolor="#e8f2f3", color="#577782", penwidth=1.7, fontname="Arial", fontsize=16, fontcolor="#203746", '+nodeDefaults+'];','  edge [fontname="Arial", fontsize=12, color="#617984", fontcolor="#304652", penwidth=1.7, arrowsize=0.85];'];
+  const lines=['digraph UMFPresentation {','  graph ['+(circle?'layout="neato",':'rankdir='+dot(flowDirection)+',')+' bgcolor="transparent", pad="0.34", nodesep="0.46", ranksep="'+graphvizDefaultRanksep.toFixed(2)+'", splines='+splines+', overlap=false, compound=true, fontname="Arial", fontsize=22, fontcolor="#203746", labelloc="t", label='+dot(displayTitle(visual))+'];','  node [shape=box, style="rounded,filled", fillcolor="#e8f2f3", color="#577782", penwidth=1.7, fontname="Arial", fontsize=16, fontcolor="#203746", '+nodeDefaults+'];','  edge [fontname="Arial", fontsize=12, color="#617984", fontcolor="#304652", penwidth=1.7, arrowsize=0.85];'];
   const nodeStatement=(n:VisualNode):string=>{
    const id=nodeIds.get(n.id)!;
    if(n.shape==='multiple-documents'){
@@ -329,7 +332,7 @@ export function compilePresentation(document:Document,options:PresentationOption
    const position=circlePosition.get(n.id),fixed=position?`, pos="${position.x.toFixed(2)},${position.y.toFixed(2)}!", pin=true`:'';
    const measured=position?circularSize(n):undefined,sizeAttrs=measured?`, width="${measured.width.toFixed(2)}", height="${measured.height.toFixed(2)}"`:'';
    if(!n.ports?.length)return '  '+id+' [label='+dot(labelNode(n))+nodeStyle(n)+shapeOverride(n)+sizeAttrs+fixed+'];';
-   const portHtml=n.ports.map((port,portIndex)=>`<TR><TD PORT="p${portIndex+1}" ALIGN="LEFT" CELLPADDING="4" BORDER="1" COLOR="#c8d6da"><FONT COLOR="#536e78" POINT-SIZE="11">${dotHtml(port.label??port.id)} · ${port.id}${port.side?' · '+port.side:''}</FONT></TD></TR>`).join('');
+    const portHtml=n.ports.map((port,portIndex)=>`<TR><TD PORT="p${portIndex+1}" ALIGN="LEFT" CELLPADDING="4" BORDER="1" COLOR="#c8d6da"><FONT COLOR="#536e78" POINT-SIZE="11">${dotHtml(portCaption(port))}</FONT></TD></TR>`).join('');
    const roleCaption=processRoleCaption(n)?'<BR/><FONT POINT-SIZE="11">Process</FONT>':'';
    return '  '+id+' [label=< <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD ALIGN="LEFT" CELLPADDING="8"><B>'+dotHtml(n.label)+'</B>'+(n.detail?'<BR/><FONT POINT-SIZE="11">'+dotHtml(n.detail)+'</FONT>':'')+roleCaption+'</TD></TR>'+portHtml+'</TABLE> >'+nodeStyle(n)+shapeOverride(n)+sizeAttrs+fixed+'];';
   };
@@ -390,11 +393,11 @@ export function compilePresentation(document:Document,options:PresentationOption
    const style=e.kind==='data'?'dashed':e.kind==='control'?'dotted':e.kind==='return'?'bold':'solid';
    const inferredBoundarySides=e.routing?.kind==='curved'&&!mixedRouteIntent&&!fromPort&&!toPort;
    const graphUsesCurvedSplines=routeMode==='curved'&&!mixedRouteIntent;
-   const attrs=[e.label?(graphUsesCurvedSplines?'xlabel':'label')+'='+dot(e.label):undefined,e.why?'tooltip='+dot(e.why):undefined,'style='+dot(style),e.directed===false?'dir=none':undefined,inferredBoundarySides?'tailport=e':undefined,inferredBoundarySides?'headport=s':undefined,e.status==='placeholder'?'color="#ba8745"':e.status==='built'?'color="#668f78"':undefined,e.emphasis==='focus'?'penwidth=2.8':e.emphasis==='muted'?'color="#b8c4c7"':undefined].filter(Boolean).join(', ');
+   const attrs=[e.label?(graphUsesCurvedSplines?'xlabel':'label')+'='+dot(e.label):undefined,graphUsesCurvedSplines&&e.label?'minlen='+graphvizCurvedLabelMinlen(e.label):undefined,e.why?'tooltip='+dot(e.why):undefined,'style='+dot(style),e.directed===false?'dir=none':undefined,inferredBoundarySides?'tailport=e':undefined,inferredBoundarySides?'headport=s':undefined,e.status==='placeholder'?'color="#ba8745"':e.status==='built'?'color="#668f78"':undefined,e.emphasis==='focus'?'penwidth=2.8':e.emphasis==='muted'?'color="#b8c4c7"':undefined].filter(Boolean).join(', ');
    const sideCode={north:'n',east:'e',south:'s',west:'w'} as const;
    const fromNative=nodeIds.get(e.from)!+(fromPort?':p'+(fromNode!.ports!.indexOf(fromPort)+1)+(fromPort.side?':'+sideCode[fromPort.side]:''):inferredBoundarySides?':e':''),toNative=nodeIds.get(e.to)!+(toPort?':p'+(toNode!.ports!.indexOf(toPort)+1)+(toPort.side?':'+sideCode[toPort.side]:''):inferredBoundarySides?':s':'');
    lines.push('  '+fromNative+' -> '+toNative+' [id='+dot(edgeIds.get(e.id)!) +(attrs?', '+attrs:'')+'];');
-   if(e.routing){const routeApplicable=!mixedRouteIntent&&routeMode===e.routing.kind,routeCode=routeApplicable?(e.routing.kind==='curved'&&!inferredBoundarySides?'ROUTING_NATIVE_INTERPOLATION':undefined):'ROUTING_SCOPE_CONFLICT';routeApproximation(i,e,'Graphviz routing is graph-wide; the homogeneous declaration selects native splines='+routeMode+'.'+(inferredBoundarySides?' Native boundary compass sides east→south are selected because no named ports or sides were authored.':'')+' Exact control points and endpoint attachment coordinates remain native.',routeApplicable,routeCode);}
+   if(e.routing){const routeApplicable=!mixedRouteIntent&&routeMode===e.routing.kind,routeCode=routeApplicable?undefined:'ROUTING_SCOPE_CONFLICT';routeApproximation(i,e,'Graphviz routing is graph-wide; the homogeneous declaration selects native splines='+routeMode+'.'+(inferredBoundarySides?' Native boundary compass sides east→south are selected because no named ports or sides were authored.':'')+' Exact control points and endpoint attachment coordinates remain native.',routeApplicable,routeCode);}
    if(graphUsesCurvedSplines&&e.label)approx(path('/edges/'+i+'/label'),'Edge label '+e.label,'Graphviz curved splines use the native external xlabel carrier because Graphviz does not support normal edge labels with splines=curved.');
    if(e.kind)approx(path('/edges/'+i+'/kind'),'Connection kind '+e.kind,'Rendered by the presentation/1 convention: action solid, data dashed, control dotted, return bold.');
    if(e.emphasis)approx(path('/edges/'+i+'/emphasis'),'Connection emphasis '+e.emphasis,'Rendered by the presentation/1 stroke weight/color convention.');
@@ -525,7 +528,7 @@ function shapeOverride(node:VisualNode):string {
 }
 function mermaidNodeDeclaration(node:VisualNode,nativeId:string,encode:(value:string)=>string):string {
  const wrap=(text:string,limit:number)=>text.split('\n').flatMap(line=>{const words=line.split(/\s+/),out:string[]=[];let current='';for(const word of words){if(current&&current.length+1+word.length>limit){out.push(current);current=word;}else current=current?current+' '+word:word;}if(current)out.push(current);return out;}).join('\n');
- const portText=portRows(node).map(port=>wrap('Port '+port.id+(port.label?' · '+port.label:'')+(port.side?' · '+port.side:''),32)).join('\n');
+ const portText=portRows(node).map(port=>wrap('Port '+portCaption(port),32)).join('\n');
  const label=encode([node.icon?wrap('Icon: '+node.icon,22):undefined,wrap(node.label,22),node.detail?wrap(node.detail,38):undefined,processRoleCaption(node),portText].filter(Boolean).join('\n'));
  const roleShape=node.role==='actor'?'ellipse':node.role==='store'?'cylinder':node.role==='document'?'folded-corner':undefined;
  const shape=node.shape??roleShape;

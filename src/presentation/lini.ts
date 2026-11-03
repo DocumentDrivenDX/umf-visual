@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 /** Browser-pure projection to the pinned Lini 1.1 layout and entity grammar. */
-import type {Visual,VisualCardinality,VisualEntity,VisualGroup,VisualNode,VisualMultiplicity,VisualLayout} from '../extensions/visual';
+import type {Visual,VisualCardinality,VisualEdge,VisualEntity,VisualGroup,VisualNode,VisualMultiplicity,VisualLayout} from '../extensions/visual';
 import {quoteLiniProfile} from '../interchange/lini/profile-syntax';
 import {liniShapeDefinition} from './lini-shapes';
 import {circularPlacement} from './circular';
@@ -30,6 +30,24 @@ const property=(name:string,value:string|number)=>`${name}: ${typeof value==='st
 const liniIcons=new Set(['user','rocket','seal','presentation','heart','gear','cloud','house','database','folder-simple','cpu','bell','star','ghost','video-camera','wall','check','warning','globe','lock','key','lightning','magnifying-glass','arrow-right']);
 const liniIcon=(value:string)=>liniIcons.has(value)?value:undefined;
 const portCaption=(port:NonNullable<VisualNode['ports']>[number])=>port.label===undefined?port.id:port.label===port.id?port.id:port.label+' · '+port.id;
+const curvedPeerGroupOffset=(visual:Visual,edges:VisualEdge[])=>{
+ const offsets=new Map<string,number>(),edgeIds=new Set<string>();
+ if(visual.layout)return{offsets,edgeIds};
+ const groups=visual.groups??[],nodes=visual.nodes??[],byId=new Map(groups.map(group=>[group.id,group])),pairs=new Map<string,{from:string;to:string;edgeIds:Set<string>}>();
+ for(const edge of edges){
+  if(edge.routing?.kind!=='curved'||edge.directed===false||!edge.fromPort||!edge.toPort)continue;
+  const fromNode=nodes.find(node=>node.id===edge.from),toNode=nodes.find(node=>node.id===edge.to),fromPort=fromNode?.ports?.find(port=>port.id===edge.fromPort),toPort=toNode?.ports?.find(port=>port.id===edge.toPort);
+  if(fromPort?.side!=='east'||toPort?.side!=='west')continue;
+  const from=byId.get(fromNode?.group??''),to=byId.get(toNode?.group??'');
+  if(!from||!to||from.id===to.id||from.parent!==undefined||to.parent!==undefined||from.layout||to.layout)continue;
+  const key=from.id+'\u0000'+to.id,pair=pairs.get(key)??{from:from.id,to:to.id,edgeIds:new Set<string>()};pair.edgeIds.add(edge.id);pairs.set(key,pair);
+ }
+ if(pairs.size!==1)return{offsets,edgeIds};
+ const pair=pairs.values().next().value as {from:string;to:string;edgeIds:Set<string>}|undefined;
+ if(!pair)return{offsets,edgeIds};
+ offsets.set(pair.to,-24);for(const id of pair.edgeIds)edgeIds.add(id);
+ return{offsets,edgeIds};
+};
 const joined=(items:Array<string|undefined>)=>items.filter((item):item is string=>!!item).join(' ');
 
 type ColorSet={fill:string;stroke:string;color:string;shape?:string};
@@ -183,6 +201,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
    const directionAtScope=(scope?:string)=>{if(scope===undefined)return (rootLayout as {direction?:'LR'|'TB'}|undefined)?.direction??direction;const layout=groups.find(item=>item.id===scope)?.layout as {direction?:'LR'|'TB'}|undefined;return layout?.direction??'TB';};
    const routeKindsByScope=new Map<string|undefined,Set<'curved'|'straight'>>();
    for(const edge of edges)if(edge.routing){const fromGroups=groupChain(nodes.find(node=>node.id===edge.from)?.group),toGroups=groupChain(nodes.find(node=>node.id===edge.to)?.group);let common=0;while(common<fromGroups.length&&common<toGroups.length&&fromGroups[common]!.id===toGroups[common]!.id)common++;const scope=common?fromGroups[common-1]!.id:undefined,kinds=routeKindsByScope.get(scope)??new Set<'curved'|'straight'>();kinds.add(edge.routing.kind);routeKindsByScope.set(scope,kinds);}
+   const rootRouteKinds=routeKindsByScope.get(undefined),peerCurvePolicy=rootRouteKinds?.size===1&&rootRouteKinds.has('curved')?curvedPeerGroupOffset(visual,edges):{offsets:new Map<string,number>(),edgeIds:new Set<string>()};
    if(!rootLayout?.order&&routeKindsByScope.get(undefined)?.size===1&&routeKindsByScope.get(undefined)?.has('curved')){
     const relations=edges.filter(edge=>edge.routing?.kind==='curved'&&edge.directed!==false).map(edge=>[componentAtScope(edge.from),componentAtScope(edge.to)] as [string,string]);
     rootItems.splice(0,rootItems.length,...stableRoutedOrder(rootItems,relations));
@@ -213,11 +232,11 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     if(edge.status)style.push(property('stroke',statuses[edge.status]??'--gray-deep'));
     if(edge.emphasis==='focus')style.push(property('stroke-width',3));else if(edge.emphasis==='muted')style.push(property('opacity',0.55));
     styleRules.push(`.${className} { ${style.length?style.join(' '):'stroke: --teal-deep;'} }`);
-    const fromGroupPath=groupChain(fromNode?.group).map(group=>group.id),toGroupPath=groupChain(toNode?.group).map(group=>group.id),isPrefix=(outer:string[],inner:string[])=>outer.length<inner.length&&outer.every((id,index)=>id===inner[index]),crossingCaptionAlong=isPrefix(fromGroupPath,toGroupPath)?0.1:isPrefix(toGroupPath,fromGroupPath)?0.9:undefined,uniquePair=edges.filter(candidate=>candidate.from===edge.from&&candidate.to===edge.to).length===1,along=crossingCaptionAlong??(edge.routing?.kind==='straight'&&uniquePair?0.45:[0.35,0.5,0.65][i%3]!);
-    const rows=edgeRowsByScope.get(scope)??[],operator=edge.directed===false?'---':'->';rows.push(`${source} ${operator} ${target}${label?' '+quoteChecked(label,path('/edges/'+i+'/label')):''} .${className} { along: ${along}; }`);edgeRowsByScope.set(scope,rows);
+    const fromGroupPath=groupChain(fromNode?.group).map(group=>group.id),toGroupPath=groupChain(toNode?.group).map(group=>group.id),isPrefix=(outer:string[],inner:string[])=>outer.length<inner.length&&outer.every((id,index)=>id===inner[index]),crossingCaptionAlong=isPrefix(fromGroupPath,toGroupPath)?0.1:isPrefix(toGroupPath,fromGroupPath)?0.9:undefined,siblingGroupPaths=fromGroupPath.length>0&&toGroupPath.length>0&&fromGroupPath.at(-1)!==toGroupPath.at(-1),uniquePair=edges.filter(candidate=>candidate.from===edge.from&&candidate.to===edge.to).length===1,along=crossingCaptionAlong??(siblingGroupPaths?0.5:edge.routing?.kind==='straight'&&uniquePair?0.45:[0.35,0.5,0.65][i%3]!);
+    const rows=edgeRowsByScope.get(scope)??[],operator=edge.directed===false?'---':'->',caption=label?quoteChecked(label,path('/edges/'+i+'/label')):'',separatedSiblingCaption=!!caption&&siblingGroupPaths&&edge.routing?.kind==='curved';rows.push(`${source} ${operator} ${target}${caption&&!separatedSiblingCaption?' '+caption:''} .${className} { along: ${along}; }${separatedSiblingCaption?` [ ${caption} { translate: 0 -24; } ]`:''}`);edgeRowsByScope.set(scope,rows);
     for(const field of ['why','evidence'] as const)if(edge[field]!==undefined)omit(path('/edges/'+i+'/'+field),field==='why'?'Lini link hints do not appear on the native link SVG; rationale remains in the source document.':'Evidence locators remain in UMF and are not drawn.');
     if(edge.kind)approx(path('/edges/'+i+'/kind'),'Connection kind '+edge.kind,edge.kind==='data'?'Dashed Lini line style.':edge.kind==='control'?'Dotted Lini line style.':'Double Lini line style.');
-    if(edge.routing){const scopeKinds=routeKindsByScope.get(scope),applicable=scopeKinds?.size===1,selected=scopeKinds?.values().next().value,selectedSides=inferNaturalSide?' Native compass sides '+fromNaturalSide+'→'+toNaturalSide+' are chosen only because this edge has no authored named ports or sides.':'',code=applicable?(selected==='curved'&&!inferNaturalSide?'ROUTING_NATIVE_INTERPOLATION':undefined):'ROUTING_SCOPE_CONFLICT';approx(path('/edges/'+i+'/routing'),'Edge routing '+edge.routing.kind,applicable?'Lini applies native routing: '+(selected==='curved'?'natural':'straight')+' to this connection scope; '+(inferNaturalSide?'native compass anchors are selected to produce a curved path without overriding named ports or sides.':'natural routing may remain straight when the layout is collinear.')+selectedSides+' Exact control points and endpoint attachment coordinates remain native.':'Lini routing is set on a container, not per edge; this scope mixes curved and straight intent, so no requested route is selected and this edge geometry is not guaranteed.',code);}
+    if(edge.routing){const scopeKinds=routeKindsByScope.get(scope),applicable=scopeKinds?.size===1,selected=scopeKinds?.values().next().value,peerOffset=peerCurvePolicy.edgeIds.has(edge.id),selectedSides=inferNaturalSide?' Native compass sides '+fromNaturalSide+'→'+toNaturalSide+' are chosen only because this edge has no authored named ports or sides.':'',code=applicable?(selected==='curved'&&!inferNaturalSide&&!peerOffset?'ROUTING_NATIVE_INTERPOLATION':undefined):'ROUTING_SCOPE_CONFLICT';approx(path('/edges/'+i+'/routing'),'Edge routing '+edge.routing.kind,applicable?'Lini applies native routing: '+(selected==='curved'?'natural':'straight')+' to this connection scope; '+(inferNaturalSide?'native compass anchors are selected to produce a curved path without overriding named ports or sides.':peerOffset?'a renderer-owned 24-unit offset separates the two peer groups when no layout is authored, allowing natural routing to curve while preserving the declared east/west ports.':'natural routing may remain straight when the layout is collinear.')+selectedSides+' Exact control points and endpoint attachment coordinates remain native.':'Lini routing is set on a container, not per edge; this scope mixes curved and straight intent, so no requested route is selected and this edge geometry is not guaranteed.',code);}
     if(edge.status)approx(path('/edges/'+i+'/status'),'Connection status '+edge.status,'Lini stroke palette convention.');
     if(edge.emphasis)approx(path('/edges/'+i+'/emphasis'),'Connection emphasis '+edge.emphasis,edge.emphasis==='focus'?'Lini uses a heavier native stroke.':'Lini uses reduced native opacity.');
    }
@@ -228,7 +247,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     for(const item of items){if(groups.includes(item as VisualGroup))childRows.push(renderGroup(item as VisualGroup,indent+'  '));else childRows.push(nodeDeclaration(item as VisualNode,nodeIds.get(item.id)!));}
     if(group.detail)childRows.unshift(`|cell#detail| ${quoteChecked(group.detail,path('/groups/'+index+'/detail'))}`);
     childRows.push(...(edgeRowsByScope.get(group.id)??[]));
-    const props=groupProperties(group,group.layout,'flow',items.length,'TB'),routeKinds=routeKindsByScope.get(group.id);if(routeKinds?.size===1){const route=routeKinds.values().next().value;props.push('routing: '+(route==='curved'?'natural':'straight')+';');}else if(!routeKinds&&straightRoutingGroups.has(group.id))props.push('routing: straight;');
+    const props=groupProperties(group,group.layout,'flow',items.length,'TB'),routeKinds=routeKindsByScope.get(group.id);if(routeKinds?.size===1){const route=routeKinds.values().next().value;props.push('routing: '+(route==='curved'?'natural':'straight')+';');}else if(!routeKinds&&straightRoutingGroups.has(group.id))props.push('routing: straight;');const offset=peerCurvePolicy.offsets.get(group.id);if(offset!==undefined)props.push('translate: 0 '+offset+';');
     if(group.layout?.kind==='grid'&&group.layout.columns===1)approx(path('/groups/'+index+'/layout'),'Grid layout with one column','Lini 1.1 represents a one-column grid with native column flow; requested node order and single-column containment are preserved.');
     if(group.role)approx(path('/groups/'+index+'/role'),'Group role '+group.role,'Lini applies the role palette convention to the native group boundary; this is a presentation styling choice, not an intrinsic Lini group semantic.');
     if(group.status)approx(path('/groups/'+index+'/status'),'Group status '+group.status,'Lini renders status through the native boundary fill and stroke color convention.');
@@ -238,7 +257,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
    };
    for(const item of rootItems){if(groups.includes(item as VisualGroup))children.push(renderGroup(item as VisualGroup));else children.push(nodeDeclaration(item as VisualNode,nodeIds.get(item.id)!,circlePosition.get(item.id)));}
    children.push(...(edgeRowsByScope.get(undefined)??[]));
-   const rootRouteKinds=routeKindsByScope.get(undefined);if(rootRouteKinds?.size===1){const route=rootRouteKinds.values().next().value;rootProperties.push('routing: '+(route==='curved'?'natural':'straight')+';');}else if(!rootRouteKinds&&straightRootRouting)rootProperties.push('routing: straight;');
+   if(rootRouteKinds?.size===1){const route=rootRouteKinds.values().next().value;rootProperties.push('routing: '+(route==='curved'?'natural':'straight')+';');}else if(!rootRouteKinds&&straightRootRouting)rootProperties.push('routing: straight;');
    if(rootLayout?.kind==='flow'&&rootLayout.order)approx(path('/layout/order'),'Explicit root component order','Declarations follow the requested order; native graph layout can still route links around that order.');
    if(visual.annotations?.length){
     const footerChildren:string[]=[];

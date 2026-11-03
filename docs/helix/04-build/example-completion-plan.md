@@ -1289,11 +1289,85 @@ non-network and circular presentation combinations remain unqualified and refuse
 explicitly; broad shared-model admission does not promote those renderer scopes.
 No new host support or publication follows from this closeout.
 
+### Fifth-cycle scope — curved caption across regions
+
+Cycle 4 is committed as `263b11f`; cycle 5 implementation and verification are
+complete. The common 1.0.0
+source hash is `3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c`;
+the synthetic native witness hash is
+`499fd6122844d0d0c22bc241422b6432601d5c3ce751f4d126195695130d57cd`.
+Preserve the two common node IDs, both existing region groups and memberships,
+and the data edge's identity, endpoints and already edge-owned caption. Native
+rectangle symbols and curved routing map to existing explicit 1.4.0 concepts;
+no new language type is required.
+
+Normalize the two native attachment strings as exact node-local graphical port
+names, referenced by the edge. The witness declares neither separate port objects
+nor side fields. East/west side hints, if authored in the review, are explicitly
+review-authored graphical placement choices guided by those descriptive strings,
+not extracted side facts or business interfaces. Preserve exact native IDs,
+control points and coordinates in the companion. Source provenance must expose
+the distinction between explicit attachment names and interpreted side hints.
+
+Qualify actual visibly curved geometry and the same caption owned by the
+cross-region edge. Preserve declared ports/sides and actual boundary/row attachment;
+do not silently alter anchors to force curvature. Probe generic placement/route
+policies where native interpolation would be collinear; located fallback/refusal
+remains honest but does not establish actual-curve realization. Native negative
+controls straighten the owned curve, move its caption to another carrier, or
+reconnect the edge while retaining matching text elsewhere. Review all original
+host outputs separately; old host receipts do not certify new ports or routes.
+Audit touched generic interfaces and run focused source/port/native/browser/package
+and affected legacy gates before the integrated closeout. Commit cycle 5 before
+starting cycle 6. No new host qualification or publication is claimed.
+
+### Fifth-cycle closeout — ready for commit
+
+Sol approves the bounded source and generic renderer interfaces. Independent
+focused checks pass 55 tests with 749 assertions across four files, covering
+source provenance and port normalization, generic port captions, native curve/
+caption ownership, Lini peer-region frame clearance and prior renderer regressions.
+The reviewed definition hash is
+`7819be1bf0f45399ef951e54b98f74ef4c7d31935075cb2ffed7ef01e45d6672`.
+It preserves common identities/caption and separates explicit native attachment
+names from review-authored east/west graphical side hints; no new DSL type,
+business interface or native port object is inferred.
+
+Final source/native audit confirms strict Graphviz named-port curve checks reject
+straightening; Lini's generic unambiguous peer-group placement preserves authored
+ports and explicit layouts, with matching compiler/proof eligibility. No fixture
+ID/label/count dispatch is used. Mermaid's collinear interpolation and node-level
+port approximation remain located and explicit; actual curves are qualified on
+Graphviz and Lini rather than inferred from source syntax alone.
+
+A final no-Chromium SVG/native-AST audit confirms Graphviz literal `p1:e`/`p1:w`
+selectors and the correct target arrow tip: 2.400 SVG units, or 6.9065 CSS pixels
+at the presentation scale, from its own row boundary. Other arrow vertices were
+26.53/32.81 CSS pixels away and were not the tip. The bounded target-row tolerance
+is 8 CSS pixels while source tolerance remains 6; row band, side identity,
+path/arrow gap and detached/wrong-row controls remain enforced. A tip displaced
+another 3 CSS pixels away exceeds that target bound. This is native arrowhead
+inset qualification, not a broad endpoint waiver.
+
+All fifteen review variants pass actual native SVG and PNG replays, with prior
+corpus/showcase, source, TypeScript, build, public-browser, fresh packed Bun/Node
+and all site-UI gates green. The quiet final suite passes 662 tests, zero failures
+and 19,612 assertions across 97 files in 133.73 seconds
+(`.cache/cycle05-full-tests.log`). Final source/site/showcase checks also pass.
+
+Implementation and verification are complete; the cycle 5 commit follows in this
+change and MUST precede cycle 6. Draft 1.4.0 remains unreleased. Historical host
+receipts retain 1.0.0 qualification, east/west port sides remain explicit reviewed
+hints rather than native side fields/business interfaces, and Mermaid's collinear
+route/node-level port approximation remains located. No new host support or
+publication follows from this closeout.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
-Cycle 3 is committed as `aa6a093`. Cycle 4 is verified and ready for the commit
-that follows in this change; cycles 5–68 remain pending.
+Cycle 3 is committed as `aa6a093`; cycle 4 is committed as `263b11f`.
+Cycle 5 is verified and ready for the commit that follows in this change;
+cycles 6–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

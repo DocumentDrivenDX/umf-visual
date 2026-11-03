@@ -365,7 +365,7 @@ describe('presentation native quality verifier',()=>{
    const detachedArrow=good.svg.replace(/(<g id="e1" class="edge">[\s\S]*?<polygon[^>]*points=")([^"]+)(")/u,(_match:string,prefix:string,points:string,suffix:string)=>prefix+points.replace(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/gu,(_pair:string,x:string,y:string)=>`${Number(x)+100},${Number(y)+100}`)+suffix);
    expect(detachedArrow).not.toBe(good.svg);
    expect(result(await verifyPresentationQuality(good.page,{svg:detachedArrow,document:d,plan:good.plan,nativeAst:JSON.parse(await dot(good.plan,'json'))}),'graphviz-edge-endpoints-and-paths')).toBe('fail');
-   const altered=good.svg.replace('resolve · resolve · south','other · other · south');
+   const altered=good.svg.replace('resolve · south','other · south');
    expect(altered).not.toBe(good.svg);
    expect(result(await verifyPresentationQuality(good.page,{svg:altered,document:d,plan:good.plan,nativeAst:JSON.parse(await dot(good.plan,'json'))}),'graphviz-node-port-rows')).toBe('fail');
   }finally{await good.page.close();}

@@ -1,0 +1,84 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:miro-curved-caption-cross-boundary",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.4.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "miro-curved-caption-cross-boundary",
+      "kind": "flow",
+      "form": "network",
+      "title": "Curved captioned cross-region link",
+      "question": "Which items are connected?",
+      "nodes": [
+        {
+          "id": "source-node",
+          "label": "Source",
+          "shape": "rectangle",
+          "group": "region-a",
+          "ports": [
+            {
+              "id": "east-port",
+              "side": "east"
+            }
+          ]
+        },
+        {
+          "id": "target-node",
+          "label": "Target",
+          "shape": "rectangle",
+          "group": "region-b",
+          "ports": [
+            {
+              "id": "west-port",
+              "side": "west"
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "id": "cross-edge",
+          "from": "source-node",
+          "to": "target-node",
+          "fromPort": "east-port",
+          "toPort": "west-port",
+          "kind": "data",
+          "label": "caption",
+          "routing": {
+            "kind": "curved"
+          }
+        }
+      ],
+      "groups": [
+        {
+          "id": "region-a",
+          "label": "Region A",
+          "role": "region"
+        },
+        {
+          "id": "region-b",
+          "label": "Region B",
+          "role": "region"
+        }
+      ],
+      "takeaway": "A captioned data edge connects nodes in separate regions using named graphical endpoint anchors and a curved route.",
+      "audience": "developer",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/curved-caption-cross-boundary.json",
+        "view": "The common witness supplies the node/edge identities, labels, caption, data kind, region membership and region labels. The synthetic native witness supplies rectangle symbols, the curved route, and exact endpoint attachment strings. This review retains east-port and west-port as node-local graphical anchor IDs and authors east/west side hints from their names; the witness has no native port objects or side declarations. Exact connector control points and item coordinates remain native-only.",
+        "digest": "sha256:3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c"
+      },
+      "omissions": [
+        "The common and native inputs are synthetic witnesses. They do not establish deployed system semantics or describe a private original Miro board.",
+        "The synthetic native witness explicitly records a curved route and attachment strings east-port and west-port. This review retains those strings as local graphical anchor IDs; its side values are review-authored hints guided by the names, not native side fields, native port objects, exact physical sides, or business/service interfaces. Exact native control points and geometry remain in the companion witness.",
+        "The common source explicitly supplies the two region groups and each node membership. Exact group bounds and item coordinates are not represented in the shared model.",
+        "Historical Miro and Google Slides restored-original previews and the PowerPoint/LibreOffice preview use Visual 1.0.0. They are provenance for the older shared source, not qualification evidence for Visual 1.4 curved routing or endpoint ports. The PowerPoint preview is a LibreOffice conversion, not a PowerPoint screenshot."
+      ]
+    }
+  },
+  "modules": []
+}

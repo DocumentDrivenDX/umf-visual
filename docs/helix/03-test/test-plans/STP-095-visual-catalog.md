@@ -337,3 +337,16 @@ node/group membership and native frame identity. Recheck primary endpoints,
 scoped routing and containment after any drawing wrapper/layout change. Unsupported
 annotation forms/combinations must refuse or disclose omission explicitly;
 source admission alone is not native support.
+
+
+## Fifth-cycle port and curved-caption checks
+
+Preserve existing caption/edge ownership, source identities and region membership.
+Distinguish native attachment-name normalization from explicitly review-authored
+side hints; neither creates business interface meaning. Native checks bind the
+named endpoints, authored sides, actual non-collinear curved path and its own
+caption. Straightened-path, reconnected-endpoint and caption-moved-to-another-
+carrier controls must fail the corresponding realization claim. Exact native
+control points remain companion content. An interpolation approximation or retained
+source cannot certify actual curvature; preserve earlier source/profile limits
+and recheck affected generic port/routing consumers.

@@ -129,7 +129,7 @@ export async function verifyPresentationQuality(
      const index=Number(port.split(':')[0]!.slice(1))-1;
      const node=visual.nodes?.find(node=>nativeIdForNode(plan,node.id)===nodeId),definition=node?.ports?.[index],owner=carrier('node',nodeId);
      if(!definition||!owner)return undefined;
-     const expected=(definition.label??definition.id)+' · '+definition.id+(definition.side?' · '+definition.side:'');
+     const expected=(definition.label!==undefined&&definition.label!==definition.id?definition.label+' · ':'')+definition.id+(definition.side?' · '+definition.side:'');
      return owner.ownTextDetails.find(row=>norm(row.value)===norm(expected));
     }
     const entry=fieldPortEntry(port),match=entry?.sourcePath.match(/\/structure\/entities\/(\d+)\/fields\/(\d+)$/);
@@ -186,7 +186,7 @@ export async function verifyPresentationQuality(
       return index<0?undefined:'p'+(index+1)+(port?.side?':'+side[port.side]:'');
      };
      const declaredRoutes=[...new Set((visual.edges??[]).flatMap(edge=>edge.routing?[edge.routing.kind]:[]))],uniformRoute=declaredRoutes.length===1?declaredRoutes[0]:undefined,compiledRoute=plan.source.match(/splines=(curved|line|true)/u)?.[1],policy=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${i}/routing`),routeConfigOk=uniformRoute?compiledRoute===(uniformRoute==='curved'?'curved':'line'):compiledRoute==='true',routing=e.routing&&e.routing.kind===uniformRoute&&routeConfigOk?e.routing.kind:undefined,inferred=routing==='curved'&&!e.fromPort&&!e.toPort;
-     const expectedRouteCode=e.routing?(!uniformRoute?'ROUTING_SCOPE_CONFLICT':e.routing.kind==='curved'&&!inferred?'ROUTING_NATIVE_INTERPOLATION':undefined):undefined;
+     const expectedRouteCode=e.routing?(!uniformRoute?'ROUTING_SCOPE_CONFLICT':undefined):undefined;
      if(e.routing&&policy.length!==1)endpointFailures.push(`${e.id} needs exactly one source-located routing realization record`);
      if(e.routing&&policy.length===1&&policy[0]?.code!==expectedRouteCode)endpointFailures.push(`${e.id} routing realization code does not match Graphviz's actual scope and anchor constraints`);
      if(e.routing&&!routeConfigOk)endpointFailures.push(`${e.id} native Graphviz splines setting does not implement the homogeneous route intent`);
@@ -219,7 +219,7 @@ export async function verifyPresentationQuality(
     const sourceEdge=visual.kind==='flow'?visual.edges?.find(candidate=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===candidate.id):undefined;
     if(sourceEdge?.kind==='data'&&(!edge||text(edge.style)!=='dashed'||!drawn?.dashArray||drawn.dashArray==='none'))endpointFailures.push(`${exp.id} data connection is not carried by an owned dashed native edge`);
     if(exp.routeIntent&&drawn){const sourceIndex=visual.edges?.findIndex(candidate=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===candidate.id)??-1,records=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${sourceIndex}/routing`),record=records.length===1?records[0]:undefined;if(record?.code){const nativeCurve=/[CcQqSsAa]/u.test(drawn.d),geometryKind=drawn.curveDeviation<1.5?'collinear':nativeCurve&&drawn.curveDeviation>=2?'curved':'bent-polyline';routingObservations.push(`${exp.id} requested ${exp.routeIntent}; observed ${geometryKind} native path with ${drawn.curveDeviation.toFixed(1)}px chord deviation; admitted ${record.code}.`);}}
-    if(exp.routing==='curved'&&(!drawn||!/[CcQqSsAa]/u.test(drawn.d)||drawn.curveDeviation<2)){const sourceIndex=visual.edges?.findIndex(edge=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===edge.id)??-1,policy=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${sourceIndex}/routing`),edge=visual.edges?.[sourceIndex],hasInferredSides=!!edge&&!edge.fromPort&&!edge.toPort,declaredRoutes=[...new Set((visual.edges??[]).flatMap(item=>item.routing?[item.routing.kind]:[]))],expectedCode=declaredRoutes.length>1?'ROUTING_SCOPE_CONFLICT':hasInferredSides?undefined:'ROUTING_NATIVE_INTERPOLATION';if(!(drawn&&drawn.curveDeviation<1.5&&policy.length===1&&policy[0]?.code===expectedCode&&expectedCode==='ROUTING_NATIVE_INTERPOLATION'))endpointFailures.push(`${exp.id} requested curved routing but its owned Graphviz path lacks a native curved segment with visible non-collinearity (${drawn?.curveDeviation.toFixed(1)??'missing'}px deviation)`);}
+    if(exp.routing==='curved'&&(!drawn||!/[CcQqSsAa]/u.test(drawn.d)||drawn.curveDeviation<2))endpointFailures.push(`${exp.id} requested curved routing but its owned Graphviz path lacks a native curved segment with visible non-collinearity (${drawn?.curveDeviation.toFixed(1)??'missing'}px deviation)`);
     if(exp.routing==='straight'&&drawn){const chord=drawn.start&&drawn.end?Math.hypot(drawn.end.x-drawn.start.x,drawn.end.y-drawn.start.y):0,fixedNative=plan.execution?.runtime==='graphviz'&&plan.execution.layoutEngine==='neato'&&plan.execution.nodePositions==='fixed'&&/splines=line/u.test(plan.source),tolerance=1.5,lengthRatio=chord?drawn.lengthCss/chord:Infinity;if(drawn.curveDeviation>tolerance||fixedNative&&lengthRatio>1.02)endpointFailures.push(`${exp.id} requested straight routing but its owned Graphviz path has ${drawn.curveDeviation.toFixed(1)}px chord deviation over ${chord.toFixed(1)}px (${(lengthRatio*100).toFixed(2)}% path/chord length; limits 1.5px and 102%).`);else if(fixedNative)routingObservations.push(`${exp.id} requested straight; fixed-position Graphviz native path measured ${drawn.curveDeviation.toFixed(1)}px deviation over ${chord.toFixed(1)}px chord (${(lengthRatio*100).toFixed(2)}% path/chord length; limits 1.5px and 102%).`);}
     if(!exp.directed&&svgEdge?.arrow)endpointFailures.push(`${exp.id} is undirected but has a native arrowhead`);
     const authoredLabel=visual.kind==='flow'?visual.edges?.find(e=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===e.id)?.label:visual.structure?.references?.[Number(exp.sourcePath.split('/').at(-1))]?.label;
@@ -255,10 +255,11 @@ export async function verifyPresentationQuality(
         const border=borders[0];if(!border)return false;
         const horizontal=named.side==='east'||named.side==='west';
         const boundary=named.side==='north'?border.y:named.side==='south'?border.y+border.height:named.side==='west'?border.x:border.x+border.width;
-        // Graphviz's filled arrowhead is inset a few CSS px from the HTML row border;
-        // bind its nearest actual vertex with a tight viewport-scaled tolerance.
+        // Graphviz's filled arrowhead tip stops a few CSS px before the HTML
+        // row border; use a slightly wider bounded target tolerance than the
+        // path-start tolerance while still binding the nearest native vertex.
         if(target&&svgEdge.arrowPoints.length)point=svgEdge.arrowPoints.reduce((closest,candidate)=>Math.abs(candidate[horizontal?'x':'y']-boundary)<Math.abs(closest[horizontal?'x':'y']-boundary)?candidate:closest,svgEdge.arrowPoints[0]!);
-        return Math.abs(point[horizontal?'x':'y']-boundary)<=6&&(horizontal?point.y>=border.y-4&&point.y<=border.y+border.height+4:point.x>=border.x-4&&point.x<=border.x+border.width+4);
+        return Math.abs(point[horizontal?'x':'y']-boundary)<=(target?8:6)&&(horizontal?point.y>=border.y-4&&point.y<=border.y+border.height+4:point.x>=border.x-4&&point.x<=border.x+border.width+4);
        }
       }
       const row=fieldRowForPort(nodeId,port);if(!row||!point)return false;
@@ -494,7 +495,8 @@ export async function verifyPresentationQuality(
    const portPath=`/extensions/umf.visual/nodes/${nodeIndex}/ports/${portIndex}`;
    const mapping=plan.elementMap.find(item=>item.kind==='port'&&item.sourcePath===portPath);
    if(!owner||!mapping){failures.push(`${node.id}.${port.id} has no mapped native host`);continue;}
-   const expected=plan.backend==='graphviz'?(port.label??port.id)+' · '+port.id+(port.side?' · '+port.side:''):'Port '+port.id+(port.label?' · '+port.label:'')+(port.side?' · '+port.side:'');
+   const portLabel=(port.label!==undefined&&port.label!==port.id?port.label+' · ':'')+port.id+(port.side?' · '+port.side:'');
+   const expected=plan.backend==='graphviz'?portLabel:'Port '+portLabel;
    if(!norm(owner.ownText.join(' ')).includes(norm(expected)))failures.push(`${node.id}.${port.id} label/side is not visible on its own native host`);
    if(plan.backend==='graphviz'){
     const ast=input.nativeAst as NativeAst|undefined,record=ast?.objects?.find(item=>text(item.name)===nativeId);

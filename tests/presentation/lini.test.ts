@@ -79,6 +79,13 @@ describe('Lini presentation compiler',()=>{
   expect(lini.source).toContain('layout: flow; direction: column;');expect(lini.source).toContain('columns: repeat(2);');expect(lini.source).toContain('|hex#n2| "Compiler"');expect(lini.source).toContain('|cell#p1| "request body · out" { pin: bottom; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }');expect(lini.source).toContain('n1.p1:bottom -> g1.n2.p1:left "compile" .e1 { along: 0.1; }');expect(lini.elementMap).toContainEqual({logicalId:'out',sourcePath:'/extensions/umf.visual/nodes/0/ports/0',nativeId:'n1.p1',kind:'port'});
  });
 
+ it('renders each native port ID once when no separate label is authored',()=>{
+  const source=createVisualDocument({id:'port-labels',kind:'flow',form:'network',question:'Which anchors are named?',nodes:[{id:'source',label:'Source',ports:[{id:'east-port',side:'east'},{id:'output',label:'Output',side:'west'}]}]},'test:port-labels','1.4.0');
+  const graphviz=compilePresentation(source,{backend:'graphviz'});expect(graphviz.ok).toBe(true);if(!graphviz.ok)return;
+  expect(graphviz.source).toContain('east-port · east');expect(graphviz.source).not.toContain('east-port · east-port');expect(graphviz.source).toContain('Output · output · west');
+  const mermaid=compilePresentation(source,{backend:'mermaid'});expect(mermaid.ok).toBe(true);if(mermaid.ok){expect(mermaid.source).toContain('Port#32;east-port#32;·#32;east');expect(mermaid.source).toContain('Port#32;Output#32;·#32;output#32;·#32;west');}
+ });
+
  it('preserves stack direction and explicit root component ordering',()=>{
   const source=document({id:'stack-layout',kind:'structure',form:'stack',question:'Which layer order?',layout:{kind:'stack',direction:'LR',order:['client-b','client-a','database']},nodes:[{id:'client-a',label:'Client A',layer:'interface'},{id:'database',label:'Database',layer:'storage'},{id:'client-b',label:'Client B',layer:'interface'}],structure:{layers:[{id:'interface',label:'Interface'},{id:'storage',label:'Storage'}]}});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
@@ -156,7 +163,7 @@ describe('Lini presentation compiler',()=>{
    const mermaid=compilePresentation(source,{backend:'mermaid'});expect(mermaid.ok).toBe(true);if(mermaid.ok){for(const[index,edge]of routeEdges.entries())expect(mermaid.source).toContain(`e${index+1}@{ curve: ${edge.routing.kind==='curved'?'natural':'linear'} }`);expect(mermaid.approximations.some(item=>item.code==='ROUTING_SCOPE_CONFLICT')).toBe(false);}
   }
   const namedPorts=createVisualDocument({id:'route-named-port',kind:'flow',form:'network',question:'Which authored sides are retained?',nodes:[{id:'a',label:'A',ports:[{id:'out',side:'east'}]},{id:'b',label:'B',ports:[{id:'in',side:'west'}]}],edges:[{id:'routed',from:'a',to:'b',fromPort:'out',toPort:'in',routing:{kind:'curved'}}]},'test:route-named-port','1.4.0');
-  for(const backend of ['graphviz','lini'] as const){const plan=compilePresentation(namedPorts,{backend});expect(plan.ok).toBe(true);if(!plan.ok)continue;if(backend==='graphviz')expect(plan.source).toContain('n1:p1:e -> n2:p1:w');else expect(plan.source).toContain('n1.p1:right -> n2.p1:left');expect(plan.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/edges/0/routing')?.code).toBe('ROUTING_NATIVE_INTERPOLATION');}
+  for(const backend of ['graphviz','lini'] as const){const plan=compilePresentation(namedPorts,{backend});expect(plan.ok).toBe(true);if(!plan.ok)continue;if(backend==='graphviz'){expect(plan.source).toContain('n1:p1:e -> n2:p1:w');expect(plan.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/edges/0/routing')?.code).toBeUndefined();}else{expect(plan.source).toContain('n1.p1:right -> n2.p1:left');expect(plan.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/edges/0/routing')?.code).toBe('ROUTING_NATIVE_INTERPOLATION');}}
  });
 
  it('assigns route-aware order only when no order is authored and preserves an authored order',()=>{

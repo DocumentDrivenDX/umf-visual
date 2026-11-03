@@ -88,6 +88,26 @@ describe('pinned Lini presentation quality',()=>{
   }finally{await good.page.close();}
  },{timeout:45_000});
 
+ it('centers sibling-group curve captions in the inter-group gap and rejects frame crossings',async()=>{
+  const document=createVisualDocument({id:'renamed-sibling-regions',kind:'flow',form:'network',question:'Where does the connector go?',groups:[{id:'left-region',label:'Left region',role:'region'},{id:'right-region',label:'Right region',role:'region'}],nodes:[{id:'left-worker',label:'Worker',group:'left-region',ports:[{id:'leaving',side:'east'}]},{id:'right-store',label:'Store',group:'right-region',ports:[{id:'arriving',side:'west'}]}],edges:[{id:'handoff-link',from:'left-worker',fromPort:'leaving',to:'right-store',toPort:'arriving',label:'hands off',routing:{kind:'curved'}}]},'test:renamed-sibling-regions','1.4.0'),native=await renderDocument(document);
+  try{
+   expect(native.plan.source).toContain('along: 0.5;');
+   expect(native.plan.source).toContain('[ "hands off" { translate: 0 -24; } ]');
+   expect(result(native.checks,'lini-connection-endpoints')).toBe('pass');
+   const curveClearance=await native.page.evaluate(()=>{const label=globalThis.document.querySelector('g.lini-link.lini-style-e1 > text.lini-link-label'),path=globalThis.document.querySelector('g.lini-link.lini-style-e1 > path:not(.lini-marker)');if(!label||!path)return-1;const rect=label.getBoundingClientRect(),line=path as SVGPathElement,length=line.getTotalLength(),matrix=line.getScreenCTM()!;let minimum=Infinity;for(let i=0;i<=180;i++){const point=line.getPointAtLength(length*i/180),screen=new DOMPoint(point.x,point.y).matrixTransform(matrix),dx=Math.max(rect.left-screen.x,0,screen.x-rect.right),dy=Math.max(rect.top-screen.y,0,screen.y-rect.bottom);minimum=Math.min(minimum,Math.hypot(dx,dy));}return minimum;});
+   expect(curveClearance).toBeGreaterThanOrEqual(2);
+   const measured=await native.page.evaluate(()=>{const label=globalThis.document.querySelector('g.lini-link.lini-style-e1 > text.lini-link-label'),left=globalThis.document.querySelector('g.lini-node[data-id="g1"] > rect'),right=globalThis.document.querySelector('g.lini-node[data-id="g2"] > rect');if(!label||!left||!right)return null;const bounds=(element:Element)=>{const b=element.getBoundingClientRect();return{left:b.left,right:b.right,top:b.top,bottom:b.bottom};};return{label:bounds(label),left:bounds(left),right:bounds(right)};});
+   expect(measured).not.toBeNull();
+   if(measured){expect(measured.label.left).toBeGreaterThan(measured.left.right);expect(measured.label.right).toBeLessThan(measured.right.left);}
+   const label=native.page.locator('g.lini-link.lini-style-e1 > text.lini-link-label'),originalY=await label.getAttribute('y');
+   await label.evaluate((element)=>{const text=element as SVGTextElement,path=globalThis.document.querySelector('g.lini-link.lini-style-e1 > path:not(.lini-marker)') as SVGPathElement,point=path.getPointAtLength(path.getTotalLength()/2);text.setAttribute('y',String(point.y));});
+   expect(result(await recheck(native.page,native.document,native.plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await label.evaluate((element,y)=>{if(y!==null)(element as SVGTextElement).setAttribute('y',y);},originalY);
+   await native.page.locator('g.lini-link.lini-style-e1 > text.lini-link-label').evaluate((label)=>{const frame=globalThis.document.querySelector('g.lini-node[data-id="g1"] > rect')!;const labelBox=label.getBoundingClientRect(),frameBox=frame.getBoundingClientRect(),delta=frameBox.right-(labelBox.left+labelBox.right)/2;(label as SVGTextElement).style.transform=`translateX(${delta}px)`;});
+   expect(result(await recheck(native.page,native.document,native.plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+  }finally{await native.page.close();}
+ },{timeout:45_000});
+
  it('records observed native geometry for a located Lini routing-scope fallback',async()=>{
   const document=createVisualDocument({id:'routing-scope-observation',kind:'flow',form:'network',question:'Which paths are drawn?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'},{id:'c',label:'C'}],edges:[{id:'curve',from:'a',to:'b',routing:{kind:'curved'}},{id:'line',from:'b',to:'c',routing:{kind:'straight'}}]},'test:routing-scope-observation','1.4.0');
   const native=await renderDocument(document);

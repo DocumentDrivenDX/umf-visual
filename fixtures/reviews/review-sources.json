@@ -444,6 +444,140 @@
         ],
         "scope": "The common and native documents are synthetic witnesses. The published images are actual host outputs for the common source; they do not establish private-board semantics or prove the additional frame and annotation facts from the separate native witness."
       }
+    },
+    {
+      "id": "miro-curved-caption-cross-boundary",
+      "title": "Curved captioned cross-region link",
+      "description": "A source-derived review preserving a captioned cross-region edge, curved-route intent, and named graphical endpoint anchors.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/reviews/definitions/miro-curved-caption-cross-boundary.json",
+      "definitionSha256": "7819be1bf0f45399ef951e54b98f74ef4c7d31935075cb2ffed7ef01e45d6672",
+      "sources": [
+        {
+          "path": "fixtures/integrations/complex-miro/common/curved-caption-cross-boundary.json",
+          "sha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c",
+          "pointer": "/extensions/umf.visual",
+          "label": "Synthetic common source model",
+          "description": "Synthetic shared model preserving the two nodes, three group/edge identities, cross-region membership, data kind and exact caption."
+        },
+        {
+          "path": "fixtures/integrations/complex-miro/native/curved-caption-cross-boundary.json",
+          "sha256": "499fd6122844d0d0c22bc241422b6432601d5c3ce751f4d126195695130d57cd",
+          "pointer": "/items",
+          "label": "Synthetic native connector witness",
+          "description": "Synthetic witness with rectangle symbol IDs, a curved route, exact attachment strings and control points; it is not a Miro API capture or private board."
+        },
+        {
+          "path": "fixtures/renderers/miro/preview-receipt.json",
+          "sha256": "db234c735ca203de0fb75a9f8e709a40050794a8f1a8065efdb79dce95b13109",
+          "pointer": "/cases/curved-caption-cross-boundary/rendererTargets/0/preview",
+          "label": "Miro restored-original capture receipt",
+          "description": "Miro observed service 1.105564.0 / Web SDK v2 (unpinned); profile umf.visual.miro.editable-network/1, model 1.0.0, stage restored-original, capture digest f8b33500f061582dfda2357db372ed9dbccb372a6e87a477aebbe42d7da6b09d; unpinned service output."
+        },
+        {
+          "path": "fixtures/renderers/google-slides/preview-receipt.json",
+          "sha256": "d1ddaec6368f5f66ba86b8a2930e224fc6e096772853221b7b407cea48263fd2",
+          "pointer": "/cases/curved-caption-cross-boundary/rendererTargets/0/preview",
+          "label": "Google Slides API restored-original receipt",
+          "description": "Google Slides API v1 (service unpinned); profile umf.visual.google-slides.network/1, model 1.0.0, stage restored-original, capture digest 734f5fbfd66d13b30cc12a9a03eb5d82314e4ea4e704337ca2f646f690ba22af; service version unpinned."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/preview-receipt.json",
+          "sha256": "60da64410d8da8c55749b0324f2abd147808ad174911516cf380b72808809cf6",
+          "pointer": "/cases/curved-caption-cross-boundary/preview and /artifact",
+          "label": "PowerPoint-profile and LibreOffice preview receipt",
+          "description": "PowerPoint profile model 1.0.0; the attached preview PNG is rendered by LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5. This conversion is not a PowerPoint screenshot."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/native-ui-attestations.json",
+          "sha256": "06cec5f6099c17072049a64294db0367ae3819ff55f625f00f710c4928d654b7",
+          "pointer": "/cases/curved-caption-cross-boundary",
+          "label": "PowerPoint native-open attestation",
+          "description": "Separate PowerPoint for Mac native-open evidence; input artifact SHA d331e771c1c6fffbf9fb40aec6c11baeb474063ed48a20d0e4243b370587cbfd, output artifact SHA e7634e2317859f084d9c11bcd4e5729ed7154b3e10126ec7e6211fe7144e939c, reopen observed True, no repair prompt True. This is not the LibreOffice preview."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/native-cycle-receipt.json",
+          "sha256": "77675cb00a61a841734002964f8dcea732dc7a6f587d1b861c6625cbabff57bf",
+          "pointer": "/cases/curved-caption-cross-boundary",
+          "label": "PowerPoint native-edit cycle receipt",
+          "description": "Native cycle identity: original artifact 05d92dfb854db3b88bacfda5c6241bcc27eca7add56cf1d3e9fbf665fce1db66, preserved native saved artifact 05d92dfb854db3b88bacfda5c6241bcc27eca7add56cf1d3e9fbf665fce1db66; separate evidence from the LibreOffice-rendered preview."
+        },
+        {
+          "path": "fixtures/renderers/miro/assets/curved-caption-cross-boundary-7f8d5ef17d823bc7.jpg",
+          "sha256": "7f8d5ef17d823bc7d6c326e037d7e3ed5957d0cc4d39e09055e0543409a79782",
+          "pointer": "published asset bytes",
+          "label": "Miro restored-original preview image",
+          "description": "JPEG bytes bound by the Miro receipt; actual synthetic-document output."
+        },
+        {
+          "path": "fixtures/renderers/google-slides/assets/curved-caption-cross-boundary-6f49a2745bcc0563.png",
+          "sha256": "6f49a2745bcc0563158c4a52a04e9a3a7b2ab446bcce1fbe910ffdd6ee24259b",
+          "pointer": "published asset bytes",
+          "label": "Google Slides API restored-original preview image",
+          "description": "PNG bytes bound by the Google Slides receipt; not a browser UI screenshot."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/assets/curved-caption-cross-boundary-5137ddec4b2fd176.png",
+          "sha256": "5137ddec4b2fd176c49b31a436730214bacbc21c32b979655a270d413b069917",
+          "pointer": "published asset bytes",
+          "label": "LibreOffice PowerPoint-profile preview image",
+          "description": "PNG bytes bound by the PowerPoint receipt; not a PowerPoint screenshot."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/renderers/miro/assets/curved-caption-cross-boundary-7f8d5ef17d823bc7.jpg",
+          "sha256": "7f8d5ef17d823bc7d6c326e037d7e3ed5957d0cc4d39e09055e0543409a79782",
+          "outputPath": "reviews/miro-curved-caption-cross-boundary/miro-restored-original.jpg",
+          "mediaType": "image/jpeg",
+          "description": "Actual Miro output for the synthetic shared-model document, restored to the original state; not a private original-board capture."
+        },
+        {
+          "path": "fixtures/renderers/google-slides/assets/curved-caption-cross-boundary-6f49a2745bcc0563.png",
+          "sha256": "6f49a2745bcc0563158c4a52a04e9a3a7b2ab446bcce1fbe910ffdd6ee24259b",
+          "outputPath": "reviews/miro-curved-caption-cross-boundary/google-slides-restored-original.png",
+          "mediaType": "image/png",
+          "description": "Google Slides API v1 output for the synthetic shared-model document, restored-original; not a browser UI screenshot."
+        },
+        {
+          "path": "fixtures/renderers/powerpoint/assets/curved-caption-cross-boundary-5137ddec4b2fd176.png",
+          "sha256": "5137ddec4b2fd176c49b31a436730214bacbc21c32b979655a270d413b069917",
+          "outputPath": "reviews/miro-curved-caption-cross-boundary/powerpoint-libreoffice-preview.png",
+          "mediaType": "image/png",
+          "description": "LibreOfficeDev conversion of the historical Visual 1.0.0 PowerPoint-profile PPTX; this is not a PowerPoint screenshot."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "synthetic-integration-witness",
+        "integrationManifestPath": "fixtures/integrations/complex-miro/manifest.json",
+        "integrationManifestSha256": "8f27e9b47b74bc1c638f39f1dc105fc641f3bda2b91c89e39e998ab3e30e5a58",
+        "integrationCaseId": "curved-caption-cross-boundary",
+        "classification": "synthetic-witness",
+        "commonDocumentPath": "fixtures/integrations/complex-miro/common/curved-caption-cross-boundary.json",
+        "commonDocumentSha256": "3ac5f9703680ac77f66ff0947d2350e53138dea073f11da16e099fed6272aa8c",
+        "nativeWitnessPath": "fixtures/integrations/complex-miro/native/curved-caption-cross-boundary.json",
+        "nativeWitnessSha256": "499fd6122844d0d0c22bc241422b6432601d5c3ce751f4d126195695130d57cd",
+        "previewReceiptPath": "fixtures/renderers/miro/preview-receipt.json",
+        "previewReceiptSha256": "db234c735ca203de0fb75a9f8e709a40050794a8f1a8065efdb79dce95b13109",
+        "rendererId": "miro",
+        "rendererProfileId": "umf.visual.miro.editable-network/1",
+        "modelVersion": "1.0.0",
+        "mappingVersion": "1",
+        "nativeVersion": "Miro observed service 1.105564.0 / Web SDK v2 (unpinned)",
+        "stage": "restored-original",
+        "captureDigestSha256": "f8b33500f061582dfda2357db372ed9dbccb372a6e87a477aebbe42d7da6b09d",
+        "capturePath": "reviews/miro-curved-caption-cross-boundary/miro-restored-original.jpg",
+        "captureSourcePath": "fixtures/renderers/miro/assets/curved-caption-cross-boundary-7f8d5ef17d823bc7.jpg",
+        "captureSha256": "7f8d5ef17d823bc7d6c326e037d7e3ed5957d0cc4d39e09055e0543409a79782",
+        "captureMediaType": "image/jpeg",
+        "knownOmissions": [
+          "The common edge does not include route intent or endpoint attachment strings. The review derives curved intent and named anchor IDs from the synthetic native witness; exact control points and geometry remain native-only.",
+          "The witness records attachment strings but does not define native port objects or side declarations. East/west side hints in this review are authored from those strings, not native physical side facts or business/service interfaces.",
+          "The historical Miro, Google Slides API and PowerPoint/LibreOffice outputs are Visual 1.0.0 previews; they do not qualify Visual 1.4 curved routing or endpoint-port semantics. The PowerPoint PNG is a LibreOffice conversion rather than a PowerPoint screenshot."
+        ],
+        "scope": "The common/native witnesses are synthetic and do not establish deployed semantics or represent a private original board. Historical host outputs document restored Visual 1.0.0 previews only; they are not qualification evidence for the new Visual 1.4 route/port intent."
+      }
     }
   ]
 }
