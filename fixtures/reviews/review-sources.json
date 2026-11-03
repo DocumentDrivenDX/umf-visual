@@ -1252,6 +1252,58 @@
         "sourceDownloadPath": "reviews/beacon-ci-nightly/authoritative-source.json",
         "scope": "The original UMF fixture remains the authoritative source for its two node IDs and labels, one directed edge ID/endpoints, title, question, audience, and historical source locator; its bytes remain available unchanged. This separate reviewed Visual 1.0.0 definition adds the raw schedule expression `0 3 * * *`, the workflow_dispatch claim, and the eval runner/command from the exact checked-in nightly YAML snapshot whose SHA-256 matches the locator digest in the original UMF source. It preserves the report node's authored reusable-workflow path without inferring that workflow's internals. The historical source locator does not establish timezone, current workflow contents, execution, report behavior, or repository state."
       }
+    },
+    {
+      "id": "beacon-ci-preview",
+      "title": "Preview",
+      "description": "A source-backed review of the authored preview dependency graph and the matching checked-in workflow snapshot.",
+      "kind": "flow",
+      "form": "pipeline",
+      "definitionPath": "fixtures/reviews/definitions/beacon-ci-preview.json",
+      "definitionSha256": "b58aecc8176c2fb7691c6d4f3cbfb15cc09713d3415183a06cfa3ad77c885d44",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-ci-preview.json",
+          "sha256": "0809b7d8f348225a50e5549aaefd4a128a5132311be5b52300129d3dc9aa3872",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 source fixture supplies the original IDs, title, question, takeaway, graph, and provenance fields."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/workflows/preview.yml",
+          "sha256": "bfdf92086a2c3ec04c7dc246c760c2e4460e285a7e0cbeb836bab27aa5fac0e9",
+          "pointer": "/",
+          "label": "Checked-in preview workflow snapshot",
+          "description": "The local YAML snapshot bytes match the digest cited in the original UMF source. The review derives each job runner and exact command from this snapshot."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-ci-preview.json",
+          "sha256": "0809b7d8f348225a50e5549aaefd4a128a5132311be5b52300129d3dc9aa3872",
+          "outputPath": "reviews/beacon-ci-preview/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes; this original remains available unchanged."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/workflows/preview.yml",
+          "sha256": "bfdf92086a2c3ec04c7dc246c760c2e4460e285a7e0cbeb836bab27aa5fac0e9",
+          "outputPath": "reviews/beacon-ci-preview/preview.yml",
+          "mediaType": "application/yaml",
+          "description": "Exact checked-in workflow snapshot bytes used for the reviewed runner and command annotations."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-ci-preview.json",
+        "sourceSha256": "0809b7d8f348225a50e5549aaefd4a128a5132311be5b52300129d3dc9aa3872",
+        "documentId": "visual:beacon-ci-preview",
+        "visualId": "beacon-ci-preview",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-ci-preview/authoritative-source.json",
+        "scope": "The original UMF fixture remains authoritative for its three node IDs/labels, two directed edge IDs/endpoints, title, question, original takeaway, audience, and historical source locator; its bytes remain available unchanged. This separate reviewed Visual 1.0.0 definition preserves that source and derives only the three runner and exact-command details from the checked-in preview YAML snapshot whose SHA-256 matches the source locator. The original takeaway remains a source-authored claim. The historical locator and matching local snapshot do not establish current workflow contents, execution, or repository state."
+      }
     }
   ]
 }

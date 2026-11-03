@@ -2501,6 +2501,66 @@ made; unchanged full/native/catalog suites were intentionally not repeated.
 Commit follows in this change; git history is authoritative. Cycle 24 remains
 pending until cycle 23 is committed.
 
+### Twenty-fourth-cycle scope — source-backed preview pipeline
+
+Cycle 24 implementation and verification are complete, ready for commit, using original authoritative source
+`fixtures/visual/inventory/beacon-ci-preview.json`, SHA-256
+`0809b7d8f348225a50e5549aaefd4a128a5132311be5b52300129d3dc9aa3872`.
+The originating snapshot `fixtures/visual/sources/beacon/workflows/preview.yml`
+matches declared digest
+`bfdf92086a2c3ec04c7dc246c760c2e4460e285a7e0cbeb836bab27aa5fac0e9`.
+Its scalar pull_request trigger already matches the authored takeaway. Derive only
+three node details from exact ubuntu-latest runners and make build/preview/smoke
+commands, preserving original IDs/labels, two dependency edges, version, source
+locator and trigger prose. Original JSON/YAML remain separately hash-bound and
+published; no current execution, deployment-environment or smoke-result facts are
+inferred.
+
+Reuse existing qualified pipeline runtime with no new model or renderer concepts.
+Data-only gates follow cycle 23: focused provenance/preservation, actual new-case
+G/M/L native proof/replays and visual review, fresh review/site builds, affected UI/
+source downloads and browser/packed consumers, typecheck/diff. Retain unchanged
+runtime/corpus evidence; reopen AGENTS runtime gates only for a concrete code/proof
+change. Commit cycle 24 before starting cycle 25.
+
+### Twenty-fourth-cycle source/native checkpoint
+
+Source/provenance/public checks pass four tests/72 assertions; new-case native
+checks pass one test/39 assertions with typecheck/diff clean. Independent source
+review confirms exactly three runner/command detail changes; original trigger
+prose, IDs/labels/DAG/version and historical scope remain unchanged. Derived SHA-256
+`b58aecc8176c2fb7691c6d4f3cbfb15cc09713d3415183a06cfa3ad77c885d44`
+is separately bound to unchanged original JSON and matching YAML. Root visually
+approved all three enriched backend previews, with generic native G/M/L checks
+11/10/13 and Lini TB13. No runtime or UI harness changes occurred; existing
+CONTRACT-089 capability applies without a new normative rule. Final affected review/site/
+UI/consumer gates remain pending; cycle 24 is not complete or ready for commit.
+
+### Twenty-fourth-cycle closeout — 2026-11-03
+
+All data-only affected gates pass: **four source tests/72 assertions and one native
+test/39 assertions**, typecheck/diff, fresh review/site builds and 23-document review
+UI without browser errors. Real review verification covers 23 documents/51 qualified/
+zero failed/18 unsupported variants/153 assets and 51 native SVG/PNG replays,
+comprising five captures and 18 authoritative sources. Public browser passes 53
+fixtures/106 round trips and 23 reviewed definitions/51 plans without errors;
+installed packed Bun/Node consumers are valid/complete, including nine full-profile
+cases. Source/YAML downloads, hashes, selection races and shared viewer checks pass.
+
+Root verified real derived definition
+`b58aecc8176c2fb7691c6d4f3cbfb15cc09713d3415183a06cfa3ad77c885d44`,
+unchanged original JSON and matching YAML as separate published evidence. Actual
+Lini PNG SHA-256
+`c14f2c87ae0df2005c7513c442181009982f3eaeffa805a1ccf2c41d9d879d6c`
+matches the approved native preview byte-for-byte. Final source/model/interface/
+modularity and visual audits pass: exactly three details are source-backed
+runner/command enrichment, with IDs/DAG/version/trigger prose unchanged. No runtime,
+proof, source-authority or vocabulary change occurred; unchanged full/corpus suites
+were intentionally not rerun. No current execution/environment/result claims or
+host capability expansion are introduced. Commit follows in this change; git
+history is authoritative. Cycle 25 remains pending until cycle 24 is committed;
+this closeout resolves earlier checkpoint holds.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2514,7 +2574,8 @@ Cycle 15 is committed as `a4f89f1`; cycle 16 is committed as `fc841bd`.
 Cycle 17 is committed as `af9ba07`; cycle 18 is committed as `8b0bbe8`.
 Cycle 19 is committed as `122e5c6`; cycle 20 is committed as `adefa85`.
 Cycle 21 is committed as `b9257c8`; cycle 22 is committed as `ae58a76`.
-Cycle 23 is complete and ready for commit; cycles 24–68 remain pending.
+Cycle 23 is committed as `8efc657`; cycle 24 is complete and ready for commit.
+Cycles 25–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 
