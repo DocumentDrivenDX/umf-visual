@@ -7,6 +7,21 @@ import {compilePresentation} from '../../src/presentation';
 const document=(visual:Visual)=>createVisualDocument(visual,'test:'+visual.id,'1.2.0');
 
 describe('Lini presentation compiler',()=>{
+ it('renders flat sequence self-calls as one native U-shaped return to the same lifeline',()=>{
+  const source=document({id:'flat-self-call',kind:'sequence',form:'lifelines',question:'How does the request finish?',sequence:{participants:[{id:'caller',label:'Caller'},{id:'worker',label:'Worker'},{id:'observer',label:'Observer'}],messages:[{id:'invoke',from:'caller',to:'worker',label:'invoke'},{id:'inspect',from:'worker',to:'worker',label:'inspect(input, options)',kind:'call'},{id:'reply',from:'worker',to:'caller',label:'result',kind:'return'}]}});
+  const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
+  expect(result.source).toContain('|line#message2| "" { pin: none; translate: 0 ');
+  expect(result.source).toContain('points: 0 0, 80 0, 80 36, 0 36; marker-end: arrow;');
+  expect(result.source).toContain('|rect#message-caption2| "inspect(input,\\noptions)"');
+  expect(result.elementMap).toContainEqual({logicalId:'inspect',sourcePath:'/extensions/umf.visual/sequence/messages/1/id',nativeId:'message2',kind:'message'});
+  expect(result.elementMap).toContainEqual({logicalId:'inspect',sourcePath:'/extensions/umf.visual/sequence/messages/1/label',nativeId:'message-caption2',kind:'message-caption'});
+  expect(result.source.indexOf('|line#message2|')).toBeLessThan(result.source.indexOf('|line#message3|'));
+  const last=document({id:'last-self-call',kind:'sequence',form:'lifelines',question:'How does the last participant inspect?',sequence:{participants:[{id:'first',label:'First'},{id:'last',label:'Last'}],messages:[{id:'inspect',from:'last',to:'last',label:'inspect'}]}});
+  const mirrored=compilePresentation(last,{backend:'lini'});expect(mirrored.ok).toBe(true);if(!mirrored.ok)return;
+  expect(mirrored.source).toContain('points: 0 0, -80 0, -80 36, 0 36; marker-end: arrow;');
+  expect(mirrored.source).toContain('|rect#message-caption1| "inspect"');
+ });
+
  it('emits native nested groups, safe labels, node details and scoped connections',()=>{
   const source=document({id:'nested',kind:'flow',form:'network',question:'Which group contains the service?',title:'Service topology',groups:[{id:'services',label:'Services',detail:'Owned boundary',role:'zone'},{id:'workers',label:'Workers',parent:'services',role:'lane'}],nodes:[{id:'api',label:'API "front"',detail:'Public endpoint',role:'actor',group:'services'},{id:'worker',label:'Worker',role:'own',group:'workers'},{id:'db',label:'Database',role:'store'}],edges:[{id:'read',from:'worker',to:'db',label:'reads',kind:'data'}]});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;

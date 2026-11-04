@@ -240,10 +240,10 @@ async function assertRenderingNotes(page:Page,row:any,reviewId:string,backend:st
  if(expectedCircularGrid&&!(await caveat.innerText()).includes('native block grid approximates circular node placement while retaining the authored clockwise order'))throw Error(`${reviewId}/${backend} circular native-grid approximation is not explained beside the preview.`);
  if(expected.length&&await notesPanel.evaluate(element=>(element as HTMLDetailsElement).open))await notesPanel.locator(':scope > summary').click();
 }
-const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.yaml':'application/yaml;charset=utf-8','.yml':'application/yaml;charset=utf-8','.toml':'application/toml;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8','.sql':'text/plain;charset=utf-8','.py':'text/x-python;charset=utf-8'};
+const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.yaml':'application/yaml;charset=utf-8','.yml':'application/yaml;charset=utf-8','.toml':'application/toml;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8','.sql':'text/plain;charset=utf-8','.py':'text/x-python;charset=utf-8','.md':'text/markdown;charset=utf-8'};
 let corruptPath:string|undefined;
 let delayedCapturePath:string|undefined,delayedCaptureCount=0,signalDelayedRequest!:()=>void;
-let corruptCitationChecked=false,corruptSqlCitationChecked=false,corruptPythonCitationChecked=false,delayedCitationPath:string|undefined,delayedCitationCount=0,signalDelayedCitation!:()=>void,signalDelayedCitationFulfilled!:()=>void;
+let corruptCitationChecked=false,corruptSqlCitationChecked=false,corruptPythonCitationChecked=false,corruptMarkdownCitationChecked=false,delayedCitationPath:string|undefined,delayedCitationCount=0,signalDelayedCitation!:()=>void,signalDelayedCitationFulfilled!:()=>void;
 let includeRaceProbe=true;
 let previousRecipeUrl:string|undefined;
 const delayedCaptureRequested=new Promise<void>(resolve=>{signalDelayedRequest=resolve;});
@@ -369,14 +369,14 @@ try{
     if(downloaded.filename!==String(asset.path).split('/').pop()||sha(downloaded.bytes)!==asset.sha256||!Buffer.from(downloaded.bytes).equals(expected))throw Error(`${review.id} cited source asset ${asset.path} occurrence ${occurrence+1}/${occurrences} differs from its exact hash-verified published bytes.`);
    }
    checks.push(`${review.id} cited source asset ${asset.path} downloads exact hash-verified bytes at all ${occurrences} source-citation occurrence(s)`);
-   const isSql=/\.sql$/i.test(asset.outputPath),isPython=/\.py$/i.test(asset.outputPath),selectedSqlExpected=selectedReviews.some((candidate:any)=>citationAssets(candidate).some((candidateAsset:any)=>/\.sql$/i.test(candidateAsset.outputPath)));
-   if((isSql&&!corruptSqlCitationChecked)||(isPython&&!corruptPythonCitationChecked)||(!corruptCitationChecked&&!selectedSqlExpected)){
+   const isSql=/\.sql$/i.test(asset.outputPath),isPython=/\.py$/i.test(asset.outputPath),isMarkdown=/\.md$/i.test(asset.outputPath),selectedSqlExpected=selectedReviews.some((candidate:any)=>citationAssets(candidate).some((candidateAsset:any)=>/\.sql$/i.test(candidateAsset.outputPath))),selectedPythonExpected=selectedReviews.some((candidate:any)=>citationAssets(candidate).some((candidateAsset:any)=>/\.py$/i.test(candidateAsset.outputPath))),selectedMarkdownExpected=selectedReviews.some((candidate:any)=>citationAssets(candidate).some((candidateAsset:any)=>/\.md$/i.test(candidateAsset.outputPath)));
+   if((isSql&&!corruptSqlCitationChecked)||(isPython&&!corruptPythonCitationChecked)||(isMarkdown&&!corruptMarkdownCitationChecked)||(!corruptCitationChecked&&!selectedSqlExpected&&!selectedPythonExpected&&!selectedMarkdownExpected)){
     const next=reviews.find((candidate:any)=>candidate.id!==review.id);if(!next)throw Error('No second review exists for the corrupt cited-source control.');
     corruptPath=asset.outputPath;await page.locator(`[data-example-id="${next.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,next.title,{timeout:30000});
     await page.locator(`[data-example-id="${review.id}"]`).click();await waitForCitationAsset(page,asset.outputPath,'hash-refused',occurrences);
     corruptPath=undefined;await page.locator(`[data-example-id="${next.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,next.title,{timeout:30000});
     await page.locator(`[data-example-id="${review.id}"]`).click();await waitForCitationAsset(page,asset.outputPath,'enabled',occurrences);
-    corruptCitationChecked=true;if(isSql)corruptSqlCitationChecked=true;if(isPython)corruptPythonCitationChecked=true;checks.push(`${review.id} corrupt cited source asset is hash-refused and recovers on a fresh selection`);
+    corruptCitationChecked=true;if(isSql)corruptSqlCitationChecked=true;if(isPython)corruptPythonCitationChecked=true;if(isMarkdown)corruptMarkdownCitationChecked=true;checks.push(`${review.id} corrupt cited source asset is hash-refused and recovers on a fresh selection`);
    }
   }
   if(evidence?.kind==='synthetic-integration-witness'){
@@ -504,6 +504,7 @@ try{
  }
  if(selectedReviews.some((candidate:any)=>citationAssets(candidate).some((asset:any)=>/\.sql$/i.test(asset.outputPath)))&&!corruptSqlCitationChecked)throw Error('The selected SQL source asset did not receive an isolated corrupt-byte refusal and recovery check.');
  if(selectedReviews.some((candidate:any)=>citationAssets(candidate).some((asset:any)=>/\.py$/i.test(asset.outputPath)))&&!corruptPythonCitationChecked)throw Error('The selected Python source asset did not receive an isolated corrupt-byte refusal and recovery check.');
+ if(selectedReviews.some((candidate:any)=>citationAssets(candidate).some((asset:any)=>/\.md$/i.test(asset.outputPath)))&&!corruptMarkdownCitationChecked)throw Error('The selected Markdown source asset did not receive an isolated corrupt-byte refusal and recovery check.');
  const deployment=reviews.find((review:any)=>review.id==='beacon-deployment');
  if(!deployment)throw Error('The beacon-deployment review row is missing from the native-quality UI regression.');
  for(const [backend,status] of [['graphviz','qualified'],['mermaid','unqualified'],['lini','unqualified']] as const){

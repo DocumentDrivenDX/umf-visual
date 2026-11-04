@@ -2137,6 +2137,60 @@
         "sourceDownloadPath": "reviews/beacon-ticket-lifecycle/authoritative-source.json",
         "scope": "The original Visual 1.0.0 fixture remains unchanged as the review definition. It preserves four state IDs and labels, six ordered transition IDs and endpoints, initial/final markers, event captions, main/alternate path annotations, and its question/takeaway. The cited Python source independently supports the four Phase values and the six possible endpoint pairs; it does not specify transition captions, path groups, initial/final markers, or ordering. Those are fixture-authored semantics, not claims attributed to the Python file. The source docstring calls Beacon a fictional example; neither file establishes a deployed or current lifecycle."
       }
+    },
+    {
+      "id": "documentor-pipeline",
+      "title": "documentor check",
+      "description": "A source-bound review of the documented documentor check sequence, preserving the selected Mermaid participants, messages, and call/return order.",
+      "kind": "sequence",
+      "form": "lifelines",
+      "definitionPath": "fixtures/visual/inventory/documentor-pipeline.json",
+      "definitionSha256": "fd9e8c9ecf5b851e56b578627e29bc596ac609e477c0a86827b910bc3adefc46",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/documentor-pipeline.json",
+          "sha256": "fd9e8c9ecf5b851e56b578627e29bc596ac609e477c0a86827b910bc3adefc46",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies participant and message IDs, labels, endpoints, call/return kinds and order, plus the diagram title, question, and source locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/documentor-walkthrough.md",
+          "sha256": "c56f18a68ed719c9c1936ab87b491b95e7266726ab05e48bac84a6126f0a6e31",
+          "pointer": "Sequence section / Mermaid diagram",
+          "label": "Cited HELIX walkthrough snapshot",
+          "originalLocator": "helix:tools/documentor/docs/guide/developer/walkthrough.md",
+          "resolvedSource": "helix/tools/documentor/docs/guide/developer/walkthrough.md",
+          "description": "Byte-identical snapshot of the exact Markdown source resolved from the fixture locator. Its Mermaid Sequence diagram supplies the participant aliases, labels, message text, direction, and authored order. The page also describes `check` as read-only; it does not establish a current execution or deployed system."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/documentor-pipeline.json",
+          "sha256": "fd9e8c9ecf5b851e56b578627e29bc596ac609e477c0a86827b910bc3adefc46",
+          "outputPath": "reviews/documentor-pipeline/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/documentor-walkthrough.md",
+          "sha256": "c56f18a68ed719c9c1936ab87b491b95e7266726ab05e48bac84a6126f0a6e31",
+          "outputPath": "reviews/documentor-pipeline/walkthrough.md",
+          "mediaType": "text/markdown",
+          "description": "Exact Markdown bytes resolved from helix:tools/documentor/docs/guide/developer/walkthrough.md and published without transformation."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/documentor-pipeline.json",
+        "sourceSha256": "fd9e8c9ecf5b851e56b578627e29bc596ac609e477c0a86827b910bc3adefc46",
+        "documentId": "visual:documentor-pipeline",
+        "visualId": "documentor-pipeline",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/documentor-pipeline/authoritative-source.json",
+        "scope": "The exact Visual 1.0.0 fixture remains unchanged as the review definition and preserves its participant/message IDs, labels, endpoints, kinds, order, title, question, and source locator. The fixture’s locator `helix:tools/documentor/docs/guide/developer/walkthrough.md` resolves to the HELIX repository path `tools/documentor/docs/guide/developer/walkthrough.md`; its SHA-256 exactly matches the checked-in byte-identical Markdown snapshot published here. The source’s Mermaid Sequence diagram confirms the participant aliases/labels, message captions, directions, and ordering. The message IDs and `lifelines` form are fixture projections. The surrounding walkthrough says `check` writes nothing to disk, but no check run or current deployment is claimed. Other prose steps and test evidence in the walkthrough are outside this selected Sequence view."
+      }
     }
   ]
 }

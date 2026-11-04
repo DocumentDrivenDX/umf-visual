@@ -15,17 +15,26 @@ function messageLines(text:string,maxWidth:number,fontSize=14):string[]{
  return lines;
 }
 
-/** Return a plan only for flat, non-self-calling rectangular sequences. */
+/** Return a plan only for flat rectangular sequences supported by native primitives. */
 export function compileLiniFlatSequence(visual:Visual):PresentationPlan|undefined{
  const sequence=visual.kind==='sequence'?visual.sequence:undefined;
  if(!sequence||visual.form!=='lifelines'||visual.layout!==undefined||(visual.annotations?.length??0)>0||sequence.participants.length<2||!sequence.messages.length||(visual.groups?.length??0)>0||(sequence.notes?.length??0)>0)return undefined;
  if(sequence.participants.some(participant=>participant.shape!==undefined&&participant.shape!=='rectangle'&&participant.shape!=='rounded-rectangle'))return undefined;
- if(sequence.messages.some(message=>message.from===message.to||message.kind!==undefined&&message.kind!=='call'&&message.kind!=='return'))return undefined;
+ if(sequence.messages.some(message=>message.kind!==undefined&&message.kind!=='call'&&message.kind!=='return'))return undefined;
  const participants=sequence.participants,messages=sequence.messages,participantIndex=new Map(participants.map((participant,index)=>[participant.id,index]));
  if(messages.some(message=>!participantIndex.has(message.from)||!participantIndex.has(message.to)))return undefined;
  const participantWidth=200,participantGap=20,columnStep=participantWidth+participantGap,titleWidth=1200;
  const wrappedMessages=messages.map(message=>messageLines(message.label,160));
  const maxLines=Math.max(1,...wrappedMessages.map(lines=>lines.length)),rowGap=maxLines*18+34;
+ const hasSelfCall=messages.some(message=>message.from===message.to),selfCallWidth=80,selfCallHeight=36;
+ const captionHeights=wrappedMessages.map(lines=>Math.max(20,lines.length*18+4));
+ const rowOffsets:number[]=[0];
+ if(hasSelfCall)for(let index=1;index<messages.length;index++){
+  const previous=messages[index-1]!,previousLoop=previous.from===previous.to?selfCallHeight:0;
+  rowOffsets.push(rowOffsets[index-1]!+previousLoop+Math.ceil(captionHeights[index-1]!/2+captionHeights[index]!/2+28));
+ }
+ else for(let index=1;index<messages.length;index++)rowOffsets.push(index*rowGap);
+ const rowSpan=rowOffsets.at(-1)??0;
  const width=participants.length*participantWidth+(participants.length-1)*participantGap+80;
  const participantHeaderLines=(participant:typeof participants[number])=>wrapLiniSequenceText(participant.label,23);
  const participantHeaderHeight=(participant:typeof participants[number])=>Math.max(48,participantHeaderLines(participant).length*20+16);
@@ -33,14 +42,15 @@ export function compileLiniFlatSequence(visual:Visual):PresentationPlan|undefine
  const participantHasIcon=(participant:typeof participants[number])=>participant.icon!==undefined;
  const participantHeight=(participant:typeof participants[number])=>participantHeaderHeight(participant)+12+participantFieldLines(participant).reduce((sum,fieldLines)=>sum+fieldLines.length*18+8,0)+(participantHasIcon(participant)?26:0);
  const maxParticipantHeight=Math.max(...participants.map(participantHeight));
- const height=Math.max(900,maxParticipantHeight+260+(messages.length-1)*rowGap);
+ const height=Math.max(900,maxParticipantHeight+260+(hasSelfCall?rowSpan:(messages.length-1)*rowGap));
  const firstX=-((participants.length-1)*columnStep)/2,participantX=(index:number)=>firstX+index*columnStep;
  const title=visual.title??visual.question,titlePath=path(visual.title?'/title':'/question');
  // Validate the authored text before display wrapping so diagnostics still
  // identify invalid characters at their original source pointer.
  quoteText(title,titlePath);
  const titleLines=wrapLiniSequenceText(title,96),titleHeight=Math.max(28,titleLines.length*25+4),titleY=-height/2+titleHeight/2+20,participantTop=-height/2+titleHeight+57;
- const firstMessageY=participantTop+maxParticipantHeight+70,rowY=(index:number)=>firstMessageY+index*rowGap;
+ const firstMessageY=participantTop+maxParticipantHeight+70;
+ const rowY=(index:number)=>firstMessageY+rowOffsets[index]!;
  const bottom=rowY(messages.length-1)+40;
  const canvasHeight=Math.max(height,Math.ceil(bottom*2+40));
  const maps:PresentationElement[]=[{logicalId:visual.id,sourcePath:path('/id'),nativeId:'visual-title',kind:'visual'}];
@@ -76,11 +86,12 @@ export function compileLiniFlatSequence(visual:Visual):PresentationPlan|undefine
  }
  const endpointAnchor=(participantId:string)=>participantX(participantIndex.get(participantId)!);
  for(const [index,message]of messages.entries()){
-  const nativeId='message'+(index+1),captionId='message-caption'+(index+1),messagePath=path('/sequence/messages/'+index),sourceX=endpointAnchor(message.from),targetX=endpointAnchor(message.to),from=participantIndex.get(message.from)!,to=participantIndex.get(message.to)!,step=Math.sign(to-from),nextIndex=from+step,captionX=(sourceX+participantX(nextIndex))/2,linesForMessage=wrappedMessages[index]!,row=rowY(index),captionHeight=Math.max(20,linesForMessage.length*18+4),captionY=row-(captionHeight/2+10),delta=targetX-sourceX;
+  const nativeId='message'+(index+1),captionId='message-caption'+(index+1),messagePath=path('/sequence/messages/'+index),sourceX=endpointAnchor(message.from),targetX=endpointAnchor(message.to),from=participantIndex.get(message.from)!,to=participantIndex.get(message.to)!,isSelfCall=from===to,step=Math.sign(to-from),nextIndex=isSelfCall?(from<participants.length-1?from+1:from-1):from+step,captionX=(sourceX+participantX(nextIndex))/2,linesForMessage=wrappedMessages[index]!,row=rowY(index),captionHeight=captionHeights[index]!,captionY=row-(captionHeight/2+(isSelfCall?8:10)),delta=targetX-sourceX;
   add(message.id,messagePath+'/id',nativeId,'message');
   add(message.id,messagePath+'/label',captionId,'message-caption');
   for(const field of ['status','emphasis','evidence'] as const)if(message[field]!==undefined)omissions.push({sourcePath:messagePath+'/'+field,reason:'Retained in UMF; this flat native sequence composition does not style message metadata.'});
-  lines.push(`  |line#${nativeId}| "" { pin: none; translate: ${sourceX} ${row}; points: 0 0, ${delta} 0; marker-end: arrow; stroke: --gray-deep; stroke-width: 2;${message.kind==='return'?' stroke-style: dashed;':''} }`);
+  if(isSelfCall){const excursion=from<participants.length-1?selfCallWidth:-selfCallWidth;lines.push(`  |line#${nativeId}| "" { pin: none; translate: ${sourceX} ${row}; points: 0 0, ${excursion} 0, ${excursion} ${selfCallHeight}, 0 ${selfCallHeight}; marker-end: arrow; stroke: --gray-deep; stroke-width: 2;${message.kind==='return'?' stroke-style: dashed;':''} }`);}
+  else lines.push(`  |line#${nativeId}| "" { pin: none; translate: ${sourceX} ${row}; points: 0 0, ${delta} 0; marker-end: arrow; stroke: --gray-deep; stroke-width: 2;${message.kind==='return'?' stroke-style: dashed;':''} }`);
   const labelPath=messagePath+'/label';quoteText(message.label,labelPath);
   lines.push(`  |rect#${captionId}| ${quoteText(linesForMessage.join('\n'),labelPath)} { pin: center; translate: ${captionX} ${captionY}; width: 160; height: ${captionHeight}; fill: none; stroke: none; color: --gray-deep; font-size: 14; }`);
  }

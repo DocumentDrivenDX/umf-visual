@@ -3942,6 +3942,83 @@ CONTRACT-089 now states this bounded scope, not private placement algorithms.
 All previous holds are resolved; freeze for commit. Cycle 39 must not start before
 cycle 38 is committed.
 
+### Thirty-ninth-cycle scope — documentor check sequence
+
+Cycle 38 is committed as `57f2dcc`. Cycle 39 reviews exact Visual 1.0 source
+`fixtures/visual/inventory/documentor-pipeline.json`, SHA-256
+`fd9e8c9ecf5b851e56b578627e29bc596ac609e477c0a86827b910bc3adefc46`.
+The cited HELIX walkthrough is available locally and matches declared digest
+`c56f18a68ed719c9c1936ab87b491b95e7266726ab05e48bac84a6126f0a6e31`.
+Its Sequence section contains six matching participants and ten ordered messages,
+including the report self-call and three returns. Preserve exact code-like labels,
+punctuation, participant/message IDs and call/return kinds. Bind a checked-in exact
+Markdown snapshot; this is historical source evidence, not current tool execution.
+The section's explicit no-disk-write statement may be reviewed as source-backed
+context if relevant, never inferred from call syntax or substituted into originals.
+
+Native acceptance requires complete owned captions, exact message order/endpoints,
+return styles, self-call geometry, source ownership and actual readable fit/clearance.
+No activation, duration, concurrency, guard or extra message is inferred. Evaluate
+existing generic sequence profiles first; flat-primitives admission currently
+excludes self-calls, so retain honest legacy/subset evidence until qualified.
+No vocabulary gap is indicated. Lean gates apply only if data-only; any shared
+renderer/proof or exact Markdown-download UI change reopens applicable full gates.
+Cycle 40 waits for cycle 39's completed per-document commit.
+
+### Cycle 39 implementation checkpoint — bounded native self-calls
+
+The original legacy rendering passed ten formal checks but visual inspection found
+message captions crossing intermediate lifelines. That baseline is superseded for
+qualification purposes. The existing flat native-primitives sequence composition
+now admits a self-call as one owned U-shaped line primitive and one separately
+owned caption, without a new renderer, map kind or portable field. Its departure
+and painted return tip attach to the same participant at different message rows;
+all three segments, caption clearance and subsequent message order require
+independent actual native/SVG proof. First, middle, last and repeated self-call
+controls exercise both corridor directions; malformed/missing segments, displaced
+return, reversed marker and reordered rows must fail closed.
+
+The corrected public candidate passes its ten checks and matches the approved
+private composition. The no-self-call reply-draft source remains byte-identical
+(SHA-256 `1afa6818106b51d3f72396e0eebb6b166dea728f7dc7e5f9537662d09685f55e`).
+Groups, notes, asynchronous messages and other legacy exclusions retain their
+existing dispatch; legacy regression evidence is still required. Source/Markdown
+UI focus is 2/34 with source/type/diff green. The three-test/23-assertion self-call
+proof run precedes the final actual-screen-CTM shaft-trim correction and must not
+be represented as its final evidence. No source meaning, threshold, schema or
+message inventory is weakened. Cycle 39 remains in progress pending final proof
+freeze and all applicable gates; cycle 40 remains commit-gated.
+
+### Cycle 39 closeout — complete, ready for commit
+
+All 18 gates pass. The authoritative final full suite is 1,001 passed, zero failed,
+25,820 assertions across 183 files in 235.51s. Source/type/build/fetch, package
+Bun/Node consumers, public browser, native execution, catalog, showcase/replay,
+reviews/replay, site and all UI gates pass. Fresh reviews contain 38 entries,
+84 qualified, eight unqualified, 22 unsupported, zero execution failures,
+276 assets, 92 native SVG plus 92 PNG replays, 33 authoritative-source records
+and five captures. All-entry 38/38 and selected 1/38 review UI retain shared
+controls; exact Markdown download and corrupt-byte refusal/recovery pass.
+Catalog's 214 native SVGs and showcase's 46 SVG/PNG previews (23 renders) pass
+in Chromium 153 with zero errors.
+
+Original Visual 1.0 and exact cited Markdown bytes remain preserved. Source focus
+is 2/34; compiler focus passes 22 tests. The final combined sequence suites pass
+6/178, including actual-CTM calibration in a height-limited viewport. This final
+proof supersedes the preliminary 3/23 run. No-self reply-draft source remains
+byte-identical. Public Lini qualifies all ten checks, and the fresh built PNG is
+independently visually approved: six participants, ten ordered messages, one
+same-lifeline self-call, three return arrows and complete clear captions.
+Graphviz/Mermaid retain precise lifelines subset refusals, not execution failures.
+
+The generic flat native-primitives extension retains exact source pointers and
+inventories, all-segment and painted-marker proof, source-order separation and
+legacy dispatch/regression coverage. No new vocabulary field, map kind, dedicated
+renderer, source fact, activation or duration is introduced. The minimal C089
+self-call criteria describe conformance rather than private placement constants.
+All prior checkpoint holds are resolved. Cycle 39 is complete pending its
+per-document commit; cycle 40 must not begin before that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -3962,8 +4039,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is complete and ready for commit;
-cycles 39–68 remain pending, with cycle 39 gated on the cycle 38 commit.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is complete, ready for its per-document commit;
+cycles 40–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

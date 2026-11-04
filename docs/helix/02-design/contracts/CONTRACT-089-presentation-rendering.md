@@ -117,7 +117,10 @@ return/async distinctions, participant-owned notes and the declared loop extent
 where admitted. A disclosed composition from executed native primitives MAY
 represent a bounded sequence subset, provided independent native proof establishes
 its participant/lifeline ownership, message endpoints/order/kinds and complete
-owned captions; helper geometry MUST NOT become logical messages or activations. A note MUST NOT
+owned captions. An admitted self-call MUST retain one logical message, with its
+painted departure and return attached to the same participant lifeline, complete
+caption clearance from every path segment, and source-order separation from the
+following message. Helper geometry MUST NOT become logical messages or activations. A note MUST NOT
 be implemented as an invented call. Native palette, icon styling and pixel
 placement remain interpreter decisions; approximations must describe what changed.
 Source-level claims do not qualify another backend or editable interchange profile.

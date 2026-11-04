@@ -1138,3 +1138,33 @@ path maps, painted owned text, exact tokens/tuples, no-path compatibility and
 source/AST mutation negatives remain strict. No schema/source inference or failed
 layout workaround is introduced. Cycle 38 is complete, ready for commit; previous
 holds are resolved and cycle 39 waits for that commit.
+
+
+Cycle 39 checkpoint: the legacy ten-check formal pass did not establish readable
+caption/lifeline clearance. The bounded existing flat native composition admits
+self-calls as one owned U-shaped message and separate caption. Require exact
+same-lifeline departure/painted return, all three actual segments, marker direction,
+complete owned text, clearance from every segment/lifeline, and following-message
+order. Malformed points fail closed; shaft trimming is bounded in native units
+using the actual screen transform. First/middle/last/repeated calls and missing
+segment, wrong return, reversed marker and order mutations are required controls.
+No-self output remains byte-identical and legacy excluded subsets retain dispatch
+and regression obligations. Source/Markdown UI focus is 2/34; the preliminary
+self-call run is 3/23 before final CTM correction. Final proof, broad gates and
+cycle completion remain pending; no new model field or presentation map kind.
+
+
+Cycle 39 closeout: all 18 gates pass; full 1,001/0, 25,820 assertions, 183 files,
+235.51s. Reviews contain 38 entries, 84 qualified, eight unqualified,
+22 unsupported, zero execution failures, 276 assets, 92 native SVG/PNG replay
+pairs, 33 authoritative sources and five captures. All 38/38 and selected 1/38 UI
+retain shared controls and zero errors, including exact Markdown bytes and corrupt
+recovery; catalog 214 SVG and showcase 46 SVG/PNG (23 renders) pass Chromium 153.
+Source 2/34, compiler 22 passed and final combined sequence 6/178 supersede preliminary
+proof evidence. The actual CTM height-limited control, strict self-loop segments,
+painted return/contact, source ordering and caption clearances pass; no-self output
+remains byte-identical and legacy regressions pass. Public Lini 10/10 and fresh built
+visual inspection qualify the source; G/M retain precise subset refusals. Original
+Visual 1.0/cited Markdown and public/model boundaries remain intact. No new map kind,
+semantic field or activation/duration inference is introduced. Previous holds are
+resolved; cycle 39 is complete pending commit and cycle 40 remains commit-gated.
