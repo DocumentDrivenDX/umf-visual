@@ -378,11 +378,25 @@ try{
     await page.waitForFunction(url=>(window as any).__revokedBlobUrls.includes(url),previousRecipeUrl,{timeout:5000});
     previousRecipeUrl=undefined;
    }
-   if(row.status==='qualified'){
+   if(row.status==='qualified'||row.status==='unqualified'){
     await page.waitForFunction(()=>(document.querySelector('#download-native-source')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false),undefined,{timeout:30000});
     await assertWidePreviewFits(page,review.id,backend);
     await assertRenderingNotes(page,row,review.id,backend);
     if(!(await page.locator('#engine-caption').innerText()).toLowerCase().includes(backend))throw Error(`${review.id}/${backend} selection does not show its target identity.`);
+    if(row.status==='unqualified'){
+     const caption=await page.locator('#quality-caption').innerText(),details=await page.locator('#render-caveat').innerText();
+     if(!caption.includes('NATIVE QUALITY NOT QUALIFIED'))throw Error(`${review.id}/${backend} native preview does not clearly identify its unqualified quality status.`);
+     const failedIds=row.quality?.failedChecks??[],checkEvidence=new Map<string,any>((row.quality?.evidence??[]).map((check:any)=>[check.check,check]));
+     if(!failedIds.length)throw Error(`${review.id}/${backend} unqualified receipt has no failed native quality check IDs.`);
+     if(await page.locator('#diagram-status').isVisible()||`${caption} ${details}`.toLowerCase().includes('unsupported'))throw Error(`${review.id}/${backend} successful native execution is shown as a semantic refusal.`);
+     for(const failedId of failedIds){const check=checkEvidence.get(failedId);if(check?.result!=='fail'||check.sourceSha256!==row.nativeSourceSha256||!details.includes(failedId))throw Error(`${review.id}/${backend} limitation omits source-bound failed native check ID ${failedId}.`);}
+     const previewHash=await page.locator('#diagram-image').evaluate(async element=>{const response=await fetch((element as HTMLImageElement).src),bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');});
+     if(previewHash!==row.svgSha256)throw Error(`${review.id}/${backend} unqualified preview bytes differ from its source-bound SVG hash.`);
+     await page.locator('#enlarge-diagram').click();
+     const viewerCaption=await page.locator('#viewer-caption').innerText();
+     if(!viewerCaption.includes('NATIVE QUALITY NOT QUALIFIED')||failedIds.some((id:string)=>!viewerCaption.includes(id)))throw Error(`${review.id}/${backend} enlarged viewer hides the native-quality limitation or failed check IDs.`);
+     await page.keyboard.press('Escape');
+    }else if(await page.locator('#quality-caption').innerText()!=='Native SVG')throw Error(`${review.id}/${backend} qualified preview is mislabeled.`);
     for(const [selector,path,hash] of [['#download-svg',row.svgPath,row.svgSha256],['#download-png',row.pngPath,row.pngSha256],['#download-native-source',row.nativeSourcePath,row.nativeSourceSha256]] as const){
      if(selector==='#download-native-source')await page.locator('#source-details').evaluate(element=>{(element as HTMLDetailsElement).open=true;});
      const target=`.cache/review-${review.id}-${backend}-${path.split('/').pop()}`;
@@ -412,11 +426,26 @@ try{
       }else if(await executionPanel.isVisible())throw Error(`${review.id}/${backend} retained execution provenance from another render.`);
      }
     }
-   }else{
+    if(row.status==='unqualified'){
+     const qualifiedRow=review.renders.find((item:any)=>item.backend==='graphviz'&&item.status==='qualified');
+     if(qualifiedRow){
+      await page.locator('[data-backend="graphviz"]').click();
+      await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false,undefined,{timeout:30000});
+      const caption=await page.locator('#quality-caption').innerText(),caveat=await page.locator('#render-caveat').innerText();
+      if(caption!=='Native SVG'||(row.quality?.failedChecks??[]).some((id:string)=>caveat.includes(id)))throw Error(`${review.id}/${backend} limitation remained after switching to qualified Graphviz.`);
+      for(const [selector,path,hash] of [['#download-svg',qualifiedRow.svgPath,qualifiedRow.svgSha256],['#download-png',qualifiedRow.pngPath,qualifiedRow.pngSha256],['#download-native-source',qualifiedRow.nativeSourcePath,qualifiedRow.nativeSourceSha256]] as const){
+       const link=page.locator(selector),href=await link.getAttribute('href');
+       if(!href||await link.getAttribute('download')!==path.split('/').pop()||await link.getAttribute('aria-disabled')!=='false')throw Error(`${review.id}/graphviz did not replace the unqualified ${backend} ${selector} download.`);
+       const actualHash=await page.evaluate(async url=>{const response=await fetch(url),bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');},href);
+       if(actualHash!==hash)throw Error(`${review.id}/graphviz retained stale ${backend} bytes after switching to a qualified render.`);
+      }
+     }
+    }
+   }else if(row.status==='unsupported'){
     const renderer=backend==='graphviz'?'Graphviz':backend==='mermaid'?'Mermaid':'Lini';
-    await page.waitForFunction(name=>document.querySelector('#diagram-status')?.textContent?.includes(`No qualified ${name}`)===true,renderer,{timeout:30000});
+    await page.waitForFunction(name=>document.querySelector('#diagram-status')?.textContent?.includes(`No usable ${name}`)===true,renderer,{timeout:30000});
     if(await page.locator('#diagram-image').isVisible())throw Error(`${review.id}/${backend} unavailable state left an old render visible.`);
-   }
+   }else throw Error(`${review.id}/${backend} has an unexpected ${row.status} render status in the review UI.`);
   }
   if(review.renders.find((item:any)=>item.backend==='lini')?.status==='qualified'){
    const disclosure=page.locator('#review-evidence-disclosure');
@@ -426,6 +455,12 @@ try{
    await page.screenshot({path:desktopScreenshot,fullPage:true});
   }
  }
+ const deployment=reviews.find((review:any)=>review.id==='beacon-deployment');
+ if(!deployment)throw Error('The beacon-deployment review row is missing from the native-quality UI regression.');
+ for(const [backend,status] of [['graphviz','qualified'],['mermaid','unqualified'],['lini','unqualified']] as const){
+  if(deployment.renders.find((render:any)=>render.backend===backend)?.status!==status)throw Error(`beacon-deployment/${backend} no longer has the expected ${status} native-quality outcome.`);
+ }
+ checks.push('beacon-deployment shows qualified Graphviz beside inspectable Mermaid/Lini quality-limited native previews with source-bound failed check IDs');
  checks.push('every review selection exposes exact parsed/copyable YAML, declared source provenance, and hash-verified SVG, PNG and native-source outcomes for all three backends');
 
  const citationReview=reviews.find((review:any)=>citationAssets(review).some((asset:any)=>/\.ya?ml$/i.test(asset.outputPath)));

@@ -26,7 +26,7 @@ interface PublishedAsset {path:string;sha256:string;outputPath:string;mediaType?
 interface SourceExample {id:string;title:string;description:string;kind:string;form:string;definitionPath:string;definitionSha256:string;sources:unknown[];publishedAssets?:PublishedAsset[];}
 interface SourceManifest {schemaVersion:1;examples:SourceExample[];}
 interface QualityCheck {check:string;sourceSha256:string;result:'pass'|'fail';details:string;}
-interface RenderRow {backend:PresentationBackend;engine:string;nativeVersion:string;nativeSourcePath:string;nativeSourceSha256:string;svgPath:string;svgSha256:string;pngPath:string;pngSha256:string;width:number;height:number;elementMap:unknown[];omissions:unknown[];approximations:unknown[];execution?:PresentationExecution;status:'qualified'|'unsupported'|'failed'|'unqualified';quality:{evidence:QualityCheck[]};diagnostics?:unknown[];error?:string;}
+interface RenderRow {backend:PresentationBackend;engine:string;nativeVersion:string;nativeSourcePath:string;nativeSourceSha256:string;svgPath:string;svgSha256:string;pngPath:string;pngSha256:string;width:number;height:number;elementMap:unknown[];omissions:unknown[];approximations:unknown[];execution?:PresentationExecution;status:'qualified'|'unsupported'|'failed'|'unqualified';quality:{evidence:QualityCheck[];failedChecks:string[]};diagnostics?:unknown[];error?:string;}
 
 function assertRelative(path:string,label:string):void {if(!path||path.startsWith('/')||path.split(/[\\/]/).includes('..'))throw new Error(`${label} must be a safe relative path.`);}
 async function command(args:string[],input?:string):Promise<{stdout:string;stderr:string;exit:number}> {
@@ -192,7 +192,7 @@ async function verifyNativeSvg(browser:Browser,svg:string,tokens:string[]):Promi
 
 async function buildRender(example:SourceExample,doc:Document,backend:PresentationBackend,browser:Browser,versions:{graphviz:string;neato:string;mermaid:string;lini:string;chromium:string},assetDirectory:string):Promise<RenderRow>{
  const plan=compilePresentation(doc,{backend,theme:'presentation/1'});
- if(!plan.ok){const refused=isUnsupportedPresentationDiagnostics(plan.diagnostics);return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath:'',nativeSourceSha256:'',svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:[],omissions:[],approximations:[],status:refused?'unsupported':'failed',quality:{evidence:[]},diagnostics:plan.diagnostics};}
+ if(!plan.ok){const refused=isUnsupportedPresentationDiagnostics(plan.diagnostics);return {backend,engine:backend,nativeVersion:backend==='graphviz'?versions.graphviz:backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath:'',nativeSourceSha256:'',svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:[],omissions:[],approximations:[],status:refused?'unsupported':'failed',quality:{evidence:[],failedChecks:[]},diagnostics:plan.diagnostics};}
  const extension=backend==='graphviz'?'dot':backend==='lini'?'lini':'mmd',base=`${assetDirectory}/${safe(example.id)}/${backend}`,diskBase=`dist-site/${base}`;
  const nativeSourcePath=`${base}/source.${extension}`,svgPath=`${base}/diagram.svg`,pngPath=`${base}/diagram.png`;
  assertRelative(nativeSourcePath,'Native source path');assertRelative(svgPath,'SVG path');assertRelative(pngPath,'PNG path');
@@ -219,10 +219,11 @@ async function buildRender(example:SourceExample,doc:Document,backend:Presentati
   const image=await screenshotSvg(browser,svg,join(root,'dist-site',pngPath));
   await writeFile(join(root,'dist-site',svgPath),svg);
   const svgSha256=sha(svg),pngBytes=await readFile(join(root,'dist-site',pngPath)),pngSha256=sha(pngBytes);
-  const row:RenderRow={backend,engine:backend,nativeVersion,nativeSourcePath,nativeSourceSha256,svgPath,svgSha256,pngPath,pngSha256,width:image.width,height:image.height,elementMap:plan.elementMap,omissions:plan.omissions,approximations:plan.approximations,...(plan.execution?{execution:plan.execution}:{}),status:q,quality:{evidence}};
+  const failedChecks=evidence.filter(check=>check.result==='fail').map(check=>check.check).sort();
+  const row:RenderRow={backend,engine:backend,nativeVersion,nativeSourcePath,nativeSourceSha256,svgPath,svgSha256,pngPath,pngSha256,width:image.width,height:image.height,elementMap:plan.elementMap,omissions:plan.omissions,approximations:plan.approximations,...(plan.execution?{execution:plan.execution}:{}),status:q,quality:{evidence,failedChecks}};
   if(q!=='qualified')row.error='One or more source-bound native presentation checks did not pass.';
   return row;
- }catch(error){return {backend,engine:backend,nativeVersion:backend==='graphviz'?(plan.execution?versions.neato:versions.graphviz):backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath,nativeSourceSha256,svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:plan.elementMap,omissions:plan.omissions,approximations:plan.approximations,...(plan.execution?{execution:plan.execution}:{}),status:'failed',quality:{evidence:[]},error:errorText(error)};}
+ }catch(error){return {backend,engine:backend,nativeVersion:backend==='graphviz'?(plan.execution?versions.neato:versions.graphviz):backend==='lini'?versions.lini:`${versions.mermaid} / Chromium ${versions.chromium}`,nativeSourcePath,nativeSourceSha256,svgPath:'',svgSha256:'',pngPath:'',pngSha256:'',width:0,height:0,elementMap:plan.elementMap,omissions:plan.omissions,approximations:plan.approximations,...(plan.execution?{execution:plan.execution}:{}),status:'failed',quality:{evidence:[],failedChecks:[]},error:errorText(error)};}
 }
 
 export interface BuildShowcaseOptions {manifestPath?:string;outputPath?:string;assetDirectory?:string;}
@@ -288,7 +289,9 @@ export async function buildShowcase(options:BuildShowcaseOptions={}):Promise<{ou
   }
  }finally{await browser.close();}
  const output={schemaVersion:1,nativeProbes,examples:rows};await mkdir(join(root,dirname(outputPath)),{recursive:true});await writeFile(join(root,outputPath),JSON.stringify(output,null,2)+'\n');
- return {outputPath,examples:rows.length,qualified:rows.reduce((n,x)=>n+x.renders.filter(r=>r.status==='qualified').length,0),failed:rows.reduce((n,x)=>n+x.renders.filter(r=>r.status==='failed'||r.status==='unqualified').length,0)};
+ const qualified=rows.reduce((n,x)=>n+x.renders.filter(r=>r.status==='qualified').length,0);
+ const failed=rows.reduce((n,x)=>n+x.renders.filter(r=>r.status==='failed').length+(x.renders.some(r=>r.status==='qualified')?0:1),0);
+ return {outputPath,examples:rows.length,qualified,failed};
 }
 
 if(import.meta.main){const result=await buildShowcase();console.log(JSON.stringify(result,null,2));if(result.failed)process.exitCode=1;}

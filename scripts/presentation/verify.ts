@@ -8,6 +8,7 @@ import {readVisualDocument,type Visual} from '../../src/extensions/visual';
 import {chromium} from 'playwright';
 import mermaidPackage from 'mermaid/package.json';
 import {verifyPresentationQuality} from './quality';
+import type {PresentationQualityCheck} from './quality';
 import {mermaidSvg,safePresentationSeed,screenshotSvg} from './build';
 import {renderPresentationLini} from './lini-runtime';
 import {visualPayloadYaml} from './payload-source';
@@ -24,14 +25,22 @@ export function assertNativeVersionMatches(exampleId:string,backend:Presentation
 export function assertNativeSvgMatchesReceipt(exampleId:string,backend:PresentationBackend,svg:string,expectedSha256:string):void{
  const actual=sha(svg);if(actual!==expectedSha256)throw Error(`${exampleId}/${backend} native SVG replay hash ${actual} differs from receipt ${expectedSha256}.`);
 }
-export interface ShowcaseVerification {examples:number;qualified:number;unsupported:number;assets:number;nativeReplayed?:number;pngReplayed?:number;}
+export interface ShowcaseVerification {examples:number;qualified:number;unqualified:number;unsupported:number;assets:number;nativeReplayed?:number;pngReplayed?:number;}
 export type ArtifactReader=(path:string)=>Promise<Uint8Array>;
+
+/** Require the replayed pass/fail result for every required check to match its admitted receipt. */
+export function assertReplayedQualityMatches(input:{exampleId:string;backend:PresentationBackend;status:'qualified'|'unqualified';sourceSha256:string;failedChecks:readonly string[];visual:Visual;replayed:readonly PresentationQualityCheck[]}):void{
+ const replayFailed=input.replayed.filter(check=>check.result==='fail').map(check=>check.check).sort();
+ if(!same(input.replayed.map(check=>check.check).sort(),requiredPresentationChecks(input.backend,input.visual))||input.replayed.some(check=>check.sourceSha256!==input.sourceSha256)||!same(replayFailed,input.failedChecks)||input.status==='qualified'&&replayFailed.length||input.status==='unqualified'&&!replayFailed.length){
+  throw Error(`${input.exampleId}/${input.backend} failed independent native SVG replay: ${input.replayed.filter(check=>check.result!=='pass').map(check=>check.details).join('; ')}`);
+ }
+}
 
 /** Explicit proof obligations; a renderer load or arbitrary passing check cannot replace them. */
 export function requiredPresentationChecks(backend:PresentationBackend,visual:Visual):string[]{
  const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-svg-fit','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
  if(visual.layout?.kind==='circular')checks.push('presentation-circular-layout');
- if(backend==='graphviz')checks.push(...(visual.kind==='state'?['graphviz-native-ast','graphviz-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['graphviz-native-ast','graphviz-timeline-events-and-axis']:['graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order']));
+ if(backend==='graphviz')checks.push(...(visual.kind==='state'?['graphviz-native-ast','graphviz-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['graphviz-native-ast','graphviz-timeline-events-and-axis']:['graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order']),...(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout?['graphviz-zoned-tier-direction']:[]));
  else if(backend==='lini')checks.push(...(visual.kind==='comparison'&&visual.form==='before-after'
   ?['lini-native-ast','lini-native-carriers','lini-before-after-values-and-ownership']
   :visual.kind==='comparison'&&visual.form==='quadrant'
@@ -51,6 +60,7 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
   :visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
   ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']
   :['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows']),
+  ...(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout?['lini-zoned-tier-columns']:[]),
   ...(visual.kind==='flow'&&(visual.form==='pipeline'||visual.form==='network')&&!visual.layout&&!(visual.groups?.length)&&
     (visual.nodes??[]).every(node=>!node.group&&!node.parent)&&
     directedDagRanks((visual.nodes??[]).map(node=>node.id),(visual.edges??[]).filter(edge=>edge.kind!=='return'))
@@ -66,7 +76,7 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
  if(!/^[a-z][a-z0-9-]*$/.test(assetDirectory)||assetDirectory==='dist-site')throw Error('Asset directory must be a safe lowercase namespace such as showcase or reviews.');
  if(manifest?.schemaVersion!==1||receipt?.schemaVersion!==1||!Array.isArray(manifest.examples)||!manifest.examples.length||!Array.isArray(receipt.examples))throw Error('Showcase manifests must use schemaVersion 1 and contain nonempty examples arrays.');
  const rendered=new Map<string,any>();for(const item of receipt.examples){if(!item||typeof item.id!=='string'||rendered.has(item.id))throw Error('Rendered showcase contains a malformed or duplicate example id.');rendered.set(item.id,item);}
- const expectedIds=new Set<string>();let qualified=0,unsupported=0,assets=0;
+ const expectedIds=new Set<string>();let qualified=0,unqualified=0,unsupported=0,assets=0;
  for(const example of manifest.examples){
   if(!example||typeof example.id!=='string'||!/^[a-z0-9-]+$/.test(example.id)||expectedIds.has(example.id))throw Error('Source manifest contains a malformed or duplicate example id.');expectedIds.add(example.id);
   const output=rendered.get(example.id);if(!output)throw Error(`Rendered showcase is missing ${example.id}.`);
@@ -97,16 +107,20 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
    if(backend==='mermaid'&&(!row.nativeVersion.startsWith(`${mermaidPackage.version} / Chromium `)||!/^\d+\.\d+\.\d+\.\d+$/.test(row.nativeVersion.slice(`${mermaidPackage.version} / Chromium `.length))))throw Error(`${example.id}/mermaid native version does not match the pinned Mermaid bundle and a concrete Chromium version.`);
    const plan=compilePresentation(document,{backend,theme:'presentation/1'});
    if(row.status==='unsupported'){
-    if(plan.ok||!same(row.diagnostics,plan.diagnostics)||row.nativeSourcePath||row.svgPath||row.pngPath||row.quality?.evidence?.length)throw Error(`${example.id}/${backend} is mislabeled unsupported.`);
+    if(plan.ok||!same(row.diagnostics,plan.diagnostics)||row.nativeSourcePath||row.svgPath||row.pngPath||row.quality?.evidence?.length||row.quality?.failedChecks?.length)throw Error(`${example.id}/${backend} is mislabeled unsupported.`);
     unsupported++;continue;
    }
-   if(row.status!=='qualified'||!plan.ok)throw Error(`${example.id}/${backend} is not qualified by the current presentation compiler.`);
+   if(!['qualified','unqualified'].includes(row.status)||!plan.ok)throw Error(`${example.id}/${backend} is not a successful source-bound native execution.`);
    if(!same(row.elementMap,plan.elementMap)||!same(row.omissions,plan.omissions)||!same(row.approximations,plan.approximations))throw Error(`${example.id}/${backend} has a stale presentation map or view inventory.`);
    if(!same(row.execution,plan.execution))throw Error(`${example.id}/${backend} execution metadata differs from the current typed compiler plan.`);
    if(sha(plan.source)!==row.nativeSourceSha256)throw Error(`${example.id}/${backend} source is not the current compiled presentation.`);
    const checks=row.quality?.evidence;
-   if(!Array.isArray(checks)||checks.some((check:any)=>!check||check.result!=='pass'||check.sourceSha256!==row.nativeSourceSha256||typeof check.details!=='string'||!check.details.trim()))throw Error(`${example.id}/${backend} has incomplete or failing source-bound quality evidence.`);
+   if(!Array.isArray(checks)||checks.some((check:any)=>!check||!['pass','fail'].includes(check.result)||check.sourceSha256!==row.nativeSourceSha256||typeof check.details!=='string'||!check.details.trim()))throw Error(`${example.id}/${backend} has incomplete source-bound quality evidence.`);
    if(!same(checks.map((check:any)=>check.check).sort(),requiredPresentationChecks(backend,visual)))throw Error(`${example.id}/${backend} is missing required native quality checks or includes duplicate/unknown checks.`);
+   const failedChecks=checks.filter((check:any)=>check.result==='fail').map((check:any)=>check.check).sort();
+   if(!Array.isArray(row.quality?.failedChecks)||!same(row.quality.failedChecks,failedChecks))throw Error(`${example.id}/${backend} failed-check receipt is missing or differs from its quality evidence.`);
+   if(row.status==='qualified'&&failedChecks.length)throw Error(`${example.id}/${backend} claims qualification with failed native quality checks.`);
+   if(row.status==='unqualified'&&!failedChecks.length)throw Error(`${example.id}/${backend} is labeled unqualified without a failed required quality check.`);
    if(row.width!==1600||row.height!==900)throw Error(`${example.id}/${backend} is not a 1600×900 presentation asset.`);
    for(const [assetPath,expectedHash,label] of [[row.nativeSourcePath,row.nativeSourceSha256,'native source'],[row.svgPath,row.svgSha256,'SVG'],[row.pngPath,row.pngSha256,'PNG']] as const){
     const prefix=`${assetDirectory}/${example.id}/${backend}/`;
@@ -117,12 +131,12 @@ export async function verifyShowcaseData(manifest:any,receipt:any,readArtifact:A
     if(label==='SVG'&&!bytes.toString('utf8').includes('<svg'))throw Error(`${example.id}/${backend} SVG artifact is malformed.`);
    }
    const suffix=backend==='graphviz'?'.dot':backend==='lini'?'.lini':'.mmd';if(!row.nativeSourcePath.endsWith(suffix))throw Error(`${example.id}/${backend} native source has the wrong extension.`);
-   qualified++;
+   if(row.status==='qualified')qualified++;else unqualified++;
   }
   if(!['graphviz','mermaid','lini'].some(backend=>rows.get(backend)?.status==='qualified'))throw Error(`${example.id} has no qualified presentation backend.`);
  }
  if(rendered.size!==expectedIds.size||[...rendered.keys()].some(id=>!expectedIds.has(id)))throw Error('Rendered showcase has unexpected or missing examples.');
- return {examples:expectedIds.size,qualified,unsupported,assets};
+ return {examples:expectedIds.size,qualified,unqualified,unsupported,assets};
 }
 
 export interface VerifyShowcaseOptions {manifestPath?:string;receiptPath?:string;assetDirectory?:string;}
@@ -139,7 +153,7 @@ export async function verifyShowcase(options:VerifyShowcaseOptions={}):Promise<S
   for(const example of receipt.examples){
    const document=readVisualDocument(new TextDecoder().decode(await readArtifact(example.definitionPath)),'json');
    const visual=document.extensions!['umf.visual'] as unknown as Visual;
-   for(const row of example.renders.filter((entry:any)=>entry.status==='qualified')){
+   for(const row of example.renders.filter((entry:any)=>entry.status==='qualified'||entry.status==='unqualified')){
     const plan=compilePresentation(document,{backend:row.backend,theme:'presentation/1'});
     if(!plan.ok)throw Error('Current compiler refused an admitted presentation.');
     let nativeAst:unknown;
@@ -178,7 +192,7 @@ export async function verifyShowcase(options:VerifyShowcaseOptions={}):Promise<S
     const page=await browser.newPage();
     try{
      const checks=await verifyPresentationQuality(page,{svg,document,plan,nativeAst});
-     if(!same(checks.map(check=>check.check).sort(),requiredPresentationChecks(row.backend,visual))||checks.some(check=>check.result!=='pass'||check.sourceSha256!==row.nativeSourceSha256))throw Error(`${example.id}/${row.backend} failed independent native SVG replay: ${checks.filter(check=>check.result!=='pass').map(check=>check.details).join('; ')}`);
+     assertReplayedQualityMatches({exampleId:example.id,backend:row.backend,status:row.status,sourceSha256:row.nativeSourceSha256,failedChecks:row.quality.failedChecks,visual,replayed:checks});
     }finally{await page.close();}
     const pngPath=join(root,'.cache/presentation/replay',assetDirectory,example.id,row.backend+'.png');
     await screenshotSvg(browser,svg,pngPath);

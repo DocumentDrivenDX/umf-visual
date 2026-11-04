@@ -168,7 +168,7 @@ try{
     const qualified=(example.renders||[]).filter((render:any)=>render?.status==='qualified');
     if(!qualified.length)throw new Error(`No qualified native render is available for curated example ${example.id}.`);
     qualifiedByExample.set(example.id,qualified.map((render:any)=>render.backend));
-    for(const render of qualified){
+    for(const render of (example.renders||[]).filter((item:any)=>item?.status==='qualified'||item?.status==='unqualified')){
       for(const [key,extension,hash] of [['svgPath','.svg','svgSha256'],['pngPath','.png','pngSha256'],['nativeSourcePath',render.backend==='mermaid'?'.mmd':render.backend==='lini'?'.lini':'.dot','nativeSourceSha256']] as const){
         const assetPath=render[key];if(typeof assetPath!=='string'||!assetPath.startsWith('showcase/')||assetPath.includes('..')||!assetPath.endsWith(extension))throw new Error(`${example.id}/${render.backend} has an unsafe or unexpected ${key}.`);
         const bytes=await Bun.file(join(siteRoot,assetPath)).arrayBuffer();
@@ -176,7 +176,7 @@ try{
       }
     }
   }
-  const allPreviews=showcase.examples.flatMap(example=>example.renders.filter((render:any)=>render.status==='qualified').flatMap((render:any)=>[render.svgPath,render.pngPath]));
+  const allPreviews=showcase.examples.flatMap(example=>example.renders.filter((render:any)=>render.status==='qualified'||render.status==='unqualified').flatMap((render:any)=>[render.svgPath,render.pngPath]));
   const decoded=await page.evaluate(async paths=>Promise.all(paths.map(path=>new Promise<{path:string;width:number;height:number}>(resolve=>{
     const image=new Image();image.onload=()=>resolve({path,width:image.naturalWidth,height:image.naturalHeight});image.onerror=()=>resolve({path,width:0,height:0});image.src='./'+path;
   }))),allPreviews);
@@ -212,7 +212,7 @@ try{
       const apiExample=await page.locator('#programmatic-code').innerText();
       const modelVersion=example.definition.vocabularies?.['umf.visual']?.version;
       if(!apiExample.includes('editAndCompile(payload: Visual)')||!apiExample.includes('Start with the umf.visual value shown above as a Visual object.')||!apiExample.includes('createVisualDocument(payload, undefined, modelVersion)')||!apiExample.includes(`const modelVersion: VisualVersion = '${modelVersion}';`)||!apiExample.includes("getVisual, editVisual")||!apiExample.includes('compilePresentation')||!apiExample.includes(`backend: '${backend}'`))throw new Error(`The public API example does not carry the selected ${modelVersion} payload through to the selected ${backend} renderer.`);
-      const expectedRender=example.renders.find((render:any)=>render.backend===backend&&render.status==='qualified');
+      const expectedRender=example.renders.find((render:any)=>render.backend===backend&&(render.status==='qualified'||render.status==='unqualified'));
       const versionNote=await page.locator('#compile-target-note').innerText();
       if(expectedRender&&!versionNote.toLowerCase().includes(`${expectedRender.engine} ${expectedRender.nativeVersion}`.toLowerCase()))throw new Error(`${example.id}/${backend} API example omits its native renderer version.`);
       if(!expectedRender){
@@ -223,6 +223,14 @@ try{
       await page.waitForFunction(({title,filename,backend})=>document.querySelector('#diagram-title')?.textContent===title&&document.querySelector('#download-svg')?.getAttribute('download')===filename&&document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false&&document.querySelector(`#backend-options [data-backend="${backend}"]`)?.getAttribute('aria-pressed')==='true',{title:example.title,filename:expectedRender.svgPath.split('/').pop(),backend});
       await page.locator('#diagram-image').evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Scenario image did not decode.');});
       if(!(await page.locator('#engine-caption').innerText()).toLowerCase().includes(backend))throw new Error(`${example.id}/${backend} preview did not identify its actual renderer and version.`);
+      if(expectedRender.status==='unqualified'){
+        const caption=await page.locator('#quality-caption').innerText(),limitation=await page.locator('#render-caveat').innerText();
+        if(!caption.includes('NATIVE QUALITY NOT QUALIFIED')||await page.locator('#diagram-status').isVisible()||limitation.toLowerCase().includes('unsupported'))throw new Error(`${example.id}/${backend} unqualified native preview is mislabeled or hidden as a semantic refusal.`);
+        const failedIds=expectedRender.quality?.failedChecks??[],evidence=new Map<string,any>((expectedRender.quality?.evidence??[]).map((item:any)=>[item.check,item]));
+        if(!failedIds.length||failedIds.some((id:string)=>!limitation.includes(id)||evidence.get(id)?.result!=='fail'||evidence.get(id)?.sourceSha256!==expectedRender.nativeSourceSha256))throw new Error(`${example.id}/${backend} quality limitation omits source-bound failed check IDs.`);
+        const previewHash=await page.locator('#diagram-image').evaluate(async element=>{const response=await fetch((element as HTMLImageElement).src),bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');});
+        if(previewHash!==expectedRender.svgSha256)throw new Error(`${example.id}/${backend} preview differs from its source-bound SVG hash.`);
+      }else if(await page.locator('#quality-caption').innerText()!=='Native SVG')throw new Error(`${example.id}/${backend} qualified preview is mislabeled.`);
       const hasNotes=(expectedRender.omissions?.length||0)+(expectedRender.approximations?.length||0)>0;
       if(await page.locator('#rendering-notes').evaluate(element=>(element as HTMLElement).hidden)===hasNotes)throw new Error(`Scenario ${example.id}/${backend} hides or fabricates rendering notes relative to its receipt.`);
       if(await page.locator('#download-png').getAttribute('aria-disabled')!=='false'||await page.locator('#download-native-source').getAttribute('aria-disabled')!=='false')throw new Error(`Scenario ${example.id}/${backend} did not expose the actual qualified render downloads.`);
@@ -238,6 +246,20 @@ try{
         if(!href)throw new Error(`${example.id}/${backend} ${label} download has no target URL.`);
         const actualHash=await page.evaluate(async url=>{const response=await fetch(url);const bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');},href);
         if(actualHash!==hash)throw new Error(`${example.id}/${backend} ${label} download link bytes differ from its verified receipt.`);
+      }
+      if(expectedRender.status==='unqualified'){
+        const qualifiedRender=example.renders.find((render:any)=>render.backend==='graphviz'&&render.status==='qualified')||example.renders.find((render:any)=>render.status==='qualified');
+        if(!qualifiedRender)throw new Error(`${example.id}/${backend} has no qualified render for limitation-reset coverage.`);
+        await page.locator(`[data-backend="${qualifiedRender.backend}"]`).click();
+        await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false);
+        const currentCaveat=await page.locator('#render-caveat').innerText();
+        if(await page.locator('#quality-caption').innerText()!=='Native SVG'||(expectedRender.quality.failedChecks as string[]).some((id:string)=>currentCaveat.includes(id)))throw new Error(`${example.id}/${backend} unqualified limitation remained after selecting a qualified backend.`);
+        for(const [selector,path,hash] of [['#download-svg',qualifiedRender.svgPath,qualifiedRender.svgSha256],['#download-png',qualifiedRender.pngPath,qualifiedRender.pngSha256],['#download-native-source',qualifiedRender.nativeSourcePath,qualifiedRender.nativeSourceSha256]] as const){
+          const link=page.locator(selector),href=await link.getAttribute('href');
+          if(!href||await link.getAttribute('download')!==path.split('/').pop()||await link.getAttribute('aria-disabled')!=='false')throw new Error(`${example.id}/${qualifiedRender.backend} did not replace the unqualified ${backend} ${selector} artifact.`);
+          const actualHash=await page.evaluate(async url=>{const response=await fetch(url),bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');},href);
+          if(actualHash!==hash)throw new Error(`${example.id}/${qualifiedRender.backend} retained stale unqualified ${backend} bytes after switching back.`);
+        }
       }
     }
     if(index===0&&showcase.examples.length>1){
@@ -258,7 +280,7 @@ try{
     const example=showcase.examples[index];
     for(const render of example.renders.filter((entry:any)=>entry.status==='unsupported')){
       await selected.nth(index).click();await page.locator(`[data-backend="${render.backend}"]`).click();
-      await page.waitForFunction(()=>document.querySelector('#diagram-status')?.textContent?.includes('No qualified'));
+      await page.waitForFunction(()=>document.querySelector('#diagram-status')?.textContent?.includes('No usable'));
       if(await page.locator('#diagram-image').isVisible())throw new Error(`${example.id}/${render.backend} displays a stale qualified preview after refusal.`);
       for(const id of ['download-svg','download-png','download-native-source'])if(await page.locator(`#${id}`).getAttribute('aria-disabled')!=='true')throw new Error(`${example.id}/${render.backend} exposes a download after refusal.`);
       for(const diagnostic of render.diagnostics||[])if(diagnostic.message&&!(await page.locator('#diagram-status').innerText()).includes(diagnostic.message))throw new Error(`${example.id}/${render.backend} hides its specific refusal reason.`);
@@ -283,13 +305,13 @@ try{
   await selected.nth(0).click();
   for(const backend of ['lini','graphviz','mermaid']){
     const button=page.locator(`[data-backend="${backend}"]`);await button.click();
-    const available=qualifiedByExample.get(showcase.examples[0].id)?.includes(backend);
+    const available=showcase.examples[0].renders.some((render:any)=>render.backend===backend&&(render.status==='qualified'||render.status==='unqualified'));
     if(available){
-      const expected=showcase.examples[0].renders.find((render:any)=>render.backend===backend&&render.status==='qualified');
+      const expected=showcase.examples[0].renders.find((render:any)=>render.backend===backend&&(render.status==='qualified'||render.status==='unqualified'));
       await page.waitForFunction(filename=>document.querySelector('#download-svg')?.getAttribute('download')===filename&&document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false,expected.svgPath.split('/').pop());
       await page.locator('#diagram-image').evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0)throw new Error('Selected backend image failed to decode.');});
       if(!(await page.locator('#engine-caption').innerText()).toLowerCase().includes(backend))throw new Error(`The ${backend} toggle did not identify the actual rendering engine.`);
-    }else if(!(await page.locator('#diagram-status').innerText()).toLowerCase().includes('qualified')||await page.locator('#diagram-image').isVisible())throw new Error(`The unavailable ${backend} path was not explicitly described or hid the prior render.`);
+    }else if(!(await page.locator('#diagram-status').innerText()).toLowerCase().includes('usable')||await page.locator('#diagram-image').isVisible())throw new Error(`The unavailable ${backend} path was not explicitly described or hid the prior render.`);
   }
   checks.push('backend selection shows qualified renders or an explicit unavailable state');
 

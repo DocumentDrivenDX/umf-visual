@@ -44,6 +44,13 @@ function variantQualified(variant) {
     HASH.test(variant.nativeSourceSha256 || '') && Number.isFinite(variant.width) && variant.width > 0 &&
     Number.isFinite(variant.height) && variant.height > 0 && typeof variant.nativeVersion === 'string' && variant.nativeVersion.length > 0;
 }
+function variantUnqualified(variant) {
+  return variant?.status === 'unqualified' && HASH.test(variant.nativeSourceSha256 || '') && HASH.test(variant.svgSha256 || '') && HASH.test(variant.pngSha256 || '') &&
+    safeAssetPath(variant.nativeSourcePath, variant.backend === 'mermaid' ? '.mmd' : variant.backend === 'lini' ? '.lini' : '.dot') &&
+    safeAssetPath(variant.svgPath, '.svg') && safeAssetPath(variant.pngPath, '.png') && Array.isArray(variant.quality?.failedChecks) && variant.quality.failedChecks.length > 0 &&
+    Number.isFinite(variant.width) && variant.width > 0 && Number.isFinite(variant.height) && variant.height > 0 && typeof variant.nativeVersion === 'string' && variant.nativeVersion.length > 0;
+}
+function inspectableVariant(variant) { return variantQualified(variant) ? variant : variantUnqualified(variant) ? variant : undefined; }
 
 function safeText(value, fallback = '') { return typeof value === 'string' ? value : fallback; }
 function groupRenderingNotes(entries) {
@@ -160,8 +167,8 @@ function createScenarioList() {
 function updateBackendButtons(example) {
   document.querySelectorAll('[data-backend]').forEach(button => {
     const variant = getVariant(example, button.dataset.backend);
-    const qualified = variantQualified(variant);
-    button.title = qualified ? `Use ${button.textContent} ${variant.nativeVersion}` : `No qualified ${button.textContent} render for this example; select to inspect its outcome`;
+    const qualified = variantQualified(variant), unqualified = variantUnqualified(variant);
+    button.title = qualified ? `Use ${button.textContent} ${variant.nativeVersion}` : unqualified ? `Inspect ${button.textContent}; native quality checks did not pass` : `No usable ${button.textContent} render is recorded for this example`;
     button.setAttribute('aria-pressed', String(button.dataset.backend === state.backend));
   });
 }
@@ -346,9 +353,9 @@ async function renderOriginalEvidence(example) {
 function renderSource(example, variant, nativeSource = '') {
   ui.definitionPath.replaceChildren(formatSourcePath(example.definitionPath, example.definitionSha256));
   ui.definition.textContent = JSON.stringify(example.definition, null, 2);
-  ui.sourcePath.textContent = variant ? pathLabel(variant.nativeSourcePath) : 'No qualified source';
-  ui.source.textContent = variant ? nativeSource || 'Loading the verified native source…' : 'The selected backend has no qualified native source for this example.';
-  ui.sourceType.textContent = variant ? `${String(variant.backend).toUpperCase()} NATIVE SOURCE` : 'NATIVE SOURCE UNAVAILABLE';
+  ui.sourcePath.textContent = variant ? pathLabel(variant.nativeSourcePath) : 'No usable native source';
+  ui.source.textContent = variant ? nativeSource || 'Loading the source-bound native source…' : 'The selected backend has no usable native source for this example.';
+  ui.sourceType.textContent = variant ? `${String(variant.backend).toUpperCase()} NATIVE SOURCE${variant.status === 'unqualified' ? ' · QUALITY NOT QUALIFIED' : ''}` : 'NATIVE SOURCE UNAVAILABLE';
   const execution = variant?.execution;
   const hasExecution = execution && typeof execution === 'object' && !Array.isArray(execution) && Object.keys(execution).length > 0;
   const recipe = executionRecipe(variant);
@@ -692,7 +699,7 @@ async function renderSelected() {
   const token = ++state.renderToken;
   clearRenderUrls();
   state.viewerMode='fit';state.viewerScale=1;ui.viewerZoomLevel.textContent='Fit';
-  const variant = qualifiedVariant(example, state.backend);
+  const variant = inspectableVariant(getVariant(example, state.backend));
   state.currentVariant = variant ?? null;
   ui.title.textContent = safeText(example.title, 'Untitled visual');
   ui.description.textContent = safeText(example.description);
@@ -711,7 +718,7 @@ async function renderSelected() {
     const unavailable = getVariant(example, state.backend);
     const diagnostics = unavailable?.diagnostics?.map(item => safeText(item.message)).filter(Boolean).join(' ');
     const renderer = state.backend === 'graphviz' ? 'Graphviz' : state.backend === 'mermaid' ? 'Mermaid' : 'Lini';
-    const explanation = `No qualified ${renderer} render is recorded for this example. ${safeText(unavailable?.error) || diagnostics || ''}`.trim();
+    const explanation = `No usable ${renderer} render is recorded for this example. ${safeText(unavailable?.error) || diagnostics || ''}`.trim();
     setState(explanation, 'error');
     return;
   }
@@ -736,7 +743,8 @@ async function renderSelected() {
     ui.viewerImage.src = svgUrl;
     ui.viewerImage.alt = ui.image.alt;
     ui.viewerTitle.textContent = safeText(example.title);
-    ui.viewerCaption.textContent = `${safeText(variant.engine)} ${safeText(variant.nativeVersion)} · PNG export ${variant.width} × ${variant.height}px · SVG vector`;
+    const viewerQuality = variant.status === 'unqualified' ? ` · NATIVE QUALITY NOT QUALIFIED · failed checks: ${(variant.quality?.failedChecks || []).join(', ')}` : '';
+    ui.viewerCaption.textContent = `${safeText(variant.engine)} ${safeText(variant.nativeVersion)} · PNG export ${variant.width} × ${variant.height}px · SVG vector${viewerQuality}`;
     ui.viewerSvg.href = svgUrl;
     ui.viewerSvg.download = pathLabel(variant.svgPath);
     ui.viewerSvg.setAttribute('aria-disabled', 'false');
@@ -748,8 +756,13 @@ async function renderSelected() {
     ui.enlarge.hidden = false;
     ui.frame.classList.add('has-image');
     ui.engine.textContent = `${safeText(variant.engine)} · ${safeText(variant.nativeVersion)}`;
-    ui.quality.textContent = 'Native SVG';
+    ui.quality.textContent = variant.status === 'unqualified' ? 'NATIVE QUALITY NOT QUALIFIED' : 'Native SVG';
     const caveats = [];
+    if (variant.status === 'unqualified') {
+      const evidence = new Map((variant.quality?.evidence || []).map(check => [check?.check, check]));
+      const failures = variant.quality.failedChecks.map(id => `${id}: ${evidence.get(id)?.details || 'required native quality check failed'}`);
+      caveats.push(`Native rendering succeeded, but required quality checks failed: ${failures.join(' ')}`);
+    }
     if (example.form === 'stack') caveats.push('The bands are an authored reading order, not an execution sequence.');
     if (state.backend === 'mermaid' && example.form === 'entities') caveats.push('Mermaid connects entities; field bindings are labelled rather than shown as field-port attachments.');
     const approximationCodes = new Set((variant.approximations || []).map(item => item?.code).filter(Boolean));

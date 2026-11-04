@@ -702,3 +702,22 @@ Caption wrapping validates original text before inserting display breaks and mus
 retain full visible content. Direction-specific qualification remains empirical:
 a successful default direction MUST NOT imply another direction passes native
 readability, frame ownership or mask/ink requirements.
+
+
+## Qualified and unqualified native executions
+
+Each reviewed example MUST have at least one individually qualified suitable
+target. A successful source-bound native execution with failed required quality
+checks MAY be retained as unqualified evidence; it MUST NOT be called qualified,
+semantically unsupported or an execution failure. Compile/runtime/asset/replay
+failures remain blocking. Semantic unsupported retains its explicit located
+capability-refusal meaning.
+
+Unqualified rows MUST retain exact native source/version/execution, maps/view
+inventory, SVG/PNG hashes and the complete required-check inventory with exact
+failed-check identifiers. Independent native replay MUST verify assets and source
+bindings and reproduce the failed-check set; forged success, missing/unknown checks
+or changed failure facts MUST fail verification. No individual quality threshold
+or proof obligation is waived. UI inspection/downloads MUST state native quality
+is not qualified and expose concrete source-bound limitations. Existing qualified
+rows retain every qualification requirement.

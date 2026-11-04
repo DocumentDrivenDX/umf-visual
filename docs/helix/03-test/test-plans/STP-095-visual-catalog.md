@@ -802,3 +802,26 @@ mandatory/native obligations, shape-independent actual inventory and unchanged
 owned-ink/endpoint/frame thresholds. Explicit layouts and cycle/headless fallback
 remain intact. Exact fictional selected-view JSON/TOML facts are unchanged; no
 current deployment, vocabulary or host qualification expansion is inferred.
+
+
+## Mixed native-quality outcome conformance
+
+Require at least one qualified target per example while retaining complete
+source-bound unqualified executions separately from semantic unsupported and
+blocking execution failure. Replay every inspectable row, all asset hashes and
+exact required-check/failed-check sets. Forged qualification, fabricated or changed
+failures, missing proofs/assets and a cohort with no qualified target must fail.
+UI must distinguish qualification states and expose concrete failure details,
+source/preview/downloads without a usable-target claim. Existing all-qualified
+examples and every individual quality check remain unchanged.
+
+
+Cycle 27 closeout: final isolated suite passes 906 tests, zero failures and 23,632
+assertions across 157 files in 188.00 seconds. All required native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual source/model/interface
+checks pass. Generic zoned tier ownership and default Graphviz composition qualify
+one suitable target; Mermaid/Lini retain exact source-bound unqualified quality
+failures, complete assets and native/PNG replay. Strict status/failure-set/hash/
+missing-proof/default-policy controls and visible modal limitations preserve every
+individual check, with execution failures blocking. Exact fictional source,
+portable vocabulary and historical deployment claims remain unchanged.

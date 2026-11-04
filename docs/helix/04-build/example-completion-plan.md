@@ -2712,6 +2712,79 @@ No current deployment, vocabulary, strict-interchange or host capability expansi
 is claimed. Commit follows in this change; git history is authoritative. Cycle 27
 remains pending until cycle 26 is committed; this resolves prior checkpoint holds.
 
+### Twenty-seventh-cycle scope — fictional selected deployment zones
+
+Cycle 27 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/inventory/beacon-deployment.json`, SHA-256
+`7f94f529ed7350c9c5d49caedb93eddfcf56f5aa60f43e0557d8220d2c0ad14c`.
+Audit the selected deployment view against matching fictional architecture TOML
+`5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910`
+before choosing alias or concrete source-backed enrichment. Preserve thirteen
+nodes, five zones, fifteen edges and exact group details/tiers, node roles/statuses,
+return kind and why qualifiers. Two groups share tier 3; tiers do not become inferred
+dates, security levels or current deployment verification. Keep unrelated views out.
+
+Evaluate existing native G/M/L fidelity before runtime edits. Zone boundaries,
+membership, detail and authored tier relationships require truthful visible
+representation or explicit located accounting, alongside topology/text ownership.
+Existing vocabulary expresses these facts; no case-specific fields or renderers
+are indicated. Use lean data-only gates if existing runtime qualifies, otherwise
+reopen applicable AGENTS native/public/catalog regressions for concrete generic
+changes. Commit cycle 27 before starting cycle 28.
+
+### Twenty-seventh-cycle focused zoned-interface checkpoint
+
+Existing generic flow dispatch now admits zoned source without vocabulary changes.
+Literal tier captions/maps retain exact authored values/details; stable tier ordering
+is declaration policy only, not a guarantee of physical Graphviz peer alignment.
+Private Lini tier columns preserve source groups and equal-tier peers without
+inventing semantic wrappers; explicit authored root layout bypasses default placement
+while tier text remains. Non-zoned tier omissions remain truthful. Graphviz selects
+native TB only absent caller direction/root layout, with explicit view disclosure.
+
+Focused zoned native controls pass six tests/47 assertions; pure zoned/tier controls
+pass nine tests/287 assertions. Controls cover AST direction, owned captions, removed
+peer carriers and explicit-layout bypass. Graphviz default native quality qualifies;
+Mermaid/Lini executions retain concrete native-quality limitations, not semantic
+inability claims. At least one suitable target per example is required; complete
+unqualified assets/proof remain inspectable and replayed without waived checks.
+Missing default-policy receipts are tested at artifact recompilation binding, not
+by guessing caller options in standalone native proof. Source/model/API/modularity
+review approves these boundaries. Affected regressions and strict mixed-outcome
+artifact/UI controls plus full required gates remain pending; cycle 27 is incomplete.
+
+### Twenty-seventh-cycle closeout — 2026-11-03
+
+The final isolated full suite passes **906 tests, zero failures, 23,632 assertions
+across 157 files in 188.00 seconds**. All required source/type/build, fetch/native,
+public-browser, packed Bun/Node consumer, catalog/showcase/review/site and shared
+UI gates pass without browser errors. Public browser covers 26 reviewed definitions/
+60 plans. Catalog covers 53 items; showcase nine examples/23 qualified/zero failed
+variants and 23 SVG/PNG replays. Reviews cover 26 documents/58 qualified plus two
+unqualified native-quality variants, zero execution failures, 180 assets and 60 native
+SVG/PNG replays. Review UI passes 26 examples; catalog UI passes 53 items/214 native
+SVGs; showcase UI passes nine examples/23 qualified variants.
+
+Root inspected actual G/M/L outputs. Exact source definition SHA-256 remains
+`7f94f529ed7350c9c5d49caedb93eddfcf56f5aa60f43e0557d8220d2c0ad14c`;
+qualified default Graphviz PNG SHA-256 is
+`4b60a7289f351be0d6d711ab7e60073f98c2fc7d53e75d31537de2ee27c9ddc2`.
+Mermaid retains failed font/overlap checks and Lini retains endpoint/font checks
+as exact source-bound unqualified evidence, with inspectable assets and replayed
+failure sets. They are not presented as semantic unsupported or qualified targets.
+
+Final source/model/interface/modularity and receipt audits pass. Exact fictional
+selected-view source remains unchanged. Generic zoned admission, stable literal
+tiers, explicit-layout precedence and backend-specific default composition remain
+renderer policy; tier declaration order does not guarantee physical Graphviz tier
+alignment. Every individual quality obligation remains enforced. The generic
+receipt/UI boundary requires at least one qualified target per example, complete
+native/check/hash evidence for unqualified executions, exact failure-set replay and
+blocking execution failures. Modal and inline inspection expose limitations.
+No vocabulary, current deployment or host capability expansion is inferred.
+Commit follows in this change; git history is authoritative. Cycle 28 remains
+pending until cycle 27 is committed; this resolves all earlier checkpoint holds.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2726,8 +2799,8 @@ Cycle 17 is committed as `af9ba07`; cycle 18 is committed as `8b0bbe8`.
 Cycle 19 is committed as `122e5c6`; cycle 20 is committed as `adefa85`.
 Cycle 21 is committed as `b9257c8`; cycle 22 is committed as `ae58a76`.
 Cycle 23 is committed as `8efc657`; cycle 24 is committed as `5af7b4c`.
-Cycle 25 is committed as `2374106`; cycle 26 is complete and ready for commit.
-Cycles 27–68 remain pending.
+Cycle 25 is committed as `2374106`; cycle 26 is committed as `2bd17fd`.
+Cycle 27 is complete and ready for commit; cycles 28–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

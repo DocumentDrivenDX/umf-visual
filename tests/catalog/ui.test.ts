@@ -128,7 +128,10 @@ describe('microsite catalogue UI contract',()=>{
     expect(viewer).toContain('const modelVersion: VisualVersion = \'${modelVersion}\';');
     expect(viewer).toContain("@documentdrivendx/umf-visual/presentation");
     expect(viewer).toContain("@documentdrivendx/umf-visual");
-    expect(viewer).toContain('No qualified ${renderer}');
+    expect(viewer).toContain('No usable ${renderer}');
+    expect(viewer).toContain("variant?.status === 'unqualified'");
+    expect(viewer).toContain('NATIVE QUALITY NOT QUALIFIED');
+    expect(viewer).toContain('failedChecks');
     expect(viewer).toContain('crypto.subtle.digest');
     expect(viewer).toContain('textContent');
     expect(viewer).not.toContain('innerHTML');

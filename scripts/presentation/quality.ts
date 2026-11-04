@@ -16,7 +16,7 @@ export interface PresentationQualityCheck {
  details:string;
 }
 
-type NativeAst={objects?:Record<string,unknown>[];edges?:Record<string,unknown>[]};
+type NativeAst={objects?:Record<string,unknown>[];edges?:Record<string,unknown>[];rankdir?:string};
 type QualityBox={x:number;y:number;width:number;height:number};
 const sha=(s:string)=>createHash('sha256').update(Buffer.from(s,'utf8')).digest('hex');
 const pass=(check:string,sourceSha256:string,ok:boolean,details:string):PresentationQualityCheck=>({check,sourceSha256,result:ok?'pass':'fail',details});
@@ -129,6 +129,7 @@ export async function verifyPresentationQuality(
  if(plan.backend==='graphviz'){
   const ast=input.nativeAst as NativeAst|undefined;
   checks.push(pass('graphviz-native-ast',sourceSha256,!!ast&&Array.isArray(ast.objects)&&(Array.isArray(ast.edges)||(visual.edges?.length??0)===0),'Graphviz JSON AST is required for endpoint, port, and layout checks; an empty authored edge list may omit the native edge array.'));
+  if(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout){const direction=/rankdir\s*=\s*"(LR|TB)"/u.exec(plan.source)?.[1],defaultTb=plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/form'&&item.requested==='Default Graphviz direction TB for zoned groups'),ok=!!ast&&!!direction&&ast.rankdir===direction&&(!defaultTb||direction==='TB');checks.push(pass('graphviz-zoned-tier-direction',sourceSha256,ok,ok?`Graphviz native AST retains effective ${direction} direction${defaultTb?' selected by the located zoned default policy':''}.`:`Graphviz native direction ${ast?.rankdir??'(missing)'} does not match the emitted/qualified zoned direction ${direction??'(missing)'}.`));}
   if(visual.kind==='state'){
    const problems:string[]=[],objects=Array.isArray(ast?.objects)?ast.objects:[],edges=Array.isArray(ast?.edges)?ast.edges:[],byName=new Map(objects.map(object=>[objectName(object),object])),byGvid=new Map(objects.map(object=>[Number(object._gvid),objectName(object)]));
    const nodeNative=(id:string)=>nativeIdForNode(plan,id);
@@ -241,6 +242,7 @@ export async function verifyPresentationQuality(
     const id=plan.elementMap.find(e=>e.kind==='group'&&e.logicalId===group.id)?.nativeId;
     const cluster=id?carrier('cluster','cluster_'+id):undefined;
     if(!cluster||!cluster.ownText.join(' ').includes(group.label)||(group.detail&&!cluster.ownText.join(' ').includes(group.detail)))missing.push(`group label ${group.id}`);
+    if(visual.kind==='flow'&&visual.form==='zoned'&&group.tier!==undefined&&(!cluster||!norm(cluster.ownText.join(' ')).includes(norm('Tier '+group.tier))))missing.push(`group ${group.id} literal tier ${group.tier} is not visible in its mapped Graphviz cluster`);
    }
    if(visual.form==='stack')for(const node of visual.nodes??[]){if(node.shape!=='document'&&node.shape!=='folded-corner'&&node.shape!=='multiple-documents')continue;const id=nativeIdForNode(plan,node.id),nodeSvg=id?carrier('node',id):undefined,object=id?byName.get(id):undefined;if(node.shape==='multiple-documents'){const topSheet=nodeSvg?.polygons.some(box=>box.width>=nodeSvg.bounds.width*.8&&box.height<box.width*.1),sideSheet=nodeSvg?.polygons.some(box=>box.width<=nodeSvg.bounds.width*.1&&box.height>=nodeSvg.bounds.height*.7);if(text(object?.shape)!=='plain'||!topSheet||!sideSheet||!nodeSvg?.ownText.join(' ').includes(node.label))missing.push(`stack node ${node.id} multiple-document offset sheets are not owned by its one Graphviz node`);}else if(text(object?.shape)!=='note')missing.push(`stack node ${node.id} document stencil is not a Graphviz note`);}
    if(visual.form==='stack')for(const layer of visual.structure?.layers??[]){
@@ -633,6 +635,7 @@ export async function verifyPresentationQuality(
      const child=clusterFor(group.id,'group');
      if(!child)problems.push(`group ${group.id} has no Mermaid subgraph carrier`);
      else if(!normLabel(child.ownText.join(' ')).includes(normLabel(group.label)))problems.push(`group ${group.id} label is not visible in its mapped subgraph`);
+     if(visual.kind==='flow'&&visual.form==='zoned'&&group.tier!==undefined&&(!child||!normLabel(child.ownText.join(' ')).includes(normLabel('Tier '+group.tier))))problems.push(`group ${group.id} literal tier ${group.tier} is not visible in its mapped Mermaid subgraph`);
      if(group.parent){
       const parent=clusterFor(group.parent,'group');
       if(!inside(parent,child))problems.push(`group ${group.id} is not geometrically contained by its mapped Mermaid parent ${group.parent}`);

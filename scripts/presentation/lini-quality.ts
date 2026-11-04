@@ -218,6 +218,8 @@ export async function verifyLiniPresentationQuality(
   const visibleLabel=!!expected&&(found.texts.includes(norm(expected))||found.cells.some(cell=>norm(cell.text)===norm(expected))||!!groupCaption||!!dom?.carriers.some(candidate=>candidate.classes.includes('lini-caption')&&candidate.texts.includes(norm(expected))&&containsBox(found.bounds,candidate.bounds)));
   const shape=visual.nodes?.find(node=>node.id===item.logicalId)?.shape,visibleShapeFallback=!!shape&&found.texts.some(text=>text.startsWith(norm(expected)+' (shape: '+shape+')'));
   if(expected&&!visibleLabel&&!visibleShapeFallback){carriersOk=false;missing.push(`${item.kind} label ${item.logicalId}`);}
+  const mappedGroup=item.kind==='group'?visual.groups?.find(group=>group.id===item.logicalId):undefined;
+  if(visual.kind==='flow'&&visual.form==='zoned'&&mappedGroup?.tier!==undefined){const tierText=norm('Tier '+mappedGroup.tier),tierOwned=!!groupCaption&&groupCaption.texts.some(text=>norm(text).includes(norm(mappedGroup.label))&&norm(text).includes(tierText)),tierApproximation=plan.approximations.some(item=>item.sourcePath===at('/groups/'+visual.groups!.indexOf(mappedGroup)+'/tier'));if(!tierOwned||!tierApproximation){carriersOk=false;missing.push(`group ${mappedGroup.id} literal tier ${mappedGroup.tier} is not visible in its mapped native caption and approximation`);}}
   if(item.kind==='annotation'){
    const metadataPointer=item.sourcePath===at('/question')||item.sourcePath===at('/takeaway');
    if(metadataPointer&&(item.logicalId!==item.sourcePath||item.nativeId!==(item.sourcePath===at('/question')?'pipeline-question-caption':'pipeline-takeaway-footer'))){carriersOk=false;missing.push(`pipeline text ${item.sourcePath} is not mapped to its exact native source carrier`);}
@@ -480,6 +482,24 @@ export async function verifyLiniPresentationQuality(
   }
  }
  checks.push(pass('lini-containment-and-order',sourceSha256,containmentOk,containmentOk?`Native group/layer bounds contain their authored members; nested group captions clear both parent and child boundaries${nestedCaptionClearances.length?` (${nestedCaptionClearances.join(', ')})`:''}; stack layers retain authored order${stackCaptionClearances.length?`; native stack caption clearance from preceding layer boundary: ${stackCaptionClearances.join(', ')}.`:'.'}`:containmentProblems.join('; ')||'The inserted Lini SVG is unavailable.'));
+
+ if(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout){
+  const problems:string[]=[],tiered=(visual.groups??[]).map((group,index)=>({group,index})).filter(item=>!item.group.parent&&item.group.tier!==undefined).sort((a,b)=>a.group.tier!-b.group.tier!||a.index-b.index),tiers=[...new Set(tiered.map(item=>item.group.tier!))],wrapperByTier=new Map<number,string>(),rootLine=plan.source.split('\n').find(line=>line.trimStart().startsWith('|group#visual|'))??'',rootDirection=/direction:\s*(row|column);/u.exec(rootLine)?.[1],peerAxis=rootDirection==='row'?'y':rootDirection==='column'?'x':undefined;
+  if(tiered.length&&!peerAxis)problems.push('renderer-owned zoned tier columns have no declared root flow direction');
+  for(const tier of tiers){
+   const peers=tiered.filter(item=>item.group.tier===tier),mapped=peers.map(item=>({group:item.group,item:plan.elementMap.find(candidate=>candidate.kind==='group'&&candidate.logicalId===item.group.id)}));
+   const parents=mapped.map(({item})=>item?carrier(item.nativeId,'lini-group')?.parentId:undefined),parentIds=[...new Set(parents.filter((id):id is string=>!!id))];
+   if(mapped.some(({item},index)=>!item||!parents[index])){problems.push(`tier ${tier} has a root group without a mapped native tier-column parent`);continue;}
+   if(parentIds.length!==1){problems.push(`tier ${tier} peers do not share one renderer-owned column`);continue;}
+   const wrapperId=parentIds[0]!,wrapper=carrier(wrapperId,'lini-group');wrapperByTier.set(tier,wrapperId);
+   if(!wrapper||plan.elementMap.some(item=>item.nativeId===wrapperId)||wrapper.texts.length){problems.push(`tier ${tier} column ${wrapperId} is missing, mapped as source, or visibly labeled`);continue;}
+   const orderedPeers=mapped.map(({group,item})=>({group,carrier:item?carrier(item.nativeId,'lini-group'):undefined}));
+   for(const {group,carrier:child}of orderedPeers)if(!child||child.parentId!==wrapperId||!contains(wrapper.containerBounds,child.containerBounds))problems.push(`group ${group.id} is not contained by its renderer-owned tier ${tier} column`);
+   if(peerAxis){const centers=orderedPeers.map(({carrier:child})=>child?child.containerBounds[peerAxis]+child.containerBounds[peerAxis==='x'?'width':'height']/2:NaN);if(centers.some((value,index)=>!Number.isFinite(value)||index>0&&value<=centers[index-1]!))problems.push(`tier ${tier} peer columns do not retain authored source order`);}
+  }
+  if(wrapperByTier.size!==tiers.length||new Set(wrapperByTier.values()).size!==tiers.length)problems.push('distinct root tiers do not have distinct renderer-owned columns');
+  checks.push(pass('lini-zoned-tier-columns',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${tiers.length} renderer-owned tier columns retain the exact mapped root groups, contain their peers, keep stable source order within equal tiers, and add no source group mappings.`));
+ }
 
  if(visual.kind==='flow'&&(visual.form==='pipeline'||visual.form==='network')&&!visual.layout&&!(visual.groups?.length)&&(visual.nodes??[]).every(node=>!node.group&&!node.parent)&&plan.approximations.some(item=>item.sourcePath===at('/form')&&item.requested==='Directed flow with no authored layout')){
   const nodes=visual.nodes??[],edges=visual.edges??[],ranks=directedDagRanks(nodes.map(node=>node.id),edges.filter(edge=>edge.kind!=='return')),problems:string[]=[];

@@ -13,6 +13,7 @@ import {compileLiniBarPresentation} from './lini-bar';
 import {compileLiniTrendPresentation} from './lini-trend';
 import {compileLiniBeforeAfterPresentation} from './lini-before-after';
 import {compileLiniRoadmapPresentation} from './lini-roadmap';
+import {orderTiered} from './tier-layout';
 
 export type PresentationBackend='graphviz'|'mermaid'|'lini';
 export interface PresentationOptions {backend:PresentationBackend;direction?:'LR'|'TB';theme?:'presentation/1';}
@@ -106,7 +107,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  if(visual.layout?.kind==='circular'&&(visual.kind!=='flow'||visual.form!=='network'))return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/layout','Circular placement is currently qualified only for a root flow/network presentation.')]};
  if(visual.layout?.kind==='circular'&&((visual.groups?.length??0)>0||(visual.nodes??[]).some(node=>node.group||node.parent)))return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/layout','Circular placement is currently qualified only for ungrouped root flow/network nodes; no nested-layout fallback is selected.')]};
  const rich=visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree';
- const supported=visual.kind==='flow'&&(visual.form==='network'||visual.form==='pipeline')
+ const supported=visual.kind==='flow'&&(visual.form==='network'||visual.form==='pipeline'||visual.form==='zoned')
   ||visual.kind==='structure'&&(visual.form==='stack'||visual.form==='entities'||visual.form==='tree')
   ||visual.kind==='sequence'&&(visual.form==='lifelines'||visual.form==='ladder')
   ||visual.kind==='state'&&visual.form==='machine'
@@ -173,7 +174,11 @@ export function compilePresentation(document:Document,options:PresentationOption
  const layerIds=new Map((visual.structure?.layers??[]).map((l,i)=>[l.id,safeId('l',i)]));
  const wrap=(text:string,limit=22)=>text.split('\n').flatMap(line=>{const words=line.split(/\s+/);const out:string[]=[];let current='';for(const word of words){if(current&&current.length+1+word.length>limit){out.push(current);current=word;}else current=current?current+' '+word:word;}if(current)out.push(current);return out;}).join('\n');
  const labelNode=(n:VisualNode)=>[n.icon?wrap('Icon: '+n.icon):undefined,wrap(n.label),n.detail?wrap(n.detail,38):undefined,processRoleCaption(n),...(n.ports??[]).map(port=>wrap('Port '+portCaption(port),32))].filter(Boolean).join('\n');
- const labelGroup=(g:VisualGroup)=>[wrap(g.label),g.detail?wrap(g.detail,38):undefined].filter(Boolean).join('\n');
+ const labelGroup=(g:VisualGroup)=>[wrap(g.label),g.detail?wrap(g.detail,38):undefined,visual.kind==='flow'&&visual.form==='zoned'&&g.tier!==undefined?'Tier '+g.tier:undefined].filter(Boolean).join('\n');
+ const orderedFlowItems=(items:Array<VisualGroup|VisualNode>,order:string[]|undefined,authoredLayout=false):Array<VisualGroup|VisualNode>=>{
+  if(visual.kind!=='flow'||visual.form!=='zoned'||order||authoredLayout)return ordered(items,order);
+  return orderTiered(items.map(item=>({id:item.id,tier:groups.find(group=>group.id===item.id)?.tier,item}))).map(entry=>entry.item);
+ };
  const labelLayer=(layer:{label:string;detail?:string})=>[wrap(layer.label),layer.detail?wrap(layer.detail,38):undefined].filter(Boolean).join('\n');
  const mapPorts=(node:VisualNode,index:number)=>node.ports?.forEach((port,portIndex)=>{
   const portPath=path('/nodes/'+index+'/ports/'+portIndex);
@@ -408,7 +413,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  const mixedRouteIntent=requestedRoutes.length>1;
  const routeApproximation=(i:number,edge:NonNullable<Visual['edges']>[number],backendName:string,applicable:boolean,code?:PresentationApproximation['code'])=>{const reason=applicable?backendName:`${backendName} cannot apply both curved and straight edge intent per edge; this edge keeps the backend's default route and its requested ${edge.routing!.kind} geometry is not guaranteed.`;approximations.push({sourcePath:path('/edges/'+i+'/routing'),requested:'Edge routing '+edge.routing!.kind,representation:reason,...(code?{code}:{})});};
  if(backend==='graphviz'){
-  const rootLayout=visual.layout,flowDirection=layoutDirection(rootLayout,rootLayout?.kind==='stack'||rootLayout?.kind==='grid'?'TB':dir);
+  const rootLayout=visual.layout,zonedFlow=visual.kind==='flow'&&visual.form==='zoned',zonedDefaultTb=zonedFlow&&!rootLayout&&optionValues.direction===undefined,flowDirection=layoutDirection(rootLayout,rootLayout?.kind==='stack'||rootLayout?.kind==='grid'?'TB':zonedDefaultTb?'TB':dir);
   const circular=rootLayout?.kind==='circular'&&visual.kind==='flow'?ordered(nodes,rootLayout.order):[];
   const circularSize=(node:VisualNode)=>{const text=labelNode(node).split('\n'),portWidth=Math.max(0,...(node.ports??[]).map(port=>(port.label??port.id).length+port.id.length+8)),width=Math.max(1.35,...text.map(line=>line.length*.105+.38),portWidth*.085+.45),height=Math.max(.58,text.length*.22+.22);return{id:node.id,width,height};};
   const circleSizes=circular.map(circularSize);
@@ -416,7 +421,8 @@ export function compilePresentation(document:Document,options:PresentationOption
   const circlePosition=new Map(circle?.positions.map(position=>[position.id,{x:position.x*72,y:-position.y*72}])??[]);
   const splines=routeMode==='curved'&&!mixedRouteIntent?'curved':routeMode==='straight'&&!mixedRouteIntent?'line':'true';
   const nodeDefaults=circle?'margin="0.12,0.10"':'margin="0.22,0.17", width=2.35, height=1.08';
-  const lines=['digraph UMFPresentation {','  graph ['+(circle?'layout="neato",':'rankdir='+dot(flowDirection)+',')+' bgcolor="transparent", pad="0.34", nodesep="0.46", ranksep="'+graphvizDefaultRanksep.toFixed(2)+'", splines='+splines+', overlap=false, compound=true, fontname="Arial", fontsize=22, fontcolor="#203746", labelloc="t", label='+dot(displayTitle(visual))+'];','  node [shape=box, style="rounded,filled", fillcolor="#e8f2f3", color="#577782", penwidth=1.7, fontname="Arial", fontsize=16, fontcolor="#203746", '+nodeDefaults+'];','  edge [fontname="Arial", fontsize=12, color="#617984", fontcolor="#304652", penwidth=1.7, arrowsize=0.85];'];
+  const lines=['digraph UMFPresentation {','  graph ['+(circle?'layout="neato",':'rankdir='+dot(flowDirection)+',')+' bgcolor="transparent", pad="0.34", nodesep="0.46", ranksep="'+graphvizDefaultRanksep.toFixed(2)+'", splines='+splines+', overlap=false, compound=true, fontname="Arial", fontsize=22, fontcolor="#203746", labelloc="t", label='+dot(displayTitle(visual))+'];','  node [shape=box, style="rounded,filled", fillcolor="#e8f2f3", color="#577782", penwidth=1.7, fontname="Arial", fontsize=16, fontcolor="#203746", '+nodeDefaults+'];','  edge [fontname="Arial", fontsize='+(zonedFlow?'16':'12')+', color="#617984", fontcolor="#304652", penwidth=1.7, arrowsize=0.85];'];
+  if(zonedDefaultTb)approx(path('/form'),'Default Graphviz direction TB for zoned groups','The renderer selects top-to-bottom placement when no caller direction or root layout is authored; literal tier values remain ordinal labels, not distance or timing.');
   const nodeStatement=(n:VisualNode):string=>{
    const id=nodeIds.get(n.id)!;
    if(n.shape==='multiple-documents'){
@@ -456,15 +462,15 @@ export function compilePresentation(document:Document,options:PresentationOption
   const children=(id:string)=>groups.filter(g=>g.parent===id),members=(id:string)=>nodes.filter(n=>n.group===id&&!n.parent);
   const emitGroup=(g:VisualGroup,indent:string)=>{
    const layout=g.layout,orientation=layout?layoutDirection(layout,'TB'):undefined;
-   const gid=groupIds.get(g.id)!;lines.push(indent+'subgraph cluster_'+gid+' { label='+dot(labelGroup(g))+'; style="rounded,filled"; color="#c9d7da"; fillcolor="#f6f8f8"; fontname="Arial"; fontsize=13; fontcolor="#455d66";'+(orientation?' rankdir='+dot(orientation)+';':''));
-   const items=ordered([...children(g.id),...members(g.id)],layout?.order);
+   const gid=groupIds.get(g.id)!;lines.push(indent+'subgraph cluster_'+gid+' { label='+dot(labelGroup(g))+'; style="rounded,filled"; color="#c9d7da"; fillcolor="#f6f8f8"; fontname="Arial"; fontsize='+(zonedFlow?'16':'13')+'; fontcolor="#455d66";'+(orientation?' rankdir='+dot(orientation)+';':''));
+   const items=orderedFlowItems([...children(g.id),...members(g.id)],layout?.order,!!layout);
    for(const item of items){if(groups.includes(item as VisualGroup))emitGroup(item as VisualGroup,indent+'  ');else lines.push(indent+nodeStatement(item as VisualNode).trimStart());}
    layoutConstraints(layout,indent+'  ',path('/groups/'+groups.indexOf(g)+'/layout'));
    if(layout?.kind==='grid'&&!layout.order)approx(path('/groups/'+groups.indexOf(g)+'/layout'),'Grid layout with '+layout.columns+' columns','Graphviz uses a native cluster rank approximation; exact grid geometry may vary with edge routing.');
    if(layout&&(layout.kind==='flow'||layout.kind==='stack')&&orientation!==flowDirection)approx(path('/groups/'+groups.indexOf(g)+'/layout'),'Nested '+layout.kind+' layout direction '+orientation,'Graphviz dot does not reliably honor a cluster rankdir that differs from the graph direction; native source retains the requested cluster direction, while component placement may follow the graph axis.');
    lines.push(indent+'}');
   };
-  for(const g of ordered(groups.filter(g=>!g.parent),rootLayout?.order))emitGroup(g,'  ');
+  for(const g of orderedFlowItems(groups.filter(g=>!g.parent),rootLayout?.order,!!rootLayout) as VisualGroup[])emitGroup(g,'  ');
   for(const n of ordered(nodes.filter(n=>!n.group&&!n.parent),rootLayout?.order))lines.push(nodeStatement(n));
   for(const n of nodes)if(n.parent){
    const parent=nodeIds.get(n.parent),nid=nodeIds.get(n.id);if(parent&&nid){lines.push('  '+nid+' [label='+dot(labelNode(n))+nodeStyle(n)+shapeOverride(n)+'];');approx(path('/nodes/'+nodes.indexOf(n)+'/parent'),'Nested node parent','Parent relation shown as a dotted hierarchy connector.');lines.push('  '+parent+' -> '+nid+' [style=dotted, arrowhead=none, color="#aab9bd", constraint=false];');}
@@ -504,7 +510,7 @@ export function compilePresentation(document:Document,options:PresentationOption
    if(n.status)approx(path('/nodes/'+i+'/status'),'Node status '+n.status,'Rendered with the presentation/1 status color convention.');
    if(n.emphasis)approx(path('/nodes/'+i+'/emphasis'),'Node emphasis '+n.emphasis,'Rendered with the presentation/1 stroke weight/color convention.');
   }
-  groups.forEach((g,i)=>{for(const key of ['role','tier','status','emphasis'] as const)if(g[key]!==undefined)omit(path('/groups/'+i+'/'+key),'Group label and containment are visible; this group metadata is not encoded by cluster styling.');});
+  groups.forEach((g,i)=>{for(const key of ['role','status','emphasis'] as const)if(g[key]!==undefined)omit(path('/groups/'+i+'/'+key),'Group label and containment are visible; this group metadata is not encoded by cluster styling.');if(g.tier!==undefined){if(visual.kind==='flow'&&visual.form==='zoned')approx(path('/groups/'+i+'/tier'),'Group tier '+g.tier,'The exact integer appears as “Tier '+g.tier+'” in this group’s native cluster caption. Without authored layout/order at this scope, declarations are emitted by ascending tier with stable source-order ties; Graphviz may position clusters differently to route edges. Tier values are ordinal labels, not calibrated distances.');else omit(path('/groups/'+i+'/tier'),'Group label and containment are visible; this metadata is not encoded by cluster styling.');}});
   edges.forEach((e,i)=>{if(e.why)approx(path('/edges/'+i+'/why'),'Connection rationale','Available as native hover tooltip; it is not persistently visible in a static presentation image.');});
   if(visual.steps)omit(path('/steps'),'Walkthrough steps are not part of the architecture graph view.');
   if(visual.audience)omit(path('/audience'),'Audience metadata is retained in UMF but not drawn.');
@@ -552,12 +558,12 @@ export function compilePresentation(document:Document,options:PresentationOption
    if(groupDirection!==flowDirection&&edges.some(edge=>nodes.some(node=>node.group===g.id&&node.id===edge.from)&&nodes.some(node=>node.group!==g.id&&node.id===edge.to)||nodes.some(node=>node.group===g.id&&node.id===edge.to)&&nodes.some(node=>node.group!==g.id&&node.id===edge.from)))approx(path('/groups/'+groups.indexOf(g)+'/layout'),'Nested '+g.layout.kind+' layout direction '+groupDirection,'Mermaid may override a subgraph direction when connections cross its boundary; the requested native direction is declared but placement may follow the outer graph.');
   }
   const components=[...children(g.id),...members(g.id)];
-  for(const component of ordered(components,g.layout?.order)){if(groups.includes(component as VisualGroup))emitGroup(component as VisualGroup,indent+'  ');else lines.push(mermaidNodeDeclaration(component as VisualNode,nodeIds.get(component.id)!,mermaidText));}
+  for(const component of orderedFlowItems(components,g.layout?.order,!!g.layout)){if(groups.includes(component as VisualGroup))emitGroup(component as VisualGroup,indent+'  ');else lines.push(mermaidNodeDeclaration(component as VisualNode,nodeIds.get(component.id)!,mermaidText));}
   if(g.layout?.kind==='grid')approx(path('/groups/'+groups.indexOf(g)+'/layout'),'Grid layout with '+g.layout.columns+' columns','Mermaid supports subgraph direction and source order but no fixed grid column count.');
   if(g.layout?.order){const ids=g.layout.order.map(id=>nodeIds.get(id)??groupIds.get(id)).filter((id):id is string=>!!id);for(let i=0;i<ids.length-1;i++){lines.push(indent+'  '+ids[i]+' ~~~ '+ids[i+1]);mermaidLinkIndex++;}}
   lines.push(indent+'end');
  };
- for(const g of ordered(groups.filter(g=>!g.parent),rootLayout?.order))emitGroup(g,'  ');
+ for(const g of orderedFlowItems(groups.filter(g=>!g.parent),rootLayout?.order,!!rootLayout) as VisualGroup[])emitGroup(g,'  ');
   for(const n of ordered(nodes.filter(n=>!n.group&&!n.parent),rootLayout?.order))lines.push(mermaidNodeDeclaration(n,nodeIds.get(n.id)!,mermaidText));
   if(rootLayout?.kind==='grid')approx(path('/layout'),'Grid layout with '+rootLayout.columns+' columns','Mermaid preserves requested source ordering but has no native fixed grid column count.');
   if(rootLayout?.order){for(let i=0;i<rootLayout.order.length-1;i++){const from=rootLayout.order[i]!,to=rootLayout.order[i+1]!,mappedFrom=nodeIds.get(from)??groupIds.get(from),mappedTo=nodeIds.get(to)??groupIds.get(to);if(!mappedFrom||!mappedTo)continue;const alreadyOrdered=edges.some(edge=>edge.routing&&edge.directed!==false&&edge.from===from&&edge.to===to);if(!alreadyOrdered){lines.push('  '+mappedFrom+' ~~~ '+mappedTo);mermaidLinkIndex++;}}}
@@ -601,7 +607,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  if(visual.steps)omit(path('/steps'),'Walkthrough steps are not part of the architecture graph view.');
  if(visual.audience)omit(path('/audience'),'Audience metadata is retained in UMF but not drawn.');
  nodes.forEach((n,i)=>{if(n.role)approx(path('/nodes/'+i+'/role'),'Node role '+n.role,n.role==='process'?'Rendered with the presentation/1 process color convention and visible “Process” caption; this names a depicted process/activity only.':'Rendered with the presentation/1 Mermaid role color convention.');if(n.status)approx(path('/nodes/'+i+'/status'),'Node status '+n.status,'Rendered with the presentation/1 Mermaid status color convention.');if(n.emphasis)approx(path('/nodes/'+i+'/emphasis'),'Node emphasis '+n.emphasis,'Rendered with the presentation/1 Mermaid emphasis stroke convention.');});
- groups.forEach((g,i)=>{for(const key of ['role','tier','status','emphasis'] as const)if(g[key]!==undefined)omit(path('/groups/'+i+'/'+key),'Group label and containment are visible; this metadata is not rendered by Mermaid presentation/1.');});
+ groups.forEach((g,i)=>{for(const key of ['role','status','emphasis'] as const)if(g[key]!==undefined)omit(path('/groups/'+i+'/'+key),'Group label and containment are visible; this metadata is not rendered by Mermaid presentation/1.');if(g.tier!==undefined){if(visual.kind==='flow'&&visual.form==='zoned')approx(path('/groups/'+i+'/tier'),'Group tier '+g.tier,'The exact integer appears as “Tier '+g.tier+'” in this group’s native subgraph caption. Without authored layout/order at this scope, declarations are emitted by ascending tier with stable source-order ties; Mermaid may position subgraphs differently to route edges. Tier values are ordinal labels, not calibrated distances.');else omit(path('/groups/'+i+'/tier'),'Group label and containment are visible; this metadata is not rendered by Mermaid presentation/1.');}});
  return {ok:true,profileId:'umf.visual.presentation/1',backend,nativeFormat:'mermaid',source:lines.join('\n')+'\n',elementMap:map,omissions,approximations};
 }
 

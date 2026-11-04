@@ -1408,6 +1408,58 @@
         "sourceDownloadPath": "reviews/beacon-context/authoritative-source.json",
         "scope": "This exact UMF fixture JSON is the review definition. It retains all thirteen node identities and their authored labels, details, roles, and statuses, together with the fourteen relations whose endpoints belong to the selected `context` view. Title, question, takeaway, audience, and historical source locator remain source-authored. The exact architecture-model TOML is separately cited and downloadable; it labels the model fictional. No content from other views or journey steps is added, and neither source establishes a deployed or current Beacon system."
       }
+    },
+    {
+      "id": "beacon-deployment",
+      "title": "Where Beacon runs",
+      "description": "The exact Visual 1.0.0 fixture for the selected fictional deployment view and its matching architecture-model source.",
+      "kind": "flow",
+      "form": "zoned",
+      "definitionPath": "fixtures/visual/inventory/beacon-deployment.json",
+      "definitionSha256": "7f94f529ed7350c9c5d49caedb93eddfcf56f5aa60f43e0557d8220d2c0ad14c",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-deployment.json",
+          "sha256": "7f94f529ed7350c9c5d49caedb93eddfcf56f5aa60f43e0557d8220d2c0ad14c",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies the selected deployment view's 13 node identities and fields, five zones with tiers, and 15 induced relations, including authored return, why, and unknown-status meaning."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "pointer": "/view/deployment",
+          "label": "Fictional architecture-model source",
+          "description": "The exact checked-in TOML bytes identify the selected deployment view and its elements, zone assignments, tiers, and relations; the source labels the model fictional."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-deployment.json",
+          "sha256": "7f94f529ed7350c9c5d49caedb93eddfcf56f5aa60f43e0557d8220d2c0ad14c",
+          "outputPath": "reviews/beacon-deployment/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "outputPath": "reviews/beacon-deployment/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact fictional architecture-model TOML bytes cited by the original fixture."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-deployment.json",
+        "sourceSha256": "7f94f529ed7350c9c5d49caedb93eddfcf56f5aa60f43e0557d8220d2c0ad14c",
+        "documentId": "visual:beacon-deployment",
+        "visualId": "beacon-deployment",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-deployment/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. It retains all thirteen node IDs, labels, details, roles, statuses, and five authored zones with tier ordering and present details; all fifteen relations induced by endpoints in the selected `deployment` view are preserved, including the return kind, `why` text, and unknown status. Title, question, takeaway, audience, and historical source locator remain source-authored. The exact architecture-model TOML is separately cited and downloadable; it labels itself fictional and supplies the selected elements' zone assignments and tiers. No elements from other views or journey steps are added, and neither source establishes a deployed or current Beacon system."
+      }
     }
   ]
 }
