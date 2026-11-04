@@ -43,6 +43,7 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
  if(visual.layout?.kind==='circular')checks.push('presentation-circular-layout');
  if(backend==='graphviz'){
   checks.push(...(visual.kind==='state'?['graphviz-native-ast','graphviz-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['graphviz-native-ast','graphviz-timeline-events-and-axis']:['graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order']));
+  if(visual.kind==='flow'&&['network','pipeline','zoned','lanes'].includes(visual.form)&&(visual.groups?.length??0)>0)checks.push('graphviz-group-header-edge-clearance');
   if(visual.kind==='structure'&&visual.form==='nested')checks.push('nested-native-carriers','nested-native-captions','nested-native-containment','nested-no-synthetic-links');
   if(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout)checks.push('graphviz-zoned-tier-direction');
  }else if(backend==='lini'){

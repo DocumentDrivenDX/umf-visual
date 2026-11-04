@@ -3404,6 +3404,139 @@ host support claims are introduced. Earlier visual blockers and pending holds ar
 resolved by this final artifact and evidence. Freeze for commit; cycle 34 cannot
 start before cycle 33 is committed.
 
+### Thirty-fourth-cycle scope — deployment context with journey focus
+
+Cycle 33 is committed as `c766035`. Cycle 34 reviews exact Visual 1.0 source
+`fixtures/visual/inventory/beacon-reply-presentation.json`, SHA-256
+`e3cf905c0300313c71508db3a08f4f82b4a4022dc31cb6a3502f1b564b5aa156`.
+It is flow/zoned: the same 13 nodes, five groups and 15 edges as the reviewed
+deployment context, plus eight ordered journey-focus steps. Matching fictional
+TOML defines deployment as a view and reply-draft as a journey. Audit both source
+collections: exact deployment selection/member/tier/edge metadata; journey title,
+takeaway, endpoint/label order and step-to-existing-edge resolution. Preserve the
+original deployment locator, UMF-authored question and participant/system facts;
+explain composite projection without inventing a reply-presentation source view.
+
+Reuse existing generic zoned rendering and tier disclosures. Fresh native proof
+must retain source inventories, groups/membership/tier text, return/why/status and
+owned captions; tiers do not imply chronology, required physical alignment or
+causal order. Shared authored context separately preserves eight ordered step
+identities/titles/focus pointers; static native omissions remain explicit without
+animation claims. Cycle 27's qualified Graphviz and exact Mermaid/Lini unqualified
+failure sets are comparison evidence, not automatic qualification of this source.
+No new vocabulary or source enrichment is indicated. If runtime/proof remains
+unchanged, focused source/native checks plus fresh reviews/replay/site, selected
+UI with shared controls and public/packed consumers are proportionate; concrete
+runtime changes reopen full required gates. Cycle 35 waits for cycle 34's commit.
+
+### Cycle 34 visual checkpoint — grouped cluster-caption ink clearance
+
+Source controls pass 2 tests / 51 assertions. Fresh Graphviz formal checks pass,
+while Mermaid font/overlap and Lini endpoint/font limitations match the prior
+deployment profile. Independent visual review nevertheless confirms a Graphviz
+edge crossing the App platform header/title-detail block. The current formal
+text-versus-text checks do not prove text-versus-path acuity; no target is accepted
+on that evidence alone and data-only closeout is suspended.
+
+Probe a generic native Graphviz cluster-caption alignment policy and independent
+visible-ink proof, initially bounded to flow network/pipeline/zoned/lanes with
+source groups. Actual mapped caption glyphs must clear all visible owned edge
+paths, including tooltip-wrapped descendants under their nearest edge carrier.
+Required caption text may not disappear through visibility filtering. Cluster
+outline strokes and unrelated helper geometry are not caption text. Wire the new
+check into mandatory receipt/verification selection; retain all existing checks
+and negative controls. Nested/stack/layer cluster coverage is not implied without
+separate evidence. No alignment meaning or portable field is invented.
+
+Emitter/proof changes reopen full applicable source/type/build/native/corpus/
+consumer/UI gates, with grouped deployment/flow regressions and actual native
+visual inspection before freeze. Cycle 34 remains incomplete and cycle 35 waits
+for its completed commit.
+
+Native bottom-left flow-cluster caption placement is visually approved as ordinary
+renderer typography: source caption position is not authored, and top alignment is
+not a semantic requirement. The candidate retains all existing checks; focused
+zoned/pipeline/lanes controls pass 18 tests / 574 assertions. New ink proof remains
+pending painted descendant-glyph controls and conservative path-sampling uncertainty
+before final admission. No per-group semantic-loss claim follows from placement.
+
+### Cycle 34 broad checkpoint — default regressions under investigation
+
+The first broad suite passes 967 tests, zero failures and 24,995 assertions across
+174 files in 177.54 seconds. Source/type/build/fetch/package/browser/native/catalog/
+showcase/replay/reviews/replay/site gates pass. Fresh reviews contain 33 examples,
+79 native SVG/PNG replays and 237 assets, but only 70 qualified and nine unqualified
+renders (20 unsupported). Two previously qualified Graphviz defaults regressed:
+a nested curved edge crosses its new bottom caption, and a grouped flow caption
+overlaps an edge label. Passing formal/full suites does not authorize these known
+visual regressions or cycle completion.
+
+Probe a generic routing-axis typography policy: preserve prior top-centered native
+cluster captions for LR, retain bottom-left for TB. Actual new ink proof must clear
+the two regressions and the current zoned source before production approval; no
+fixture IDs/counts or source alignment facts may select the policy. Native margin
+budgets are an alternative only if actual evidence requires them. No quality
+threshold, source or semantic-loss inventory is relaxed.
+
+All-mode UI exposed multiple legitimate citations to the same exact TOML (view and
+journey). The harness must verify every expected occurrence and its source/hash,
+not silently select the first link. This is a test-ownership issue, not a source
+change. Final policy, affected regression rebuild/replay and UI gates remain
+pending; cycle 34 is incomplete and cycle 35 remains commit-gated.
+
+### Cycle 34 axis-policy checkpoint — regressions restored in native probes
+
+Native probes validate the bounded orientation policy: LR nested environments
+retain original top-centered captions and pass all mandatory checks with 273.9 CSS
+px caption/path clearance; LR containers pass with 59.7 CSS px. TB reply-presentation
+retains bottom-left captions and all 13 checks with 7.5 CSS px after stroke/sampling
+uncertainty. Uniform bottom placement is rejected by this evidence. Production
+selects attributes solely from already resolved flow direction; LR source retains
+its prior no-caption-attributes form. Explicit direction/layout precedence and
+all source text/ownership remain unchanged.
+
+Focused affected tests pass 23/495, type/diff checks pass, and static model/private
+policy review is approved. Automated native axis witnesses, every-occurrence
+citation controls and final affected rebuild/replay/full/UI gates remain pending.
+No semantic approximation, portable field or completion claim is introduced.
+
+### Cycle 34 closeout — complete, ready for commit
+
+The corrected full run passes 969 tests, zero failures and 25,067 assertions across
+174 files in 179.35 seconds (`.cache/cycle34-retry1-full.log`). All required source/
+type/build/fetch/package/browser/native/catalog/showcase/replay/reviews/replay/site
+and UI gates pass. Focused Graphviz controls 4/140, source 2/51, affected regressions
+39/412 and axis controls 23/495 pass without summing overlapping runs.
+
+Fresh reviews cover 33 examples: 72 qualified, seven unqualified, 20 unsupported,
+zero execution failures, five captures and 28 authoritative sources. All 79 native
+SVG and 79 PNG replays pass across 237 assets. All-mode UI 33/33 and selected 1/33
+retain shared controls, Chromium 153.0.8010.12 and zero errors; catalog/showcase UI
+pass. Multiple legitimate TOML citation occurrences are each downloaded and
+hash-verified; singleton matching remains strict.
+
+Both introduced LR regressions are restored qualified under the new mandatory
+cluster-caption ink proof (273.9 and 59.7 CSS px). Current TB Graphviz passes all
+13 checks with 7.5 CSS px conservative clearance. Actual built PNG matches the
+visually approved candidate; Mermaid font/text-overlap and Lini endpoint/font
+limitations remain exact unqualified outcomes, without check waivers. The final
+Graphviz source hash is `3db811d1db1f8a3b17ede47c12d853a6da5d6d828e8f639f85b7ea2214d6ef79`;
+SVG `a7424b1faf44c5f4b12c333be8ba5d0e5efc75b0522ad85b58c90f5cdcd421af`;
+PNG `8628ddbe667ed49fc212ffa68ee19dd2abffb321dc3eb01fdb6fc3ffd2e918d9`.
+Original UMF `e3cf905c0300313c71508db3a08f4f82b4a4022dc31cb6a3502f1b564b5aa156`
+and matching fictional TOML remain immutable.
+
+Final native/model/modularity review approves routing-axis native typography:
+resolved TB uses bottom-left cluster captions, LR retains prior native placement.
+Exact source text, explicit layout/direction precedence, topology, tiers and
+journey focus remain unchanged. Independent painted leaf glyphs, tooltip-owned
+edge paths, conservative stroke/sampling clearance, complete source ownership and
+mandatory receipt wiring qualify the bounded grouped-flow scope. No portable
+field, semantic-loss approximation, fixture branch or host/current-state claim is
+introduced. Existing CONTRACT-089 requirements suffice. Earlier visual/UI holds
+are resolved by these final gates; freeze for per-document commit. Cycle 35 must
+not start before cycle 34 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -3422,8 +3555,8 @@ Cycle 25 is committed as `2374106`; cycle 26 is committed as `2bd17fd`.
 Cycle 27 is committed as `05b2b84`; cycle 28 is committed as `587471d`.
 Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
-Cycle 33 is complete and ready for commit; cycles 34–68 remain pending,
-with cycle 34 gated on the cycle 33 commit.
+Cycle 33 is committed as `c766035`. Cycle 34 is complete and ready for commit;
+cycles 35–68 remain pending, with cycle 35 gated on the cycle 34 commit.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

@@ -1736,6 +1736,65 @@
       }
     },
     {
+      "id": "beacon-reply-presentation",
+      "title": "Drafting a reply",
+      "description": "The exact Visual 1.0.0 zoned flow fixture combines the fictional Beacon deployment view with its matching reply-draft journey.",
+      "kind": "flow",
+      "form": "zoned",
+      "definitionPath": "fixtures/visual/inventory/beacon-reply-presentation.json",
+      "definitionSha256": "e3cf905c0300313c71508db3a08f4f82b4a4022dc31cb6a3502f1b564b5aa156",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-reply-presentation.json",
+          "sha256": "e3cf905c0300313c71508db3a08f4f82b4a4022dc31cb6a3502f1b564b5aa156",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture preserves the deployment view projection: 13 node identities and fields, five tiered zones, and all 15 induced relations. Its eight ordered steps focus eight of those relations; the question and source locator are fixture-authored."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "pointer": "/view/deployment",
+          "label": "Fictional architecture-model source",
+          "description": "The checked-in TOML defines the selected deployment view, its elements and source zone/tier assignments, and the relations induced by the view endpoints. The source labels the model fictional; it does not establish a current deployment."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "pointer": "/journey/reply-draft",
+          "label": "Fictional reply-draft journey",
+          "description": "The checked-in TOML defines the eight ordered from/to/label journey steps. Each corresponds to a focused fixture step and a matching deployment relation; the journey supplies the fixture title and takeaway but no question field."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-reply-presentation.json",
+          "sha256": "e3cf905c0300313c71508db3a08f4f82b4a4022dc31cb6a3502f1b564b5aa156",
+          "outputPath": "reviews/beacon-reply-presentation/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "outputPath": "reviews/beacon-reply-presentation/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact fictional architecture-model TOML bytes cited by the original UMF fixture."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-reply-presentation.json",
+        "sourceSha256": "e3cf905c0300313c71508db3a08f4f82b4a4022dc31cb6a3502f1b564b5aa156",
+        "documentId": "visual:beacon-reply-presentation",
+        "visualId": "beacon-reply-presentation",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-reply-presentation/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. It preserves the selected deployment projection: thirteen node identities and authored fields, five tiered zones, and all fifteen relations induced by endpoints in the `deployment` view, including authored return, why, and unknown-status meaning. Eight ordered steps focus eight of those fifteen relations; they correspond to the eight ordered from/to/label steps in the TOML `reply-draft` journey, whose title and takeaway are also reflected in the fixture. The TOML has no `reply-presentation` view: the fixture retains its historical `deployment` source locator and separately cites the deployment view and reply-draft journey. The fixture question is UMF-authored. Source roles/group IDs, step titles/focus, and selected presentation metadata are fixture mappings or projections, not additional TOML declarations. Both sources describe a fictional model; neither establishes a live/current deployment, runtime timing, or concurrency."
+      }
+    },
+    {
       "id": "beacon-reply-draft",
       "title": "Drafting a reply",
       "description": "The exact Visual 1.0.0 sequence fixture for the fictional Beacon reply-draft journey and its matching architecture-model source.",

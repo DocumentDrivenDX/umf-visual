@@ -10,6 +10,7 @@ import {planDateHistoryEvents} from '../../src/presentation/timeline-layout';
 import {verifyLiniPresentationQuality} from './lini-quality';
 import {verifyNestedBrowserQuality} from './nested-quality';
 import {verifyLanesPresentationQuality} from './lanes-quality';
+import {verifyGraphvizGroupHeaderQuality} from './graphviz-group-header-quality';
 
 export interface PresentationQualityCheck {
  check:string;
@@ -422,6 +423,7 @@ export async function verifyPresentationQuality(
     if(visual.kind==='structure'&&visual.form==='nested'){const nested=checks.find(check=>check.check==='nested-native-containment');checks.push(pass('graphviz-containment-and-order',sourceSha256,nested?.result==='pass',nested?.details??'Nested native containment proof is missing.'));}
     else checks.push(pass('graphviz-containment-and-order',sourceSha256,hierarchyProblems.length===0,hierarchyProblems.length?hierarchyProblems.join('; '):visual.form==='stack'?'Layer cluster geometry follows authored order; invisible constraints are excluded as semantic connections.':'Every nested group and grouped node is geometrically contained by its mapped native cluster.'));
    }
+   if(visual.kind==='flow'&&['network','pipeline','zoned','lanes'].includes(visual.form)&&(visual.groups?.length??0)>0)checks.push(await verifyGraphvizGroupHeaderQuality(page,{document,plan}));
   }
  }else if(plan.backend==='lini'){
   checks.push(...await verifyLiniPresentationQuality(page,{document,plan,nativeAst:input.nativeAst}));

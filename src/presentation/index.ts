@@ -469,7 +469,7 @@ export function compilePresentation(document:Document,options:PresentationOption
   const children=(id:string)=>groups.filter(g=>g.parent===id),members=(id:string)=>nodes.filter(n=>n.group===id&&!n.parent);
   const emitGroup=(g:VisualGroup,indent:string)=>{
    const layout=g.layout,orientation=layout?layoutDirection(layout,'TB'):undefined;
-   const gid=groupIds.get(g.id)!;lines.push(indent+'subgraph cluster_'+gid+' { label='+dot(labelGroup(g))+'; style="rounded,filled"; color="#c9d7da"; fillcolor="#f6f8f8"; fontname="Arial"; fontsize='+(zonedFlow?'16':'13')+'; fontcolor="#455d66";'+(orientation?' rankdir='+dot(orientation)+';':''));
+   const gid=groupIds.get(g.id)!;lines.push(indent+'subgraph cluster_'+gid+' { label='+dot(labelGroup(g))+';'+(flowDirection==='TB'?' labeljust="l"; labelloc="b";':'')+' style="rounded,filled"; color="#c9d7da"; fillcolor="#f6f8f8"; fontname="Arial"; fontsize='+(zonedFlow?'16':'13')+'; fontcolor="#455d66";'+(orientation?' rankdir='+dot(orientation)+';':''));
    const items=orderedFlowItems([...children(g.id),...members(g.id)],layout?.order,!!layout);
    for(const item of items){if(groups.includes(item as VisualGroup))emitGroup(item as VisualGroup,indent+'  ');else lines.push(indent+nodeStatement(item as VisualNode).trimStart());}
    layoutConstraints(layout,indent+'  ',path('/groups/'+groups.indexOf(g)+'/layout'));

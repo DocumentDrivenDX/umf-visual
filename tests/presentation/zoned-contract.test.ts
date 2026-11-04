@@ -21,6 +21,11 @@ test('zoned deployment maps every authored group, node, and edge and preserves l
   for(const[index,node]of visual.nodes!.entries())expect(plan.elementMap).toContainEqual({logicalId:node.id,sourcePath:`${base}/nodes/${index}${backend==='lini'?'/id':''}`,nativeId:`n${index+1}`,kind:'node'});
   for(const[index,group]of visual.groups!.entries()){
    const mapped=groupMap(plan,index);expect(mapped).toEqual({logicalId:group.id,sourcePath:`${base}/groups/${index}`,nativeId:`g${index+1}`,kind:'group'});
+   if(backend==='graphviz'){
+    const declaration=plan.source.split('\n').find(line=>line.includes(`subgraph cluster_g${index+1} {`));
+    expect(declaration).toContain('labeljust="l"; labelloc="b";');
+    expect(decodedText(declaration??'')).toContain(group.label);if(group.detail)expect(decodedText(declaration??'')).toContain(group.detail);
+   }
    const tier=tierApproximation(plan,index);expect(tier?.requested).toBe(`Group tier ${group.tier}`);expect(tier?.representation).toContain(`Tier ${group.tier}`);
    const nativeText=decodedText(plan.source);expect(nativeText).toContain(group.label);if(group.detail)expect(nativeText).toContain(group.detail);expect(nativeText).toContain(`Tier ${group.tier}`);
   }
@@ -86,4 +91,15 @@ test('Graphviz uses a zoned-specific default direction while caller and authored
  const authoredPlan=compile(authored,'1.4.0','graphviz');expect(authoredPlan.ok).toBe(true);if(!authoredPlan.ok)return;
  expect(authoredPlan.source).toContain('rankdir="LR"');
  expect(authoredPlan.approximations.some(item=>item.sourcePath===`${base}/form`&&item.requested==='Default Graphviz direction TB for zoned groups')).toBe(false);
+});
+
+test('Graphviz keeps top-centered group captions when the effective flow axis is LR',()=>{
+ const lrVisual:Visual={...visual,id:'grouped-flow-lr-caption-placement',form:'network'};
+ const plan=compile(lrVisual,'1.4.0','graphviz');expect(plan.ok).toBe(true);if(!plan.ok)return;
+ expect(plan.source).toContain('rankdir="LR"');
+ for(const[index,group]of lrVisual.groups!.entries()){
+  const declaration=plan.source.split('\n').find(line=>line.includes(`subgraph cluster_g${index+1} {`));
+  expect(declaration).not.toContain('labeljust="l"; labelloc="b";');
+  expect(decodedText(declaration??'')).toContain(group.label);if(group.detail)expect(decodedText(declaration??'')).toContain(group.detail);
+ }
 });

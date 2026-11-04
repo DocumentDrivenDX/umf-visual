@@ -985,3 +985,57 @@ visual inspection; original sources remain immutable. Exact primitive inventory,
 visible ownership, hard breaks, marker direction and caption/stroke clearance are
 proved without weakening existing legacy sequence obligations. Cycle 33 is
 complete, ready for commit; previous qualification holds are resolved.
+
+
+Graphviz grouped-flow cluster-caption controls prove actual owned caption glyphs clear all
+visible source-owned edge paths, including descendant paths wrapped by tooltip
+anchors. Scope initially covers network/pipeline/zoned/lanes with source groups;
+other cluster families are not implied. Preserve required visible caption text,
+exclude boundary strokes from glyph evidence, and require a specific native
+path/caption collision negative plus grouped regressions. Any new check must be
+selected by mandatory source-bound receipt verification, without replacing old
+checks. Caption alignment remains renderer typography, not portable semantics.
+
+Cycle 34 checkpoint: source 2/51 passes; visual review supersedes the initial
+Graphviz formal pass because a curve crosses group-caption text. Native policy/
+proof work and full applicable gates remain pending; data-only completion is not
+claimed.
+
+
+Cluster captions may be placed along the bottom-left by native renderer policy;
+no authored top-header position is implied. Painted descendant text runs must
+independently reconstruct complete source content. Dense path samples require a
+conservative uncertainty allowance before claiming minimum true ink clearance.
+Focused affected tests 18/574 pass; new negative controls and full gates remain
+pending.
+
+
+Cycle 34 broad checkpoint: 967/0, 24,995 assertions, 174 files, 177.54s; broad
+source/build/native/corpus/consumer/replay/site gates pass. Two known Graphviz
+caption regressions prevent completion despite this formal evidence. Probe an
+orientation-aware native caption policy under unchanged ink/text checks and
+replay every affected case before admission. Multiple source citations to the
+same asset must each be verified by expected occurrence/pointer/hash; UI tests
+must not mask duplicate ownership through first-link selection. Final policy/UI
+and cycle closeout remain pending.
+
+
+Cycle 34 axis-policy checkpoint: native LR restored-caption probes pass the new
+ink proof (273.9 and 59.7 CSS px); current TB passes all 13 checks (7.5 CSS px after
+uncertainty). Focused affected tests 23/495 and type/diff checks pass. Static review
+approves selection from resolved renderer direction, retaining explicit precedence
+and unchanged LR source policy. Automated witnesses, citation-occurrence and final
+integration/UI gates remain pending; cycle completion is not claimed.
+
+
+Cycle 34 closeout: corrected full suite 969/0, 25,067 assertions across 174 files in
+179.35s. All required source/build/native/corpus/consumer/replay/site/UI gates pass.
+Fresh reviews: 33 examples, 72 qualified, seven unqualified, 20 unsupported, zero
+execution failures, 237 assets and 79 native SVG/PNG replays. All 33/33 and selected
+1/33 UI modes retain shared controls and zero errors; every legitimate duplicate
+citation occurrence is hash-verified. Focused Graphviz 4/140, source 2/51, affected
+39/412 and axis 23/495 pass. Both introduced LR regressions are restored under the
+mandatory ink proof; current TB passes all 13 checks. Original source and exact
+remaining backend failure sets stay unchanged. No portable semantics or quality
+threshold is altered. Earlier checkpoint holds are resolved: cycle 34 is complete,
+ready for commit, and cycle 35 waits for that commit.

@@ -19,33 +19,42 @@ function citationAssets(review:any){
   return published.filter((asset:any)=>asset?.path===item.path&&asset.sha256===item.sha256&&typeof asset.outputPath==='string'&&!primary.has(asset.outputPath));
  });
 }
-async function waitForCitationAsset(page:Page,outputPath:string,state:'enabled'|'hash-refused'):Promise<void>{
+function citationAssetOccurrences(review:any){
+ const groups=new Map<string,{asset:any;count:number}>();
+ for(const asset of citationAssets(review)){const key=JSON.stringify([asset.path,asset.sha256,asset.outputPath]),current=groups.get(key);if(current)current.count++;else groups.set(key,{asset,count:1});}
+ return[...groups.values()];
+}
+async function waitForCitationAsset(page:Page,outputPath:string,state:'enabled'|'hash-refused',expectedCount=1):Promise<void>{
  const expected=state==='enabled'?'aria-disabled="false"':'hash mismatch refusal';
  try{
-  await page.waitForFunction(({path,state})=>{
-   const link=[...document.querySelectorAll('.source-asset-download')].find(element=>(element as HTMLAnchorElement).dataset.outputPath===path) as HTMLAnchorElement|undefined;
-   if(!link)return false;
-   return state==='enabled'?link.getAttribute('aria-disabled')==='false':link.getAttribute('aria-disabled')==='true'&&link.title.toLowerCase().includes('hash does not match');
-  },{path:outputPath,state},{timeout:10000});
+  await page.waitForFunction(({path,state,count})=>{
+   const links=[...document.querySelectorAll('.source-asset-download')].filter(element=>(element as HTMLAnchorElement).dataset.outputPath===path) as HTMLAnchorElement[];
+   if(links.length!==count)return false;
+   return links.every(link=>state==='enabled'?link.getAttribute('aria-disabled')==='false':link.getAttribute('aria-disabled')==='true'&&link.title.toLowerCase().includes('hash does not match'));
+  },{path:outputPath,state,count:expectedCount},{timeout:10000});
  }catch(error){
   const observed=await page.evaluate(path=>{
-   const link=[...document.querySelectorAll('.source-asset-download')].find(element=>(element as HTMLAnchorElement).dataset.outputPath===path) as HTMLAnchorElement|undefined;
-   return link?{disabled:link.getAttribute('aria-disabled'),title:link.title,download:link.download}:undefined;
+   const links=[...document.querySelectorAll('.source-asset-download')].filter(element=>(element as HTMLAnchorElement).dataset.outputPath===path) as HTMLAnchorElement[];
+   return links.map(link=>({disabled:link.getAttribute('aria-disabled'),title:link.title,download:link.download}));
   },outputPath);
-  throw new Error(`Timed out waiting for cited source asset ${outputPath} (${expected}); observed ${JSON.stringify(observed)}: ${error instanceof Error?error.message:String(error)}`);
+  throw new Error(`Timed out waiting for ${expectedCount} cited source asset occurrence(s) at ${outputPath} (${expected}); observed ${JSON.stringify(observed)}: ${error instanceof Error?error.message:String(error)}`);
  }
 }
 const raceProbe=structuredClone(reviews[0]);raceProbe.id='race-probe';raceProbe.title=`${raceProbe.title} selection race`;raceProbe.originalEvidence={...raceProbe.originalEvidence,integrationCaseId:'race-probe'};
 const uiReviews=[...reviews,raceProbe];
-async function downloadBytes(page:Page,selector:string,target:string):Promise<{filename:string;bytes:Uint8Array}>{
- const resource=await page.locator(selector).evaluate(async element=>{
+async function downloadBytes(page:Page,selector:string,target:string,occurrence?:number):Promise<{filename:string;bytes:Uint8Array}>{
+ const matches=page.locator(selector),count=await matches.count();
+ if(occurrence===undefined&&count!==1)throw Error(`${selector} matched ${count} download links; expected exactly one.`);
+ if(occurrence!==undefined&&(!Number.isInteger(occurrence)||occurrence<0||occurrence>=count))throw Error(`${selector} has no download occurrence ${occurrence} among ${count} links.`);
+ const link=occurrence===undefined?matches:matches.nth(occurrence);
+ const resource=await link.evaluate(async element=>{
   const anchor=element as HTMLAnchorElement,response=await fetch(anchor.href);
   if(!response.ok)throw Error(`Download resource request failed (${response.status})`);
   return{filename:anchor.download,disabled:anchor.getAttribute('aria-disabled'),href:anchor.href,bytes:Array.from(new Uint8Array(await response.arrayBuffer()))};
  });
  if(resource.disabled==='true'||!resource.filename)throw Error(`${selector} is not an enabled named download.`);
  if(await page.evaluate(href=>(window as any).__revokedBlobUrls.includes(href),resource.href))throw Error(`${selector} download points at a revoked blob URL.`);
- const [download]=await Promise.all([page.waitForEvent('download',{timeout:10000}),page.locator(selector).click({timeout:10000})]);
+ const [download]=await Promise.all([page.waitForEvent('download',{timeout:10000}),link.click({timeout:10000})]);
  await download.saveAs(target);
  const bytes=await readFile(target);
  if(!bytes.length)throw Error(`${selector} download is empty.`);
@@ -333,19 +342,21 @@ try{
     if(source.label&&(!citations.includes(source.label)||!citations.includes(source.path?.split('/').pop()??'')))throw Error(`${review.id} source details do not expose its labeled source citation ${source.label}.`);
    }
   }
-  for(const asset of citationAssets(review)){
+  for(const {asset,count:occurrences} of citationAssetOccurrences(review)){
    const selector=`.source-asset-download[data-output-path="${asset.outputPath}"]`;
-   await waitForCitationAsset(page,asset.outputPath,'enabled');
-   const downloaded=await downloadBytes(page,selector,`.cache/review-${review.id}-${String(asset.path).split('/').pop()}`);
+   await waitForCitationAsset(page,asset.outputPath,'enabled',occurrences);
    const expected=await readFile(resolve(siteRoot,asset.outputPath));
-   if(downloaded.filename!==String(asset.path).split('/').pop()||sha(downloaded.bytes)!==asset.sha256||!Buffer.from(downloaded.bytes).equals(expected))throw Error(`${review.id} cited source asset ${asset.path} download differs from its exact hash-verified published bytes.`);
-   checks.push(`${review.id} cited source asset ${asset.path} downloads exact hash-verified bytes`);
+   for(let occurrence=0;occurrence<occurrences;occurrence++){
+    const downloaded=await downloadBytes(page,selector,`.cache/review-${review.id}-${String(asset.path).split('/').pop()}-${occurrence+1}`,occurrence);
+    if(downloaded.filename!==String(asset.path).split('/').pop()||sha(downloaded.bytes)!==asset.sha256||!Buffer.from(downloaded.bytes).equals(expected))throw Error(`${review.id} cited source asset ${asset.path} occurrence ${occurrence+1}/${occurrences} differs from its exact hash-verified published bytes.`);
+   }
+   checks.push(`${review.id} cited source asset ${asset.path} downloads exact hash-verified bytes at all ${occurrences} source-citation occurrence(s)`);
    if(!corruptCitationChecked){
     const next=reviews.find((candidate:any)=>candidate.id!==review.id);if(!next)throw Error('No second review exists for the corrupt cited-source control.');
     corruptPath=asset.outputPath;await page.locator(`[data-example-id="${next.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,next.title,{timeout:30000});
-    await page.locator(`[data-example-id="${review.id}"]`).click();await waitForCitationAsset(page,asset.outputPath,'hash-refused');
+    await page.locator(`[data-example-id="${review.id}"]`).click();await waitForCitationAsset(page,asset.outputPath,'hash-refused',occurrences);
     corruptPath=undefined;await page.locator(`[data-example-id="${next.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,next.title,{timeout:30000});
-    await page.locator(`[data-example-id="${review.id}"]`).click();await waitForCitationAsset(page,asset.outputPath,'enabled');
+    await page.locator(`[data-example-id="${review.id}"]`).click();await waitForCitationAsset(page,asset.outputPath,'enabled',occurrences);
     corruptCitationChecked=true;checks.push(`${review.id} corrupt cited source asset is hash-refused and recovers on a fresh selection`);
    }
   }
@@ -482,7 +493,7 @@ try{
 
  const citationReview=reviews.find((review:any)=>citationAssets(review).some((asset:any)=>/\.ya?ml$/i.test(asset.outputPath)));
  if(!citationReview)throw Error('No review source has a matching additional published YAML asset to verify.');
- const citationAsset=citationAssets(citationReview).find((asset:any)=>/\.ya?ml$/i.test(asset.outputPath))!,away=reviews.find((review:any)=>review.id!==citationReview.id)!;
+ const citationOccurrence=citationAssetOccurrences(citationReview).find(({asset}:any)=>/\.ya?ml$/i.test(asset.outputPath))!,citationAsset=citationOccurrence.asset,citationOccurrenceCount=citationOccurrence.count,away=reviews.find((review:any)=>review.id!==citationReview.id)!;
  await page.locator(`[data-example-id="${away.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,away.title,{timeout:30000});
  delayedCitationPath=citationAsset.outputPath;delayedCitationCount=0;
  const createdCitationCount=await page.evaluate(()=>((window as any).__createdBlobUrls as Array<{url:string}>).length);
@@ -499,7 +510,7 @@ try{
   const late=created.slice(createdCount).filter(item=>item.sha256===hash);
   return{staleLink:links.some(link=>link.dataset.outputPath===path),matchingLateBlobCount:late.length,matchingLateBlobRevoked:late.length>0&&late.every(item=>revoked.has(item.url))};
  },{path:citationAsset.outputPath,createdCount:createdCitationCount,hash:citationAsset.sha256});
- if(delayedCitationCount!==1||staleCitationState.staleLink||staleCitationState.matchingLateBlobCount===0||!staleCitationState.matchingLateBlobRevoked)throw Error(`Late cited-source asset survived selection cleanup: ${JSON.stringify({...staleCitationState,delayedRequests:delayedCitationCount})}.`);
+ if(delayedCitationCount!==citationOccurrenceCount||staleCitationState.staleLink||staleCitationState.matchingLateBlobCount!==citationOccurrenceCount||!staleCitationState.matchingLateBlobRevoked)throw Error(`Late cited-source asset survived selection cleanup: ${JSON.stringify({...staleCitationState,delayedRequests:delayedCitationCount,expectedOccurrences:citationOccurrenceCount})}.`);
  delayedCitationPath=undefined;
  checks.push(`late cited-source downloads are revoked and never appear in the newly selected review (${staleCitationState.matchingLateBlobCount} hash-matched late Blob URL${staleCitationState.matchingLateBlobCount===1?'':'s'} created; all revoked)`);
 
