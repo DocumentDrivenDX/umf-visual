@@ -4089,6 +4089,84 @@ directory digest; no HELIX catalog content is vendored and no mandatory/current
 workflow claim is made. All earlier holds are resolved. Cycle 40 is complete pending
 its per-document commit; cycle 41 must not begin before that commit.
 
+### Forty-first-cycle scope — historical ADR alternatives matrix
+
+Cycle 40 is committed as `3408ea1`. Cycle 41 reviews
+`fixtures/visual/inventory/helix-adr-options.json`, a Visual 1.0 text matrix with
+two items, three criteria, six values and an authored choice/reason. The cited
+local ADR-002 bytes match digest
+`888950fe3ebb754719453419e8315243784fe08847327ba88a189c9c14c93dc5`.
+Its Alternatives table contains three options: the fixture omits the naive JSONL
+read/modify/write option and its exact pros, cons and rejection without an omission
+caveat. Preserve the original bytes; review whether to complete that source-backed
+alternative in a separate definition using existing item/text-value vocabulary.
+No new semantic type, scoring, ranking, safety guarantee or current recommendation
+is warranted. Preserve the historical selected option/reason and all exact source
+claims; bind the matching ADR snapshot separately.
+
+Native acceptance requires readable complete item/criterion/value ownership,
+correct matrix joins/order, exact long text recovery and authored choice attribution,
+without shortening arguments or deriving numerical scores. Evaluate the existing
+generic comparison projection before any runtime change. Lean affected gates apply
+only if data-only; shared renderer/proof/UI changes require applicable full gates.
+Cycle 41 is in progress and cycle 42 waits for its per-document commit.
+
+### Cycle 41 focused checkpoint — source-complete typed matrix
+
+The exact cited ADR snapshot supplies a third rejected baseline alternative.
+The separate reviewed definition preserves the original Visual 1.0 fixture and
+existing IDs/choice, adding only the omitted source-exact item and three text
+values, restoring source table order. All three alternatives and nine cells are
+historical ADR claims, not a current safety guarantee or recommendation.
+
+The approved native Lini prototype is a readable item-column/criterion-row table
+with complete arguments and visibly attributed selected item/reason. The new
+bounded generic matrix presentation reuses existing map kinds and native table/
+block constructs; no model field or editable interchange claim is introduced.
+Text, support and rating values remain exact, with visible maximum/anchors,
+details and notes where authored. Missing/empty cells remain core-invalid, not
+native incapability or default no. G/M retain precise subset refusals.
+
+Compiler 6/44 passes, including before/after source/map byte compatibility. The
+independent matrix proof's current 4/67 run covers 3×3 and renamed 4×4 mixed values,
+source-derived auxiliary ownership, exact joins, choice, source/direct AST row
+order, paragraph multiplicity, painted root/leaf checks and anonymous inventory.
+Each negative starts from fresh native SVG and an all-three-check passing
+baseline. Final hidden-tspan/type/diff controls and all broader gates remain
+pending. No numeric layout constant is a portable contract requirement. Cycle 41
+remains in progress; cycle 42 waits for its completed per-document commit.
+
+### Cycle 41 closeout — complete, ready for commit
+
+All applicable gates pass. The final full suite is 1,016 passed, zero failed,
+26,023 assertions across 187 files in 187.72s. Final retry1 source/type/package,
+full tests and remaining public/native/corpus/replay/site/UI gates pass; unchanged
+initial build/fetch passes remain valid. The initial package smoke stopped on a
+generated-consumer TypeScript TS1109 escaping error, preserved in its original log.
+A test-harness-only suffix-check correction resolved it; no renderer, proof or
+semantic threshold was changed afterward.
+
+Fresh reviews contain 40 entries, 88 qualified, eight unqualified, 24 unsupported,
+zero execution failures, 288 assets, 96 native SVG plus 96 PNG replays,
+35 authoritative-source records and five captures. All-entry 40/40 and selected 1/40
+UI preserve shared controls; catalog 214 SVG and showcase 46 SVG/PNG previews
+(23 renders) pass Chromium 153 with zero errors. Source 2/38, compiler 6/44 and final
+independent matrix 4/70 pass. Before/after native source/map goldens remain exact;
+every negative proof uses a fresh passing baseline, including source-owned optional
+text, paragraph multiplicity, direct AST order, hidden leaf/root paint and full
+primitive inventory controls.
+
+The fresh built pinned-Lini matrix passes all required checks and independent
+visual review: three complete source-ordered alternatives, nine exact cells and
+visibly attributed authored choice/reason. G/M retain precise matrix subset
+refusals. The separate reviewed definition adds only one actual omitted alternative
+and its three exact ADR values, preserving original Visual 1.0 and exact cited ADR
+bytes. No new semantic field/map kind, inferred score/winner/current-safety claim
+or C086 import/roundtrip support is introduced. The minimal C089 typed-matrix
+amendment states preservation/qualification outcomes, not private layout algorithms.
+All earlier holds are resolved. Cycle 41 is complete pending its per-document
+commit; cycle 42 must not begin before that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -4109,8 +4187,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is complete, ready for its per-document commit;
-cycles 41–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is complete, ready for its per-document commit;
+cycles 42–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

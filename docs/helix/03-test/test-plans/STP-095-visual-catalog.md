@@ -1195,3 +1195,34 @@ Original source is unchanged; the index's own hash is not the unreproduced histo
 directory digest. No mandatory/current workflow semantics or new model field is
 introduced, no catalog is vendored, and C089 remains unchanged. Previous holds are
 resolved; cycle 40 is complete pending commit and cycle 41 remains commit-gated.
+
+
+Cycle 41 focused checkpoint: a separate source-backed definition restores the
+ADR's third alternative and three exact text cells without mutating original
+Visual 1.0 or inventing current recommendations. The bounded Lini matrix export
+uses existing table/block and map kinds; item/criterion order, original value-index
+joins, typed text/support/rating, maximum/anchors/details/notes and authored choice
+require independent source/AST/painted SVG ownership and full text/paragraph proof.
+Missing/empty matrix cells remain core-invalid. Fresh baseline isolation precedes
+every mutation. Current compiler 6/44 and matrix 4/67 include before/after byte/map
+compatibility, renamed mixed 4×4, lost auxiliary owner/map, paragraph loss, direct
+AST order, root/leaf paint and anonymous primitive controls. Final hidden-tspan
+controls and broad gates remain pending. No C086 import/roundtrip support claim is
+made; cycle 41 is incomplete and cycle 42 remains commit-gated.
+
+
+Cycle 41 closeout: all applicable gates pass; final full 1,016/0, 26,023 assertions,
+187 files, 187.72s. Reviews contain 40 entries, 88 qualified, eight unqualified,
+24 unsupported, zero execution failures, 288 assets, 96 native SVG/PNG replay
+pairs, 35 authoritative sources and five captures. All 40/40 and selected 1/40 UI
+retain shared controls; catalog 214 SVG and showcase 46 SVG/PNG (23 renders) pass
+Chromium 153 with zero errors. Source 2/38, compiler 6/44 and final isolated native
+proof 4/70 pass; before/after source/map goldens stay exact. Initial package TS1109
+was a generated-consumer harness escaping failure, resolved by test-only suffix
+checks; final installed package passes and unchanged initial build/fetch evidence
+is retained. No runtime/proof waiver followed freeze. Fresh Lini matrix qualifies
+and is visually approved; G/M subset refusals remain precise. The reviewed source
+adds only the missing actual ADR alternative/three cells, preserving original and
+exact ADR bytes. Existing map kinds/model and presentation-only export boundaries
+remain intact. All previous holds are resolved; cycle 41 is complete pending commit
+and cycle 42 remains commit-gated.

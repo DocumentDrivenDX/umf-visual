@@ -2246,6 +2246,60 @@
         "sourceDownloadPath": "reviews/helix-activities/authoritative-source.json",
         "scope": "The exact Visual 1.0.0 fixture remains unchanged as the review definition and preserves seven activity IDs, labels, directory details, six directed edges, order, title, question, and source locator. The locator `helix:workflows/activities` resolves locally to the HELIX repository path `workflows/activities`; the recorded checkout revision is f8e8a50cb26b8a3aa45404fa68a5071fad2a461d. Its direct child directory names match the fixture details, as recorded in a separately hashed name-only index. The fixture’s declared directory digest sha256:8cc83bfd0f7e7788b14ac88920dc4bfa5d7efd481e1e77ee26d9144d44a3481c is preserved but its byte-level recipe was not reproduced; the index does not claim a byte match. The six-edge chain and its order remain fixture-authored projection; directory numbering does not make the chain a mandatory execution order, and Iterate documentation describes feedback into earlier work. No activity roles, statuses, concurrency, back-edges, or current operational claims are added."
       }
+    },
+    {
+      "id": "helix-adr-options",
+      "title": "ADR-002: options considered",
+      "description": "A source-bound review of the HELIX tracker write-safety alternatives, adding the omitted first alternative from the cited ADR while preserving the original choice.",
+      "kind": "comparison",
+      "form": "matrix",
+      "definitionPath": "fixtures/reviews/definitions/helix-adr-options.json",
+      "definitionSha256": "a09483cfd0581afa6c5b6661c7d533b3a27843e361aa3f2885e1dcb8e31a1026",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/helix-adr-options.json",
+          "sha256": "b5fabfd6b990fbd2ee3b388cc98ac662e322b76d8bd1cfca89cb68d52885f391",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies the two original options, three text criteria, their cells, the selected option and reason, and the cited ADR locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/ADR-002-tracker-write-safety-model.md",
+          "sha256": "888950fe3ebb754719453419e8315243784fe08847327ba88a189c9c14c93dc5",
+          "pointer": "Alternatives table",
+          "label": "Cited HELIX ADR-002",
+          "originalLocator": "helix:docs/helix/02-design/adr/ADR-002-tracker-write-safety-model.md",
+          "resolvedSource": "helix/docs/helix/02-design/adr/ADR-002-tracker-write-safety-model.md",
+          "description": "Exact Markdown bytes resolved from the fixture locator. The Alternatives table contains three options and their exact Pros, Cons, and Evaluation text, including the naive JSONL alternative omitted from the original Visual fixture. The ADR records a historical decision; it does not establish current tracker behavior or safety."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/helix-adr-options.json",
+          "sha256": "b5fabfd6b990fbd2ee3b388cc98ac662e322b76d8bd1cfca89cb68d52885f391",
+          "outputPath": "reviews/helix-adr-options/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/ADR-002-tracker-write-safety-model.md",
+          "sha256": "888950fe3ebb754719453419e8315243784fe08847327ba88a189c9c14c93dc5",
+          "outputPath": "reviews/helix-adr-options/ADR-002-tracker-write-safety-model.md",
+          "mediaType": "text/markdown",
+          "description": "Exact cited ADR Markdown bytes published without transformation."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/helix-adr-options.json",
+        "sourceSha256": "b5fabfd6b990fbd2ee3b388cc98ac662e322b76d8bd1cfca89cb68d52885f391",
+        "documentId": "visual:helix-adr-options",
+        "visualId": "helix-adr-options",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-adr-options/authoritative-source.json",
+        "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separately reviewed definition adds one source-backed matrix item, `option-naive`, with the exact first alternative and its Pros, Cons, and Evaluation cells from the cited ADR’s Alternatives table. Original `option-1` and `option-2` IDs and relative order, all three criterion IDs/types, the selected `option-2`, and its reason are preserved. The cited ADR’s raw SHA-256 exactly matches the digest in the fixture locator. The selected decision is the ADR’s historical authored evaluation, not a claim about current tracker implementation, concurrency, corruption handling, or safety guarantees. No weights, numeric ratings, or other claims are added."
+      }
     }
   ]
 }

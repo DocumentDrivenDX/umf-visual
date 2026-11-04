@@ -16,6 +16,7 @@ import {verifyLiniStatPresentationQuality} from './lini-stat-quality';
 import {verifyLiniBarPresentationQuality} from './lini-bar-quality';
 import {verifyLiniTrendPresentationQuality} from './lini-trend-quality';
 import {verifyLiniBeforeAfterPresentationQuality} from './lini-before-after-quality';
+import {verifyLiniMatrixPresentationQuality} from './lini-matrix-quality';
 import {verifyLiniRoadmapPresentationQuality} from './lini-roadmap-quality';
 import {verifyLiniNestedPresentationQuality} from './lini-nested-quality';
 import {inspectLiniVisibleInk,type LiniVisibleInkReport} from './lini-visible-ink';
@@ -167,6 +168,7 @@ export async function verifyLiniPresentationQuality(
  if(visual&&(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'))return verifyLiniRichPresentationQuality(page,input);
  if(visual?.kind==='comparison'&&visual.form==='quadrant')return verifyLiniQuadrantPresentationQuality(page,input);
  if(visual?.kind==='comparison'&&visual.form==='before-after')return verifyLiniBeforeAfterPresentationQuality(page,input);
+ if(visual?.kind==='comparison'&&visual.form==='matrix')return verifyLiniMatrixPresentationQuality(page,input);
  if(visual?.kind==='metric'&&visual.form==='meter')return verifyLiniMeterPresentationQuality(page,input);
  if(visual?.kind==='metric'&&visual.form==='stat')return verifyLiniStatPresentationQuality(page,input);
  if(visual?.kind==='metric'&&visual.form==='bar')return verifyLiniBarPresentationQuality(page,input);

@@ -26,6 +26,7 @@ try{
   const review=readVisualDocument(JSON.stringify(input),'json');
   const checked=inspectVisual(review);if(!checked.valid||!checked.complete)throw Error('Reviewed definition is not complete in the browser consumer.');
   const payload=getVisual(review);
+  const reviewBefore=JSON.stringify(review);
   const modelVersion=review.vocabularies['umf.visual']?.version;if(modelVersion)reviewedModelVersions.add(modelVersion);
   for(const format of ['json','yaml'] as const){const back=readVisualDocument(writeVisualDocument(review,format),format);if(JSON.stringify(back)!==JSON.stringify(review))throw Error(`Reviewed definition ${format} round trip differs.`);reviewedRoundTrips++;}
   let compiledBackends=0;
@@ -35,6 +36,16 @@ try{
    if(!plan.source?.trim()||!plan.elementMap.length)throw Error(`Reviewed visual presentation is incomplete for ${backend}.`);
    compiledBackends++;
    reviewedPresentationPlans++;
+   if(payload.id==='helix-adr-options'&&backend==='lini'){
+    const items=payload.comparison?.items??[],criteria=payload.comparison?.criteria??[],values=payload.comparison?.values??[];
+    const itemMaps=plan.elementMap.filter(element=>element.kind==='comparison-item'&&element.sourcePath.endsWith('/label'));
+    const criterionMaps=plan.elementMap.filter(element=>element.kind==='comparison-criterion'&&element.sourcePath.endsWith('/label'));
+    const valueMaps=plan.elementMap.filter(element=>element.kind==='comparison-value'&&/\/comparison\/values\/\d+\/(text|support|rating)$/u.test(element.sourcePath));
+    const choices=plan.elementMap.filter(element=>element.kind==='comparison-choice');
+    if(items.length!==3||criteria.length!==3||values.length!==9||itemMaps.length!==3||criterionMaps.length!==3||valueMaps.length!==9||choices.length!==2||!plan.source.includes('|table#comparison-table|')||!plan.source.includes('Selected:'))throw Error('Public browser matrix consumer lost authored items, criteria, cells, or chosen reason.');
+    if(JSON.stringify(itemMaps.map(element=>element.logicalId))!==JSON.stringify(items.map(item=>item.id))||JSON.stringify(criterionMaps.map(element=>element.logicalId))!==JSON.stringify(criteria.map(item=>item.id)))throw Error('Public browser matrix consumer changed source item/criterion order.');
+    if(JSON.stringify(review)!==reviewBefore)throw Error('Public browser matrix compile mutated the source definition.');
+   }
    for(const[index,node]of (payload.nodes??[]).entries()){
     const nodePointer=`/extensions/umf.visual/nodes/${index}`;
     const validPointers=[nodePointer,nodePointer+'/id'];

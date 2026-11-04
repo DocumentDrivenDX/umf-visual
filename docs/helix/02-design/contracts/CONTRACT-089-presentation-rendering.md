@@ -642,11 +642,12 @@ card/readability budgets while retaining one affine UTC-day factor and exact
 same-date equality; a fixed points-per-day choice is not portable semantics.
 
 
-## Typed before/after comparison tables
+## Typed matrix and before/after comparison tables
 
-A bounded before/after profile MUST resolve each value through its declared item
+A bounded matrix or before/after profile MUST resolve each value through its declared item
 and criterion IDs, retain original value pointers and preserve declared item/
-criterion display order. Exact text and yes/no/partial support values remain
+criterion display order. Exact text, authored numeric ratings with their declared maximum/anchors, and
+yes/no/partial support values remain
 source-owned, without scores, ranking, inferred winners or current-state claims.
 Incomplete matrices retain core form-validation boundaries; missing values MUST
 NOT become no. Criterion measure MAY govern typed cell representation without
@@ -659,6 +660,10 @@ or truncation. Native proof MUST independently reconstruct actual AST and visibl
 text against source content, not rely solely on the compiler's wrapping oracle.
 Native row/column order and cell ownership require separate structural and actual
 rendered-geometry evidence. Unsupported subsets remain located target limitations.
+An authored chosen item and reason MUST remain visibly attributed to their exact
+source item, without deriving a winner or recommendation. Optional source details,
+notes and paragraph boundaries require complete owned native text evidence. A
+qualified presentation export does not establish editable interchange/import support.
 
 
 ## Categorical period/lane roadmaps

@@ -51,6 +51,8 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
    ?['lini-native-ast','lini-native-carriers','lini-nested-source-node-identity','lini-nested-parent-containment']
    :visual.kind==='comparison'&&visual.form==='before-after'
    ?['lini-native-ast','lini-native-carriers','lini-before-after-values-and-ownership']
+   :visual.kind==='comparison'&&visual.form==='matrix'
+   ?['lini-native-ast','lini-native-carriers','lini-matrix-values-choice']
    :visual.kind==='comparison'&&visual.form==='quadrant'
    ?['lini-native-ast','lini-native-carriers','lini-quadrant-coordinate-ownership']
    :visual.kind==='metric'&&visual.form==='meter'
