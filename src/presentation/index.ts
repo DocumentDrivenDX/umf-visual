@@ -182,7 +182,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  const layerIds=new Map((visual.structure?.layers??[]).map((l,i)=>[l.id,safeId('l',i)]));
  const wrap=(text:string,limit=22)=>text.split('\n').flatMap(line=>{const words=line.split(/\s+/);const out:string[]=[];let current='';for(const word of words){if(current&&current.length+1+word.length>limit){out.push(current);current=word;}else current=current?current+' '+word:word;}if(current)out.push(current);return out;}).join('\n');
  const labelNode=(n:VisualNode)=>[n.icon?wrap('Icon: '+n.icon):undefined,wrap(n.label),n.detail?wrap(n.detail,38):undefined,processRoleCaption(n),...(n.ports??[]).map(port=>wrap('Port '+portCaption(port),32))].filter(Boolean).join('\n');
- const labelGroup=(g:VisualGroup)=>[wrap(g.label),g.detail?wrap(g.detail,38):undefined,visual.kind==='flow'&&visual.form==='zoned'&&g.tier!==undefined?'Tier '+g.tier:undefined].filter(Boolean).join('\n');
+ const labelGroup=(g:VisualGroup)=>{const generatedTier=visual.kind==='flow'&&visual.form==='zoned'&&g.tier!==undefined?'Tier '+g.tier:undefined;return[wrap(g.label),g.detail?wrap(g.detail,38):undefined,generatedTier&&g.label!==generatedTier?generatedTier:undefined].filter(Boolean).join('\n');};
  const orderedFlowItems=(items:Array<VisualGroup|VisualNode>,order:string[]|undefined,authoredLayout=false):Array<VisualGroup|VisualNode>=>{
   if(visual.kind!=='flow'||visual.form!=='zoned'||order||authoredLayout)return ordered(items,order);
   return orderTiered(items.map(item=>({id:item.id,tier:groups.find(group=>group.id===item.id)?.tier,item}))).map(entry=>entry.item);

@@ -18,7 +18,12 @@ const pass=(sourceSha256:string,ok:boolean,details:string):PresentationQualityCh
 const mapPath=(kind:string,index:number)=>`${base}/${kind}/${index}`;
 const groupExpected=(visual:Visual,index:number)=>{
  const group=visual.groups?.[index];if(!group)return '';
- return norm([group.label,group.detail,visual.kind==='flow'&&visual.form==='zoned'&&group.tier!==undefined?'Tier '+group.tier:undefined].filter((item):item is string=>typeof item==='string').join(' '));
+ const generatedTier=visual.kind==='flow'&&visual.form==='zoned'&&group.tier!==undefined?'Tier '+group.tier:undefined;
+ // The native renderer omits only the generated tier phrase that exactly
+ // duplicates the authored label. Keep the source-indexed label/detail/tier
+ // contract intact for every other group, including repeated labels.
+ const tierCaption=generatedTier&&group.label!==generatedTier?generatedTier:undefined;
+ return norm([group.label,group.detail,tierCaption].filter((item):item is string=>typeof item==='string').join(' '));
 };
 
 /** Collect renderer-owned glyph boxes and dense, painted edge-path samples in CSS pixels. */

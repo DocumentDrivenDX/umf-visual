@@ -1,0 +1,161 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:tpl-arch-deployment",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "tpl-arch-deployment",
+      "kind": "flow",
+      "form": "zoned",
+      "title": "Deployment",
+      "question": "Where does each part of DepositMatch run?",
+      "source": {
+        "path": "helix:workflows/activities/02-design/artifacts/architecture/example.md",
+        "view": "Deployment",
+        "digest": "sha256:4c79ba17f9d9342592c062b9a51cef0232816004b59f110488f696e7a8e191b8"
+      },
+      "groups": [
+        {
+          "id": "tier-1",
+          "label": "Tier 1",
+          "role": "tier",
+          "tier": 1
+        },
+        {
+          "id": "tier-2",
+          "label": "Tier 2",
+          "role": "tier",
+          "tier": 2
+        },
+        {
+          "id": "tier-3",
+          "label": "Tier 3",
+          "role": "tier",
+          "tier": 3
+        },
+        {
+          "id": "tier-4",
+          "label": "Tier 4",
+          "role": "tier",
+          "tier": 4
+        }
+      ],
+      "nodes": [
+        {
+          "id": "user",
+          "label": "Browser",
+          "group": "tier-1"
+        },
+        {
+          "id": "cf",
+          "label": "CloudFront",
+          "group": "tier-2",
+          "detail": "Web App (shared configuration across CloudFront and S3 Web App)\n\nInfrastructure: S3 static hosting behind CloudFront, us-east-1\n\nInstances: 1 distribution\n\nScaling: CDN-managed\n\nBackup / Recovery: Versioned S3 bucket; redeploy from CI"
+        },
+        {
+          "id": "s3web",
+          "label": "S3 Web App",
+          "group": "tier-3",
+          "detail": "Web App (shared configuration across CloudFront and S3 Web App)\n\nInfrastructure: S3 static hosting behind CloudFront, us-east-1\n\nInstances: 1 distribution\n\nScaling: CDN-managed\n\nBackup / Recovery: Versioned S3 bucket; redeploy from CI"
+        },
+        {
+          "id": "alb",
+          "label": "Application Load Balancer",
+          "group": "tier-2"
+        },
+        {
+          "id": "api1",
+          "label": "ECS API Task A",
+          "group": "tier-3",
+          "detail": "API Service (service-level configuration shared by API Task A and API Task B)\n\nInfrastructure: ECS Fargate service behind Application Load Balancer, us-east-1\n\nInstances: 2 tasks minimum\n\nScaling: CPU > 60% for 5 minutes or p95 import latency > 3 seconds\n\nBackup / Recovery: Rolling deploy; previous task definition retained"
+        },
+        {
+          "id": "api2",
+          "label": "ECS API Task B",
+          "group": "tier-3",
+          "detail": "API Service (service-level configuration shared by API Task A and API Task B)\n\nInfrastructure: ECS Fargate service behind Application Load Balancer, us-east-1\n\nInstances: 2 tasks minimum\n\nScaling: CPU > 60% for 5 minutes or p95 import latency > 3 seconds\n\nBackup / Recovery: Rolling deploy; previous task definition retained"
+        },
+        {
+          "id": "worker",
+          "label": "ECS Matching Worker",
+          "group": "tier-1",
+          "detail": "Matching Worker\n\nInfrastructure: ECS Fargate service, us-east-1\n\nInstances: 1 task minimum\n\nScaling: Job backlog > 100 for 5 minutes\n\nBackup / Recovery: Restart failed task; jobs remain in PostgreSQL"
+        },
+        {
+          "id": "rds",
+          "label": "RDS PostgreSQL 16 Multi-AZ",
+          "role": "store",
+          "group": "tier-4",
+          "detail": "Database\n\nInfrastructure: Amazon RDS PostgreSQL 16, Multi-AZ\n\nInstances: 1 primary, 1 standby\n\nScaling: Vertical scaling by planned maintenance\n\nBackup / Recovery: PITR enabled; 15-minute RPO; 4-hour RTO"
+        },
+        {
+          "id": "files3",
+          "label": "S3 Source Files",
+          "role": "store",
+          "group": "tier-4",
+          "detail": "Source File Store\n\nInfrastructure: S3 bucket with SSE-KMS and versioning\n\nInstances: Regional service\n\nScaling: S3-managed\n\nBackup / Recovery: Versioning and lifecycle retention"
+        }
+      ],
+      "edges": [
+        {
+          "id": "user--cf",
+          "from": "user",
+          "to": "cf"
+        },
+        {
+          "id": "cf--s3web",
+          "from": "cf",
+          "to": "s3web"
+        },
+        {
+          "id": "user--alb",
+          "from": "user",
+          "to": "alb"
+        },
+        {
+          "id": "alb--api1",
+          "from": "alb",
+          "to": "api1"
+        },
+        {
+          "id": "alb--api2",
+          "from": "alb",
+          "to": "api2"
+        },
+        {
+          "id": "worker--rds",
+          "from": "worker",
+          "to": "rds"
+        },
+        {
+          "id": "api1--rds",
+          "from": "api1",
+          "to": "rds"
+        },
+        {
+          "id": "api2--rds",
+          "from": "api2",
+          "to": "rds"
+        },
+        {
+          "id": "api1--files3",
+          "from": "api1",
+          "to": "files3"
+        },
+        {
+          "id": "api2--files3",
+          "from": "api2",
+          "to": "files3"
+        }
+      ],
+      "omissions": [
+        "The example names no zones; tiers are each part's depth from the browser."
+      ]
+    }
+  },
+  "modules": []
+}

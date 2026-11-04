@@ -13,6 +13,26 @@ const groupMap=(plan:Extract<ReturnType<typeof compilePresentation>,{ok:true}>,i
 const decodedText=(source:string)=>source.replace(/#32;/gu,' ').replace(/<br\s*\/?\s*>/giu,' ').replace(/\\n/gu,' ').replace(/&quot;/gu,'"').replace(/&amp;/gu,'&').replace(/\s+/gu,' ');
 const tierApproximation=(plan:Extract<ReturnType<typeof compilePresentation>,{ok:true}>,index:number)=>plan.approximations.find(item=>item.sourcePath===`${base}/groups/${index}/tier`);
 
+test('an exact authored tier label carries its typed tier once without borrowing another group caption',()=>{
+ const candidate:Visual={id:'exact-tier-label-dedup',kind:'flow',form:'zoned',question:'Where are components placed?',groups:[
+  {id:'tier-one',label:'Tier 1',role:'tier',tier:1},
+  {id:'services',label:'Services',role:'zone',tier:2},
+  {id:'another-tier-one',label:'Tier 1',role:'tier',tier:1}
+ ],nodes:[{id:'browser',label:'Browser',group:'tier-one'},{id:'api',label:'API',group:'services'},{id:'worker',label:'Worker',group:'another-tier-one'}]};
+ const occurrenceCount=(text:string,value:string)=>text.split(value).length-1;
+ for(const backend of ['graphviz','mermaid','lini'] as const){
+  const plan=compile(candidate,'1.0.0',backend);expect(plan.ok,backend).toBe(true);if(!plan.ok)continue;
+  const text=decodedText(plan.source);
+  expect(occurrenceCount(text,'Tier 1')).toBe(2);
+  expect(occurrenceCount(text,'Tier 2')).toBe(1);
+  expect(text).toContain('Services');
+  for(const[index,group]of candidate.groups!.entries()){
+   expect(groupMap(plan,index)).toEqual({logicalId:group.id,sourcePath:`${base}/groups/${index}`,nativeId:`g${index+1}`,kind:'group'});
+   expect(tierApproximation(plan,index)?.requested).toBe(`Group tier ${group.tier}`);
+  }
+ }
+});
+
 test('zoned deployment maps every authored group, node, and edge and preserves literal tier values',()=>{
  const before=JSON.stringify(source);
  for(const backend of ['graphviz','mermaid','lini'] as const){

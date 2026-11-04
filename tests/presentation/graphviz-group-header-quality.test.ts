@@ -63,6 +63,58 @@ const generic:Visual={id:'renamed-group-header-proof',kind:'flow',form:'network'
  {id:'delivery-return',from:'sender',to:'editor',label:'return delivery receipt'},
 ]};
 
+const exactTierLabels:Visual={id:'exact-tier-label-dedup-proof',kind:'flow',form:'zoned',question:'Which tier owns each service?',groups:[
+ {id:'first-tier-one',label:'Tier 1',role:'zone',tier:1},
+ {id:'second-tier-one',label:'Tier 1',role:'zone',tier:1},
+ {id:'services',label:'Services',role:'zone',tier:2},
+ {id:'fourth-tier',label:'Tier 4',role:'zone',tier:4},
+],nodes:[
+ {id:'first-node',label:'First service',group:'first-tier-one'},
+ {id:'second-node',label:'Second service',group:'second-tier-one'},
+ {id:'service-node',label:'Service cluster',group:'services'},
+ {id:'fourth-node',label:'Fourth service',group:'fourth-tier'},
+],edges:[{id:'first-to-second',from:'first-node',to:'second-node',label:'separate source owners'}]};
+
+async function verifyFreshCheck(built:Built,mutate:(page:Page)=>Promise<void>,documentOverride:Document=built.document,planOverride:PresentationPlan=built.plan){
+ const page=await browser.newPage({viewport:{width:1600,height:900},deviceScaleFactor:1});try{await attach(page,built.svg);await mutate(page);const svg=await page.locator('#frame svg').evaluate(element=>element.outerHTML);await page.locator('#frame').evaluate((frame,content)=>{frame.innerHTML=content;},svg);return await verifyGraphvizGroupHeaderQuality(page,{document:documentOverride,plan:planOverride});}finally{await page.close();}
+}
+async function setGroupCaption(page:Page,nativeId:string,value:string|undefined){
+ const cluster=await clusterByTitle(page,nativeId),caption=cluster.locator(':scope > text').first();expect(await caption.count()).toBe(1);
+ if(value===undefined)await caption.evaluate(element=>element.remove());else await caption.evaluate((element,text)=>{element.textContent=text;},value);
+}
+
+test('Graphviz zoned tier captions deduplicate only exact authored labels and retain source-owned groups',async()=>{
+ const source=createVisualDocument(exactTierLabels,'test:exact-tier-label-dedup-proof','1.4.0'),built=await render(source);try{
+  expect(built.plan.elementMap.filter(item=>item.kind==='group')).toHaveLength(4);
+  const mappedGroups=exactTierLabels.groups!.map((group,index)=>mapped(built.plan,'group',group.id,index));
+  expect(new Set(mappedGroups.map(group=>group.nativeId)).size).toBe(4);
+  const baseline=result(built.checks);expect(baseline?.result,baseline?.details).toBe('pass');
+  for(const [index,expected] of ['Tier 1','Tier 1','Services Tier 2','Tier 4'].entries()){
+   const cluster=await clusterByTitle(built.page,mappedGroups[index]!.nativeId),text=await cluster.locator(':scope > text').allTextContents();
+   expect(text.join(' ').replace(/\s+/gu,' ').trim(),`group ${exactTierLabels.groups![index]!.id} native caption`).toBe(expected);
+  }
+
+  const first=await verifyFreshCheck(built,page=>setGroupCaption(page,mappedGroups[0]!.nativeId,undefined));
+  expect(first.result).toBe('fail');expect(first.details).toContain('glyph runs are missing');
+  const wrongTier=await verifyFreshCheck(built,page=>setGroupCaption(page,mappedGroups[2]!.nativeId,'Services Tier 9'));
+  expect(wrongTier.result).toBe('fail');expect(wrongTier.details).toContain('glyph runs are missing');
+  const crossBorrow=await verifyFreshCheck(built,page=>setGroupCaption(page,mappedGroups[2]!.nativeId,'Tier 4'));
+  expect(crossBorrow.result).toBe('fail');expect(crossBorrow.details).toContain('glyph runs are missing');
+
+  const wrongTierSource=createVisualDocument({...exactTierLabels,groups:exactTierLabels.groups!.map((group,index)=>index===2?{...group,tier:9}:group)},'test:wrong-source-tier','1.4.0');
+  const wrongSource=await verifyFreshCheck(built,async()=>{},wrongTierSource,built.plan);
+  expect(wrongSource.result).toBe('fail');expect(wrongSource.details).toContain('glyph runs are missing');
+  const swappedMap={...built.plan,elementMap:built.plan.elementMap.map(item=>item.kind==='group'&&item.logicalId==='services'?{...item,sourcePath:'/extensions/umf.visual/groups/3'}:item.kind==='group'&&item.logicalId==='fourth-tier'?{...item,sourcePath:'/extensions/umf.visual/groups/2'}:item)};
+  const wrongOwner=await verifyFreshCheck(built,async()=>{},built.document,swappedMap);
+  expect(wrongOwner.result).toBe('fail');expect(wrongOwner.details).toContain('Group source ownership is missing or duplicated');
+ }finally{await built.page.close();}
+ const derived=readVisualDocument(readFileSync('fixtures/reviews/definitions/tpl-arch-deployment.json','utf8'),'json') as Document,derivedBuilt=await render(derived);try{
+  expect(derivedBuilt.visual.groups?.length).toBeGreaterThan(0);
+  expect(result(derivedBuilt.checks)?.result,result(derivedBuilt.checks)?.details).toBe('pass');
+  expect(derivedBuilt.plan.elementMap.filter(item=>item.kind==='group')).toHaveLength(derivedBuilt.visual.groups!.length);
+ }finally{await derivedBuilt.page.close();}
+},{timeout:90_000});
+
  test('Graphviz group headers preserve bottom-left clearance, while centered native DOT reproduces the Cycle 34 collision',async()=>{
   const built=await render(fixture);try{
    const required=requiredPresentationChecks('graphviz',built.visual);expect(required).toContain(checkName);

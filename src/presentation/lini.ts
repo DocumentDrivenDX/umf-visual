@@ -29,7 +29,7 @@ const stableRoutedOrder=<T extends {id:string}>(items:T[],relations:Array<[strin
  return result;
 };
 const q=(value:string)=>quoteLiniProfile(value);
-const labelGroup=(group:VisualGroup,showTier=false)=>[group.label,showTier&&group.tier!==undefined?'Tier '+group.tier:undefined].filter(Boolean).join('\n');
+const labelGroup=(group:VisualGroup,showTier=false)=>{const generatedTier=showTier&&group.tier!==undefined?'Tier '+group.tier:undefined;return[group.label,generatedTier&&group.label!==generatedTier?generatedTier:undefined].filter(Boolean).join('\n');};
 const findPort=(node:VisualNode|undefined,id:string|undefined)=>id===undefined?undefined:node?.ports?.find(port=>port.id===id);
 const property=(name:string,value:string|number)=>`${name}: ${typeof value==='string'?value:String(value)};`;
 const liniIcons=new Set(['user','rocket','seal','presentation','heart','gear','cloud','house','database','folder-simple','cpu','bell','star','ghost','video-camera','wall','check','warning','globe','lock','key','lightning','magnifying-glass','arrow-right']);
