@@ -15,6 +15,7 @@ import {compileLiniBeforeAfterPresentation} from './lini-before-after';
 import {compileLiniRoadmapPresentation} from './lini-roadmap';
 import {compileNestedPresentation} from './nested';
 import {orderTiered} from './tier-layout';
+import {estimateGraphvizDagOrientation,hasFlatPipelineNodes} from './dag-orientation';
 
 export type PresentationBackend='graphviz'|'mermaid'|'lini';
 export interface PresentationOptions {backend:PresentationBackend;direction?:'LR'|'TB';theme?:'presentation/1';}
@@ -415,7 +416,10 @@ export function compilePresentation(document:Document,options:PresentationOption
  const mixedRouteIntent=requestedRoutes.length>1;
  const routeApproximation=(i:number,edge:NonNullable<Visual['edges']>[number],backendName:string,applicable:boolean,code?:PresentationApproximation['code'])=>{const reason=applicable?backendName:`${backendName} cannot apply both curved and straight edge intent per edge; this edge keeps the backend's default route and its requested ${edge.routing!.kind} geometry is not guaranteed.`;approximations.push({sourcePath:path('/edges/'+i+'/routing'),requested:'Edge routing '+edge.routing!.kind,representation:reason,...(code?{code}:{})});};
  if(backend==='graphviz'){
-  const rootLayout=visual.layout,zonedFlow=visual.kind==='flow'&&visual.form==='zoned',zonedDefaultTb=zonedFlow&&!rootLayout&&optionValues.direction===undefined,flowDirection=layoutDirection(rootLayout,rootLayout?.kind==='stack'||rootLayout?.kind==='grid'?'TB':zonedDefaultTb?'TB':dir);
+  const rootLayout=visual.layout,zonedFlow=visual.kind==='flow'&&visual.form==='zoned',zonedDefaultTb=zonedFlow&&!rootLayout&&optionValues.direction===undefined;
+  const adaptivePipeline=backend==='graphviz'&&visual.kind==='flow'&&visual.form==='pipeline'&&!rootLayout&&optionValues.direction===undefined&&hasFlatPipelineNodes(nodes,groups);
+  const pipelineOrientation=adaptivePipeline?estimateGraphvizDagOrientation(nodes,edges,labelNode,displayTitle(visual)):undefined;
+  const flowDirection=layoutDirection(rootLayout,rootLayout?.kind==='stack'||rootLayout?.kind==='grid'?'TB':zonedDefaultTb?'TB':pipelineOrientation?.direction??dir);
   const circular=rootLayout?.kind==='circular'&&visual.kind==='flow'?ordered(nodes,rootLayout.order):[];
   const circularSize=(node:VisualNode)=>{const text=labelNode(node).split('\n'),portWidth=Math.max(0,...(node.ports??[]).map(port=>(port.label??port.id).length+port.id.length+8)),width=Math.max(1.35,...text.map(line=>line.length*.105+.38),portWidth*.085+.45),height=Math.max(.58,text.length*.22+.22);return{id:node.id,width,height};};
   const circleSizes=circular.map(circularSize);
@@ -425,6 +429,7 @@ export function compilePresentation(document:Document,options:PresentationOption
   const nodeDefaults=circle?'margin="0.12,0.10"':'margin="0.22,0.17", width=2.35, height=1.08';
   const lines=['digraph UMFPresentation {','  graph ['+(circle?'layout="neato",':'rankdir='+dot(flowDirection)+',')+' bgcolor="transparent", pad="0.34", nodesep="0.46", ranksep="'+graphvizDefaultRanksep.toFixed(2)+'", splines='+splines+', overlap=false, compound=true, fontname="Arial", fontsize=22, fontcolor="#203746", labelloc="t", label='+dot(displayTitle(visual))+'];','  node [shape=box, style="rounded,filled", fillcolor="#e8f2f3", color="#577782", penwidth=1.7, fontname="Arial", fontsize=16, fontcolor="#203746", '+nodeDefaults+'];','  edge [fontname="Arial", fontsize='+(zonedFlow?'16':'12')+', color="#617984", fontcolor="#304652", penwidth=1.7, arrowsize=0.85];'];
   if(zonedDefaultTb)approx(path('/form'),'Default Graphviz direction TB for zoned groups','The renderer selects top-to-bottom placement when no caller direction or root layout is authored; literal tier values remain ordinal labels, not distance or timing.');
+  if(pipelineOrientation)approx(path('/form'),'Default Graphviz direction '+pipelineOrientation.direction+' for a pipeline without an authored layout','A private text-and-rank extent estimate compares left-to-right and top-to-bottom fit in a 1600×900 presentation frame. The selected direction is a renderer placement choice; authored node and edge content, including return links, remains unchanged.');
   const nodeStatement=(n:VisualNode):string=>{
    const id=nodeIds.get(n.id)!;
    if(n.shape==='multiple-documents'){

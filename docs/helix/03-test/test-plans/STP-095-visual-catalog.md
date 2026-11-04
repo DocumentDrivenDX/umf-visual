@@ -914,3 +914,35 @@ replay/site/public/packed-consumer gates pass, with 72 native SVG/PNG replays an
 errors; catalog/showcase UI pass. Exact source authority and existing CONTRACT-089
 semantics remain unchanged. Private local-grid caption-normal correction preserves
 all nonmatching policies and strict native proof without new model fields.
+
+
+Implicit orientation controls compare renderer-owned content estimates only when
+caller direction and authored layout are absent. Verify short/branching and long
+caption cases, explicit overrides, renamed return links and excluded fallback
+profiles. Estimates include multiline visible text and scene budgets without
+claiming exact native bounds; actual fit, full edge inventory and owned text checks
+remain mandatory. Source topology and return semantics are unchanged by placement.
+
+Cycle 32 focused checkpoint: source 4/42, the current 15-test focused/source run
+and a separate five-test legacy native CI run pass; overlapping runs are not
+summed. Source/type checks are green. The qualifying Graphviz portrait retains all nine edges;
+existing pipeline controls pass. Runtime changes require the full applicable gates,
+which remain pending; this checkpoint is not completion or a quality waiver.
+
+
+Cycle 32 full-suite checkpoint: the first frozen full run passes 957 tests, zero
+failures and 24,660 assertions across 170 files in 170.46 seconds. Source/type,
+build, runtime fetch and packed-consumer gates pass. Remaining integrated/browser/
+corpus/UI gates are pending; no cycle completion or broader support claim follows.
+
+
+Cycle 32 closeout: 957 tests pass with zero failures, 24,660 assertions across
+170 files in 170.46 seconds. All required source/type/build/native/corpus/public/
+packed-consumer and UI gates pass. Reviews cover 31 documents, 70 qualified and
+five unqualified renders, 18 semantic refusals, 225 assets and 75 SVG/PNG replays.
+All-mode 31/31 and selected-mode 1/31 UI receipts retain shared controls and zero
+errors; catalog/showcase UI pass. Exact source authority, prior failure sets and
+quality thresholds are preserved. The implicit Graphviz orientation remains a
+private placement estimate; explicit overrides, full source topology and actual
+native proof remain authoritative. Cycle 32 is complete, ready for commit;
+previous pending checkpoints are resolved and cycle 33 waits for that commit.

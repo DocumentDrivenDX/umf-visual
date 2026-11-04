@@ -3174,6 +3174,104 @@ portable fields, algorithm mandate or host capability claim were added. Commit
 follows in this change; git history is authoritative. Cycle 32 remains pending until
 cycle 31 is committed; this resolves all previous checkpoint holds.
 
+### Thirty-second-cycle scope — fictional overview pipeline
+
+Cycle 32 is in progress using exact authoritative source
+`fixtures/visual/inventory/beacon-overview.json`, SHA-256
+`d84472162bc0367eb28bda2c11659c997cc09ef39bf6b08b0ad436f2983663da`.
+Matching fictional architecture TOML explicitly declares overview and its seven
+selected elements/title/takeaway. Audit nine induced relations, four why qualifiers
+and four authored step captions/focus against source before exact-alias freeze.
+Preserve API-to-web return kind, original IDs/details/roles/statuses and absence of
+groups/layout. Do not infer deployment/current state, concurrency or extra sequence
+facts from generic pipeline packing.
+
+Reuse existing ungrouped DAG rendering where qualified: non-return links may set
+private ranks, but every source edge including return remains drawn/accounted for.
+Static native walkthrough omissions remain consumer-neutral; shared review context
+preserves exact ordered steps. No new model/source fields are indicated. If runtime
+already qualifies, use lean focused source/native plus real review/replay/site,
+selected UI/shared controls/global validation and consumers; concrete runtime/proof
+changes reopen full applicable gates. Commit cycle 32 before cycle 33.
+
+### Cycle 32 focused checkpoint — implicit Graphviz orientation
+
+The exact source and fictional TOML selection audit passes 4 tests / 42 assertions;
+original IDs, nine relations including the return, and four authored steps remain
+unchanged. Baseline horizontal previews were too small. An explicit top-to-bottom
+Graphviz probe qualifies, so a private flat-pipeline DAG extent estimate may select
+that direction only when caller direction and authored layout are absent. Estimates
+use emitted node captions, edge captions, title and frame budgets; actual native
+fit, text and ownership checks remain the qualification authority. Both-fitting
+estimates retain left-to-right, and return edges remain drawn while excluded from
+rank inference. No portable field or semantic ordering is added.
+
+The current focused/source run passes 15 tests; a separate legacy native CI run
+passes five tests (these runs are not summed). Source/type checks are green: short/branching cases retain their suitable direction, long captions and
+renamed return links remain source-bound, explicit caller/layout directions win,
+and cyclic, headless, grouped or parented inputs retain existing fallback policy.
+The current overview Graphviz portrait is 549×994 with all required checks and all
+nine source edges; existing nightly/CI pipeline native controls also pass. The
+final helper accounts for multiline title width/height and removes the unused
+rank-gap parameter. Mermaid and
+Lini retain successful but unqualified native evidence rather than semantic
+inability claims. Full applicable runtime/native/corpus/consumer/UI gates remain
+pending; cycle 32 is incomplete and cycle 33 remains gated on its commit.
+
+### Cycle 32 full-suite checkpoint — remaining gates pending
+
+The first frozen full run passes 957 tests, zero failures and 24,660 assertions
+across 170 files in 170.46 seconds (`.cache/cycle32-full-test.log`). Source/type,
+SDK build, pinned-runtime fetch and packed Bun/Node consumer gates pass. The final
+metadata says “for a pipeline without an authored layout,” correctly describing
+an implicit renderer choice rather than source authorship. The private estimator
+and exact-source/model boundary audit are approved; CONTRACT-089 is unchanged.
+Remaining browser/native/corpus/review/site/UI gates are pending. Cycle 32 remains
+incomplete and cycle 33 cannot begin until its completed per-document commit.
+
+### Cycle 32 integrated checkpoint — final UI pending
+
+Fresh built reviews contain 31 examples, 70 qualified and five unqualified native
+renders, 18 semantic refusals and 225 assets. Verification passes 75 native SVG and
+75 PNG replays. The original three unqualified results retain their exact failed
+checks: deployment Mermaid font/overlap, deployment Lini endpoints/font and nested
+estate Mermaid font. Overview adds Mermaid font-only and Lini endpoints/font;
+all nine mapped edges remain present on every backend. No quality check is waived.
+
+The actual built Graphviz portrait is independently inspected: seven readable
+source nodes and all nine directed connections, including the
+separate return arrow, remain visible. Its PNG SHA-256 is
+`7a99b3f8fbd49b5a3c1f62ec74c338a5c3cf7c31bee140e739f43040d1829eef`.
+Definition/source SHA remains `d84472162bc0367eb28bda2c11659c997cc09ef39bf6b08b0ad436f2983663da`;
+YAML retains original metadata, rationale and ordered walkthrough with no added
+semantic fields. Static-export limitations remain located; shared context is a
+separate consumer view. Final UI gates and cycle completion remain pending.
+
+### Cycle 32 closeout — complete, ready for commit
+
+All required gates pass. The authoritative full run is 957 passed, zero failures,
+24,660 assertions across 170 files in 170.46 seconds. Source/type/build, pinned
+runtime fetch/native execution, catalog 53, showcase nine examples/23 qualified,
+public browser and packed Bun/Node consumers pass. Fresh review receipts cover
+31 documents, 70 qualified, five unqualified, 18 unsupported and 225 assets, with
+75 native SVG and 75 PNG replays. Review UI all 31/31 and selected 1/31 retain
+shared controls and zero errors; catalog/showcase UI pass without errors.
+
+Exact Visual 1.0 source and historical fictional TOML authority remain unchanged.
+The independently inspected built Graphviz portrait and its recorded hash qualify
+all seven nodes and nine edges, including the return. New Mermaid font-only and
+Lini endpoint/font failures remain visible unqualified outcomes; the prior three
+unqualified failure sets are unchanged. No check, failure set or static-view
+limitation was waived. Native rationale/steps/context limitations remain located.
+
+Final model/interface/modularity review approves a private Graphviz extent
+estimate only for layout-free, caller-direction-free flat pipeline DAGs; explicit
+overrides and unsupported-estimate fallbacks preserve existing policy. Estimates
+are not native guarantees, do not alter topology or create portable semantics,
+and do not expand historical host support. CONTRACT-089 remains unchanged. All
+previous pending checkpoints are resolved by this closeout. Freeze for the
+per-document commit; cycle 33 must not start before cycle 32 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -3190,7 +3288,9 @@ Cycle 21 is committed as `b9257c8`; cycle 22 is committed as `ae58a76`.
 Cycle 23 is committed as `8efc657`; cycle 24 is committed as `5af7b4c`.
 Cycle 25 is committed as `2374106`; cycle 26 is committed as `2bd17fd`.
 Cycle 27 is committed as `05b2b84`; cycle 28 is committed as `587471d`.
-Cycle 29 is in progress; cycles 30–68 remain pending.
+Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
+Cycle 31 is committed as `34c2a63`. Cycle 32 is complete and ready for commit;
+cycles 33–68 remain pending, with cycle 33 gated on the cycle 32 commit.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 
