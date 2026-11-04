@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {afterAll,beforeAll,describe,expect,it} from 'bun:test';
-import {readFileSync} from 'node:fs';
+import {existsSync,readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {chromium,type Browser, type Page} from 'playwright';
 import {createVisualDocument,getVisual,readVisualDocument,type Visual} from '../../src/extensions/visual';
@@ -621,10 +621,11 @@ describe('pinned Lini presentation quality',()=>{
   }finally{await page.close();}
  });
 
- it('replays all six actual showcase definitions through pinned Lini and Chromium',async()=>{
-  const root=resolve(import.meta.dir,'../..'),manifest=JSON.parse(readFileSync(resolve(root,'fixtures/showcase/showcase-sources.json'),'utf8')) as {examples:Array<{id:string;definitionPath:string}>};
+ it('replays all original showcase baselines through pinned Lini and Chromium',async()=>{
+  const root=resolve(import.meta.dir,'../..'),manifest=JSON.parse(readFileSync(resolve(root,'fixtures/showcase/showcase-sources.json'),'utf8')) as {examples:Array<{id:string}>};
   for(const example of manifest.examples){
-   const document=readVisualDocument(readFileSync(resolve(root,example.definitionPath),'utf8'),'json'),plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});
+   const originalPath=resolve(root,'fixtures/showcase/definitions',example.id+'.json');expect(existsSync(originalPath),`${example.id} original showcase source exists`).toBe(true);
+   const document=readVisualDocument(readFileSync(originalPath,'utf8'),'json'),plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});
    expect(plan.ok,`${example.id} must compile to current Lini`).toBe(true);if(!plan.ok)continue;
    const native=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900}});
    try{

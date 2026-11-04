@@ -485,17 +485,28 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
      if(field.nullable!==undefined)approx(path('/structure/entities/'+i+'/fields/'+j+'/nullable'),field.nullable?'Nullable field':'Non-nullable field','Lini displays NULL/NOT NULL as a visible field-row badge; the native entity row does not assert a database nullability constraint.');
     }
     const customPorts=(node.ports??[]).map((port,j)=>`|cell#p${j+1}| ${quoteChecked(portCaption(port),path('/nodes/'+nodes.indexOf(node)+'/ports/'+j+'/label'))} { pin: ${port.side?({north:'top',east:'right',south:'bottom',west:'left'} as const)[port.side]:'right'}; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }`);
-    const visibleEntityTitle=node.label;
+    const entityNodePath='/nodes/'+nodes.indexOf(node),entityLabelPath=path(entityNodePath+'/label');
+    // Validate the original detail at its own source pointer before composing
+    // it into the full-width heading. A lone `cell#detail` occupies one slot
+    // in Lini's two-column entity grid and shifts every subsequent field row.
+    if(node.detail!==undefined)quoteChecked(node.detail,path(entityNodePath+'/detail'));
+    const headerParts=node.detail===undefined?[node.label]:[node.label,node.detail];
     const props=nodeStyle(node).properties;
     const iconSymbol=node.icon?liniIcon(node.icon):undefined;
-    const iconChild=iconSymbol?`|icon| { symbol: ${iconSymbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:node.icon?`|cell#icon| ${quoteChecked('Icon: '+node.icon,path('/nodes/'+nodes.indexOf(node)+'/icon'))}`:undefined;
-    const secondary=[node.detail?`|cell#detail| ${quoteChecked(node.detail,path('/nodes/'+nodes.indexOf(node)+'/detail'))}`:undefined,node.shape?`|cell#shape| ${quoteChecked('(requested shape: '+node.shape+')',path('/nodes/'+nodes.indexOf(node)+'/shape'))}`:undefined,iconChild,...fields,...customPorts].filter((line):line is string=>!!line);
-    entityRows.set(node.id,`|entity#${id}| ${quoteChecked(visibleEntityTitle,path('/nodes/'+nodes.indexOf(node)+'/label'))}${props.length?' { '+props.join(' ')+' }':''} [\n${secondary.map(line=>'  '+line).join('\n')}\n]`);
+    const iconChild=iconSymbol?`|icon| { symbol: ${iconSymbol}; width: 18; height: 18; fill: none; stroke: --blue-deep; }`:undefined;
+    const visibleEntityTitle=quoteChecked(headerParts.join('\n\n'),entityLabelPath);
+    const shapeCell=node.shape?`|cell#shape| ${quoteChecked('(requested shape: '+node.shape+')',path(entityNodePath+'/shape'))}`:undefined;
+    const iconFallback=node.icon&&!iconSymbol?`|cell#icon| ${quoteChecked('Icon: '+node.icon,path(entityNodePath+'/icon'))}`:undefined;
+    // Keep single-cell metadata after complete field rows. Otherwise the
+    // native entity grid auto-fills the remaining column with the first field
+    // name and makes each subsequent name appear beside the prior type.
+    const secondary=[...fields,shapeCell,iconFallback,iconChild,...customPorts].filter((line):line is string=>!!line);
+    entityRows.set(node.id,`|entity#${id}| ${visibleEntityTitle}${props.length?' { '+props.join(' ')+' }':''} [\n${secondary.map(line=>'  '+line).join('\n')}\n]`);
     for(const [field,requested,representation] of nodeStyle(node).approximations){
      const entityRepresentation=field==='role'?'Lini applies the role palette convention to the entity card fill, stroke, and text; entity cards keep a fixed table silhouette, so role-derived node glyphs do not apply.':representation;
      approx(path('/nodes/'+nodes.indexOf(node)+'/'+field),requested.replace(/^Node/u,'Entity'),entityRepresentation);
     }
-    if(node.shape)approx(path('/nodes/'+nodes.indexOf(node)+'/shape'),'Entity shape '+node.shape,'A visible native detail cell identifies the requested shape; Lini entity cards have a fixed table silhouette.');
+    if(node.shape)approx(path(entityNodePath+'/shape'),'Entity shape '+node.shape,'A visible native detail cell identifies the requested shape; Lini entity cards have a fixed table silhouette.');
    }
    const entityComponents=nodes.map(node=>({id:node.id,row:entityRows.get(node.id)??standaloneRows.get(node.id)})).filter((item):item is {id:string;row:string}=>item.row!==undefined);
    children.push(...ordered(entityComponents,rootLayout?.order).map(item=>item.row));

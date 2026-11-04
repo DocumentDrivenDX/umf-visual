@@ -134,11 +134,11 @@
     {
       "id": "umf-logical-metamodel",
       "title": "The logical UMF metamodel",
-      "description": "Document, Module, Element and Relationship records with selected authored fields from the public UMF metamodel source.",
+      "description": "Selected Document, Module, Element and Relationship records with authored field shapes and logical record-target links. The view preserves source descriptions and explicitly excludes unshown members and source presence/shape constraints; it makes no SQL key or nullability claims.",
       "kind": "structure",
       "form": "entities",
-      "definitionPath": "fixtures/showcase/definitions/umf-logical-metamodel.json",
-      "definitionSha256": "7bb3b9096f1af8206e301a1880e454bc515f2ed58302567c321ef970047a2990",
+      "definitionPath": "fixtures/showcase/definitions/umf-logical-metamodel-reviewed.json",
+      "definitionSha256": "40d510bda34020bbd340a07099a09214164c37837d4762e0106b61cb38fa3c75",
       "sources": [
         {
           "path": "fixtures/showcase/sources/umf/metamodel.yaml",
@@ -146,8 +146,32 @@
           "originRepository": "DocumentDrivenDX/umf",
           "originPath": "spec/metamodel/umf.yaml",
           "originSha256": "1e406ee49b0c4c08b8eb996bb1fcb6e96fa8d6f4673f0877aa1800986b2dbbce",
-          "pointer": "modules[id=umf].elements[id in document, module, element, relationship]",
-          "description": "Exact public metamodel YAML snapshot. Only declared logical records and fields are shown; SQL key and nullability concepts are not inferred."
+          "pointer": "modules[id=umf].elements[id=document,module,element,relationship], selected fields, record-member lists and link targets",
+          "description": "Exact public metamodel YAML snapshot. Selected records and fields supply source descriptions, logical shapes and links. Link fields target record types rather than id fields; unshown members and presence/shape refinements remain inspectable in the source."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-logical-metamodel.json",
+          "sha256": "7bb3b9096f1af8206e301a1880e454bc515f2ed58302567c321ef970047a2990",
+          "originPath": "fixtures/showcase/definitions/umf-logical-metamodel.json",
+          "originSha256": "7bb3b9096f1af8206e301a1880e454bc515f2ed58302567c321ef970047a2990",
+          "pointer": "Original Visual 1.1.0 definition",
+          "description": "The original four-record selected-fields projection is preserved byte-for-byte as the baseline for the reviewed definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/umf/metamodel.yaml",
+          "sha256": "1e406ee49b0c4c08b8eb996bb1fcb6e96fa8d6f4673f0877aa1800986b2dbbce",
+          "outputPath": "showcase/umf-logical-metamodel/metamodel.yaml",
+          "mediaType": "application/yaml",
+          "description": "Exact pinned public metamodel YAML bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-logical-metamodel.json",
+          "sha256": "7bb3b9096f1af8206e301a1880e454bc515f2ed58302567c321ef970047a2990",
+          "outputPath": "showcase/umf-logical-metamodel/original-visual-1.1.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.1.0 curated definition bytes, preserved separately from the reviewed definition."
         }
       ]
     },

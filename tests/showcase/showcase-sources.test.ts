@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {inspectVisual,type Visual} from '../../src';
 import type {Document} from '@umf/core';
+import {parse as parseYaml} from 'yaml';
 
 type SourceRef={path:string;sha256:string;originPath:string;originSha256:string;pointer:string;description:string;originRepository?:string;originCommit?:string;originTag?:string;originTagObject?:string};
 type ShowcaseExample={id:string;title:string;description:string;kind:Visual['kind'];form:Visual['form'];definitionPath:string;definitionSha256:string;sources:SourceRef[];publishedAssets?:Array<{path:string;sha256:string;outputPath:string;mediaType?:string;description?:string}>};
@@ -296,12 +297,96 @@ test('logical metamodel E/R contains no invented database key or nullability cla
  const example=manifest.examples.find(row=>row.id==='umf-logical-metamodel')!;
  const doc=document(example),v=visual(doc),source=read(example.sources[0]!.path).toString('utf8');
  expect(doc.vocabularies['umf.visual']?.version).toBe('1.1.0');
+ expect(example.definitionPath).toBe('fixtures/showcase/definitions/umf-logical-metamodel-reviewed.json');
  expect(v.nodes?.map(node=>node.label)).toEqual(['Document','Module','Element','Relationship']);
+ expect(v.nodes?.map(node=>node.detail)).toEqual([
+  'A Document groups Modules and declares the vocabularies used by its extension content. Its identifier names the complete metadata envelope.',
+  'A Module gives Elements and Relationships a namespace within a Document.',
+  'An Element describes a Field, Record or Group within a Module. References connect Elements without assuming a particular storage or compute implementation.',
+  'UMF language relationship'
+ ]);
  expect(v.structure?.entities).toHaveLength(4);
  expect(v.structure?.entities?.every(entity=>entity.fields.every(field=>field.keys===undefined&&field.nullable===undefined))).toBe(true);
  expect(v.structure?.references?.map(reference=>reference.label)).toEqual(['modules','elements','relationships']);
+ expect(v.structure?.references?.map(reference=>reference.to)).toEqual([{node:'module'},{node:'element'},{node:'relationship'}]);
+ expect(v.structure?.references?.every(reference=>reference.fromCardinality===undefined&&reference.toCardinality===undefined&&reference.fromMultiplicity===undefined&&reference.toMultiplicity===undefined)).toBe(true);
+ expect(v.structure?.entities?.flatMap(entity=>entity.fields).find(field=>field.name==='extensions')?.type).toBe('link<extensions>');
+ expect(v.structure?.entities?.flatMap(entity=>entity.fields).filter(field=>field.name.endsWith('Multiplicity')).map(field=>field.type)).toEqual(['link<relationshipMultiplicity>','link<relationshipMultiplicity>']);
+ expect(v.omissions).toEqual(['Other members and source-defined presence and shape constraints are outside this selected fields view.']);
  for(const token of ['id: document.modules','id: module.elements','id: module.relationships','id: relationship.sourceMultiplicity','id: relationship.targetMultiplicity'])expect(source).toContain(token);
  expect(v.takeaway).toMatch(/do not assert relational primary keys, foreign keys or database nullability/u);
+});
+
+test('reviewed logical metamodel preserves original bytes and maps only selected source members and record links',()=>{
+ const example=manifest.examples.find(row=>row.id==='umf-logical-metamodel')!;
+ const originalPath='fixtures/showcase/definitions/umf-logical-metamodel.json';
+ const sourcePath='fixtures/showcase/sources/umf/metamodel.yaml';
+ const originalBytes=read(originalPath),originalDoc=JSON.parse(originalBytes.toString('utf8')) as Document;
+ const reviewedDoc=document(example),expected=structuredClone(originalDoc) as any;
+ const sourceText=read(sourcePath).toString('utf8'),metamodel=parseYaml(sourceText) as any;
+ const sourceModule=metamodel.modules.find((module:any)=>module.id==='umf');
+ const sourceElements=sourceModule.elements as any[],sourceElementById=new Map(sourceElements.map(element=>[element.id,element]));
+ const expectedDetails:Record<string,string>={
+  document:'A Document groups Modules and declares the vocabularies used by its extension content. Its identifier names the complete metadata envelope.',
+  module:'A Module gives Elements and Relationships a namespace within a Document.',
+  element:'An Element describes a Field, Record or Group within a Module. References connect Elements without assuming a particular storage or compute implementation.',
+  relationship:'UMF language relationship'
+ };
+ const expectedFields:Record<string,string[]>={
+  document:['id','vocabularies','modules','extensions','title'],
+  module:['id','namespace','elements','relationships'],
+  element:['id','name','scalarType','references','kind','members','keys'],
+  relationship:['id','name','source','target','sourceMultiplicity','targetMultiplicity','directed']
+ };
+ const expectedTypes:Record<string,string>={
+  'document.id':'link<id>','document.vocabularies':'object<versioned vocabulary entries>','document.modules':'sequence<link<Module>>','document.extensions':'link<extensions>','document.title':'string',
+  'module.id':'link<id>','module.namespace':'string','module.elements':'sequence<link<Element>>','module.relationships':'sequence<link<Relationship>>',
+  'element.id':'link<id>','element.name':'string','element.scalarType':'link<scalarType>','element.references':'sequence<link<reference>>','element.kind':'text','element.members':'sequence<link<keyFieldReference>>','element.keys':'sequence<link<key>>',
+  'relationship.id':'link<id>','relationship.name':'link<id>','relationship.source':'sequence<link<relationshipEndpoint>>','relationship.target':'sequence<link<relationshipTarget>>','relationship.sourceMultiplicity':'link<relationshipMultiplicity>','relationship.targetMultiplicity':'link<relationshipMultiplicity>','relationship.directed':'boolean'
+ };
+ const originalVisual=expected.extensions['umf.visual'];
+ originalVisual.nodes.forEach((node:any)=>node.detail=expectedDetails[node.id]);
+ const docExtensions=originalVisual.structure.entities.find((entity:any)=>entity.node==='document').fields.find((field:any)=>field.name==='extensions');docExtensions.type='link<extensions>';
+ const relationFields=originalVisual.structure.entities.find((entity:any)=>entity.node==='relationship').fields;
+ for(const field of relationFields.filter((field:any)=>field.name.endsWith('Multiplicity')))field.type='link<relationshipMultiplicity>';
+ const elementFields=originalVisual.structure.entities.find((entity:any)=>entity.node==='element').fields;
+ originalVisual.structure.entities.find((entity:any)=>entity.node==='element').fields=['id','name','scalarType','references','kind','members','keys'].map((name:string)=>elementFields.find((field:any)=>field.name===name));
+ for(const reference of originalVisual.structure.references){delete reference.to.field;delete reference.to.fieldId;}
+ originalVisual.omissions=['Other members and source-defined presence and shape constraints are outside this selected fields view.'];
+ expect(reviewedDoc).toEqual(expected);
+ expect(reviewedDoc.vocabularies['umf.visual']?.version).toBe('1.1.0');
+ expect(originalDoc.vocabularies['umf.visual']?.version).toBe('1.1.0');
+ expect((originalDoc.extensions?.['umf.visual'] as any)?.omissions).toBeUndefined();
+ const reviewed=visual(reviewedDoc);
+ for(const entity of reviewed.structure!.entities!){
+  const record=sourceElementById.get(entity.node) as any;
+  expect(record?.kind,entity.node).toBe('record');
+  expect(reviewed.nodes?.find(node=>node.id===entity.node)?.detail).toBe(expectedDetails[entity.node]);
+  const sourceMemberNames=record.members.map((member:any)=>(sourceElementById.get(member.element) as any)?.name);
+  const selectedNames=new Set(expectedFields[entity.node]);
+  expect(sourceMemberNames.filter((name:string)=>selectedNames.has(name))).toEqual(expectedFields[entity.node]);
+  expect(entity.fields.map(field=>field.name)).toEqual(expectedFields[entity.node]);
+  for(const field of entity.fields){
+   const sourceField=sourceElementById.get(`${entity.node}.${field.name}`) as any;
+   expect(sourceField?.kind,`${entity.node}.${field.name}`).toBe('field');
+   expect(sourceField?.name).toBe(field.name);
+   expect(field.type).toBe(expectedTypes[`${entity.node}.${field.name}`]);
+  }
+ }
+ const field=(id:string)=>sourceElementById.get(id) as any;
+ expect(field('document.extensions').extensions['umf.metamodel'].shape).toEqual({tag:'link',target:'extensions'});
+ expect(field('document.vocabularies').extensions['umf.metamodel'].shape.key).toEqual({tag:'link',target:'id'});
+ expect(field('document.vocabularies').extensions['umf.metamodel'].shape.open.fields.version).toEqual({tag:'link',target:'version'});
+ expect(field('element.members').extensions['umf.metamodel'].shape).toMatchObject({tag:'sequence',item:{tag:'link',target:'keyFieldReference'},unique:true});
+ expect(field('relationship.source').extensions['umf.metamodel'].shape).toMatchObject({tag:'sequence',item:{tag:'link',target:'relationshipEndpoint'},min:1});
+ expect(field('relationship.target').extensions['umf.metamodel'].shape).toMatchObject({tag:'sequence',item:{tag:'link',target:'relationshipTarget'},min:1});
+ expect(reviewed.structure?.references?.map(reference=>[reference.from.node,reference.from.field,reference.to.node,reference.to.field])).toEqual([
+  ['document','modules','module',undefined],['module','elements','element',undefined],['module','relationships','relationship',undefined]
+ ]);
+ expect(example.sources.map(ref=>ref.path)).toContain(originalPath);
+ expect(example.publishedAssets?.map(asset=>asset.outputPath)).toContain('showcase/umf-logical-metamodel/original-visual-1.1.json');
+ expect(hash(originalBytes)).toBe('7bb3b9096f1af8206e301a1880e454bc515f2ed58302567c321ef970047a2990');
+ expect(hash(read(sourcePath))).toBe('1e406ee49b0c4c08b8eb996bb1fcb6e96fa8d6f4673f0877aa1800986b2dbbce');
 });
 
 test('Beacon relational rows and links match the pinned SQL migrations',()=>{

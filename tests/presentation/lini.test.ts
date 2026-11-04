@@ -130,6 +130,29 @@ describe('Lini presentation compiler',()=>{
   expect(result.elementMap).toContainEqual({logicalId:'workspace-id',sourcePath:'/extensions/umf.visual/structure/entities/0/fields/0',nativeId:'n1.f1',kind:'field'});expect(result.elementMap).toContainEqual({logicalId:'membership',sourcePath:'/extensions/umf.visual/structure/references/0',nativeId:'r1',kind:'reference'});expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/entities/0/fields/0/keys')).toBe(true);expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/entities/0/fields/0/nullable')).toBe(true);
  });
 
+ it('keeps entity metadata in the full-width heading so name/type field pairs stay aligned',()=>{
+  const visual:Visual={id:'renamed-entity-metadata',kind:'structure',form:'entities',question:'Which records are described?',nodes:[
+   {id:'workspace-record',label:'Workspace',detail:'A workspace owns projects and their membership.\n\nThe second authored paragraph remains distinct.',shape:'diamond',icon:'database'},
+   {id:'project-record',label:'Project',detail:'A project belongs to one workspace.',icon:'cloud'}
+  ],structure:{entities:[
+   {node:'workspace-record',fields:[{id:'workspace-id',name:'id',type:'link<id>',keys:['pk'],nullable:false},{id:'workspace-label',name:'display_name',type:'string'},{id:'workspace-owner',name:'owner',type:'link<User>'}]},
+   {node:'project-record',fields:[{id:'project-id',name:'id',type:'link<id>'},{id:'project-parent',name:'workspace',type:'link<Workspace>'}]}
+  ],references:[{id:'project-workspace',from:{node:'project-record',fieldId:'project-parent'},to:{node:'workspace-record'},fromCardinality:'zero-or-many',toCardinality:'exactly-one'}]}};
+  const source=createVisualDocument(visual,'test:'+visual.id,'1.4.0');
+  const result=compilePresentation(source,{backend:'lini'});expect(result.ok,JSON.stringify(result)).toBe(true);if(!result.ok)return;
+  expect(result.source).toContain('|entity#n1| "Workspace\\n\\nA workspace owns projects and their membership.\\n\\nThe second authored paragraph remains distinct."');
+  expect(result.source).not.toContain('|cell#detail|');
+  const workspaceHeader=result.source.indexOf('|entity#n1|'),workspaceFirstField=result.source.indexOf('|cell#f1|'),workspaceLastField=result.source.indexOf('|cell#f3|');
+  expect(workspaceHeader).toBeLessThan(workspaceFirstField);expect(workspaceFirstField).toBeLessThan(workspaceLastField);
+  expect(workspaceLastField).toBeLessThan(result.source.indexOf('|cell#shape|'));
+  expect(result.source).toContain('|entity#n2| "Project\\n\\nA project belongs to one workspace."');
+  expect(workspaceLastField).toBeLessThan(result.source.indexOf('|icon| { symbol: database;'));
+  expect(result.source.indexOf('|cell#f2| "workspace"; "link<Workspace>"')).toBeLessThan(result.source.indexOf('|icon| { symbol: cloud;'));
+  expect(result.elementMap).toContainEqual({logicalId:'workspace-id',sourcePath:'/extensions/umf.visual/structure/entities/0/fields/0',nativeId:'n1.f1',kind:'field'});
+  expect(result.elementMap).toContainEqual({logicalId:'project-workspace',sourcePath:'/extensions/umf.visual/structure/references/0',nativeId:'r1',kind:'reference'});
+  expect(result.source).toContain('n2.f2:left >o-++ n1');
+ });
+
  it('renders entity annotations in a separate native footer without changing field or relationship rows',()=>{
   const visual:Visual={id:'renamed-entity-annotations',kind:'structure',form:'entities',question:'How do records connect?',title:'Ledger entities',structure:{entities:[
    {node:'account-record',fields:[{id:'account-key',name:'account_id',type:'uuid',keys:['pk'],nullable:false},{id:'account-name',name:'display_name',type:'text',nullable:false}]},
