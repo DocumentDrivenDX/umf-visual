@@ -2732,6 +2732,61 @@
         "sourceDownloadPath": "reviews/helix-solution-overview/authoritative-source.json",
         "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition preserves all original fields and adds the exact context-view takeaway; appends each selected element's exact `job` sentence to its existing detail with two line breaks, retaining the detail as prefix; and adds six ordered walkthrough steps from relation records with source `step` 1–6 (exact relation label/note and existing edge focus ID), followed by one unnumbered `when: optional` step from the final relation (exact label/note/focus), grounded by `why: optional host tooling`. All nodes, labels, existing details, role/status/evidence fields, edges, why/status/evidence fields, lanes/memberships, IDs, title/question/audience, and source metadata otherwise remain unchanged. The cited architecture-model TOML bytes match the fixture digest exactly. The four lane groups correspond to selected source element `layer` values; lane IDs/role are Visual projections. The context view's source title remains in the published TOML; the authored Visual title is not replaced. Its `direction: LR` is source-only because this Visual 1.0.0 shape has no direction field. The source model's built statuses and evidence are authored records, not checks of current deployment or runtime behavior."
       }
+    },
+    {
+      "id": "tpl-arch-components",
+      "title": "Level 3: Component Diagram",
+      "description": "A source-bound component view that restores the exact component purposes, notes, and API Service membership.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/reviews/definitions/tpl-arch-components.json",
+      "definitionSha256": "1716aa182027bac5676e3aa630a61041bcea142df35d05f4743b8044e400fbec",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/tpl-arch-components.json",
+          "sha256": "e6fad659ece00591cb3481052dcb819ad212a0a6abde38a0df7e537f4bd7770d",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies six component labels, six directed connections, source title/question, and cited architecture-example locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-example.md",
+          "sha256": "4c79ba17f9d9342592c062b9a51cef0232816004b59f110488f696e7a8e191b8",
+          "pointer": "Level 3: Component Diagram introduction, component table and Mermaid graph",
+          "label": "Cited HELIX architecture example",
+          "originalLocator": "helix:workflows/activities/02-design/artifacts/architecture/example.md",
+          "resolvedSource": "helix/workflows/activities/02-design/artifacts/architecture/example.md",
+          "observedRevision": "19065f860a9e26b0cb52831de59b524ed6a55de6",
+          "description": "Exact Markdown bytes resolved from the fixture locator at the recorded HELIX commit. The Level 3 table supplies five API Service components with exact Purpose and Notes; its Container column grounds their shared membership. The Level 3 Mermaid graph supplies the six directed connections, including PostgreSQL. The file is an architecture example for DepositMatch, not a claim about a deployed product."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/tpl-arch-components.json",
+          "sha256": "e6fad659ece00591cb3481052dcb819ad212a0a6abde38a0df7e537f4bd7770d",
+          "outputPath": "reviews/tpl-arch-components/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-example.md",
+          "sha256": "4c79ba17f9d9342592c062b9a51cef0232816004b59f110488f696e7a8e191b8",
+          "outputPath": "reviews/tpl-arch-components/architecture-example.md",
+          "mediaType": "text/markdown",
+          "description": "Exact historical architecture-example Markdown bytes resolved from the original HELIX locator."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/tpl-arch-components.json",
+        "sourceSha256": "e6fad659ece00591cb3481052dcb819ad212a0a6abde38a0df7e537f4bd7770d",
+        "documentId": "visual:tpl-arch-components",
+        "visualId": "tpl-arch-components",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/tpl-arch-components/authoritative-source.json",
+        "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition preserves all original IDs, labels, question, source metadata, and six graph connections. It adds the exact Level 3 section rationale as takeaway, adds exact Purpose and Notes text from each of the five component rows to that node's detail, and maps the table's `Container: API Service` membership to a Visual `boundary` group for exactly those five components. PostgreSQL remains outside that group; no API Service membership or deployment fact is inferred for it. Existing edge topology is preserved from the Level 3 graph; no labels or extra edges are added. The source digest matches the fixture in HELIX commit 19065f860a9e26b0cb52831de59b524ed6a55de6. Source title/question, group ID, and boundary role are Visual projections. The cited file is a DepositMatch architecture example/template, not evidence of a deployed system or current operational behavior."
+      }
     }
   ]
 }
