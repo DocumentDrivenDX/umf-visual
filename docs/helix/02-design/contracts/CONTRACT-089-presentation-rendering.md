@@ -112,6 +112,10 @@ content outside the visible view MUST be inventoried, not silently certified.
 
 Gallery reproductions MUST bind exact upstream source bytes and a pinned commit.
 Lini tree qualification additionally requires actual native hierarchy connections.
+An implicit directed-flow rank projection MUST independently establish that every
+source-owned native node card has finite visible painted bounds and does not
+overlap another independent card. Compiler footprint estimates alone are not
+qualification evidence; explicit-layout scope remains separately qualified.
 Sequence qualification requires source-order messages, including self-call geometry,
 return/async distinctions, participant-owned notes and the declared loop extent
 where admitted. A disclosed composition from executed native primitives MAY

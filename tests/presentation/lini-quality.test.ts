@@ -26,7 +26,7 @@ async function renderDocument(document:ReturnType<typeof createVisualDocument>,d
 }
 async function render(visual:Visual){return renderDocument(doc(visual));}
 async function recheck(page:Page,document:ReturnType<typeof doc>,plan:PresentationPlan,nativeAst:unknown){return verifyLiniPresentationQuality(page,{document,plan,nativeAst});}
-function expectAll(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>,timeline=false,directedFlowRanks=false){expect(checks.map(check=>check.check)).toEqual(timeline?[...required.slice(0,4),'lini-timeline-events-and-date-scale',required[4]!]:directedFlowRanks?[...required.slice(0,4),'lini-directed-flow-dependency-ranks',required[4]!]:required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw new Error(JSON.stringify(failed));}
+function expectAll(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>,timeline=false,directedFlowRanks=false){expect(checks.map(check=>check.check)).toEqual(timeline?[...required.slice(0,4),'lini-timeline-events-and-date-scale',required[4]!]:directedFlowRanks?[...required.slice(0,4),'lini-directed-flow-dependency-ranks','lini-node-cards-non-overlap',required[4]!]:required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw new Error(JSON.stringify(failed));}
 
 describe('pinned Lini presentation quality',()=>{
  it('places ranked root-grid captions beside vertical same-column connectors',async()=>{

@@ -1470,3 +1470,28 @@ relations; L11/13 exact caption/font limits retained. Historical source and orig
 preserved, six source-table descriptions only added in same 1.0 review; no shared
 code/model/C089 change. All holds resolved; cycle 51 complete pending commit,
 cycle 52 commit-gated.
+
+
+Cycle 52 focused checkpoint: source 2/50 same 1.0 detail-only review retains original
+other fields. Baseline formal pass superseded by actual card overlap. Existing
+implicit DAG content footprint/caption policy is corrected, with mandatory
+independent painted-card bounds/separation and exact source-map inventory proof.
+Tracked pre-fix source fails; renamed LR qualifies; TB card check passes while
+exact prior endpoint/font failures remain. CTM overlap/duplicate/missing/borrowed/
+root-hidden fresh-baseline controls fail. New 1/24/type/diff and compiler 24/337 pass;
+final identity receipt/full 18 pending. C089 minimally states actual card separation,
+not a placement constant or new semantic type. Cycle 52 incomplete,53 commit-gated.
+
+
+Cycle 52 closeout: all 18 gates pass; final full 1,042/0/26,746 assertions/199 files/
+186.44s. Initial 1,040/2 failures were stale mandatory-check inventories only,
+test-only corrected with all obligations retained; failed log preserved. Initial
+unchanged build/fetch/package evidence retained; final all 51/selected/catalog/
+showcase UI pass. Manifest 51 entries/110 qualified/17 unqualified/26 unsupported,zero
+execution failures, 127 native SVG/PNG pairs, 381 render assets, 46 authorities, five captures.
+Source 2/50, compiler 24/337, proof 1/24 pass. Fresh G/M/L approved complete/readable;
+Lini 14/14 actual card overlap resolved, not waived. TB limitations retained in
+controls. Source original/other fields preserved; private content geometry and
+mandatory independent painted-card proof introduce no model/mapkind/casebranch.
+C089 minimal separation criteria validated. All holds resolved; cycle 52 complete
+pending commit, cycle 53 commit-gated.

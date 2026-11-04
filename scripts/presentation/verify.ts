@@ -73,7 +73,7 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
   checks.push(...liniChecks);
   if(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout)checks.push('lini-zoned-tier-columns');
   const canRankFlow=visual.kind==='flow'&&(visual.form==='pipeline'||visual.form==='network')&&!visual.layout&&!(visual.groups?.length)&&(visual.nodes??[]).every(node=>!node.group&&!node.parent);
-  if(canRankFlow&&directedDagRanks((visual.nodes??[]).map(node=>node.id),(visual.edges??[]).filter(edge=>edge.kind!=='return')))checks.push('lini-directed-flow-dependency-ranks');
+  if(canRankFlow&&directedDagRanks((visual.nodes??[]).map(node=>node.id),(visual.edges??[]).filter(edge=>edge.kind!=='return')))checks.push('lini-directed-flow-dependency-ranks','lini-node-cards-non-overlap');
  }else{
   checks.push(...(visual.kind==='state'?['mermaid-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['mermaid-timeline-event-ledger']:['mermaid-native-node-carriers',...(visual.form==='entities'?['mermaid-er-fields-and-relations']:[...(visual.kind==='flow'?['mermaid-flow-paths']:[]),'mermaid-containment-and-order'])]));
   if(visual.kind==='structure'&&visual.form==='nested')checks.push('nested-native-carriers','nested-native-captions','nested-native-containment','nested-no-synthetic-links');

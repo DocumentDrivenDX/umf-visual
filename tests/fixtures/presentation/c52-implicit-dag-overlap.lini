@@ -1,0 +1,31 @@
+{
+  --lini-font-family: Arial;
+  .lini-block { font-family: Arial; }
+  .lini-caption { translate: 0 -30; font-scale: 14 16; }
+  .lini-caption { font-size: 22; font-weight: 600; color: --blue-deep; translate: 660 -30; }
+  .e1 { stroke: --teal-deep; }
+  .e2 { stroke: --teal-deep; }
+  .e3 { stroke: --teal-deep; }
+  .e4 { stroke: --teal-deep; }
+}
+|group#visual| "Level 1: System Context" { layout: flow; direction: row; width: 1473.4799999999993; height: 640; gap: 72; padding: 36; fill: none; stroke: none; stroke-width: 0; } [
+  |box#n1| "Maya - Reconciliation Lead" { pin: center; translate: -364 -210; width: 673.6799999999996; } [
+    |cell#detail| "Type: User\n\nPurpose: Imports exports, reviews suggestions, resolves exceptions\n\nProtocol: HTTPS browser"
+  ]
+  |box#n2| "DepositMatch" { pin: center; translate: 425 0; width: 551.7999999999997; } [
+    |cell#detail| "Type: System\n\nPurpose: Reconciliation workspace and evidence store\n\nProtocol: HTTPS"
+  ]
+  |box#n3| "Andre - Firm Owner" { pin: center; translate: -364 -70; width: 568.7399999999997; } [
+    |cell#detail| "Type: User\n\nPurpose: Reviews firm-level reconciliation reports\n\nProtocol: HTTPS browser"
+  ]
+  |box#n4| "Bank portal exports" { pin: center; translate: -364 70; width: 618.8999999999996; } [
+    |cell#detail| "Type: External source\n\nPurpose: Provides deposit CSV files\n\nProtocol: Manual CSV export/upload"
+  ]
+  |box#n5| "Accounting exports" { pin: center; translate: -364 210; width: 616.0399999999996; } [
+    |cell#detail| "Type: External source\n\nPurpose: Provides invoice CSV files\n\nProtocol: Manual CSV export/upload"
+  ]
+  n1 -> n2 .e1 { along: 0.38; } [ "HTTPS" { translate: -40 0; } ]
+  n3 -> n2 .e2 { along: 0.38; } [ "HTTPS" { translate: 0 -40; } ]
+  n4 -> n2 .e3 { along: 0.38; } [ "CSV upload" { translate: 0 40; } ]
+  n5 -> n2 .e4 { along: 0.38; } [ "CSV upload" { translate: 40 0; } ]
+]

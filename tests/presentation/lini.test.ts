@@ -38,6 +38,35 @@ describe('Lini presentation compiler',()=>{
   expect(explicit.source).toContain('direction: row;');expect(explicit.source).not.toContain('width: 1272;');expect(explicit.source.indexOf('|box#n4|')).toBeLessThan(explicit.source.indexOf('|box#n1|'));
  });
 
+ it('budgets implicit DAG rank rows from authored multiline node content',()=>{
+  const graph={id:'renamed-content-sized-network',kind:'flow' as const,form:'network' as const,question:'Which components exchange data?',nodes:[
+   {id:'catalogue',label:'Catalogue',detail:'Type: Service\n\nPurpose: Resolve source records\n\nProtocol: HTTPS'},
+   {id:'ledger',label:'Ledger',detail:'Type: Store\n\nProtocol: SQL'},
+   {id:'console',label:'Console',detail:'Type: User'}
+  ],edges:[{id:'catalogue-console',from:'catalogue',to:'console',label:'resolves records'},{id:'ledger-console',from:'ledger',to:'console',label:'reads entries'}]};
+  const source=compilePresentation(document(graph),{backend:'lini'});expect(source.ok).toBe(true);if(!source.ok)return;
+  expect(source.source).toContain('"resolves records" { translate:');expect(source.source).toContain('font-size: 14;');
+  const centerY=(nativeId:string)=>{
+   const declaration=source.source.split('\n').find(line=>line.includes(`|box#${nativeId}|`));
+   const match=declaration?.match(/translate: -?\d+ (-?\d+);/u);expect(match).toBeDefined();return Number(match?.[1]);
+  };
+  const firstY=centerY('n1'),secondY=centerY('n2');
+  // The longest card has five authored detail lines (including paragraph
+  // breaks); the second has three. Their card centers must include both
+  // content-derived heights and the existing 40-unit rank-row clearance.
+  expect(Math.abs(secondY-firstY)).toBeGreaterThanOrEqual((172+136)/2+40);
+
+  const compact=compilePresentation(document({...graph,id:'renamed-single-line-network',nodes:graph.nodes.map(node=>({...node,detail:'Short detail'}))}),{backend:'lini'});
+  expect(compact.ok).toBe(true);if(!compact.ok)return;
+  const compactFirst=compact.source.split('\n').find(line=>line.includes('|box#n1|'))?.match(/translate: -?\d+ (-?\d+);/u);
+  const compactSecond=compact.source.split('\n').find(line=>line.includes('|box#n2|'))?.match(/translate: -?\d+ (-?\d+);/u);
+  expect(Math.abs(Number(compactSecond?.[1])-Number(compactFirst?.[1]))).toBe(140);
+  expect(compact.source).not.toContain('font-size: 14;');
+
+  const authored=compilePresentation(document({...graph,id:'authored-layout-network',layout:{kind:'flow',direction:'LR'},nodes:graph.nodes.map(node=>({...node,detail:'A\n\nlong\n\nmultiline\n\ndetail'}))}),{backend:'lini'});
+  expect(authored.ok).toBe(true);if(authored.ok){expect(authored.source).not.toMatch(/\|box#n[12]\|[^\n]*translate:/u);expect(authored.source).not.toContain('font-size: 14;');}
+ });
+
  it('emits native nested groups, safe labels, node details and scoped connections',()=>{
   const source=document({id:'nested',kind:'flow',form:'network',question:'Which group contains the service?',title:'Service topology',groups:[{id:'services',label:'Services',detail:'Owned boundary',role:'zone'},{id:'workers',label:'Workers',parent:'services',role:'lane'}],nodes:[{id:'api',label:'API "front"',detail:'Public endpoint',role:'actor',group:'services'},{id:'worker',label:'Worker',role:'own',group:'workers'},{id:'db',label:'Database',role:'store'}],edges:[{id:'read',from:'worker',to:'db',label:'reads',kind:'data'}]});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;

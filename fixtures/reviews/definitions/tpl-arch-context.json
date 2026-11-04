@@ -1,0 +1,77 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:tpl-arch-context",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "tpl-arch-context",
+      "kind": "flow",
+      "form": "network",
+      "title": "Level 1: System Context",
+      "question": "Who and what does DepositMatch talk to?",
+      "source": {
+        "path": "helix:workflows/activities/02-design/artifacts/architecture/example.md",
+        "view": "Level 1: System Context",
+        "digest": "sha256:4c79ba17f9d9342592c062b9a51cef0232816004b59f110488f696e7a8e191b8"
+      },
+      "nodes": [
+        {
+          "id": "maya",
+          "label": "Maya - Reconciliation Lead",
+          "detail": "Type: User\n\nPurpose: Imports exports, reviews suggestions, resolves exceptions\n\nProtocol: HTTPS browser"
+        },
+        {
+          "id": "dm",
+          "label": "DepositMatch",
+          "detail": "Type: System\n\nPurpose: Reconciliation workspace and evidence store\n\nProtocol: HTTPS"
+        },
+        {
+          "id": "andre",
+          "label": "Andre - Firm Owner",
+          "detail": "Type: User\n\nPurpose: Reviews firm-level reconciliation reports\n\nProtocol: HTTPS browser"
+        },
+        {
+          "id": "bank",
+          "label": "Bank portal exports",
+          "detail": "Type: External source\n\nPurpose: Provides deposit CSV files\n\nProtocol: Manual CSV export/upload"
+        },
+        {
+          "id": "accounting",
+          "label": "Accounting exports",
+          "detail": "Type: External source\n\nPurpose: Provides invoice CSV files\n\nProtocol: Manual CSV export/upload"
+        }
+      ],
+      "edges": [
+        {
+          "id": "maya--dm",
+          "from": "maya",
+          "to": "dm",
+          "label": "HTTPS"
+        },
+        {
+          "id": "andre--dm",
+          "from": "andre",
+          "to": "dm",
+          "label": "HTTPS"
+        },
+        {
+          "id": "bank--dm",
+          "from": "bank",
+          "to": "dm",
+          "label": "CSV upload"
+        },
+        {
+          "id": "accounting--dm",
+          "from": "accounting",
+          "to": "dm",
+          "label": "CSV upload"
+        }
+      ]
+    }
+  },
+  "modules": []
+}
