@@ -2431,7 +2431,7 @@ commit-readiness claim is made yet.
 ### Twenty-second-cycle closeout — 2026-11-03
 
 The isolated full suite passes **849 tests, zero failures, 22,520 assertions
-across 142 files in 151.97 seconds** (`.cache/cycle 22/full-tests.log`). All
+across 142 files in 151.97 seconds** (`.cache/cycle22/full-tests.log`). All
 required original runtime/corpus gates and final affected source/review/UI,
 public-browser, packed-consumer, source/type/build and actual visual/model/interface
 and modularity audits pass. The refreshed 21-document/45-variant review cohort
@@ -3005,7 +3005,7 @@ complete or ready for commit.
 ### Thirtieth-cycle full-suite checkpoint — 2026-11-04
 
 The final isolated full suite passes **945 tests, zero failures, 24,545 assertions
-across 167 files in 349.56 seconds** (`.cache/cycle 30-full-test.log`). The unchanged
+across 167 files in 349.56 seconds** (`.cache/cycle30-full-test.log`). The unchanged
 Graphviz style integration case passes in 3,679.08ms. Two earlier loaded full runs
 had each timed out that real external-dot test at the default 5s budget; isolated
 retry passed 5/0, and a narrowly scoped 30s per-test allowance retained every native
@@ -3124,7 +3124,7 @@ gated on cycle 31 commit.
 
 The first frozen-patch full suite passes **949 tests, zero failures,
 24,583 assertions across 168 files in 280.51 seconds**
-(`.cache/cycle 31-full-test.log`). Source/type/build, fetch and packed Bun/Node
+(`.cache/cycle31-full-test.log`). Source/type/build, fetch and packed Bun/Node
 consumer checks pass. Actual source-bound G/M/L native output qualifies; original
 JSON/TOML authority remains unchanged. Browser/native/corpus/review/replay/site/UI
 stages remain queued, so cycle 31 is incomplete.
@@ -4263,7 +4263,7 @@ and strict path/unrelated-node clearance. Do not apply DAG placement to a cyclic
 source by dropping a relation. Reuse existing family profiles first; no vocabulary
 gap is indicated. Data-only lean gates are appropriate only with an existing
 suitable target and unchanged shared code; otherwise apply full relevant gates.
-The rejected C42 grouped selector is not carried forward. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is complete, ready for its per-document commit;
+The rejected C42 grouped selector is not carried forward. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is complete, ready for its per-document commit;
 cycle 44 waits for its per-document commit.
 
 ### Cycle 43 semantic checkpoint — source-numbered relation walkthrough
@@ -4321,7 +4321,7 @@ Selected C43 walkthrough UI/shared controls and catalog UI pass Chromium 153 wit
 zero errors. Fresh built G11/M10 are independently visually approved suitable
 presentations; L retains the exact prior endpoint/caption unqualified receipt.
 
-The unchanged-entry receipt `.cache/cycle 43-unchanged-reviews.json` establishes
+The unchanged-entry receipt `.cache/cycle43-unchanged-reviews.json` establishes
 identical definition/native-source/SVG/PNG/status fingerprints for all 41 prior
 entries. Retain unchanged C41 full 1,016/0/26,023 assertions, showcase/all 40 UI and
 C42 checks; no full unchanged corpus rerun is claimed. Original and cited TOML
@@ -4353,7 +4353,7 @@ scope-qualified; do not silently conflate another view or invent source facts.
 No new vocabulary is indicated. Evaluate existing generic zoned/tier policies and
 actual all-caption/group clearance; at least one target must be suitable, other
 native limitations retain honest receipts. Lean affected gates apply if data-only,
-full relevant gates if shared renderer/proof/UI changes. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is complete, ready for its per-document commit;
+full relevant gates if shared renderer/proof/UI changes. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is complete, ready for its per-document commit;
 cycle 45 waits for its per-document commit.
 
 ### Cycle 44 focused freeze — data-only zoned walkthrough
@@ -4389,7 +4389,7 @@ relations readable. L retains the same endpoint/frame-caption unqualified receip
 No physical tier ordering guarantee is inferred.
 
 All 42 prior definition/native-source/SVG/PNG/status fingerprints are identical in
-`.cache/cycle 44-unchanged-reviews.json`, supporting retained C41 full 1,016/0/
+`.cache/cycle44-unchanged-reviews.json`, supporting retained C41 full 1,016/0/
 26,023 assertions/showcase/all 40 UI and fresh C42/43 evidence. No unchanged full
 suite or full cohort rerun is claimed. Original/version/groups/tiers and exact cited
 source remain intact; reviewed steps add six source-numbered notes without tag/when
@@ -4418,7 +4418,7 @@ actual caption/route clearance, and separately qualified ordered source-focus UI
 No implied physical swimlane alignment, chronology or activation is inferred.
 Evaluate actual source-backed definition fit before choosing gates: lean if data-only
 with a suitable target, full applicable gates if shared runtime/proof/UI changes.
-C089 already covers the family; no amendment is indicated. Cycle 45 is committed as `1e04915`. Cycle 46 is complete, ready for its per-document commit;
+C089 already covers the family; no amendment is indicated. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is complete, ready for its per-document commit;
 cycle 46 waits for its per-document commit.
 
 ### Cycle 45 focused freeze — responsibility capture and lane proof repair
@@ -4520,7 +4520,7 @@ Fresh built G11/M10/L13 PNGs are independently approved suitable presentations,
 with six complete nodes and six labeled relations including the return.
 
 All 44 prior definition/native-source/SVG/PNG/status fingerprints are identical in
-`.cache/cycle 46-unchanged-reviews.json`, justifying retained C45 full 1,026/0/
+`.cache/cycle46-unchanged-reviews.json`, justifying retained C45 full 1,026/0/
 26,266 assertions/showcase/all 44 UI rather than repeating unchanged full coverage.
 Exact original Visual 1.0 and cited TOML remain preserved. The request journey's
 six ordered focus steps/title/takeaway are complete; no other-view notes/job duties
@@ -4528,6 +4528,72 @@ are merged and the return kind remains explicitly fixture-authored. No shared
 runtime/proof/UI/model change or new source meaning is introduced. C089 remains
 unchanged. Previous holds are resolved; cycle 46 is complete pending its
 per-document commit and cycle 47 must not begin before that commit.
+
+### Forty-seventh-cycle scope — developer change-placement parts
+
+Cycle 46 is committed as `d65f7c5`. Cycle 47 reviews exact Visual 1.0
+`fixtures/visual/inventory/helix-parts.json`: nine parts in two declared layers
+with a five/four split and no edges. The cited developer index matches digest
+`ebe885e3093fa1e0ab8319320d67586ec8d51b3420df36c4d5beecc6b36b9bc3`.
+Its selected The parts table contains exact change-placement criteria answering
+this visual's question, omitted from the fixture's path-only details. It also
+qualifies methodology paths as non-activity files and includes scripts/ for
+packaging and website/ for microsite. Review a separate same 1.0 source-backed
+definition capturing these missing paths/qualifier and nine exact change-when
+statements in existing detail fields, preserving original bytes, IDs/order/layers.
+No new responsibility type, dependency edge or current repository guarantee is
+warranted. Nearby boundary prose may remain source-qualified context; do not turn
+it into invented topology or silently import other guide sections.
+
+Evaluate actual enriched native fit with all nine details and layer ownership,
+source-stable row members and vertical bands under the existing stack profile.
+Portable/support grouping is source-authored classification, not execution order
+or priority. Existing C37 stack policy may suffice, but no qualification rests on
+unenriched baseline alone. Lean affected gates apply if data-only; shared renderer/
+proof/UI changes require full relevant gates. Cycle 47 is complete, ready for its per-document commit; cycle 48 waits
+for its per-document commit. C089 changes only if a material generic gap appears.
+
+### Cycle 47 focused checkpoint — complete source-guided parts
+
+The reviewed definition SHA-256
+`654d8ce7cb7715f42cb38990c3f7b5370575c19fc605e0e04d0b94c37f21966b`
+preserves all original non-detail fields, IDs/order/layer membership and the exact
+original detail prefixes. Nine details add only the selected table's exact
+change-when wording and missing source path qualifiers/scripts/website paths.
+Inline Markdown code formatting is presentation markup, not omitted source words.
+No unrelated guide section, extra edge or new semantic type is introduced.
+
+Actual enriched Graphviz 11/11 qualifies and its PNG is independently visually
+approved: all nine parts/criteria and two layer captions are readable. Mermaid 8/9
+and Lini 11/12 retain font-only unqualified receipts; the small native previews are
+not suitable target claims. Existing renderer/proof/UI code remains unchanged;
+no layout probe or threshold waiver is needed because Graphviz is suitable.
+C089 remains unchanged. Use the same 14 affected data-only gates with fresh complete
+review/native+PNG replay, selected C47 UI/shared controls and public/native/catalog
+boundaries. Retain C45 full 1,026/0/26,266/showcase/all 44 UI subject to prior-entry
+fingerprint verification. Source-owner final test/manifest receipt and all lean
+gates remain pending; cycle 47 incomplete, cycle 48 commit-gated.
+
+### Cycle 47 closeout — complete, ready for commit
+
+All 14 affected gates pass, including final site-tests. Source 2/103, type/source/
+diff/build/public browser/package/fetch/native/catalog, complete reviews/native+
+PNG replay/site and selected/shared UI/catalog UI pass. Fresh manifest contains
+46 entries, 99 qualified, 15 unqualified, 24 unsupported,zero execution failures,
+114 native SVG plus 114 PNG replays and 342 render assets, 41 authoritative sources and
+five captures. All 45 prior definition/native-source/SVG/PNG/status fingerprints
+are identical in `.cache/cycle47-unchanged-reviews.json`, justifying retained C45
+full 1,026/0/26,266 assertions/showcase/all 44 UI rather than unchanged full reruns.
+
+Fresh built Graphviz 11/11 is independently visually approved: all nine exact
+change-placement criteria/path details and both layer labels are readable.
+Mermaid 8/9 and Lini 11/12 retain exact font-only limitations. The separate same 1.0
+source preserves original bytes and every non-detail field, adding only source-table
+criteria/missing paths/qualifiers. The initial YAML indentation-only assertion was
+corrected to semantic YAML parsing; no writer/runtime/proof behavior changed.
+No new vocabulary, edge, current claim or case branch is introduced; C089 unchanged.
+All prior holds are resolved; cycle 47 is complete pending its per-document commit,
+and cycle 48 must not begin before that commit.
 
 ### Ordered cycle inventory
 
@@ -4549,8 +4615,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is complete, ready for its per-document commit;
-cycles 47–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is complete, ready for its per-document commit;
+cycles 48–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

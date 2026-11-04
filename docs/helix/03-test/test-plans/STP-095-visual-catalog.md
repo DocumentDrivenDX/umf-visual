@@ -1363,3 +1363,25 @@ prior fingerprints identical, supporting retained C45 full1,026/0/26,266/showcas
 all 44 UI. Exact journey alias and six focus steps remain original, return attributed to
 fixture, no context notes/job import. No shared-code/model change; C089 unchanged.
 Previous holds resolved; cycle 46 complete pending commit, cycle 47 commit-gated.
+
+
+Cycle 47 focused checkpoint: separately reviewed same 1.0 source preserves original
+IDs/order/layers/other fields and enriches nine details only with exact selected
+change-when criteria and missing source path qualifiers. Actual G11/11 is suitable
+and independently viewed complete/readable; M8/9 and L11/12 remain font-only
+unqualified. No runtime/proof/UI/model change or waiver; C089 unchanged. Same 14
+lean gates planned with fresh all-review replay/selected shared UI/public/native/
+catalog checks, retained C45 full1,026/0/26,266/showcase/all 44 UI subject to fingerprints.
+Final source test receipt and lean gates pending; cycle 47 incomplete,48 commit-gated.
+
+
+Cycle 47 closeout: all 14 affected gates pass, source 2/103 and final site test
+included. Manifest 46 entries/99 qualified/15 unqualified/24 unsupported/zero execution
+failures, 114 native SVG/PNG pairs, 342 render assets, 41 authorities, five captures.
+All 45 prior fingerprints identical; retained C45 full1,026/0/26,266/showcase/all 44 UI
+remains valid. Fresh G11/11 independently approved with nine complete criteria/paths
+and two layers; M8/9,L11/12 exact font-only limits retained. Original preserved, separate
+same 1.0 details capture only actual selected source-table facts. YAML assertion
+changed from indentation to semantic parsing, no writer/runtime change. No shared
+code/model/C089 amendment. Prior holds resolved; cycle 47 complete pending commit,
+cycle 48 commit-gated.

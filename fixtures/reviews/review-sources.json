@@ -2570,6 +2570,60 @@
         "sourceDownloadPath": "reviews/helix-overview-map/authoritative-source.json",
         "scope": "The exact Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The cited architecture-model TOML bytes match the fixture digest exactly. The request view has `type: journey` and points to journey `request`; that journey's six ordered endpoint/label steps, title, and takeaway match the fixture's six edge labels/endpoints, six Visual step titles/focus IDs, title, and takeaway. Node IDs, labels, details, role/status/evidence map to first-seen journey endpoints and their source element records. Visual edge and step IDs are fixture projections. The final `kind: return` is a Visual flow projection for the final docs-to-runtime edge, not a literal field on the journey step. The separate context-view relations, their why/status/evidence/notes, and element job descriptions are not merged into this selected journey; neither are the journey's separate labels replaced with relation labels. The question, audience, omissions, and flow/pipeline vocabulary are fixture-authored. Source metadata outside the request journey remains inspectable in the published exact TOML snapshot; no current deployment/runtime claim is made."
       }
+    },
+    {
+      "id": "helix-parts",
+      "title": "The parts",
+      "description": "A source-bound review of the nine developer-guide parts, adding the omitted change-selection criteria and complete paths.",
+      "kind": "structure",
+      "form": "stack",
+      "definitionPath": "fixtures/reviews/definitions/helix-parts.json",
+      "definitionSha256": "654d8ce7cb7715f42cb38990c3f7b5370575c19fc605e0e04d0b94c37f21966b",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/helix-parts.json",
+          "sha256": "5d47d470fd3b934f8d548a03c51559d4f5c7bedd7996ff7a71ce7953bc2556f5",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies the nine ordered part identities/labels, existing path details, five-versus-four layer membership, stack labels, title, question, and cited developer-guide locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/developer-index.md",
+          "sha256": "ebe885e3093fa1e0ab8319320d67586ec8d51b3420df36c4d5beecc6b36b9bc3",
+          "pointer": "The parts table and its adjacent 5/4 grouping statement",
+          "label": "Cited HELIX developer guide",
+          "originalLocator": "helix:docs/guide/developer/index.md",
+          "resolvedSource": "helix/docs/guide/developer/index.md",
+          "description": "Exact Markdown bytes resolved from the fixture locator. The parts table supplies each part's path(s) and the change-it-when selection criterion; surrounding text states the five portable/four support split."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/helix-parts.json",
+          "sha256": "5d47d470fd3b934f8d548a03c51559d4f5c7bedd7996ff7a71ce7953bc2556f5",
+          "outputPath": "reviews/helix-parts/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/developer-index.md",
+          "sha256": "ebe885e3093fa1e0ab8319320d67586ec8d51b3420df36c4d5beecc6b36b9bc3",
+          "outputPath": "reviews/helix-parts/developer-index.md",
+          "mediaType": "text/markdown",
+          "description": "Exact cited HELIX developer-guide Markdown bytes published without transformation."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/helix-parts.json",
+        "sourceSha256": "5d47d470fd3b934f8d548a03c51559d4f5c7bedd7996ff7a71ce7953bc2556f5",
+        "documentId": "visual:helix-parts",
+        "visualId": "helix-parts",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-parts/authoritative-source.json",
+        "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition preserves its nine node IDs/labels and order, two stack layers and memberships, original title/question/source metadata, then enriches each existing detail from the exact `The parts` table: complete path cell followed by the exact `Change it when` criterion. Existing detail text remains the prefix; this restores the omitted `scripts/`, `website/`, and `(non-activity files)` qualifiers. The source states that the first five parts are portable content every runtime receives and the other four support/package/publish it; the existing layers represent that split. This review selects only the parts table, not the separate Level 2 deployment-container view or the guide's request journey. The title/form/layer IDs are Visual projections. The source describes intended change-placement guidance, not current deployment/runtime behavior."
+      }
     }
   ]
 }
