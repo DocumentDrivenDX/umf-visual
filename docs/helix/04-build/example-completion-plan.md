@@ -3787,6 +3787,69 @@ source bindings, diagnostics or strict native checks. No new vocabulary, fixture
 branch or tolerance waiver is added; CONTRACT-089 remains unchanged. Freeze for
 per-document commit. Cycle 37 must not start before cycle 36 is committed.
 
+### Thirty-seventh-cycle scope — source-selected stack bands
+
+Cycle 36 is committed as `4ed835c`. Cycle 37 reviews exact Visual 1.0 source
+`fixtures/visual/inventory/beacon-stack.json`, SHA-256
+`bfaf187d4763816fb331af03c39e79c9c9333f7c27576fe0f854ee860657c1a7`.
+It contains 15 nodes, five ordered layers and no edges/layout. Matching fictional
+TOML explicitly declares the stack view's selected element order/title/takeaway;
+element layer strings ground membership. Audit every selected label/detail/role/
+status and layer before exact-alias freeze. UMF question, layer ID serialization
+and ordered layer projection remain authored rather than literal source IDs.
+Do not import unrelated tier/zone/relation/journey facts or claim current state.
+
+Native acceptance requires exact node/layer inventories, visible owned band labels,
+authored top-to-bottom layer order (or explicitly qualified orientation adaptation),
+node metadata and membership, including placeholder/unknown statuses. Invisible
+layout constraints are helpers, not semantic edges. No runtime/dependency/temporal
+relationship follows from stack position. Existing generic stack profiles should
+be evaluated first; no model gap is indicated. At least one suitable target is
+required, with honest other-target limitations. If runtime/proof stays unchanged,
+use lean focused source/native plus fresh reviews/replay/site, selected UI/shared
+controls and public/packed consumers; shared changes reopen applicable full gates.
+Cycle 38 waits for cycle 37's completed per-document commit.
+
+### Cycle 37 closeout — complete, ready for commit
+
+All 18 required gates pass. Full suite: 987 tests, zero failures, 25,525 assertions
+across 179 files in 196.64 seconds. Source/type/build/fetch/package/browser/native/
+catalog/showcase/replay/reviews/replay/site and UI gates pass. Fresh reviews cover
+36 entries, 81 qualified, seven unqualified, 20 unsupported, 264 assets, 31
+authoritative sources and five captures; all 88 native SVG and 88 PNG replays pass.
+All-entry UI 36/36 and selected stack 1/36 retain shared controls; catalog 214 SVG
+and showcase 46 SVG/PNG previews/23 renders pass in Chromium 153 without errors.
+
+Exact original Visual 1.0 source SHA remains
+`bfaf187d4763816fb331af03c39e79c9c9333f7c27576fe0f854ee860657c1a7`;
+no derived definition or source enrichment is needed. Fifteen selected elements,
+five authored layer identities/order/membership and all metadata remain preserved.
+TOML explicitly grounds the stack view selection/title/takeaway and layer strings;
+UMF question and serialized layer IDs/order remain authored projection facts.
+No tiers, zones, relations, timing or current-state claims are added.
+
+Actual built Graphviz and Lini images are independently inspected and suitable:
+all layer bands, nodes/details and supported status styling are readable, without
+visible semantic connections. Native checks pass Graphviz 11, Mermaid nine and
+Lini 12. Mermaid preserves the authored layer sequence in a renderer-selected
+left-to-right rotated view and explicitly omits role/status styling; it does not
+establish authored LR orientation or equal fidelity for those fields. G/L remain
+suitable targets within their located view disclosures. Built PNG hashes:
+Graphviz `144bb41bd3f3ae6e8bdec124ddf6a6307948ff80cbc0750d2ccb26a9a9615ce2`,
+Mermaid `0a201be45cd733ac518d59c23fc155d11ef1b18b7c1e040cb6ebe5fc42766b1d`,
+Lini `8689f2b8d7deb0cdf902a3a34fe51b461782a0b099412a6ff957397cba96bd49`.
+
+Final model/interface/modularity audit approves private implicit LR stack-member
+rows within unchanged vertical bands. Explicit layouts and TB retain legacy
+behavior. Compiler 21/297, independent row proof 3/89, legacy quality 29/319 and
+source 3/118 pass without summing overlapping runs. Proof requires unique mapped
+AST scopes, unambiguous flow-row properties, exact direct child order/helper
+inventory and actual SVG parent ownership/alignment/nonoverlap/containment;
+direction/order/down/reparent/phantom controls close the prior hardcoded grid
+assumption. No quality threshold, vocabulary or fixture-specific policy is added.
+Existing CONTRACT-089 suffices. Previous holds are resolved; freeze for commit.
+Cycle 38 must not start before cycle 37 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -3806,8 +3869,9 @@ Cycle 27 is committed as `05b2b84`; cycle 28 is committed as `587471d`.
 Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
-Cycle 35 is committed as `aa0bc52`. Cycle 36 is complete and ready for commit;
-cycles 37–68 remain pending, with cycle 37 gated on the cycle 36 commit.
+Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
+Cycle 37 is complete and ready for commit; cycles 38–68 remain pending,
+with cycle 38 gated on the cycle 37 commit.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

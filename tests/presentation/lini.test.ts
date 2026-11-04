@@ -39,11 +39,27 @@ describe('Lini presentation compiler',()=>{
   const roleApproximation=entityResult.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/nodes/0/role');expect(roleApproximation?.representation).toContain('fixed table silhouette');expect(roleApproximation?.representation).toContain('role-derived node glyphs do not apply');
  });
 
- it('renders authored stack layers as ordered one-column groups without connections',()=>{
+ it('renders authored stack layers as ordered bands with source-ordered horizontal members and no connections',()=>{
   const source=document({id:'layers',kind:'structure',form:'stack',question:'Which layers appear?',nodes:[{id:'api',label:'API',layer:'interface'},{id:'compiler',label:'Compiler',layer:'engine'},{id:'package',label:'Package',layer:'engine'}],structure:{layers:[{id:'interface',label:'Public interface'},{id:'engine',label:'Compiler engine'}]}});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
-  expect(result.source).toContain('|group#visual| "Which layers appear?" { layout: grid; columns: repeat(1); gap: 44;');expect(result.source).toContain('|group#l1| "Public interface"');expect(result.source).toContain('|group#l2| "Compiler engine"');expect(result.source.indexOf('|group#l1|')).toBeLessThan(result.source.indexOf('|group#l2|'));expect(result.source).not.toContain(' -> ');
+  expect(result.source).toContain('|group#visual| "Which layers appear?" { layout: grid; columns: repeat(1); gap: 44;');expect(result.source).toContain('|group#l1| "Public interface" { layout: flow; direction: row; gap: 24;');expect(result.source).toContain('|group#l2| "Compiler engine" { layout: flow; direction: row; gap: 24;');expect(result.source.indexOf('|group#l1|')).toBeLessThan(result.source.indexOf('|group#l2|'));expect(result.source.indexOf('|box#n2|')).toBeLessThan(result.source.indexOf('|box#n3|'));expect(result.source).not.toContain(' -> ');
   expect(result.elementMap).toContainEqual({logicalId:'engine',sourcePath:'/extensions/umf.visual/structure/layers/1',nativeId:'l2',kind:'layer'});expect(result.omissions.some(item=>item.sourcePath==='/extensions/umf.visual/edges')).toBe(false);
+  expect(result.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/structure/layers')?.representation).toContain('each band’s members in source order from left to right');
+ });
+
+ it('keeps implicit row members generic for renamed layers with different member counts',()=>{
+  const source=document({id:'renamed-stack-members',kind:'structure',form:'stack',question:'Where do the parts go?',nodes:[
+   {id:'new-client',label:'New client',layer:'customers'},
+   {id:'contract',label:'Contract',layer:'portable'},
+   {id:'schema',label:'Schema',layer:'portable'},
+   {id:'validator',label:'Validator',layer:'portable'},
+   {id:'native-adapter',label:'Native adapter',layer:'runtime'},
+  ],structure:{layers:[{id:'customers',label:'Consumers'},{id:'portable',label:'Portable core'},{id:'runtime',label:'Runtime'}]}});
+  const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
+  for(const id of ['l1','l2','l3'])expect(result.source).toContain(`|group#${id}| "${id==='l1'?'Consumers':id==='l2'?'Portable core':'Runtime'}" { layout: flow; direction: row; gap: 24;`);
+  expect(result.source.indexOf('|box#n2|')).toBeLessThan(result.source.indexOf('|box#n3|'));expect(result.source.indexOf('|box#n3|')).toBeLessThan(result.source.indexOf('|box#n4|'));
+  expect(result.elementMap.filter(item=>item.kind==='layer')).toHaveLength(3);expect(result.elementMap.filter(item=>item.kind==='node')).toHaveLength(5);
+  const vertical=compilePresentation(source,{backend:'lini',direction:'TB'});expect(vertical.ok).toBe(true);if(!vertical.ok)return;expect(vertical.source).toContain('|group#l2| "Portable core" { layout: grid; columns: repeat(1); gap: 24;');
  });
 
  it('keeps entity field IDs and types, shows key/null badges and native field endpoints',()=>{
@@ -153,6 +169,7 @@ describe('Lini presentation compiler',()=>{
   const source=document({id:'stack-layout',kind:'structure',form:'stack',question:'Which layer order?',layout:{kind:'stack',direction:'LR',order:['client-b','client-a','database']},nodes:[{id:'client-a',label:'Client A',layer:'interface'},{id:'database',label:'Database',layer:'storage'},{id:'client-b',label:'Client B',layer:'interface'}],structure:{layers:[{id:'interface',label:'Interface'},{id:'storage',label:'Storage'}]}});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
   expect(result.source).toContain('layout: flow; direction: row;');
+  expect(result.source).toContain('|group#l1| "Interface" { layout: grid; columns: repeat(1); gap: 24;');
   expect(result.source.indexOf('|box#n3|')).toBeLessThan(result.source.indexOf('|box#n1|'));
   expect(result.source.indexOf('|group#l1|')).toBeLessThan(result.source.indexOf('|group#l2|'));
   expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/layout/order'&&item.representation.includes('requested declaration order'))).toBe(true);

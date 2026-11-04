@@ -1089,3 +1089,22 @@ controls and current ticket regressions; no diagnostic or attachment tolerance i
 weakened. Failed native experiments remain history, not qualified fallbacks.
 Cycle 36 is complete, ready for commit; previous holds are resolved and cycle 37
 waits for that commit.
+
+
+Implicit stack row controls preserve vertical band order, exact member ownership
+and source-stable row placement. Require unique native scope/properties, exact
+direct member/helper inventory and independent actual SVG ancestry/alignment/
+nonoverlap/containment. Mutations must distinguish direction/order/downward moves,
+position-preserving reparenting and anonymous/duplicate AST primitives. Explicit
+layouts and TB retain legacy behavior; no font threshold is waived.
+
+Cycle 37 closeout: all 18 gates pass, full 987/0, 25,525 assertions, 179 files,
+196.64s. Reviews: 36 entries, 81 qualified, seven unqualified, 20 unsupported,
+264 assets and 88 native SVG/PNG replays; all 36/36 and selected 1/36 UI modes keep
+shared controls and no errors. Catalog/showcase UI pass. Source 3/118, compiler
+21/297, row proof 3/89 and legacy quality 29/319 pass. Original1.0 source remains
+exact. G/L are independently visually approved suitable stack views; Mermaid's
+rotated left-to-right band view and role/status omissions remain qualified limits,
+not authored LR semantics. No new model field or inferred topology is introduced.
+Cycle 37 is complete, ready for commit; previous holds are resolved and cycle 38
+waits for that commit.

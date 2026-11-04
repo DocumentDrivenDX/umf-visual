@@ -431,9 +431,11 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
      for(const [field,requested,representation] of nodeStyle(node).approximations)approx(path('/nodes/'+i+'/'+field),requested,representation);
      if(node.detail)approx(path('/nodes/'+i+'/detail'),'Node detail','Lini renders the authored detail as a persistent secondary native cell beneath the node title.');
     }
+   const implicitRowLayerMembers=!rootLayout&&direction==='LR';
    const stackComponents:Array<{id:string;source:string}> = layers.map(layer=>{
     const id=layerIds.get(layer.id)!,layerNodes=ordered(nodes.filter(node=>node.layer===layer.id),rootLayout?.order).map(node=>nodeDeclaration(node,nodeIds.get(node.id)!));
     const props=groupProperties(undefined,undefined,'grid',1,direction);
+    if(implicitRowLayerMembers)props.splice(0,2,...layoutProperties({kind:'flow',direction:'LR'},'grid',1,direction));
     return{id:layer.id,source:groupDeclaration(id,layer.label,props,layerNodes)};
    });
    children.push(...stackComponents.map(item=>item.source));
@@ -445,7 +447,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
    if(visual.structure?.references)omit(path('/structure/references'),'Entity references are outside the ordered stack view.');
    const stackLayout=rootLayout?.kind==='stack'?rootLayout:undefined;
    const stackDirection=stackLayout?.direction??'TB';
-   approx(path('/structure/layers'),'Layer order',stackLayout?`Lini native ${stackDirection==='LR'?'row':'column'} flow follows authored layer order from ${stackDirection==='LR'?'left to right':'top to bottom'}.`:rootLayout?.kind==='grid'?`Lini native grid with ${rootLayout.columns} columns emits layer bands in authored order and places them row-major.`:'Lini native one-column layout follows authored layer order from top to bottom.');
+   approx(path('/structure/layers'),'Layer order',stackLayout?`Lini native ${stackDirection==='LR'?'row':'column'} flow follows authored layer order from ${stackDirection==='LR'?'left to right':'top to bottom'}.`:rootLayout?.kind==='grid'?`Lini native grid with ${rootLayout.columns} columns emits layer bands in authored order and places them row-major.`:implicitRowLayerMembers?'Lini keeps authored layer bands in top-to-bottom order and arranges each band’s members in source order from left to right.':'Lini native one-column layout follows authored layer order from top to bottom.');
   }else{
    const structure=visual.structure!,entities=structure.entities??[],entityByNode=new Map(entities.map((entity,index)=>[entity.node,{entity,index}]));
    const entityDirection=rootLayout?.kind==='grid'&&rootLayout.columns===1?'TB':rootLayout&&'direction'in rootLayout?rootLayout.direction??direction:direction;

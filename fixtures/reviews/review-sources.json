@@ -2033,6 +2033,58 @@
         "sourceDownloadPath": "reviews/beacon-schema-workspace/authoritative-source.json",
         "scope": "The exact original Visual 1.0.0 fixture remains unchanged and available as the authoritative source download. It supplies seven entity identities and roles, 24 field names/order/types/key markers, six references, title, question, audience, and the migration-directory locator. Four individually hash-bound SQL snapshots reproduce the declared migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job schema evidence in 0001_workspace.sql and 0004_jobs.sql supports nullability for all 24 fields and confirms six declared foreign keys referencing parent id columns. Twenty-one fields are NOT NULL or primary keys; settings.default_tone, integrations.connected_at, and job_runs.finished_at permit NULL. settings.workspace_id is both primary key and foreign key, so one workspace may have zero or one settings row; the other five child foreign keys are nonunique and permit zero or many children. The review adds six parent id field-name bindings; existing reference identities, direction, child field bindings, version, nodes, field keys, order, types and other cardinalities are preserved; the three cross-slice references remain omitted as stated by the original fixture. 0002_tickets.sql and 0003_drafts.sql are included only to reproduce the all-four snapshot digest and do not expand this selection. Neither fixture nor migration snapshots establish current database contents, deployment, or runtime behavior."
       }
+    },
+    {
+      "id": "beacon-stack",
+      "title": "Where each piece sits",
+      "description": "A source-derived review of the fictional Beacon stack across people, front door, application, data, and platform layers.",
+      "kind": "structure",
+      "form": "stack",
+      "definitionPath": "fixtures/visual/inventory/beacon-stack.json",
+      "definitionSha256": "bfaf187d4763816fb331af03c39e79c9c9333f7c27576fe0f854ee860657c1a7",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-stack.json",
+          "sha256": "bfaf187d4763816fb331af03c39e79c9c9333f7c27576fe0f854ee860657c1a7",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies the selected stack view\u2019s 15 ordered element identities and fields, five ordered layer declarations, title, question, takeaway, audience, and the cited architecture-model locator."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "pointer": "/view/stack",
+          "label": "Fictional architecture-model source",
+          "description": "The exact checked-in TOML bytes select the stack view\u2019s 15 elements in order and provide its title/takeaway plus each selected element\u2019s name, detail, kind, status, and layer label. Layer identifiers/order and the view question are Visual-fixture projections; the model labels itself fictional."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-stack.json",
+          "sha256": "bfaf187d4763816fb331af03c39e79c9c9333f7c27576fe0f854ee860657c1a7",
+          "outputPath": "reviews/beacon-stack/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "outputPath": "reviews/beacon-stack/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact fictional architecture-model TOML bytes cited by the original UMF fixture."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-stack.json",
+        "sourceSha256": "bfaf187d4763816fb331af03c39e79c9c9333f7c27576fe0f854ee860657c1a7",
+        "documentId": "visual:beacon-stack",
+        "visualId": "beacon-stack",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-stack/authoritative-source.json",
+        "scope": "This exact Visual 1.0.0 fixture remains unchanged as the review definition. Its `stack` selection preserves the 15 element IDs and order; the checked-in fictional TOML supplies the same selected view order, title, takeaway, and each element\u2019s name, optional detail, kind, status, and layer label. Actor/store/platform/own roles are the fixture mapping from source element kinds and platform ownership. The five displayed layer labels follow first appearance in the selected elements; layer IDs are presentation projections, not literal TOML identifiers. The question, audience, and source locator are authored in the Visual fixture; the TOML view has no question field. Zones, tiers, relations, and journey steps are not part of this stack selection and are not imported. Neither file establishes current deployment or runtime behavior."
+      }
     }
   ]
 }

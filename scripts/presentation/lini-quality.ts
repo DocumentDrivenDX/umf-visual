@@ -36,6 +36,61 @@ const distToBox=(point:{x:number;y:number},box:Box)=>Math.hypot(Math.max(box.x-p
 const boxGap=(a:Box,b:Box)=>Math.hypot(Math.max(b.x-a.x-a.width,0,a.x-b.x-b.width),Math.max(b.y-a.y-a.height,0,a.y-b.y-b.height));
 const containsBox=(outer:Box,inner:Box)=>inner.x>=outer.x-2&&inner.y>=outer.y-2&&inner.x+inner.width<=outer.x+outer.width+2&&inner.y+inner.height<=outer.y+outer.height+2;
 const nativeFor=(plan:PresentationPlan,kind:string,id:string)=>plan.elementMap.find(element=>element.kind===kind&&element.logicalId===id)?.nativeId;
+function outsideQuoteIndex(source:string,start:number,token:string):number{
+ let quoted=false,escaped=false;
+ for(let index=start;index<=source.length-token.length;index++){
+  const char=source[index]!;
+  if(quoted){if(escaped)escaped=false;else if(char==='\\')escaped=true;else if(char==='"')quoted=false;continue;}
+  if(char==='"'){quoted=true;continue;}
+  if(source.startsWith(token,index))return index;
+ }
+ return-1;
+}
+function matchingNativeDelimiter(source:string,openIndex:number,open:string,close:string):number{
+ let depth=0,quoted=false,escaped=false;
+ for(let index=openIndex;index<source.length;index++){
+  const char=source[index]!;
+  if(quoted){if(escaped)escaped=false;else if(char==='\\')escaped=true;else if(char==='"')quoted=false;continue;}
+  if(char==='"'){quoted=true;continue;}
+  if(char===open)depth++;else if(char===close&&--depth===0)return index;
+ }
+ return-1;
+}
+type NativeBlockScope={properties:string;body:string};
+function nativeMappedBlock(source:string,nativeId:string):NativeBlockScope|undefined{
+ const marker=`block#${nativeId}`;let search=0,found:NativeBlockScope|undefined;
+ while(search<source.length){
+  const pipe=outsideQuoteIndex(source,search,'|');if(pipe<0)return found;
+  const close=outsideQuoteIndex(source,pipe+1,'|');if(close<0)return found;
+  const selector=source.slice(pipe+1,close);search=close+1;if(selector!==marker)continue;
+  const brace=outsideQuoteIndex(source,close+1,'{');if(brace<0)return;
+  const selectorClasses=source.slice(close+1,brace);
+  if(!/\.lini-group\b/u.test(selectorClasses)||!/\.lini-block\b/u.test(selectorClasses))continue;
+  const braceEnd=matchingNativeDelimiter(source,brace,'{','}');if(braceEnd<0)return;
+  let bodyStart=braceEnd+1;while(/\s/u.test(source[bodyStart]??''))bodyStart++;
+  if(source[bodyStart]!=='[')return;
+  const bodyEnd=matchingNativeDelimiter(source,bodyStart,'[',']');if(bodyEnd<0)return;
+  if(found)return;
+  found={properties:source.slice(brace+1,braceEnd),body:source.slice(bodyStart+1,bodyEnd)};
+ }
+ return found;
+}
+function nativePropertyValues(properties:string,name:string):string[]{
+ const values:string[]=[];for(const part of properties.split(';')){const match=/^\s*([\w-]+)\s*:\s*([^;]+?)\s*$/u.exec(part);if(match?.[1]===name)values.push(match[2]!);}return values;
+}
+function directNativeChildInventory(body:string):Array<{id?:string;caption:boolean}>{
+ const children:Array<{id?:string;caption:boolean}>=[];let depth=0,quoted=false,escaped=false;
+ for(let index=0;index<body.length;index++){
+  const char=body[index]!;
+  if(quoted){if(escaped)escaped=false;else if(char==='\\')escaped=true;else if(char==='"')quoted=false;continue;}
+  if(char==='"'){quoted=true;continue;}if(char==='['){depth++;continue;}if(char===']'){depth--;continue;}
+  if(char==='|'&&depth===0){const close=outsideQuoteIndex(body,index+1,'|');if(close<0)break;const token=body.slice(index+1,close),id=/#([^|\s]+)$/u.exec(token)?.[1];
+   const tail=body.slice(close+1,body.indexOf('[',close+1)<0?undefined:body.indexOf('[',close+1));
+   children.push({id,caption:!id&&/\.lini-caption\b/u.test(tail)});index=close;
+  }
+ }
+ return children;
+}
 const entityFor=(visual:Visual,node:string)=>visual.structure?.entities?.findIndex(entity=>entity.node===node)??-1;
 const resolveField=(visual:Visual,node:string,fieldName?:string,fieldId?:string)=>{
  const index=entityFor(visual,node),fields=visual.structure?.entities?.[index]?.fields??[];
@@ -474,7 +529,7 @@ export async function verifyLiniPresentationQuality(
   layoutSequence(`group ${group.id}`,group.layout,children,'TB');
  }
  if(visual.form==='stack'){
-  const layers=visual.structure?.layers??[],direction=visual.layout?.kind==='stack'?(visual.layout.direction??'LR'):'TB',axis=direction==='LR'?'x':'y';let previous=-Infinity,previousGroup:Carrier|undefined;
+  const layers=visual.structure?.layers??[],direction=visual.layout?.kind==='stack'?(visual.layout.direction??'LR'):'TB',axis=direction==='LR'?'x':'y',implicitRowMembers=!visual.layout&&plan.approximations.some(item=>item.sourcePath===at('/structure/layers')&&item.representation.includes('members in source order from left to right'));let previous=-Infinity,previousGroup:Carrier|undefined;
   for(const layer of layers){
    const id=nativeFor(plan,'layer',layer.id),group=carrier(id??'','lini-group');if(!group){containmentOk=false;containmentProblems.push(`layer ${layer.id} carrier missing`);continue;}
    const position=axis==='x'?group.containerBounds.x+group.containerBounds.width/2:group.containerBounds.y+group.containerBounds.height/2;
@@ -486,8 +541,24 @@ export async function verifyLiniPresentationQuality(
     if(!caption||clearance<4){containmentOk=false;containmentProblems.push(`layer ${layer.id} caption does not clear the preceding native layer boundary by 4 CSS px (measured ${Number.isFinite(clearance)?clearance.toFixed(2):'missing'}px)`);}
    }
     for(const node of (visual.nodes??[]).filter(item=>item.layer===layer.id)){const nodeId=nativeFor(plan,'node',node.id),nodeBox=nodeId?carrier(nodeId)?.containerBounds:undefined;if(!nodeBox||!contains(group.containerBounds,nodeBox)){containmentOk=false;containmentProblems.push(`layer ${layer.id} does not contain node ${node.id}`);}}
-   const nodeMembers=(visual.nodes??[]).filter(node=>node.layer===layer.id).map(node=>layoutMember('node',node.id)).filter((item):item is LayoutMember=>!!item);
-   if(nodeMembers.length>1)layoutSequence(`layer ${layer.id} nodes`,{kind:'grid',columns:1,order:visual.layout?.order?.filter(id=>nodeMembers.some(item=>item.id===id))},nodeMembers,'TB');
+   const layerNodes=(visual.nodes??[]).filter(node=>node.layer===layer.id),nodeMembers=layerNodes.map(node=>layoutMember('node',node.id)).filter((item):item is LayoutMember=>!!item);
+   if(implicitRowMembers){
+    const scope=id?nativeMappedBlock(nativeAst,id):undefined,expectedIds=layerNodes.map(node=>nativeFor(plan,'node',node.id)),inventory=scope?directNativeChildInventory(scope.body):[],actualIds=inventory.flatMap(child=>child.id?[child.id]:[]),layoutValues=scope?nativePropertyValues(scope.properties,'layout'):[],directionValues=scope?nativePropertyValues(scope.properties,'direction'):[];
+    if(!scope||layoutValues.length!==1||layoutValues[0]!=='flow'||directionValues.length!==1||directionValues[0]!=='row'){
+     containmentOk=false;containmentProblems.push(`implicit stack layer ${layer.id} AST is not its mapped native flow row`);
+    }
+    if(expectedIds.some((id):id is undefined=>id===undefined)||JSON.stringify(actualIds)!==JSON.stringify(expectedIds)||inventory.length!==expectedIds.length+1||inventory.filter(child=>child.caption).length!==1){
+     containmentOk=false;containmentProblems.push(`implicit stack layer ${layer.id} AST direct child order ${actualIds.join(', ')} differs from its mapped source members ${expectedIds.join(', ')}`);
+    }
+    for(const member of nodeMembers)if(member.carrier.parentId!==id){containmentOk=false;containmentProblems.push(`implicit stack layer ${layer.id} does not directly own mapped node ${member.id}`);}
+    const centers=nodeMembers.map(member=>({id:member.id,x:member.carrier.containerBounds.x,y:member.carrier.containerBounds.y,width:member.carrier.containerBounds.width,height:member.carrier.containerBounds.height}));
+    if(centers.length>1){
+     const ys=centers.map(item=>item.y+item.height/2),aligned=Math.max(...ys)-Math.min(...ys)<=8;
+     const leftToRight=centers.every((item,index)=>index===0||item.x>centers[index-1]!.x+centers[index-1]!.width-2);
+     if(!aligned){containmentOk=false;containmentProblems.push(`implicit stack layer ${layer.id} members are not aligned in one visible row (center spread ${(Math.max(...ys)-Math.min(...ys)).toFixed(1)}px; limit 8px)`);}
+     if(!leftToRight){containmentOk=false;containmentProblems.push(`implicit stack layer ${layer.id} members do not preserve mapped source order from left to right`);}
+    }
+   }else if(nodeMembers.length>1)layoutSequence(`layer ${layer.id} nodes`,{kind:'grid',columns:1,order:visual.layout?.order?.filter(id=>nodeMembers.some(item=>item.id===id))},nodeMembers,'TB');
    previousGroup=group;
   }
  }
