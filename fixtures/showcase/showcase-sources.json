@@ -4,11 +4,11 @@
     {
       "id": "umf-engine-target-architecture",
       "title": "UMF access across engine boundaries",
-      "description": "The documented UMF access design connects clients to Truss protected paths and Ashlar resolver-pinned reads. This is an ownership view, not a deployment or uniform capability claim.",
+      "description": "The source-derived UMF access design connects clients to Truss protected paths and Ashlar resolver-pinned reads. The reviewed view preserves the explicit ownership and capability limits; it is not a deployment or uniform capability claim.",
       "kind": "flow",
       "form": "network",
-      "definitionPath": "fixtures/showcase/definitions/umf-engine-target-architecture.json",
-      "definitionSha256": "6d36dad240aa9b88904ba05a74de02adc5ec78b7f8fd427ea63423debe30247f",
+      "definitionPath": "fixtures/showcase/definitions/umf-engine-target-architecture-reviewed.json",
+      "definitionSha256": "136e8d390f019d42c11c611c945ef05a228be4e1ef9d9c1d2e294b7ab919ff37",
       "sources": [
         {
           "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
@@ -16,8 +16,32 @@
           "originRepository": "DocumentDrivenDX/umf",
           "originPath": "docs/helix/02-design/solution-designs/SD-031-engine-target-adapters.md",
           "originSha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
-          "pointer": "Domain Model; Solution Approaches; Scope",
-          "description": "Exact source snapshot of the documented engine-adapter design; the five connections match its domain model."
+          "pointer": "Scope; Solution Approaches; Domain Model",
+          "description": "Exact pinned source snapshot. The selected scope, protected-path approach, resolver-pinned Ashlar reads and Ashlar write-capability limitation support the added context."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-engine-target-architecture.json",
+          "sha256": "6d36dad240aa9b88904ba05a74de02adc5ec78b7f8fd427ea63423debe30247f",
+          "originPath": "fixtures/showcase/definitions/umf-engine-target-architecture.json",
+          "originSha256": "6d36dad240aa9b88904ba05a74de02adc5ec78b7f8fd427ea63423debe30247f",
+          "pointer": "Original Visual 1.1.0 definition",
+          "description": "The prior curated definition is preserved byte-for-byte as the baseline for the separate reviewed definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
+          "sha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
+          "outputPath": "showcase/umf-engine-target-architecture/engine-target-adapters.md",
+          "mediaType": "text/markdown",
+          "description": "Exact pinned source Markdown bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-engine-target-architecture.json",
+          "sha256": "6d36dad240aa9b88904ba05a74de02adc5ec78b7f8fd427ea63423debe30247f",
+          "outputPath": "showcase/umf-engine-target-architecture/original-visual-1.1.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.1.0 curated definition bytes, preserved separately from the reviewed definition."
         }
       ]
     },

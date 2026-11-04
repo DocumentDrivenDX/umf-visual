@@ -186,6 +186,8 @@ try{
   checks.push('all qualified SVG, PNG, and native-source downloads match their content hashes');
 
   const selected=page.locator('#scenario-list .scenario-button');
+  const contextResetIndex=showcase.examples.findIndex((example:any)=>(example.renders||[]).filter((render:any)=>render.status==='qualified').length>1);
+  if(contextResetIndex<0)throw new Error('The curated showcase has no example with multiple qualified backends for context-reset coverage.');
   for(let index=0;index<showcase.examples.length;index++){
     await selected.nth(index).click();
     const example=showcase.examples[index];
@@ -195,12 +197,12 @@ try{
     await page.locator('#copy-payload').click();
     if(await page.evaluate(()=>navigator.clipboard.readText())!==visibleYaml)throw new Error(`Scenario ${example.id} does not copy its exact YAML payload.`);
     await assertAuthoredContext(page,example);
-    if(index===0){
+    if(index===contextResetIndex){
       const context=page.locator('#authored-context'),summary=context.locator(':scope > summary');
       await summary.focus();await page.keyboard.press('Enter');
       const currentBackend=await page.locator('#backend-options [aria-pressed="true"]').getAttribute('data-backend');
       const resetBackend=example.renders.find((render:any)=>render.status==='qualified'&&render.backend!==currentBackend)?.backend;
-      if(!resetBackend)throw new Error('The first showcase example has no alternate qualified backend for context-reset coverage.');
+      if(!resetBackend)throw new Error(`The multi-qualified context-reset scenario ${example.id} has no alternate backend.`);
       await page.locator(`[data-backend="${resetBackend}"]`).click();
       if(await page.locator(`[data-backend="${resetBackend}"]`).getAttribute('aria-pressed')!=='true')throw new Error('The context reset probe did not switch to an alternate backend.');
       if(await context.evaluate(element=>(element as HTMLDetailsElement).open))throw new Error('Changing backend did not collapse the authored-context panel.');

@@ -415,9 +415,12 @@ function renderAuthoredPayload(example) {
   const backend = state.backend;
   const renderer = backend === 'lini' ? 'Lini' : backend === 'graphviz' ? 'Graphviz' : 'Mermaid';
   const nativeVersion = variant?.nativeVersion;
-  ui.compileTargetNote.textContent = variantQualified(variant)
+  const qualified = variantQualified(variant), unqualified = variantUnqualified(variant);
+  ui.compileTargetNote.textContent = qualified
     ? `Selected source target: ${renderer} ${nativeVersion}. This compiles native diagram text; the preview above is the separately verified render.`
-    : `${renderer} has no qualified render for this example. The compile call below requests that backend and may return diagnostics.`;
+    : unqualified
+      ? `Selected source target: ${renderer} ${nativeVersion}. Native rendering did not pass the preview quality checks. The compile call remains available; inspect the recorded limitations above.`
+      : `${renderer} has no usable native render receipt for this example. The compile call below requests that backend and may return diagnostics.`;
   const modelVersion = typeof version === 'string' ? version : '1.0.0';
   ui.programmaticCode.textContent = `import { createVisualDocument, getVisual, editVisual, type Visual, type VisualVersion } from '@documentdrivendx/umf-visual';
 import { compilePresentation } from '@documentdrivendx/umf-visual/presentation';

@@ -7,9 +7,10 @@ import {inspectVisual,type Visual} from '../../src';
 import type {Document} from '@umf/core';
 
 type SourceRef={path:string;sha256:string;originPath:string;originSha256:string;pointer:string;description:string;originRepository?:string;originCommit?:string;originTag?:string;originTagObject?:string};
-type ShowcaseExample={id:string;title:string;description:string;kind:Visual['kind'];form:Visual['form'];definitionPath:string;definitionSha256:string;sources:SourceRef[]};
+type ShowcaseExample={id:string;title:string;description:string;kind:Visual['kind'];form:Visual['form'];definitionPath:string;definitionSha256:string;sources:SourceRef[];publishedAssets?:Array<{path:string;sha256:string;outputPath:string;mediaType?:string;description?:string}>};
 const root=process.cwd();
 const hash=(bytes:string|Uint8Array)=>createHash('sha256').update(bytes).digest('hex');
+const normalizedSourceText=(value:string)=>value.replace(/\s+/gu,' ').trim();
 const read=(path:string)=>readFileSync(resolve(root,path));
 const manifest=JSON.parse(readFileSync(resolve(root,'fixtures/showcase/showcase-sources.json'),'utf8')) as {schemaVersion:number;examples:ShowcaseExample[]};
 const document=(example:ShowcaseExample)=>JSON.parse(read(example.definitionPath).toString('utf8')) as Document;
@@ -130,6 +131,8 @@ test('the three pinned Lini gallery examples preserve only their authored semant
 test('engine-target architecture keeps the documented SDK and engine ownership boundaries',()=>{
  const example=manifest.examples.find(row=>row.id==='umf-engine-target-architecture')!;
  const v=visual(document(example)),source=read(example.sources[0]!.path).toString('utf8');
+ expect(example.definitionPath).toBe('fixtures/showcase/definitions/umf-engine-target-architecture-reviewed.json');
+ expect(v.layout).toEqual({kind:'flow',direction:'LR'});
  expect(v.groups?.map(group=>group.label)).toEqual(['UMF access SDK','Truss','Ashlar']);
  expect(v.nodes?.filter(node=>node.group==='sdk').map(node=>node.label)).toEqual(['Catalog function','Actions client']);
  expect(v.nodes?.filter(node=>node.group==='truss').map(node=>node.label)).toEqual(['Read path','Action admission','Bulk coordination']);
@@ -140,8 +143,48 @@ test('engine-target architecture keeps the documented SDK and engine ownership b
  ]);
  for(const relationship of ['Q --> TR','A --> TA','Q --> TB','Q --> AR --> AP'])expect(source).toContain(relationship);
  expect(source).toContain('Ashlar provides no `ActionExecutor` or');
+ expect(v.annotations?.map(annotation=>annotation.text)).toEqual([
+  'The conformance boundary that lets Truss and Ashlar act as SDK targets. UMF owns the protocols, the conformance suite, the adoption packet shape and the engine-specific witness list. Each engine owns its adapter, its adoption design and its execution authority. This design changes no engine storage and amends no sibling contract.',
+  'Selected: engines implement the same target protocols as raw tables, over their own protected paths. Weft compiles catalog entries for each engine through its existing backend. The adapter adds no semantics: it routes catalog entries and encoded inputs into the engine and maps results back to SDK outcomes.',
+  'Rejected: Latest-table reads on Ashlar. They can mix table versions from different publications. Every read is resolver-pinned instead.',
+  'Rejected: Ashlar actions or bulk through the SDK. Ashlar writes, ACK progress and publication are its own protocol. Ashlar provides no `ActionExecutor` or `BulkTarget`.'
+ ]);
+ expect(v.annotations?.[1]?.text.startsWith('Selected:')).toBe(true);
+ expect(v.annotations?.[2]?.text.startsWith('Rejected:')).toBe(true);
+ expect(v.annotations?.[3]?.text.startsWith('Rejected:')).toBe(true);
+ expect(normalizedSourceText(v.annotations?.[2]?.text??'')).toContain('Every read is resolver-pinned instead');
+ expect(normalizedSourceText(v.annotations?.[3]?.text??'')).toContain('provides no `ActionExecutor` or `BulkTarget`');
+ expect(example.sources.map(source=>source.path)).toContain('fixtures/showcase/definitions/umf-engine-target-architecture.json');
+ expect(example.publishedAssets?.map(asset=>asset.outputPath)).toContain('showcase/umf-engine-target-architecture/original-visual-1.1.json');
  expect(v.takeaway).toContain('documented target design');
  expect(v.omissions?.join(' ')).toContain('not a deployment');
+});
+
+test('engine-target reviewed showcase preserves its original Visual definition and binds the pinned source',()=>{
+ const example=manifest.examples.find(row=>row.id==='umf-engine-target-architecture')!;
+ const originalPath='fixtures/showcase/definitions/umf-engine-target-architecture.json';
+ const sourcePath='fixtures/showcase/sources/umf/engine-target-adapters.md';
+ const originalBytes=read(originalPath),originalDoc=JSON.parse(originalBytes.toString('utf8')) as Document;
+ const reviewedDoc=document(example),expected=structuredClone(originalDoc) as any;
+ const source=read(sourcePath).toString('utf8');
+ expected.vocabularies['umf.visual'].version='1.4.0';
+ expected.extensions['umf.visual'].layout={kind:'flow',direction:'LR'};
+ expected.extensions['umf.visual'].annotations=[
+  {id:'adapter-ownership',text:'The conformance boundary that lets Truss and Ashlar act as SDK targets. UMF owns the protocols, the conformance suite, the adoption packet shape and the engine-specific witness list. Each engine owns its adapter, its adoption design and its execution authority. This design changes no engine storage and amends no sibling contract.'},
+  {id:'selected-target-approach',text:'Selected: engines implement the same target protocols as raw tables, over their own protected paths. Weft compiles catalog entries for each engine through its existing backend. The adapter adds no semantics: it routes catalog entries and encoded inputs into the engine and maps results back to SDK outcomes.'},
+  {id:'ashlar-resolver-pinning',text:'Rejected: Latest-table reads on Ashlar. They can mix table versions from different publications. Every read is resolver-pinned instead.'},
+  {id:'ashlar-write-scope',text:'Rejected: Ashlar actions or bulk through the SDK. Ashlar writes, ACK progress and publication are its own protocol. Ashlar provides no `ActionExecutor` or `BulkTarget`.'}
+ ];
+ expect(reviewedDoc).toEqual(expected);
+ expect(originalDoc.vocabularies['umf.visual']?.version).toBe('1.1.0');
+ expect((originalDoc.extensions?.['umf.visual'] as any)?.annotations).toBeUndefined();
+ expect(source).toContain('flowchart LR');
+ expect(normalizedSourceText(source)).toContain('Every read is resolver-pinned instead.');
+ expect(normalizedSourceText(source)).toContain('Ashlar provides no `ActionExecutor` or `BulkTarget`.');
+ expect(example.sources.map(ref=>ref.path)).toContain(sourcePath);
+ expect(example.sources.find(ref=>ref.path===sourcePath)).toMatchObject({originRepository:'DocumentDrivenDX/umf',originPath:'docs/helix/02-design/solution-designs/SD-031-engine-target-adapters.md',originSha256:'f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021'});
+ expect(hash(read(sourcePath))).toBe('f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021');
+ expect(hash(originalBytes)).toBe('6d36dad240aa9b88904ba05a74de02adc5ec78b7f8fd427ea63423debe30247f');
 });
 
 test('architecture network follows the exact documented container nodes and connections',()=>{
