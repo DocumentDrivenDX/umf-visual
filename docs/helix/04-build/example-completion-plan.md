@@ -2961,6 +2961,115 @@ current-system claim, native threshold waiver or host expansion is introduced.
 Commit follows in this change; git history is authoritative. Cycle 30 remains
 pending until cycle 29 is committed.
 
+### Thirtieth-cycle scope — fictional lane field guide
+
+Cycle 30 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/inventory/beacon-field-guide.json`, SHA-256
+`1d7a4222d275d942157dd3531d438c825afcb6812576ab13b937c911c18aa007`.
+Audit matching fictional architecture TOML selected field-guide view and relation
+step facts before freezing. Preserve seven nodes/four lane groups/six directed
+edges, full details/roles/status/why and source title/question/takeaway. Four ordered
+numbered steps and one throughout step retain exact focus/caption identity; the
+throughout item stays outside sequential numbering. Explicit conceptual-map and
+omitted-system inventory remains source-authored, without deployment/current-state
+or unrelated journey enrichment. Prefer exact alias unless a relevant omission
+is concretely evidenced.
+
+Existing lane-group and step vocabulary suffices. Reuse grouped-flow rendering
+where compatible, preserving lane containment and exact topology; lane placement
+adds no edges or timing facts. Existing authored-context walkthrough can represent
+ordered focus meaning without claiming native animation. Require at least one
+qualified native target and truthful remaining limitations. Runtime/proof admission
+changes reopen applicable AGENTS full gates; data-only scope may use affected
+checks if native baseline already qualifies. Commit cycle 30 before cycle 31.
+
+### Thirtieth-cycle focused lane-proof checkpoint
+
+Source/provenance checks pass five tests/177 assertions with exact selected-view
+JSON/TOML alias. Generic lane admission reuses grouped flow, preserving actual
+role-lane enclosures/member subgroups and exact topology without mandatory physical
+alignment or time meaning. Static-native step omissions remain consumer-neutral;
+the review UI separately qualifies exact ordered focus/throughout context.
+
+Case native controls pass two tests/62 assertions across G/M/L and renamed source
+identity/corruption. Lini target styling/placement uses grouped DAG composition,
+font/clearance budgets and same-group fanout policy, with actual native checks
+remaining authority. New generic lane proof focused controls pass two tests/199
+assertions: different-count, renamed, nested subgroups and wrong-lane/hidden-outline/
+phantom/hidden-owned-glyph variants. RGB paint parsing, actual helper inventory and
+ancestor ownership replace brittle source-format assumptions; mandatory check
+selection is additive to all prior checks. Question-only fallback and isolated phantom-group controls pass;
+remaining required broad gates are pending; cycle 30 is not
+complete or ready for commit.
+
+### Thirtieth-cycle full-suite checkpoint — 2026-11-04
+
+The final isolated full suite passes **945 tests, zero failures, 24,545 assertions
+across 167 files in 349.56 seconds** (`.cache/cycle 30-full-test.log`). The unchanged
+Graphviz style integration case passes in 3,679.08ms. Two earlier loaded full runs
+had each timed out that real external-dot test at the default 5s budget; isolated
+retry passed 5/0, and a narrowly scoped 30s per-test allowance retained every native
+exit/style assertion with no retry. The loaded catalog subset then passed 54 tests/
+3,787 assertions in 115.85s, with the native case 105.61ms. No runtime acceptance or
+quality threshold was changed by this scheduling correction.
+
+Final lane proof controls pass two tests/199 assertions, including question-only
+fallback and a phantom group stripped of child nodes with unchanged node inventory
+and group-specific failure. Source/provenance controls pass five tests/177 assertions.
+Source/build/fetch and packed Bun/Node consumer checks pass. Final generic model/
+interface/modularity review approves additive source-derived lane inventory,
+visible outlines, owned glyphs/membership and truthful static-step omissions, with
+independent review walkthrough representation. Native/catalog/showcase/review/
+replay/site/UI gates remain queued; cycle 30 is incomplete and not ready for commit.
+Cycle 31 may start only after cycle 30 is committed.
+
+### Thirtieth-cycle built-native checkpoint — UI pending
+
+Real built receipts cover 29 reviews/66 qualified/three unqualified/18 unsupported
+variants, 207 assets and 69 native SVG/PNG replays. Every field-guide backend records
+passing mandatory flow-lanes-native-membership-and-boundaries evidence. Exact
+source definition remains 1d7a4222d275d942157dd3531d438c825afcb6812576ab13b937c911c18aa007.
+Field-guide PNG SHA-256 values are Graphviz
+`a9865ff149783c61f65a3c9a9450ab354f2c408b6dd4c2503ae13ae894e859d5`,
+Mermaid `e03d8e4b322adc2e256f41b106eee141ae3f8b978c1e2de9947a107a6b8cb979`
+and Lini `6ceb7842e706a1a5cdb57156ae0bcdba10ad2d24bdeba02101a7008e9050b4b7`.
+Independent actual-built G/L visual inspection confirms exact labeled enclosures,
+seven nodes/six captioned links and readable details; static metadata/walkthrough
+omissions remain view-qualified rather than claimed native content.
+
+Previous unqualified failure sets are unchanged: deployment Mermaid font/overlap,
+deployment Lini endpoints/font and nested-estate Mermaid font only. Browser covers
+53 fixtures/106 round trips and 29 reviewed definitions/58 round trips/69 plans,
+without errors. Catalog 53 and showcase nine examples/23 qualified/zero failed plus
+23 SVG/PNG replays pass. Native/review replay/site builds pass. Final review UI
+all/selected and catalog/showcase UI remain pending; cycle 30 is incomplete.
+
+### Thirtieth-cycle closeout — 2026-11-04
+
+All required gates pass. The authoritative final full suite is **945 tests, zero
+failures, 24,545 assertions across 167 files in 349.56 seconds**. Source/type/build,
+fetch/native, packed Bun/Node consumers, browser 53 fixtures/29 reviewed definitions/
+69 plans, catalog 53, showcase nine examples/23 qualified variants, review 69 native
+SVG/PNG replays/207 assets and site builds pass. Final review UI receipts record
+all 29/29 and selected 1/29 with sharedControls true and no errors; catalog 53 and
+showcase nine-example UI also report no errors. The preceding built-native
+checkpoint retains exact G/M/L PNG and source hashes and unchanged prior failure
+sets. Earlier external-dot 5s timeouts and the narrow 30s test-local allowance plus
+catalog 54/3,787 evidence remain audited above; final clean gates are authoritative.
+
+Final typed-boundary/model/interface/modularity audit passes: existing flow/lanes
+and step vocabulary express the selected fictional source exactly. Generic native
+admission and private placement preserve enclosures/member subgroups/topology,
+without physical alignment, timing, deployment or new semantic fields. Additive
+native lane proof independently checks actual inventory, visible outlines/owned
+glyphs, ancestry/nesting and phantom/hidden/wrong-lane controls. Compiler static
+step omissions remain consumer-neutral; review UI independently preserves four
+numbered steps and unnumbered throughout focus/caption meaning. Original JSON/TOML
+bytes and selected-view caveat are unchanged. No individual proof threshold or
+host capability claim is widened. Commit follows in this change; git history is
+authoritative. Cycle 31 remains pending until cycle 30 is committed; this resolves
+all earlier checkpoint holds.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.

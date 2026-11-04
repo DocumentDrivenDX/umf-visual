@@ -39,6 +39,7 @@ export function assertReplayedQualityMatches(input:{exampleId:string;backend:Pre
 /** Explicit proof obligations; a renderer load or arbitrary passing check cannot replace them. */
 export function requiredPresentationChecks(backend:PresentationBackend,visual:Visual):string[]{
  const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-svg-fit','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
+ if(visual.kind==='flow'&&visual.form==='lanes')checks.push('flow-lanes-native-membership-and-boundaries');
  if(visual.layout?.kind==='circular')checks.push('presentation-circular-layout');
  if(backend==='graphviz'){
   checks.push(...(visual.kind==='state'?['graphviz-native-ast','graphviz-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['graphviz-native-ast','graphviz-timeline-events-and-axis']:['graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order']));

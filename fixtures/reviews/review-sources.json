@@ -1578,6 +1578,58 @@
         "sourceDownloadPath": "reviews/beacon-estate/authoritative-source.json",
         "scope": "This exact original UMF fixture is the review definition and remains byte-for-byte unchanged. It preserves its four node identities, labels, details, authored role values, five directed relation identities/endpoints/labels, and the final relation kind `control`, together with the authored title, question, and historical source locator. The separately cited Mermaid file matches the four labels/details and five arrow declarations; its final dashed arrow corresponds to the fixture’s control kind. The role values are preserved as fixture-authored fields, not independently established by the Mermaid source; neither source establishes ownership, concurrency, current state, or deployment."
       }
+    },
+    {
+      "id": "beacon-field-guide",
+      "title": "A developer's first map of Beacon",
+      "description": "The exact Visual 1.0.0 fixture for the fictional Beacon field-guide view and its matching architecture-model source.",
+      "kind": "flow",
+      "form": "lanes",
+      "definitionPath": "fixtures/visual/inventory/beacon-field-guide.json",
+      "definitionSha256": "1d7a4222d275d942157dd3531d438c825afcb6812576ab13b937c911c18aa007",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-field-guide.json",
+          "sha256": "1d7a4222d275d942157dd3531d438c825afcb6812576ab13b937c911c18aa007",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies seven node identities and fields, four lane groups with memberships, six induced relations, four numbered walkthrough steps, one throughout audit-span note, and the authored conceptual-scope caveat."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "pointer": "/view/field-guide",
+          "label": "Fictional architecture-model source",
+          "description": "The exact checked-in TOML bytes identify the selected field-guide view, its elements and groups, and the relations and journey notes retained by the fixture; the source labels the model fictional."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-field-guide.json",
+          "sha256": "1d7a4222d275d942157dd3531d438c825afcb6812576ab13b937c911c18aa007",
+          "outputPath": "reviews/beacon-field-guide/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "outputPath": "reviews/beacon-field-guide/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact fictional architecture-model TOML bytes cited by the original fixture."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-field-guide.json",
+        "sourceSha256": "1d7a4222d275d942157dd3531d438c825afcb6812576ab13b937c911c18aa007",
+        "documentId": "visual:beacon-field-guide",
+        "visualId": "beacon-field-guide",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-field-guide/authoritative-source.json",
+        "scope": "This exact UMF fixture is the review definition. It preserves the seven elements selected by the `field-guide` view, their four authored lane groups and memberships, and the six relations induced by selected endpoints. Its four numbered steps reproduce the source relations marked 1 through 4; the final `throughout` note reproduces the source audit-span relation. The authored caveat names source elements left outside this view and preserves the placeholder/unknown statuses for Policy rules and Attachment store. The architecture-model source identifies itself as fictional; neither file establishes current state or deployment."
+      }
     }
   ]
 }

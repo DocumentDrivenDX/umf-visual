@@ -870,3 +870,30 @@ without errors. All required native/corpus/replay/public/packed-consumer gates p
 Generic caption geometry preserves strict unrelated-node ownership, and selector
 receipts prevent filtered runs implying full coverage. Exact source authority,
 quality thresholds and portable vocabulary remain unchanged.
+
+
+Lane-form conformance checks exact labeled enclosures, member/subgroup ownership
+and full node/edge inventories without assuming physical swimlane alignment.
+Verify source walkthrough titles/captions/focus in shared context, numbered steps
+separately from throughout/other when-marked items, and truthful static-native
+step omissions. Explicit layout/order policies receive their existing qualified
+checks; no implied chronology or topology is introduced by lane placement.
+
+
+Cycle 30 execution checkpoint: final full suite passes 945/0 with 24,545 assertions
+across 167 files in 349.56s. Lane proof 2/199 and source 5/177 controls pass. Two earlier
+full runs exposed an external-dot test's loaded 5s timeout; its test-local 30s budget
+retains real execution/assertions/no retries, validated by catalog 54/0/3,787 and the
+final full pass. Remaining native/corpus/replay/UI gates are pending; this is not a
+cycle completion claim or quality-threshold waiver.
+
+
+Cycle 30 closeout: final full suite passes 945 tests, zero failures and 24,545
+assertions across 167 files in 349.56 seconds. All required native/corpus/replay,
+source/type/build, public-browser, packed-consumer and UI gates pass. Review UI
+all 29/29 and selected 1/29 retain shared controls and zero errors. Existing lane/
+walkthrough vocabulary remains unchanged; exact source membership and native
+outline/inventory/owned-glyph controls qualify generic lane rendering without
+alignment or chronology inference. Two prior native-process 5s timeouts and narrow
+30s test-local execution budget are retained in execution history; all native
+assertions/quality thresholds remain unchanged and final clean gates prevail.

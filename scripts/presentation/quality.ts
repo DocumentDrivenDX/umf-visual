@@ -9,6 +9,7 @@ import {stateTransitionCaption} from '../../src/presentation/state';
 import {planDateHistoryEvents} from '../../src/presentation/timeline-layout';
 import {verifyLiniPresentationQuality} from './lini-quality';
 import {verifyNestedBrowserQuality} from './nested-quality';
+import {verifyLanesPresentationQuality} from './lanes-quality';
 
 export interface PresentationQualityCheck {
  check:string;
@@ -69,6 +70,7 @@ export async function verifyPresentationQuality(
  await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden;background:#fff}#frame{width:1600px;height:900px;display:flex;align-items:center;justify-content:center}#frame svg{display:block;max-width:1600px;max-height:900px;width:auto;height:auto}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
  await page.locator('#frame').evaluate((el,markup)=>{el.innerHTML=markup;},svg);
  await page.locator('#frame svg').evaluate(root=>{const element=root as SVGSVGElement;element.style.maxWidth='none';element.style.maxHeight='none';element.style.width='100%';element.style.height='100%';});
+ if(visual.kind==='flow'&&visual.form==='lanes')checks.push(...await verifyLanesPresentationQuality(page,{plan,visual,nativeAst:input.nativeAst}));
  if(plan.backend!=='lini'&&visual.kind==='structure'&&visual.form==='nested')checks.push(...await verifyNestedBrowserQuality(page,{plan,visual,nativeAst:input.nativeAst}));
  const dom=await page.locator('#frame svg').evaluate((root)=>{
   const s=root as SVGSVGElement,view=s.viewBox.baseVal,rootRect=s.getBoundingClientRect();

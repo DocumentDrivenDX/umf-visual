@@ -748,3 +748,13 @@ not only their source/target nodes or group frames. A native label cutout cannot
 excuse placement inside an unrelated node. Skip-rank corridor placement MAY use
 private rank/label geometry estimates, but actual native ownership, visible ink
 and all-node clearance remain the conformance authority.
+
+
+A flow/lanes profile MAY reuse grouped-flow native containers when every source
+node belongs to a declared lane or its subgroup. Qualification requires labeled
+lane enclosure, exact membership/nesting and authored topology, with located lane
+role representation. Absent authored layout does not imply aligned swimlane rows,
+equal dimensions, chronology or additional dependencies. Static graph views MAY
+retain a located steps omission while the review's authored-context walkthrough
+preserves exact ordered title/caption/focus identity and when/tag semantics; this
+does not claim native sequencing or animation.
