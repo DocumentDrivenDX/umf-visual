@@ -2895,7 +2895,62 @@
         "envelopeVersion": "0.10.0",
         "modelVersion": "1.0.0",
         "sourceDownloadPath": "reviews/tpl-arch-context/authoritative-source.json",
-        "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition preserves all original node IDs/labels, four edge IDs/endpoints/protocol labels, title/question and source metadata, then adds the exact Type, Purpose, and Protocol cells from each corresponding Level 1 system-context table row to node detail. It does not infer or rewrite Visual roles; source types remain literal in the added detail. Existing graph edges preserve the source Mermaid protocol labels, while node details retain the table's more specific Protocol cells (for example, HTTPS browser versus HTTPS). The cited Markdown digest matches the fixture in HELIX commit 19065f860a9e26b0cb52831de59b524ed6a55de6. The file is a DepositMatch architecture example/template and does not establish a deployed system or current operational state."
+      "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition preserves all original node IDs/labels, four edge IDs/endpoints/protocol labels, title/question and source metadata, then adds the exact Type, Purpose, and Protocol cells from each corresponding Level 1 system-context table row to node detail. It does not infer or rewrite Visual roles; source types remain literal in the added detail. Existing graph edges preserve the source Mermaid protocol labels, while node details retain the table's more specific Protocol cells (for example, HTTPS browser versus HTTPS). The cited Markdown digest matches the fixture in HELIX commit 19065f860a9e26b0cb52831de59b524ed6a55de6. The file is a DepositMatch architecture example/template and does not establish a deployed system or current operational state."
+      }
+    },
+    {
+      "id": "tpl-arch-dataflow",
+      "title": "Data Flow",
+      "description": "An exact source-bound projection of the DepositMatch Data Flow sequence, preserving participant/message order and authored return arrows.",
+      "kind": "sequence",
+      "form": "lifelines",
+      "definitionPath": "fixtures/visual/inventory/tpl-arch-dataflow.json",
+      "definitionSha256": "1164b43bc602003376f4205fd6dcafcc2477cecfa333ace7182edfc32d474af2",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/tpl-arch-dataflow.json",
+          "sha256": "1164b43bc602003376f4205fd6dcafcc2477cecfa333ace7182edfc32d474af2",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies six participant identities/labels, thirteen ordered message labels/endpoints, two return-kind projections, title/question, and the cited architecture-example locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-example.md",
+          "sha256": "4c79ba17f9d9342592c062b9a51cef0232816004b59f110488f696e7a8e191b8",
+          "pointer": "Data Flow Mermaid sequence diagram",
+          "label": "Cited HELIX architecture example",
+          "originalLocator": "helix:workflows/activities/02-design/artifacts/architecture/example.md",
+          "resolvedSource": "helix/workflows/activities/02-design/artifacts/architecture/example.md",
+          "observedRevision": "19065f860a9e26b0cb52831de59b524ed6a55de6",
+          "description": "Exact Markdown bytes resolved from the fixture locator at the recorded HELIX commit. The selected Data Flow sequence specifies six participants and thirteen ordered messages, including an API self-call and two dashed returns. It does not specify timing, activation bars, or concurrency. The file is a DepositMatch architecture example, not a claim about a deployed product."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/tpl-arch-dataflow.json",
+          "sha256": "1164b43bc602003376f4205fd6dcafcc2477cecfa333ace7182edfc32d474af2",
+          "outputPath": "reviews/tpl-arch-dataflow/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-example.md",
+          "sha256": "4c79ba17f9d9342592c062b9a51cef0232816004b59f110488f696e7a8e191b8",
+          "outputPath": "reviews/tpl-arch-dataflow/architecture-example.md",
+          "mediaType": "text/markdown",
+          "description": "Exact historical architecture-example Markdown bytes resolved from the original HELIX locator."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/tpl-arch-dataflow.json",
+        "sourceSha256": "1164b43bc602003376f4205fd6dcafcc2477cecfa333ace7182edfc32d474af2",
+        "documentId": "visual:tpl-arch-dataflow",
+        "visualId": "tpl-arch-dataflow",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/tpl-arch-dataflow/authoritative-source.json",
+        "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte as the reviewed definition. Its six ordered participants and thirteen ordered messages match the selected Data Flow Mermaid sequence in the cited Markdown source. Participant/message IDs, the question, and the sequence/lifelines vocabulary are Visual-fixture projections. Message labels/endpoints and order are source-authored; the two dashed Mermaid replies are projected as Visual return kinds. The source does not assert elapsed time, duration, activation bars, or concurrency. No Level 2 container responsibilities or other architecture sections are merged into this selected Data Flow view. The cited digest matches the architecture example in HELIX commit 19065f860a9e26b0cb52831de59b524ed6a55de6."
       }
     }
   ]
