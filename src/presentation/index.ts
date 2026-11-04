@@ -36,6 +36,10 @@ const BASE='/extensions/umf.visual';
 const safeId=(prefix:string,index:number)=>prefix+(index+1);
 const ptr=(s:string)=>s.replace(/~/g,'~0').replace(/\//g,'~1');
 const dot=(s:string)=>'"'+s.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r/g,'\\r').replace(/\n/g,'\\n').replace(/\t/g,'\\t')+'"';
+// DOT expands XML character references in quoted label text. Escape literal
+// ampersands for text-only carriers so authored entity-like sequences remain
+// visible as authored characters in the native SVG.
+const dotPlainText=(s:string)=>dot(s.replace(/&/g,'&amp;'));
 const dotHtml=(s:string)=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<BR ALIGN="LEFT"/>');
 const graphvizDefaultRanksep=0.62;
 const graphvizCurvedLabelMinlen=(label:string)=>Math.max(2,Math.ceil((Array.from(label).length*6.3+24)/(graphvizDefaultRanksep*96))+1);
@@ -103,7 +107,8 @@ export function compilePresentation(document:Document,options:PresentationOption
  const strings:{value:string;path:string}[]=[];const pending:{value:unknown;path:string}[]=[{value:visual,path:BASE}];
  while(pending.length){const current=pending.pop()!;if(typeof current.value==='string'){strings.push({value:current.value,path:current.path});continue;}if(Array.isArray(current.value)){for(let i=0;i<current.value.length;i++)pending.push({value:current.value[i],path:current.path+'/'+i});}else if(current.value&&typeof current.value==='object'){for(const[k,v]of Object.entries(current.value))pending.push({value:v,path:current.path+'/'+ptr(k)});}}
  for(const item of strings){for(let i=0;i<item.value.length;i++){const code=item.value.charCodeAt(i);if(code===13||code===0||(code<32&&code!==9&&code!==10)){return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Carriage returns and control characters other than tab/newline cannot be represented by the presentation renderers.') ]};}if(code>=0xD800&&code<=0xDBFF){const next=item.value.charCodeAt(i+1);if(!(next>=0xDC00&&next<=0xDFFF))return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Unpaired UTF-16 surrogates cannot be represented by the presentation renderers.') ]};i++;}else if(code>=0xDC00&&code<=0xDFFF)return {ok:false,diagnostics:[diag('PRESENTATION_TEXT',item.path,'Unpaired UTF-16 surrogates cannot be represented by the presentation renderers.') ]};}}
- if(visual.annotations?.length&&(visual.kind!=='flow'||visual.form!=='network')&&visual.kind!=='state'&&!(visual.kind==='comparison'&&(visual.form==='quadrant'||visual.form==='before-after'||visual.form==='matrix')))return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_SCOPE',BASE+'/annotations','Free-text annotations are currently qualified only for flow/network diagrams, state machines, and bounded Lini comparison profiles; this renderer does not silently drop them from another presentation form.')]};
+ const entityAnnotationProfile=visual.kind==='structure'&&visual.form==='entities'&&(optionValues.backend==='graphviz'||optionValues.backend==='mermaid'||optionValues.backend==='lini');
+ if(visual.annotations?.length&&(visual.kind!=='flow'||visual.form!=='network')&&visual.kind!=='state'&&!(visual.kind==='comparison'&&(visual.form==='quadrant'||visual.form==='before-after'||visual.form==='matrix'))&&!entityAnnotationProfile)return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_SCOPE',BASE+'/annotations','Free-text annotations are currently qualified only for flow/network diagrams, state machines, bounded Lini comparison profiles, and qualified entity views; this renderer does not silently drop them from another presentation form.')]};
  if(visual.annotations?.length&&visual.layout?.kind==='circular')return {ok:false,diagnostics:[diag('PRESENTATION_ANNOTATION_CIRCULAR',BASE+'/annotations','Circular layout with free-text annotations is not yet qualified: the native fixed-position flow currently has no reviewed placement policy for unanchored text.')]};
  const unsupportedCircularGroup=visual.groups?.find(group=>group.layout?.kind==='circular');
  if(unsupportedCircularGroup)return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/groups/'+visual.groups!.indexOf(unsupportedCircularGroup)+'/layout','Circular placement is not qualified for nested group scopes; no grid or flow fallback is selected.')]};
@@ -172,6 +177,8 @@ export function compilePresentation(document:Document,options:PresentationOption
 
  const nodes=visual.nodes??[],groups=visual.groups??[],edges=visual.edges??[];
  const neutralMermaidEntityView=backend==='mermaid'&&visual.kind==='structure'&&visual.form==='entities'&&(
+  (visual.annotations?.length??0)>0
+  ||
   (visual.structure?.references??[]).some(reference=>!reference.identification||(!reference.fromMultiplicity&&!reference.fromCardinality)||(!reference.toMultiplicity&&!reference.toCardinality))
   ||(visual.structure?.entities??[]).some(entity=>entity.fields.some(field=>!field.type||!/^[A-Za-z\u00C0-\uFFFF][A-Za-z0-9_\-()[\]\u00C0-\uFFFF]*$/u.test(field.type)||!/^[A-Za-z_*\u00C0-\uFFFF][A-Za-z0-9_\-()[\]\u00C0-\uFFFF]*$/u.test(field.name)))
  );
@@ -222,7 +229,9 @@ export function compilePresentation(document:Document,options:PresentationOption
   else if(neutralMermaidEntityView)for(let i=0;i<references.length;i++)addMap(references[i]!.id,path('/structure/references/'+i),safeId('r',i),'reference');
   else for(let i=0;i<(structure.references??[]).length;i++)omit(path('/structure/references/'+i+'/id'),'Mermaid ER draws this relationship but does not provide a qualified user-assigned native relationship identifier.');
   if(backend==='graphviz'){
-   const entityDirection=layoutDirection(visual.layout,dir);
+   const entityAnnotationDefaultTb=(visual.annotations?.length??0)>0&&!visual.layout&&optionValues.direction===undefined;
+   const entityDirection=layoutDirection(visual.layout,entityAnnotationDefaultTb?'TB':dir);
+   if(entityAnnotationDefaultTb)approx(path('/annotations'),'Default Graphviz direction TB for unlayouted entity annotations','The renderer selects a top-to-bottom layout so the source-owned entity graph and trailing annotation text can fit together; entity identities, reference endpoints, cardinalities, and annotation order remain unchanged.');
    const lines=['digraph UMFPresentation {','  graph [rankdir='+dot(entityDirection)+', bgcolor="transparent", pad="0.34", nodesep="0.56", ranksep="0.72", splines=true, overlap=false, fontname="Arial", fontsize=22, fontcolor="#203746", labelloc="t", label='+dot(displayTitle(visual))+'];','  node [shape=plain, fontname="Arial", fontsize=15, fontcolor="#203746"];','  edge [fontname="Arial", fontsize=12, color="#617984", fontcolor="#304652", penwidth=1.7, dir=none];'];
    const entityRows=new Map<string,string>(),standaloneRows=new Map<string,string>();
    for(let i=0;i<entities.length;i++){
@@ -263,6 +272,16 @@ export function compilePresentation(document:Document,options:PresentationOption
     const attrs=[relationLabel?'label='+dot(relationLabel):undefined,identification==='non-identifying'?'style=dashed':undefined,visual.layout?.order?'constraint=false':undefined].filter(Boolean).join(', ');
     lines.push('  '+from+(fromPort?':'+fromPort:'')+' -> '+to+(toPort?':'+toPort:'')+' [id='+dot(safeId('r',i))+(attrs?', '+attrs:'')+'];');
    }
+   let annotationPredecessor=visual.layout?.order?.at(-1)??orderedEntityComponents.at(-1)?.id;
+   for(let i=0;i<(visual.annotations??[]).length;i++){
+    const annotation=visual.annotations![i]!,id=annotationIds.get(annotation.id)!;
+    addMap(annotation.id,path('/annotations/'+i+'/id'),id,'annotation');
+    lines.push('  '+id+' [shape=plaintext, style="", label='+dotPlainText(annotation.text)+', fontname="Arial", fontsize=14, fontcolor="#304652", color=none, fillcolor=none, penwidth=0, margin=0, width=0, height=0, fixedsize=false];');
+    const predecessor=entityNative.get(annotationPredecessor??'')??annotationPredecessor;
+    if(predecessor)lines.push('  '+predecessor+' -> '+id+' [style=invis, weight=100, constraint=true];');
+    annotationPredecessor=id;
+    approx(path('/annotations/'+i+'/text'),'Unanchored annotation text','Graphviz emits a native plaintext carrier after the entity rows. Its placement is renderer policy because the source provides no entity anchor or coordinates.');
+   }
    if(errors.length)return {ok:false,diagnostics:errors};
    for(const key of ['groups','edges'] as const)if(visual[key])omit(path('/'+key),'The entity view is driven by structure.entities/references; unrelated visual '+key+' are not drawn.');
    nodes.forEach((n,i)=>{for(const key of ['role','status','emphasis','group','parent','layer'] as const)if(n[key]!==undefined)omit(path('/nodes/'+i+'/'+key),'This node property is outside the entity view.');});
@@ -273,7 +292,9 @@ export function compilePresentation(document:Document,options:PresentationOption
    return {ok:true,profileId:'umf.visual.presentation/1',backend,nativeFormat:'dot',source:lines.join('\n')+'\n',elementMap:map,omissions,approximations};
   }
    if(neutralMermaidEntityView){
-    const direction=layoutDirection(visual.layout,'LR');
+    const annotationDefaultTb=(visual.annotations?.length??0)>0&&!visual.layout&&optionValues.direction===undefined;
+    const direction=layoutDirection(visual.layout,annotationDefaultTb?'TB':dir);
+    if(annotationDefaultTb)approx(path('/annotations'),'Default Mermaid direction TB for unlayouted entity annotations','The renderer selects a top-to-bottom layout so the source-owned entity graph and trailing annotation text can fit together; entity identities, reference endpoints, cardinalities, and annotation order remain unchanged.');
     const widthRows:string[]=[];
     for(const entity of entities){const node=nodeById.get(entity.node)!;if(node.icon)widthRows.push('Icon: '+node.icon);widthRows.push(node.label);if(node.detail)widthRows.push(node.detail);if(node.shape)widthRows.push('Shape: '+shapeOptions[node.shape]!.label);widthRows.push(...entity.fields.map(mermaidNeutralFieldRow),...(node.ports??[]).map(port=>'Port '+portCaption(port)));}
     for(const node of nodes)if(!entities.some(entity=>entity.node===node.id)){if(node.icon)widthRows.push('Icon: '+node.icon);widthRows.push(node.label);if(node.detail)widthRows.push(node.detail);if(node.shape)widthRows.push('Shape: '+shapeOptions[node.shape]!.label);widthRows.push(...(node.ports??[]).map(port=>'Port '+portCaption(port)));}
@@ -302,6 +323,16 @@ export function compilePresentation(document:Document,options:PresentationOption
      const cardinalities=[multiplicityText(reference.fromMultiplicity,reference.fromCardinality),multiplicityText(reference.toMultiplicity,reference.toCardinality)];
      const label=[reference.identification?reference.identification==='identifying'?'Identifying':'Non-identifying':undefined,reference.label,endpoint('from'),endpoint('to'),cardinalities.some(Boolean)?cardinalities.map(value=>value||'unspecified').join(' → '):undefined].filter(Boolean).join(' · ');
      lines.push('  '+from+' r'+(i+1)+'@---'+(label?'|'+mermaidText(label)+'|':'')+' '+to);
+    }
+    let annotationPredecessor=visual.layout?.order?.at(-1)??entities.at(-1)?.node??nodes.at(-1)?.id;
+    for(let i=0;i<(visual.annotations??[]).length;i++){
+     const annotation=visual.annotations![i]!,id=annotationIds.get(annotation.id)!;
+     addMap(annotation.id,path('/annotations/'+i+'/id'),id,'annotation');
+     lines.push('  '+id+'@{ shape: text, label: "'+mermaidText(annotation.text)+'" }');
+     const predecessor=annotationPredecessor?entityNative.get(annotationPredecessor)??annotationPredecessor:undefined;
+     if(predecessor)lines.push('  '+predecessor+' ~~~ '+id);
+     annotationPredecessor=id;
+     approx(path('/annotations/'+i+'/text'),'Unanchored annotation text','Mermaid renders a native text-only shape after the entity/reference declarations; its placement is renderer policy because the source provides no entity anchor or coordinates.');
     }
     if(visual.layout?.order){const ids=visual.layout.order.map(id=>entityNative.get(id)).filter((id):id is string=>!!id);for(let i=0;i<ids.length-1;i++)lines.push('  '+ids[i]+' ~~~ '+ids[i+1]);}
     if(visual.layout?.kind==='grid'&&visual.layout.columns>1)approx(path('/layout'),'Grid layout with '+visual.layout.columns+' columns','Mermaid preserves authored entity order but does not encode an exact fixed grid column count.');

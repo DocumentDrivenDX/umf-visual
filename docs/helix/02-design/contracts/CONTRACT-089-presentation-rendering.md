@@ -367,6 +367,14 @@ path/name conventions. Exact source and YAML remain available even when a target
 refuses; a source-authority panel MUST NOT masquerade as native capture evidence.
 
 
+Entity presentations MAY include source-authored annotations as separately owned
+native text, including a disclosed neutral entity-card composition. Such context
+MUST NOT become entity fields, references or inferred constraints. Qualification
+MUST bind the complete annotation text independently to its source, native
+declaration and painted carrier, and reject hidden, borrowed, changed or extra
+annotation carriers. Existing field, endpoint and cardinality obligations remain
+in force; layout helpers MUST NOT enter the logical reference inventory.
+
 ## Neutral entity-card projection
 
 When a native E/R grammar requires identification that the source leaves

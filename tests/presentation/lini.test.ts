@@ -3,6 +3,7 @@ import {describe,expect,it} from 'bun:test';
 import {createHash} from 'node:crypto';
 import {createVisualDocument,type Visual} from '../../src/extensions/visual';
 import {compilePresentation} from '../../src/presentation';
+import {compileLiniPresentation} from '../../src/presentation/lini';
 
 const document=(visual:Visual)=>createVisualDocument(visual,'test:'+visual.id,'1.2.0');
 
@@ -127,6 +128,47 @@ describe('Lini presentation compiler',()=>{
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
   expect(result.source).toContain('|entity#n1| "Workspaces"');expect(result.source).toContain('|cell#f1| "id · PK · NOT NULL"; "uuid"');expect(result.source).toContain('n1.f1:right ++-o< n2.f2:left .r1 { along: 0.5; } [ "contains" { translate: 0 -24; font-size: 14; } ]');
   expect(result.elementMap).toContainEqual({logicalId:'workspace-id',sourcePath:'/extensions/umf.visual/structure/entities/0/fields/0',nativeId:'n1.f1',kind:'field'});expect(result.elementMap).toContainEqual({logicalId:'membership',sourcePath:'/extensions/umf.visual/structure/references/0',nativeId:'r1',kind:'reference'});expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/entities/0/fields/0/keys')).toBe(true);expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/entities/0/fields/0/nullable')).toBe(true);
+ });
+
+ it('renders entity annotations in a separate native footer without changing field or relationship rows',()=>{
+  const visual:Visual={id:'renamed-entity-annotations',kind:'structure',form:'entities',question:'How do records connect?',title:'Ledger entities',structure:{entities:[
+   {node:'account-record',fields:[{id:'account-key',name:'account_id',type:'uuid',keys:['pk'],nullable:false},{id:'account-name',name:'display_name',type:'text',nullable:false}]},
+   {node:'transfer-record',fields:[{id:'transfer-key',name:'transfer_id',type:'uuid',keys:['pk'],nullable:false},{id:'transfer-account',name:'account_ref',type:'uuid',keys:['fk'],nullable:false}]},
+   {node:'audit-record',fields:[{id:'audit-key',name:'audit_id',type:'uuid',keys:['pk'],nullable:false},{id:'audit-transfer',name:'transfer_ref',type:'uuid',keys:['fk'],nullable:false}]}
+  ],references:[
+   {id:'account-transfers',from:{node:'account-record',fieldId:'account-key'},to:{node:'transfer-record',fieldId:'transfer-account'},label:'owns transfers',fromCardinality:'exactly-one',toCardinality:'zero-or-many'},
+   {id:'transfer-audit',from:{node:'transfer-record',fieldId:'transfer-key'},to:{node:'audit-record',fieldId:'audit-transfer'},label:'records changes',fromCardinality:'exactly-one',toCardinality:'zero-or-many'}
+  ]},annotations:[
+   {id:'rule-original',text:'Original records remain immutable after ingest.'},
+   {id:'rule-retry',text:'Retries retain the same idempotency key.'}
+  ],nodes:[
+   {id:'account-record',label:'Accounts'}, {id:'transfer-record',label:'Transfers'}, {id:'audit-record',label:'Audit entries'}
+  ]};
+  const source=createVisualDocument(visual,'test:'+visual.id,'1.4.0');
+  const result=compileLiniPresentation(visual);expect(result.ok).toBe(true);if(!result.ok)return;
+  const withoutAnnotations={...visual};delete withoutAnnotations.annotations;
+  const baseline=compileLiniPresentation(withoutAnnotations);expect(baseline.ok).toBe(true);if(!baseline.ok)return;
+  expect(result.elementMap.filter(item=>item.kind==='annotation')).toEqual([
+   {logicalId:'rule-original',sourcePath:'/extensions/umf.visual/annotations/0/id',nativeId:'a1',kind:'annotation'},
+   {logicalId:'rule-retry',sourcePath:'/extensions/umf.visual/annotations/1/id',nativeId:'a2',kind:'annotation'}
+  ]);
+  expect(result.source).toContain('|group#annotation-footer|');
+  expect(result.source).toContain('|box#a1| "Original records remain immutable after ingest."');
+  expect(result.source).toContain('|box#a2| "Retries retain the same idempotency key."');
+  expect(result.source.indexOf('|entity#n1|')).toBeLessThan(result.source.indexOf('|group#annotation-footer|'));
+  expect(result.source.indexOf('|group#annotation-footer|')).toBeLessThan(result.source.indexOf('|box#a1|'));
+  expect((result.source.match(/\|entity#n\d+\|/gu)??[])).toHaveLength(3);
+  expect((result.source.match(/\|box#a\d+\|/gu)??[])).toHaveLength(2);
+  const rows=(text:string)=>text.split('\n').map(line=>line.trim()).filter(line=>line.startsWith('|entity#')||line.startsWith('|cell#f')||/^n\d+(?:\.f\d+)?:\w+ .*\.r\d+ \{ along:/u.test(line));
+  expect(rows(result.source)).toEqual(rows(baseline.source));
+  expect(result.source).toContain('|cell#f1| "account_id · PK · NOT NULL"; "uuid"');
+  expect(result.source).toContain('|cell#f2| "account_ref · FK · NOT NULL"; "uuid"');
+  expect(result.source).toContain('n1.f1:right ++-o< n2.f2:left .r1 { along: 0.5; } [ "owns transfers"');
+  expect(result.source).toContain('n2.f1:left ++-o< n3.f2:right .r2 { along: 0.5; } [ "records changes"');
+  expect(result.approximations.filter(item=>item.sourcePath.startsWith('/extensions/umf.visual/annotations/')).map(item=>item.sourcePath)).toEqual([
+   '/extensions/umf.visual/annotations/0/text','/extensions/umf.visual/annotations/1/text'
+  ]);
+  expect(source.vocabularies?.['umf.visual']?.version).toBe('1.4.0');
  });
 
  it('faces implicit two-column field endpoints by emitted component position while preserving node and port endpoints',()=>{

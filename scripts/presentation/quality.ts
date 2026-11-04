@@ -7,7 +7,7 @@ import {getVisual,type Visual,type VisualMultiplicity} from '../../src/extension
 import type {PresentationElement,PresentationPlan} from '../../src/presentation';
 import {stateTransitionCaption} from '../../src/presentation/state';
 import {planDateHistoryEvents} from '../../src/presentation/timeline-layout';
-import {verifyLiniPresentationQuality} from './lini-quality';
+import {nativeAnnotationFooterChildren,verifyLiniPresentationQuality} from './lini-quality';
 import {verifyNestedBrowserQuality} from './nested-quality';
 import {verifyLanesPresentationQuality} from './lanes-quality';
 import {verifyGraphvizGroupHeaderQuality} from './graphviz-group-header-quality';
@@ -28,9 +28,13 @@ const norm=(s:string)=>s.replace(/\s+/g,' ').trim();
 const compact=(s:string)=>s.replace(/\s+/g,'');
 const normLabel=(s:string)=>norm(s).replace(/\s*\/\s*/g,'/');
 const mermaidStateText=(value:string)=>Array.from(value,(char)=>({' ':'#32;','#':'#35;','&':'#38;','"':'#34;','<':'#60;','>':'#62;',';':'#59;','(':'#40;',')':'#41;','[':'#91;',']':'#93;','{':'#123;','}':'#125;','\\':'#92;'} as Record<string,string>)[char]??char).join('');
+const decodeMermaidText=(value:string)=>value.replace(/<br\s*\/?>/giu,'\n').replace(/#(\d+);/gu,(_,digits:string)=>String.fromCodePoint(Number(digits)));
 const mermaidTimelineText=(value:string)=>value.replace(/\r/g,'').split('\n').map(line=>Array.from(line,(char)=>({' ':'#32;','#':'#35;','&':'#38;','"':'#34;','<':'#60;','>':'#62;',';':'#59;','(':'#40;',')':'#41;','[':'#91;',']':'#93;','{':'#123;','}':'#125;','\\':'#92;'} as Record<string,string>)[char]??char).join('')).join('<br/>');
 const hasOffsetSheetPair=(boxes:QualityBox[])=>{const unique=boxes.filter((box,index)=>!boxes.slice(0,index).some(other=>Math.abs(box.x-other.x)<1&&Math.abs(box.y-other.y)<1&&Math.abs(box.width-other.width)<1&&Math.abs(box.height-other.height)<1));for(let i=0;i<unique.length;i++)for(let j=i+1;j<unique.length;j++){const a=unique[i]!,b=unique[j]!,offset=Math.hypot(a.x+a.width/2-b.x-b.width/2,a.y+a.height/2-b.y-b.height/2),overlapWidth=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)),overlapHeight=Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)),smaller=Math.min(a.width*a.height,b.width*b.height);if(offset>2&&overlapWidth*overlapHeight>=smaller*.45)return true;}return false;};
 const decodeDotLabel=(s:string)=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&#(\d+);/g,(_,n:string)=>String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi,(_,n:string)=>String.fromCodePoint(parseInt(n,16)));
+// Entity annotation labels protect authored ampersands with one DOT-visible
+// `&amp;` layer; remove only that wrapper, never resolve the user's entity text.
+const decodeGraphvizLabel=(source:string)=>{const dotText=source.replace(/&amp;/gu,'&');let result='';for(let index=0;index<dotText.length;index++){const char=dotText[index]!;if(char==='\\'&&index+1<dotText.length){const next=dotText[++index]!;if(next==='n'||next==='l'||next==='r')result+='\n';else if(next==='t')result+='\t';else if(next==='\\'||next==='"')result+=next;else result+='\\'+next;}else result+=char;}return result;};
 const escRe=(s:string)=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const exactFieldText=(candidate:string,name:string,type:string|undefined)=>{
  const value=norm(candidate.replace(/\u00a0/g,' '));
@@ -122,8 +126,8 @@ export async function verifyPresentationQuality(
   const paintedLeaves=(el:Element)=>{const walker=globalThis.document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const leaves:Array<{value:string;painted:boolean}>=[];while(walker.nextNode()){const node=walker.currentNode as Text,value=node.nodeValue??'';if(!value.trim())continue;let current=node.parentElement,opacity=1,visible=true;while(current){const style=getComputedStyle(current),alpha=Number(style.opacity);if(style.display==='none'||style.visibility==='hidden'||style.visibility==='collapse')visible=false;opacity*=Number.isFinite(alpha)?alpha:1;current=current.parentElement;}const style=getComputedStyle(node.parentElement!),svgText=node.parentElement!.namespaceURI==='http://www.w3.org/2000/svg',fill=paintAlpha(style.fill)*Number(style.fillOpacity),stroke=paintAlpha(style.stroke)*Number(style.strokeOpacity)*(Number.parseFloat(style.strokeWidth)||0),color=paintAlpha(style.color);leaves.push({value,painted:visible&&opacity>0&&(svgText?fill>0||stroke>0:color>0)});}return leaves;};
   const curveDeviation=(path:SVGPathElement)=>{const length=path.getTotalLength();if(length<=0)return 0;const point=(at:number)=>{const p=path.getPointAtLength(at),matrix=path.getScreenCTM();return matrix?new DOMPoint(p.x,p.y).matrixTransform(matrix):p;},a=point(0),b=point(length),dx=b.x-a.x,dy=b.y-a.y,span=Math.hypot(dx,dy)||1;let deviation=0;for(let index=1;index<12;index++){const p=point(length*index/12);deviation=Math.max(deviation,Math.abs(dy*p.x-dx*p.y+b.x*a.y-b.y*a.x)/span);}return deviation;};
   const titleOf=(g:Element)=>normalize(g.querySelector(':scope > title')?.textContent??'');
-  const carriers=[...s.querySelectorAll('g.node,g.cluster,g.edge,g.lini-node[data-id]')].map(g=>{const nativePolygons=[...g.querySelectorAll(':scope > polygon')].map(box),primaryPolygon=[...nativePolygons].sort((a,b)=>b.width*b.height-a.width*a.height)[0];return({
-   cls:g.getAttribute('class')??'',title:titleOf(g),id:g.getAttribute('id')??g.getAttribute('data-id')??'',shapeTags:[...g.querySelectorAll(':scope > rect,:scope > polygon,:scope > ellipse,:scope > path,:scope > circle')].map(shape=>({tag:shape.tagName.toLowerCase(),radius:Number(shape.getAttribute('rx')??0)})),polygonPoints:[...g.querySelectorAll(':scope > polygon')].map(polygon=>{const element=polygon as SVGPolygonElement,points=[...element.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(element.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};});return points.length>1&&Math.hypot(points[0]!.x-points.at(-1)!.x,points[0]!.y-points.at(-1)!.y)<.5?points.slice(0,-1):points;}),
+  const carriers=[...s.querySelectorAll('g.node,g.cluster,g.edge,g.lini-node[data-id]')].map(g=>{const nativePolygons=[...g.querySelectorAll(':scope > polygon')].map(box),primaryPolygon=[...nativePolygons].sort((a,b)=>b.width*b.height-a.width*a.height)[0],shapeTags=[...g.querySelectorAll(':scope > rect,:scope > polygon,:scope > ellipse,:scope > path,:scope > circle')].map(shape=>({tag:shape.tagName.toLowerCase(),radius:Number(shape.getAttribute('rx')??0)}));return({
+   cls:g.getAttribute('class')??'',title:titleOf(g),id:g.getAttribute('id')??g.getAttribute('data-id')??'',shapeTags,nativeAnnotationShape:g.classList.contains('lini-box')&&g.classList.contains('lini-block')&&!g.classList.contains('lini-group')||g.classList.contains('node')&&(g.querySelector('rect.text')!==null||shapeTags.length===0),polygonPoints:[...g.querySelectorAll(':scope > polygon')].map(polygon=>{const element=polygon as SVGPolygonElement,points=[...element.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(element.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};});return points.length>1&&Math.hypot(points[0]!.x-points.at(-1)!.x,points[0]!.y-points.at(-1)!.y)<.5?points.slice(0,-1):points;}),
    ancestorClusters:(()=>{const ids:string[]=[];let p=g.parentElement;while(p&&p.tagName.toLowerCase()!=='svg'){if(p.matches('g.cluster'))ids.push(p.getAttribute('id')??'');p=p.parentElement;}return ids;})(),
    ownText:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge,g.lini-node[data-id]')===g).map(visibleText).filter(Boolean),
    ownTextDetails:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge,g.lini-node[data-id]')===g).map(el=>{const baseline=el instanceof SVGTextElement&&el.y.baseVal.length?new DOMPoint(0,el.y.baseVal.getItem(0).value).matrixTransform(el.getScreenCTM()!).y-rootRect.y:undefined,paintLeaves=paintedLeaves(el);return({value:visibleText(el),bounds:box(el),baseline,paintLeaves,painted:paintLeaves.length>0&&paintLeaves.every(leaf=>leaf.painted)});}).filter(x=>x.value),
@@ -149,7 +153,7 @@ export async function verifyPresentationQuality(
   const edgeLabels=[...s.querySelectorAll('g.edgeLabel')].map(el=>{const label=el.querySelector('g.label') as Element|null;return{id:label?.getAttribute('data-id')??'',text:visibleText(el),painted:!!label&&paintedLeaves(label).length>0&&paintedLeaves(label).every(leaf=>leaf.painted)};}).filter(x=>x.text);
   const statePaths=[...s.querySelectorAll('g.edgePath')].map(group=>{const path=group.querySelector(':scope > path') as SVGPathElement|null;if(!path)return undefined;const length=path.getTotalLength(),matrix=path.getScreenCTM()!,point=(at:number)=>{try{const p=path.getPointAtLength(at),screen=new DOMPoint(p.x,p.y).matrixTransform(matrix);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};}catch{return null;}};return{id:group.getAttribute('id')??'',cls:group.getAttribute('class')??'',title:titleOf(group),dataId:path.getAttribute('data-id')??'',markerStart:path.getAttribute('marker-start'),markerEnd:path.getAttribute('marker-end'),d:path.getAttribute('d')??'',start:point(0),end:point(length),bounds:box(path)};}).filter((item):item is NonNullable<typeof item>=>!!item);
   const stateNodes=carriers.filter(item=>item.cls.split(/\s+/u).includes('node')).map(item=>({id:item.id,title:item.title,cls:item.cls,ownText:item.ownText,bounds:item.bounds,shapeTags:item.shapeTags}));
-  return {viewBox:{x:view.x,y:view.y,width:view.width,height:view.height},root:{width:rootRect.width,height:rootRect.height},carriers,allText,paths,edgeLabels,statePaths,stateNodes};
+  return {viewBox:{x:view.x,y:view.y,width:view.width,height:view.height},root:{width:rootRect.width,height:rootRect.height},svgId:s.id,carriers,allText,paths,edgeLabels,statePaths,stateNodes};
  });
  const meaningfulSvg=dom.viewBox.width>0&&dom.viewBox.height>0&&svg.includes('<svg');
  checks.push(pass('native-svg-viewbox',sourceSha256,meaningfulSvg,`Native viewBox ${dom.viewBox.width} × ${dom.viewBox.height}; rendered at ${dom.root.width} × ${dom.root.height} CSS px.`));
@@ -718,6 +722,57 @@ export async function verifyPresentationQuality(
   }
   if(visual.kind==='structure'&&visual.form==='nested'){const nested=checks.find(check=>check.check==='nested-native-containment');checks.push(pass('mermaid-containment-and-order',sourceSha256,nested?.result==='pass',nested?.details??'Nested native containment proof is missing.'));}
   }
+ }
+
+ if(visual.kind==='structure'&&visual.form==='entities'&&(visual.annotations?.length??0)>0){
+  const annotations=visual.annotations!,maps=plan.elementMap.filter(item=>item.kind==='annotation'),failures:string[]=[],expectedIds:string[]=[];
+  if(maps.length!==annotations.length)failures.push(`annotation map inventory ${maps.length} differs from ${annotations.length} source annotations`);
+  for(let index=0;index<annotations.length;index++){
+   const annotation=annotations[index]!,sourcePath=`/extensions/umf.visual/annotations/${index}/id`,rows=maps.filter(item=>item.sourcePath===sourcePath),mapping=rows[0];
+   if(rows.length!==1||mapping?.logicalId!==annotation.id||mapping.kind!=='annotation'||!mapping.nativeId){failures.push(`annotation ${annotation.id} does not have exactly one source-indexed identity map at ${sourcePath}`);continue;}
+   expectedIds.push(mapping.nativeId);
+   if(plan.elementMap.filter(item=>item.logicalId===annotation.id).length!==1)failures.push(`annotation ${annotation.id} has a duplicate or borrowed logical identity`);
+   const escapedNativeId=mapping.nativeId.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),escapedSvgId=dom.svgId.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),mermaidIdPattern=new RegExp(`^${escapedSvgId}-flowchart-${escapedNativeId}-\\d+$`,'u');
+   const matching=dom.carriers.filter(carrier=>plan.backend==='lini'
+    ?carrier.id===mapping.nativeId&&carrier.cls.split(/\s+/u).includes('lini-box')&&carrier.cls.split(/\s+/u).includes('lini-block')&&!carrier.cls.split(/\s+/u).includes('lini-group')
+    :plan.backend==='graphviz'
+     ?carrier.cls.split(/\s+/u).includes('node')&&carrier.title===mapping.nativeId
+     :carrier.cls.split(/\s+/u).includes('node')&&mermaidIdPattern.test(carrier.id));
+   const owner=matching[0];
+   if(matching.length!==1||!owner){failures.push(`annotation ${annotation.id} has ${matching.length} native SVG owners for mapped ID ${mapping.nativeId}`);continue;}
+   const details=owner.ownTextDetails.filter(detail=>detail.value.trim()),actual=norm(details.map(detail=>detail.value).join(' '));
+   if(!details.length||actual!==norm(annotation.text)||details.some(detail=>!detail.painted||!detail.paintLeaves.length||detail.paintLeaves.some(leaf=>!leaf.painted)))failures.push(`annotation ${annotation.id} full ordered text is missing, altered, borrowed, or unpainted in its mapped SVG carrier (observed ${JSON.stringify(actual)}; expected ${JSON.stringify(norm(annotation.text))})`);
+  }
+  if(new Set(expectedIds).size!==expectedIds.length)failures.push('source annotations share a native carrier ID');
+  const escapedSvgId=dom.svgId.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),mermaidNativeIdPattern=new RegExp(`^${escapedSvgId}-flowchart-(.+)-\\d+$`,'u');
+  const annotationCarrierId=(carrier:(typeof dom.carriers)[number])=>plan.backend==='lini'?carrier.id:plan.backend==='graphviz'?carrier.title:mermaidNativeIdPattern.exec(carrier.id)?.[1]??'';
+  const otherMappedIds=new Set(plan.elementMap.filter(item=>item.kind!=='annotation').map(item=>item.nativeId));
+  const svgAnnotationCarriers=dom.carriers.filter(carrier=>carrier.nativeAnnotationShape&&!otherMappedIds.has(annotationCarrierId(carrier))),svgAnnotationIds=svgAnnotationCarriers.map(annotationCarrierId).filter((id):id is string=>!!id);
+  if(svgAnnotationCarriers.length!==annotations.length||svgAnnotationIds.length!==annotations.length||new Set(svgAnnotationIds).size!==svgAnnotationIds.length||expectedIds.some(id=>!svgAnnotationIds.includes(id)))failures.push(`native SVG annotation carrier inventory contains a phantom, missing, or duplicate text carrier (${svgAnnotationCarriers.map(annotationCarrierId).join(', ')||'none'}; expected ${expectedIds.join(', ')})`);
+  if(plan.backend==='graphviz'){
+   const ast=input.nativeAst as NativeAst|undefined,plaintext=(ast?.objects??[]).filter(object=>text(object.shape)==='plaintext'),astIds=plaintext.map(object=>objectName(object));
+   if(plaintext.length!==annotations.length||new Set(astIds).size!==astIds.length||expectedIds.some(id=>!astIds.includes(id)))failures.push('Graphviz AST plaintext annotation inventory differs from the exact source maps');
+   for(let index=0;index<annotations.length;index++){
+    const annotation=annotations[index]!,id=expectedIds[index],object=plaintext.find(candidate=>objectName(candidate)===id);
+    if(!id||!object||decodeGraphvizLabel(text(object.label))!==annotation.text)failures.push(`annotation ${annotation.id} native Graphviz plaintext declaration does not preserve exact text and owner`);
+   }
+  }else if(plan.backend==='mermaid'){
+   const declarations=plan.source.split(/\r?\n/u).flatMap(line=>{
+    const match=/^\s*([A-Za-z][A-Za-z0-9_-]*)@\{\s*shape:\s*text\s*,\s*label:\s*("(?:\\.|[^"\\])*")\s*\}\s*$/u.exec(line);if(!match)return[];
+    try{const encoded=JSON.parse(match[2]!);return typeof encoded==='string'?[{id:match[1]!,text:decodeMermaidText(encoded)}]:[];}catch{return[];}
+   });
+   const declaredIds=declarations.map(item=>item.id);
+   if(declarations.length!==annotations.length||new Set(declaredIds).size!==declaredIds.length||expectedIds.some((id,index)=>id!==declaredIds[index])||declarations.some((item,index)=>item.text!==annotations[index]?.text))failures.push('Mermaid text-shape declarations do not preserve exact source-indexed IDs and annotation text');
+  }else{
+   const nativeAst=typeof input.nativeAst==='string'?input.nativeAst:'';
+   const footerChildren=nativeAnnotationFooterChildren(nativeAst),astIds=footerChildren?.map(child=>child.id)??[];
+   if(astIds.length!==annotations.length||new Set(astIds).size!==astIds.length||expectedIds.some((id,index)=>id!==astIds[index]))failures.push('Lini AST annotation carrier inventory differs from the exact source maps');
+   for(let index=0;index<annotations.length;index++){
+    const id=expectedIds[index],child=footerChildren?.[index];
+    if(!id||child?.id!==id||child.values.length!==1||child.values[0]!==annotations[index]!.text)failures.push(`annotation ${annotations[index]!.id} does not have exact owned Lini AST text in footer block ${id??'(missing)'}`);
+   }
+  }
+  checks.push(pass('entity-annotation-native-text',sourceSha256,failures.length===0,failures.length?failures.join('; '):`${annotations.length} source-indexed entity annotations preserve their complete ordered text in unique, painted native SVG carriers with exact AST/source ownership.`));
  }
 
  if(plan.backend!=='lini'&&visual.nodes?.some(node=>node.ports?.length)){

@@ -3172,6 +3172,61 @@
         "sourceDownloadPath": "reviews/tpl-sd-components/authoritative-source.json",
         "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.4.0 definition preserves all seven node IDs/labels/order, the existing `rows` store role, six edge IDs/endpoints, title/question, and source metadata; it upgrades only the visual vocabulary version and adds source-mapped node shapes plus a root flow direction. Mermaid square-bracket declarations map to rectangles, `Rows[(Source Rows)]` maps to a cylinder, and graph TD maps to flow direction TB. No roles, labels, or edges are inferred or changed. Component responsibilities, technology rationale, and traceability elsewhere in the source file are not merged into this selected interaction graph. The source digest matches HELIX commit ab76e319f7a98d5df8417d6f16bbd5791c356271."
       }
+    },
+    {
+      "id": "tpl-sd-domain",
+      "title": "Domain Model",
+      "description": "A source-bound domain model that retains the exact entity relationships and scoped business rules without inferring fields or stronger cardinalities.",
+      "kind": "structure",
+      "form": "entities",
+      "definitionPath": "fixtures/reviews/definitions/tpl-sd-domain.json",
+      "definitionSha256": "2747f32a57d749413a6f74da0cd73765596ea438e573aa5ada1c101e1f1ffba7",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/tpl-sd-domain.json",
+          "sha256": "b054796bb6031693eb3df54ff03cc7b27fb2ad8fa4ba90bd66f7f36573bd6471",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact original Visual 1.0.0 fixture supplies seven entity identities/labels with empty field lists, six labeled references and endpoint cardinalities, an explicit no-fields omission, title/question, and the cited solution-design example locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/solution-design-example.md",
+          "sha256": "5fac95cb298eb6534f2622aff81438c9e144954f3d8760694ff039360e120ab2",
+          "pointer": "Domain Model ER diagram and child Business Rules section",
+          "label": "Cited HELIX solution-design example",
+          "originalLocator": "helix:workflows/activities/02-design/artifacts/solution-design/example.md",
+          "resolvedSource": "helix/workflows/activities/02-design/artifacts/solution-design/example.md",
+          "observedRevision": "ab76e319f7a98d5df8417d6f16bbd5791c356271",
+          "description": "Exact Markdown bytes resolved from the fixture locator at the recorded HELIX commit. The Domain Model ER diagram supplies seven entities and six relationship/cardinality pairs and contains no entity fields. Its child Business Rules subsection adds four domain constraints, captured as annotations without manufacturing fields or tightening ER cardinalities. The following System Decomposition section is outside the selected scope."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/tpl-sd-domain.json",
+          "sha256": "b054796bb6031693eb3df54ff03cc7b27fb2ad8fa4ba90bd66f7f36573bd6471",
+          "outputPath": "reviews/tpl-sd-domain/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/solution-design-example.md",
+          "sha256": "5fac95cb298eb6534f2622aff81438c9e144954f3d8760694ff039360e120ab2",
+          "outputPath": "reviews/tpl-sd-domain/solution-design-example.md",
+          "mediaType": "text/markdown",
+          "description": "Exact historical solution-design example bytes resolved from the fixture locator."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/tpl-sd-domain.json",
+        "sourceSha256": "b054796bb6031693eb3df54ff03cc7b27fb2ad8fa4ba90bd66f7f36573bd6471",
+        "documentId": "visual:tpl-sd-domain",
+        "visualId": "tpl-sd-domain",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/tpl-sd-domain/authoritative-source.json",
+        "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.4.0 definition preserves all seven entity IDs/labels/order, empty fields, six reference IDs/endpoints/labels/cardinalities, no-fields omission, title/question, and source metadata; it upgrades only the vocabulary version and adds four exact Business Rules as annotations. The selected ER diagram has no fields or key declarations; none are invented, and the 'one bank CSV and one invoice CSV' readiness rule does not change the relationship cardinalities. The fixture's reference IDs and structure vocabulary are Visual projections. The child Business Rules subsection is included because it belongs to the selected Domain Model; System Decomposition and later material are not merged into it. The source digest matches HELIX commit ab76e319f7a98d5df8417d6f16bbd5791c356271."
+      }
     }
   ]
 }

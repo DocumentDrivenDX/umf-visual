@@ -536,6 +536,19 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
    if(groups.length)omit(path('/groups'),'The entity view is driven by structure.entities/references; unrelated visual groups are not drawn.');
    if(edges.length)omit(path('/edges'),'The entity view uses structure.references; unrelated flow edges are not drawn.');
    if(structure.layers)omit(path('/structure/layers'),'Layer placement is outside the entity relationship view.');
+   if(visual.annotations?.length){
+    const footerChildren:string[]=[];
+    for(let index=0;index<visual.annotations.length;index++){
+     const annotation=visual.annotations[index]!,nativeId=safeId('a',index),width=Math.max(180,Math.min(440,annotation.text.length*8.5+24));
+     add(annotation.id,path('/annotations/'+index+'/id'),nativeId,'annotation');
+     footerChildren.push(`|box#${nativeId}| ${quoteChecked(annotation.text,path('/annotations/'+index+'/text'))} { width: ${Math.ceil(width)}; padding: 0; fill: none; stroke: none; stroke-width: 0; font-size: 16; font-weight: 400; color: --gray-ink; }`);
+     approx(path('/annotations/'+index+'/text'),'Unanchored annotation placement','Lini places this exact text in a borderless native text carrier in a renderer-owned footer following the entity diagram. The source has no entity anchor or coordinates.');
+    }
+    const footerLayout:VisualLayout={kind:'flow',direction:'TB'};
+    annotationFooter=groupDeclaration('annotation-footer','',[
+     ...layoutProperties(footerLayout,'flow',1,'TB'),'gap: 8;','padding: 0;','fill: none;','stroke: none;','stroke-width: 0;'
+    ],footerChildren);
+   }
   }
   const stylesheet=styleRules.length?`{\n${styleRules.map(line=>'  '+line).join('\n')}\n}\n`:'';
   const source=stylesheet+(annotationFooter?groupDeclaration('visual',title,[

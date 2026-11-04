@@ -1592,3 +1592,46 @@ UI. Fresh G11/M10/L12 visuals independently approved; source TB/seven shapes and
 six handoffs preserve true branch, raw 1.0/other payload/exact source. No shared-code/
 model/C089 change. All holds resolved; cycle 57 complete pending commit,
 cycle 58 commit-gated.
+
+
+Cycle 58 focused checkpoint: source 2/46, combined compiler 44/513 (includes Lini
+25/354; overlapping runs are not summed), type/source/diff pass. Separate 1.4 adds
+four exact Domain Model rules only; original seven fieldless entities/six exact
+references/cardinalities and raw definition remain preserved. Generic existing
+annotation carriers/maps and mandatory source/native/painted-owner inventory proof
+are required across entity compositions, with no inferred fields or constraints.
+Public browser/package annotated-fieldful controls are prepared. Reviewed G12/M10
+qualify; Lini endpoint limitation remains explicit. Initial proof 2/182 was followed
+by a literal entity-looking text control exposing a real Graphviz SVG text change;
+final escaping/native proof is pending, with no weakened comparison. Full 18 gates
+and final freeze remain pending because shared admission/proof changed. Cycle 58
+is incomplete; cycle 59 commit-gated.
+
+Cycle 58 final focused freeze supersedes the pending literal-text blocker above:
+plain native Graphviz labels now escape ampersands, and the independent decoder
+removes exactly that target escape while preserving literal entity-looking source
+text. Final renamed marker/entity/hard-blank-paragraph positive and fresh isolated
+negative controls pass on all three backends: proof 2/182, final compiler 19/161
+and Lini 25/354 (overlap the earlier combined 44/513, not additional totals).
+Source 2/46/type/diff remain green. Source/model/interface static review approved;
+G12/M10 qualify, Lini retains its real endpoint limitation. Generic C089 annotation
+ownership criteria amended without schema/map-kind changes. Full 18 gates pending;
+cycle 58 incomplete, cycle 59 commit-gated. Docs and implementation frozen.
+
+
+Cycle 58 closeout: all 18 required gates pass (retry 16 stages plus retained
+unchanged initial build/fetch). Full Bun 1,061 pass/zero fail, 27,374 assertions,
+206 files, 193.02s. Initial package raw-text assertion failed on correct Mermaid
+space encoding; consumer-only expected encoding was corrected, with maps/order/
+immutability and independent native proof unchanged. Initial failed log retained.
+Source 2/46, compiler 19/161 + Lini25/354, proof2/182 and real public browser/
+packed Bun+Node consumers pass; overlapping focus runs are not summed.
+Fresh reviews57 entries/119 qualified/24 unqualified/28 unsupported/zero execution
+failures,143 SVG+PNG pairs/429 assets/52 authorities/five captures. All57+selected
+C58 UI/shared controls, catalog214 SVG and showcase23 renders/46 SVG+PNG previews
+pass Chromium153 without errors. G12/M10 qualify; Lini real endpoint failure stays
+unqualified while annotation text ownership passes. Actual fresh images/source/
+model/interface review approved: four exact rules, no invented fields or tightened
+cardinalities, raw1.0 preserved separately from reviewed1.4. Generic C089 criteria
+updated without new vocabulary/map kinds. Cycle58 complete pending commit;
+cycle59 commit-gated. Docs validated and frozen for handoff.

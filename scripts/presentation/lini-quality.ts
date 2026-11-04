@@ -88,6 +88,41 @@ function nativeMappedBlock(source:string,nativeId:string):NativeBlockScope|undef
  }
  return found;
 }
+/** Parse one source-mapped native text box without treating quoted selector text as syntax. */
+function nativeQuotedTextValues(body:string):string[]|undefined{
+ const values:string[]=[];let quoted=false,escaped=false,literalStart=-1;
+ for(let index=0;index<body.length;index++){
+  const char=body[index]!;
+  if(!quoted){if(char==='"'){quoted=true;literalStart=index;}continue;}
+  if(escaped){escaped=false;continue;}if(char==='\\'){escaped=true;continue;}
+  if(char==='"'){
+   const literal=body.slice(literalStart,index+1);try{const value=JSON.parse(literal);if(typeof value==='string')values.push(value);}catch{return;}
+   quoted=false;literalStart=-1;
+  }
+ }
+ return quoted||!values.length?undefined:values;
+}
+export type NativeTextFooterChild={id:string;values:string[]};
+/** Inventory direct text-box children of the exact renderer-owned annotation footer. */
+export function nativeAnnotationFooterChildren(source:string):NativeTextFooterChild[]|undefined{
+ const footer=nativeMappedBlock(source,'annotation-footer');if(!footer)return;
+ const children:NativeTextFooterChild[]=[];let search=0;
+ while(search<footer.body.length){
+  const pipe=outsideQuoteIndex(footer.body,search,'|');if(pipe<0)break;
+  const close=outsideQuoteIndex(footer.body,pipe+1,'|');if(close<0)return;
+  const selector=footer.body.slice(pipe+1,close),match=/^block#([^|\s]+)$/u.exec(selector);search=close+1;if(!match)continue;
+  const brace=outsideQuoteIndex(footer.body,close+1,'{');if(brace<0)return;
+  const classes=footer.body.slice(close+1,brace);if(!/\.lini-box\b/u.test(classes)||!/\.lini-block\b/u.test(classes))continue;
+  const braceEnd=matchingNativeDelimiter(footer.body,brace,'{','}');if(braceEnd<0)return;
+  let bodyStart=braceEnd+1;while(/\s/u.test(footer.body[bodyStart]??''))bodyStart++;if(footer.body[bodyStart]!=='[')return;
+  const bodyEnd=matchingNativeDelimiter(footer.body,bodyStart,'[',']');if(bodyEnd<0)return;
+  const values=nativeQuotedTextValues(footer.body.slice(bodyStart+1,bodyEnd));if(!values)return;
+  children.push({id:match[1]!,values});search=bodyEnd+1;
+ }
+ const inventory=directNativeChildInventory(footer.body);
+ if(inventory.length!==children.length||inventory.some((child,index)=>!child.id||child.caption||child.id!==children[index]?.id))return;
+ return children;
+}
 function nativePropertyValues(properties:string,name:string):string[]{
  const values:string[]=[];for(const part of properties.split(';')){const match=/^\s*([\w-]+)\s*:\s*([^;]+?)\s*$/u.exec(part);if(match?.[1]===name)values.push(match[2]!);}return values;
 }
