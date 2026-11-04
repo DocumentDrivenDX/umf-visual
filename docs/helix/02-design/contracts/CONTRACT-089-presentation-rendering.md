@@ -741,3 +741,10 @@ this profile. Unsupported hints/content receive located accounting. Native AST a
 actual SVG containment/visible ownership are both required; source parsing alone
 cannot qualify a rendering. Missing/moved children, metadata or phantom carriers
 must fail independently. Existing general quality and mixed-outcome gates apply.
+
+
+Owned connector captions MUST remain disjoint from every unrelated logical node,
+not only their source/target nodes or group frames. A native label cutout cannot
+excuse placement inside an unrelated node. Skip-rank corridor placement MAY use
+private rank/label geometry estimates, but actual native ownership, visible ink
+and all-node clearance remain the conformance authority.

@@ -1526,6 +1526,58 @@
         "sourceDownloadPath": "reviews/beacon-estate-landscape/authoritative-source.json",
         "scope": "The original UMF fixture remains unchanged and authoritative for ten authored node identities and fields, with four systems nested under the estate and five Beacon application containers nested under Beacon; it has no authored edges and retains its original caveat. This separate reviewed definition adds a source-backed omission: the Beacon container view also includes the sign-in proxy and Beacon database, job queue, and attachment store, while this landscape shows only the five application containers in the Beacon layer. The estate TOML and architecture-model TOML both identify fictional examples; neither describes a current organization or deployed estate."
       }
+    },
+    {
+      "id": "beacon-estate",
+      "title": "Support tools estate: connections",
+      "description": "The exact original UMF Visual fixture and the Mermaid source it cites: four support-system nodes and five directed relations.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/visual/inventory/beacon-estate.json",
+      "definitionSha256": "e0ff673ac336f1a031d8d40c16078f9f63d12ffc6c489d1b133f7ab07a8c5eef",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-estate.json",
+          "sha256": "e0ff673ac336f1a031d8d40c16078f9f63d12ffc6c489d1b133f7ab07a8c5eef",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact original Visual 1.0.0 fixture supplies its four node identities, labels, details and authored role fields; five directed relation identities, endpoints, labels, and the final control kind; and the authored title, question, and source locator."
+        },
+        {
+          "path": "fixtures/visual/sources/estate/estate.mmd",
+          "sha256": "67e0ca2948db794b31a2c1b0d8de8f876912098dc4d0705813879b286cdb6ceb",
+          "pointer": "/",
+          "label": "Cited Mermaid source",
+          "description": "The exact Mermaid file named by the fixture source locator contains the four matching node labels/details and five directed arrows, including the dashed final arrow that corresponds to the fixture’s control kind."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-estate.json",
+          "sha256": "e0ff673ac336f1a031d8d40c16078f9f63d12ffc6c489d1b133f7ab07a8c5eef",
+          "outputPath": "reviews/beacon-estate/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes; this is also the review definition."
+        },
+        {
+          "path": "fixtures/visual/sources/estate/estate.mmd",
+          "sha256": "67e0ca2948db794b31a2c1b0d8de8f876912098dc4d0705813879b286cdb6ceb",
+          "outputPath": "reviews/beacon-estate/estate.mmd",
+          "mediaType": "text/vnd.mermaid",
+          "description": "Exact Mermaid source bytes cited by the original Visual fixture."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-estate.json",
+        "sourceSha256": "e0ff673ac336f1a031d8d40c16078f9f63d12ffc6c489d1b133f7ab07a8c5eef",
+        "documentId": "visual:beacon-estate",
+        "visualId": "beacon-estate",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-estate/authoritative-source.json",
+        "scope": "This exact original UMF fixture is the review definition and remains byte-for-byte unchanged. It preserves its four node identities, labels, details, authored role values, five directed relation identities/endpoints/labels, and the final relation kind `control`, together with the authored title, question, and historical source locator. The separately cited Mermaid file matches the four labels/details and five arrow declarations; its final dashed arrow corresponds to the fixture’s control kind. The role values are preserved as fixture-authored fields, not independently established by the Mermaid source; neither source establishes ownership, concurrency, current state, or deployment."
+      }
     }
   ]
 }

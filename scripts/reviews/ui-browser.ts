@@ -5,10 +5,11 @@ import {mkdir,readFile} from 'node:fs/promises';
 import {extname,join,resolve,sep} from 'node:path';
 import {readJsonValue} from '@umf/core';
 import {authoredComparisonView,authoredFocusTargets,authoredMetricView,authoredStepListPolicy} from '../../microsite/authored-context.js';
+import {selectReviewUiExamples} from './ui-selection';
 
 const siteRoot=resolve('dist-site'),receipt=await Bun.file(join(siteRoot,'reviews.json')).json();
 if(receipt.schemaVersion!==1||!Array.isArray(receipt.examples)||receipt.examples.length===0)throw Error('Build source-derived review presentations first.');
-const reviews=receipt.examples,sha=(bytes:Uint8Array)=>createHash('sha256').update(bytes).digest('hex');
+const reviews=receipt.examples,selection=selectReviewUiExamples<any>(reviews,process.argv.slice(2)),selectedReviews=selection.selected,sha=(bytes:Uint8Array)=>createHash('sha256').update(bytes).digest('hex');
 function citationAssets(review:any){
  const evidence=review.originalEvidence,primary=new Set([evidence?.sourceDownloadPath,evidence?.capturePath].filter((value:any)=>typeof value==='string'));
  const published=Array.isArray(review.publishedAssets)?review.publishedAssets:[];
@@ -17,6 +18,22 @@ function citationAssets(review:any){
   if(!item||typeof item.path!=='string'||typeof item.sha256!=='string')return [];
   return published.filter((asset:any)=>asset?.path===item.path&&asset.sha256===item.sha256&&typeof asset.outputPath==='string'&&!primary.has(asset.outputPath));
  });
+}
+async function waitForCitationAsset(page:Page,outputPath:string,state:'enabled'|'hash-refused'):Promise<void>{
+ const expected=state==='enabled'?'aria-disabled="false"':'hash mismatch refusal';
+ try{
+  await page.waitForFunction(({path,state})=>{
+   const link=[...document.querySelectorAll('.source-asset-download')].find(element=>(element as HTMLAnchorElement).dataset.outputPath===path) as HTMLAnchorElement|undefined;
+   if(!link)return false;
+   return state==='enabled'?link.getAttribute('aria-disabled')==='false':link.getAttribute('aria-disabled')==='true'&&link.title.toLowerCase().includes('hash does not match');
+  },{path:outputPath,state},{timeout:10000});
+ }catch(error){
+  const observed=await page.evaluate(path=>{
+   const link=[...document.querySelectorAll('.source-asset-download')].find(element=>(element as HTMLAnchorElement).dataset.outputPath===path) as HTMLAnchorElement|undefined;
+   return link?{disabled:link.getAttribute('aria-disabled'),title:link.title,download:link.download}:undefined;
+  },outputPath);
+  throw new Error(`Timed out waiting for cited source asset ${outputPath} (${expected}); observed ${JSON.stringify(observed)}: ${error instanceof Error?error.message:String(error)}`);
+ }
 }
 const raceProbe=structuredClone(reviews[0]);raceProbe.id='race-probe';raceProbe.title=`${raceProbe.title} selection race`;raceProbe.originalEvidence={...raceProbe.originalEvidence,integrationCaseId:'race-probe'};
 const uiReviews=[...reviews,raceProbe];
@@ -299,7 +316,7 @@ try{
   checks.push('authored walkthrough keyboard, typed focus, backend reset, and scene reset are verified');
  }
 
- for(const review of reviews){
+ for(const review of selectedReviews){
   if(review.id!==first.id)await page.locator(`[data-example-id="${review.id}"]`).click();
   await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,review.title,{timeout:30000});
   if(await page.locator('#diagram-title').innerText()!==review.title)throw Error(`${review.id} selection did not show its title.`);
@@ -318,7 +335,7 @@ try{
   }
   for(const asset of citationAssets(review)){
    const selector=`.source-asset-download[data-output-path="${asset.outputPath}"]`;
-   await page.waitForFunction(path=>[...document.querySelectorAll('.source-asset-download')].some(element=>(element as HTMLAnchorElement).dataset.outputPath===path&&element.getAttribute('aria-disabled')==='false'),asset.outputPath,{timeout:10000});
+   await waitForCitationAsset(page,asset.outputPath,'enabled');
    const downloaded=await downloadBytes(page,selector,`.cache/review-${review.id}-${String(asset.path).split('/').pop()}`);
    const expected=await readFile(resolve(siteRoot,asset.outputPath));
    if(downloaded.filename!==String(asset.path).split('/').pop()||sha(downloaded.bytes)!==asset.sha256||!Buffer.from(downloaded.bytes).equals(expected))throw Error(`${review.id} cited source asset ${asset.path} download differs from its exact hash-verified published bytes.`);
@@ -326,9 +343,9 @@ try{
    if(!corruptCitationChecked){
     const next=reviews.find((candidate:any)=>candidate.id!==review.id);if(!next)throw Error('No second review exists for the corrupt cited-source control.');
     corruptPath=asset.outputPath;await page.locator(`[data-example-id="${next.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,next.title,{timeout:30000});
-    await page.locator(`[data-example-id="${review.id}"]`).click();await page.waitForFunction(path=>{const link=[...document.querySelectorAll('.source-asset-download')].find(element=>(element as HTMLAnchorElement).dataset.outputPath===path) as HTMLAnchorElement|undefined;return !!link&&link.getAttribute('aria-disabled')==='true'&&link.title.includes('hash does not match');},asset.outputPath,{timeout:10000});
+    await page.locator(`[data-example-id="${review.id}"]`).click();await waitForCitationAsset(page,asset.outputPath,'hash-refused');
     corruptPath=undefined;await page.locator(`[data-example-id="${next.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,next.title,{timeout:30000});
-    await page.locator(`[data-example-id="${review.id}"]`).click();await page.waitForFunction(path=>[...document.querySelectorAll('.source-asset-download')].some(element=>(element as HTMLAnchorElement).dataset.outputPath===path&&element.getAttribute('aria-disabled')==='false'),asset.outputPath,{timeout:10000});
+    await page.locator(`[data-example-id="${review.id}"]`).click();await waitForCitationAsset(page,asset.outputPath,'enabled');
     corruptCitationChecked=true;checks.push(`${review.id} corrupt cited source asset is hash-refused and recovers on a fresh selection`);
    }
   }
@@ -516,6 +533,6 @@ try{
  await page.screenshot({path:'.cache/reviews-ui-mobile.png',fullPage:true});
  checks.push('review modal closes by keyboard and the page fits a 375px mobile viewport');
  if(errors.length)throw Error(`Browser errors: ${errors.join('; ')}`);
- const result={ok:true,examples:reviews.length,checks,browser:browser.version(),errors};
+ const result={ok:true,mode:selection.mode,requestedIds:selection.requestedIds,selectedIds:selection.selectedIds,totalExamples:selection.totalExamples,examples:selectedReviews.length,sharedControls:selection.sharedControls,checks,browser:browser.version(),errors};
  await Bun.write('.cache/reviews-ui-browser.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
 }finally{await browser.close();}

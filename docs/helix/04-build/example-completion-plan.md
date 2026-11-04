@@ -2868,6 +2868,99 @@ host capability expansion is claimed. Commit follows in this change; git history
 is authoritative. Cycle 29 remains pending until cycle 28 is committed; this resolves
 all earlier checkpoint holds.
 
+### Twenty-ninth-cycle scope — fictional estate connections
+
+Cycle 29 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/inventory/beacon-estate.json`, SHA-256
+`e0ff673ac336f1a031d8d40c16078f9f63d12ffc6c489d1b133f7ab07a8c5eef`.
+Originating `fixtures/visual/sources/estate/estate.mmd` matches declared digest
+`67e0ca2948db794b31a2c1b0d8de8f876912098dc4d0705813879b286cdb6ceb`.
+Preserve four node identities/labels/details/roles and five directed relationships,
+including dotted control meaning, exact captions and source pointers. Prefer exact
+alias unless a concrete relevant omission appears. Native LR syntax remains
+companion presentation evidence, not automatic portable-layout enrichment. No
+current systems or unrelated estate-model facts are inferred.
+
+If existing runtime qualifies, use focused source/native-new-case plus fresh
+review/replay/site/selected-case UI/common-control and public-consumer evidence,
+retaining unchanged corpus gates. A generic repeatable --example UI selector may
+limit only the per-example loop: global source/manifest/native replay and shared
+race/corruption/zoom/mobile/keyboard controls remain required. Default all mode
+and explicit receipt mode/selected IDs prevent a filtered run from implying full
+cohort coverage. Selector implementation requires full UI regression itself;
+future shared runtime/UI/proof changes still require the full affected cohort.
+No model/schema change is indicated. Commit cycle 29 before starting cycle 30.
+
+### Twenty-ninth-cycle focused runtime checkpoint
+
+Source/provenance checks pass five tests/134 assertions with exact original JSON/
+Mermaid snapshot alias. Actual native G/M/L checks pass 11/10/13; case controls pass
+two tests/58 assertions. A real skip-rank caption collision required generic private
+rank-corridor placement and a new all-unrelated-logical-node guard, preserving exact
+text/topology and unchanged visible-ink thresholds. CTM mutation independently
+proves visible glyph overlap and its specific source-owned failure. Affected
+regressions pass 69 tests/1,108 assertions; classifier controls pass 4/48; type/diff
+pass. This is a runtime/proof-change cycle, so full applicable gates remain required.
+
+Generic review-UI selection passes four pure tests/22 assertions and prelaunch
+unknown-ID rejection. Only the per-example loop is filtered; default all-mode,
+receipt coverage scope and unconditional shared controls remain. All-mode plus
+selected-mode UI verification and broader native/corpus/consumer/full gates are
+pending. Cycle 29 is incomplete and not ready for commit.
+
+### Twenty-ninth-cycle final geometry-regression checkpoint
+
+The first full run exposed two existing-context native failures after the stricter
+all-unrelated-node caption guard. A broad candidate scorer was rejected by native
+evidence and removed. The final bounded correction retains along/target-side and
+skip-rank strategies, changing only the source-side dominant-cross-axis normal
+sign from directed geometric delta. No label/role/status/source-ID exceptions or
+quality-threshold changes were added. Actual context caption clears its unrelated
+node by 62.8 CSS px; estate skip-rank output stays qualified. Renamed-all-ID native
+positive and affected 68 tests/928 assertions pass, with typecheck/diff clean.
+All-unrelated-node/endpoint/mask checks remain strict. Final full/corpus/UI gates
+remain pending; cycle 29 is incomplete and docs freeze for the quiet rerun.
+
+### Twenty-ninth-cycle final evidence checkpoint
+
+The isolated full suite passes **938 tests, zero failures, 24,111 assertions
+across 164 files in 219.55 seconds**. Public browser passes 53 fixtures and 28
+reviewed definitions/66 plans without errors. Catalog covers 53 items; showcase nine
+examples/23 qualified variants. Reviews cover 28 documents/63 qualified plus three
+unqualified native-quality variants, zero execution failures, 18 unsupported
+variants, 198 assets and 66 native SVG/PNG replays. Source/native assets and exact
+original JSON/Mermaid bindings remain independently verified.
+
+The full review UI receipt records mode all, 28/28 examples, sharedControls true
+and no errors; selected-mode receipt records 1/28 examples with sharedControls true
+and no errors. The initial citation timeout exposed a missing generic .mmd download
+allowlist entry; the correction preserves namespace/path/hash refusal and owned
+URL cleanup, adding explicit asset-path diagnostics. Postpatch source/type checks
+and focused seven tests/149 assertions pass. The full-suite result above is the
+renderer/runtime baseline; this narrow UI-only correction is additionally qualified
+by both browser modes and focused checks. Final catalog UI passes 53 items and showcase UI passes nine examples/23 qualified
+variants/46 SVG/PNG previews, both without browser errors. All required gates pass.
+
+### Twenty-ninth-cycle closeout — 2026-11-03
+
+Cycle 29 implementation and verification are complete, ready for its per-document
+commit. All preceding final evidence is green, including 938/0 full-suite baseline,
+post-UI-patch 7/149 focused/source/type checks, actual native/corpus/review replay,
+public/packed consumers and full plus selected review UI with shared controls.
+Final catalog/showcase UI confirmation resolves all earlier checkpoint holds.
+
+Final source/model/interface/modularity audit passes: exact original JSON/Mermaid
+source alias is preserved without source facts enrichment. Generic skip-rank and
+source-side normal estimates retain topology and established layout precedence,
+with strict all-unrelated-node/endpoint/mask ownership. Native mutation controls
+and renamed IDs avoid private coordinate or fixture-specific logic. Generic UI
+selection filters only the per-case loop and records explicit coverage; shared
+controls/global source/replay obligations remain. The .mmd exact-source download
+fix retains hash/path refusal and stale-URL cleanup. No new portable vocabulary,
+current-system claim, native threshold waiver or host expansion is introduced.
+Commit follows in this change; git history is authoritative. Cycle 30 remains
+pending until cycle 29 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2883,8 +2976,8 @@ Cycle 19 is committed as `122e5c6`; cycle 20 is committed as `adefa85`.
 Cycle 21 is committed as `b9257c8`; cycle 22 is committed as `ae58a76`.
 Cycle 23 is committed as `8efc657`; cycle 24 is committed as `5af7b4c`.
 Cycle 25 is committed as `2374106`; cycle 26 is committed as `2bd17fd`.
-Cycle 27 is committed as `05b2b84`; cycle 28 is complete and ready for commit.
-Cycles 29–68 remain pending.
+Cycle 27 is committed as `05b2b84`; cycle 28 is committed as `587471d`.
+Cycle 29 is in progress; cycles 30–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

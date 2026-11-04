@@ -639,14 +639,19 @@ function renderAuthoredContext(example) {
 }
 
 async function loadVerifiedAsset(path, expectedHash) {
-  const extension = typeof path === 'string' ? /\.(svg|png|jpe?g|json|ya?ml|toml)$/i.exec(path)?.[0].toLowerCase() : '';
-  if (!extension || !safeAssetPath(path, extension)) throw new Error('Asset path is outside the configured presentation namespace');
-  const response = await fetch(`./${path}`, {cache: 'no-store'});
-  if (!response.ok) throw new Error(`Asset request failed (${response.status})`);
-  const bytes = await response.arrayBuffer();
-  const actual = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(value => value.toString(16).padStart(2, '0')).join('');
-  if (actual !== expectedHash.toLowerCase()) throw new Error('Asset hash does not match its review manifest');
-  return URL.createObjectURL(new Blob([bytes], {type: response.headers.get('content-type') || 'application/octet-stream'}));
+  try {
+    const extension = typeof path === 'string' ? /\.(svg|png|jpe?g|json|ya?ml|toml|mmd)$/i.exec(path)?.[0].toLowerCase() : '';
+    if (!extension || !safeAssetPath(path, extension)) throw new Error('Asset path is outside the configured presentation namespace');
+    const response = await fetch(`./${path}`, {cache: 'no-store'});
+    if (!response.ok) throw new Error(`Asset request failed (${response.status})`);
+    const bytes = await response.arrayBuffer();
+    const actual = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(value => value.toString(16).padStart(2, '0')).join('');
+    if (actual !== expectedHash.toLowerCase()) throw new Error('Asset hash does not match its review manifest');
+    return URL.createObjectURL(new Blob([bytes], {type: response.headers.get('content-type') || 'application/octet-stream'}));
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new Error(`Could not load verified asset ${JSON.stringify(path)}: ${reason}`);
+  }
 }
 
 async function loadVerifiedText(path, expectedHash) {

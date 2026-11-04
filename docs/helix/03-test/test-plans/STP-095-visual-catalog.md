@@ -851,3 +851,22 @@ pass. Original fictional source is immutable; separate reviewed scope caveat and
 both originating snapshots are independently bound. G/L qualify; M retains its
 source-bound font-only unqualified result. No new vocabulary/current estate or
 host capability claim is introduced.
+
+
+Connector-caption regressions include skip-rank links across intermediate nodes:
+verify actual glyph clearance against all unrelated logical node carriers and a
+CTM-based mutation that produces a specific unrelated-node collision. Private
+corridor offsets are not test oracles. Review UI filtering may restrict only the
+per-example loop; default all-mode and explicit selected-mode receipts, prelaunch
+invalid-ID controls and unconditional shared race/zoom/mobile controls preserve
+coverage scope. Shared renderer/UI/proof changes require full-cohort verification.
+
+
+Cycle 29 closeout: full renderer/runtime suite passes 938 tests, zero failures and
+24,111 assertions across 164 files in 219.55 seconds. The final narrow .mmd citation
+allowlist/diagnostic correction passes postpatch source/type and focused 7/149,
+full review UI 28/28 and selected 1/28 with shared controls, plus catalog/showcase UI
+without errors. All required native/corpus/replay/public/packed-consumer gates pass.
+Generic caption geometry preserves strict unrelated-node ownership, and selector
+receipts prevent filtered runs implying full coverage. Exact source authority,
+quality thresholds and portable vocabulary remain unchanged.

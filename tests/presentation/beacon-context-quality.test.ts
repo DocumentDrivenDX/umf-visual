@@ -4,7 +4,7 @@ import {chromium,type Browser} from 'playwright';
 import {resolve} from 'node:path';
 import {readFileSync} from 'node:fs';
 import type {Document} from '@umf/core';
-import {getVisual,readVisualDocument} from '../../src/extensions/visual';
+import {createVisualDocument,getVisual,readVisualDocument} from '../../src/extensions/visual';
 import {compilePresentation,type PresentationPlan} from '../../src/presentation';
 import {verifyPresentationQuality} from '../../scripts/presentation/quality';
 import {requiredPresentationChecks} from '../../scripts/presentation/verify';
@@ -68,5 +68,20 @@ test('a caption moved onto its mapped endpoint is rejected by visible native geo
   const changed=await verifyPresentationQuality(page,{svg:moved,document,plan,nativeAst:native.nativeAst}),endpointCheck=finding(changed,'lini-connection-endpoints');
   expect(endpointCheck?.result).toBe('fail');
   expect(endpointCheck?.details).toContain('customer--helpdesk: owned caption overlaps an endpoint marker or node');
+ }finally{await page.close();}
+});
+
+test('Lini caption placement and native proofs remain valid when graph identities are renamed',async()=>{
+ const renamed=structuredClone(visual),nodeIds=new Map(renamed.nodes!.map((node,index)=>[node.id,'node_'+(index+1)])),edgeIds=new Map(renamed.edges!.map((edge,index)=>[edge.id,'link_'+(index+1)]));
+ for(const node of renamed.nodes!)node.id=nodeIds.get(node.id)!;
+ for(const edge of renamed.edges!){edge.id=edgeIds.get(edge.id)!;edge.from=nodeIds.get(edge.from)!;edge.to=nodeIds.get(edge.to)!;}
+ const renamedDocument=createVisualDocument(renamed,'visual:renamed-context','1.4.0'),plan=compilePresentation(renamedDocument,{backend:'lini',theme:'presentation/1'});
+ expect(plan.ok).toBe(true);if(!plan.ok)return;
+ expect(plan.elementMap.filter(item=>item.kind==='node')).toHaveLength(13);expect(plan.elementMap.filter(item=>item.kind==='edge')).toHaveLength(14);
+ const native=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900},deviceScaleFactor:1});
+ try{
+  const checks=await verifyPresentationQuality(page,{svg:native.svg,document:renamedDocument,plan,nativeAst:native.nativeAst});
+  expect(checks.filter(check=>check.result==='fail'),JSON.stringify(checks.filter(check=>check.result==='fail'))).toEqual([]);
+  for(const name of requiredPresentationChecks('lini',getVisual(renamedDocument)!))expect(finding(checks,name)?.result,`renamed/${name}`).toBe('pass');
  }finally{await page.close();}
 });
