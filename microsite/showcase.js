@@ -640,7 +640,7 @@ function renderAuthoredContext(example) {
 
 async function loadVerifiedAsset(path, expectedHash) {
   try {
-    const extension = typeof path === 'string' ? /\.(svg|png|jpe?g|json|ya?ml|toml|mmd)$/i.exec(path)?.[0].toLowerCase() : '';
+    const extension = typeof path === 'string' ? /\.(svg|png|jpe?g|json|ya?ml|toml|mmd|sql)$/i.exec(path)?.[0].toLowerCase() : '';
     if (!extension || !safeAssetPath(path, extension)) throw new Error('Asset path is outside the configured presentation namespace');
     const response = await fetch(`./${path}`, {cache: 'no-store'});
     if (!response.ok) throw new Error(`Asset request failed (${response.status})`);

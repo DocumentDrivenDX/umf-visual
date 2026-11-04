@@ -3537,6 +3537,143 @@ introduced. Existing CONTRACT-089 requirements suffice. Earlier visual/UI holds
 are resolved by these final gates; freeze for per-document commit. Cycle 35 must
 not start before cycle 34 is committed.
 
+### Thirty-fifth-cycle scope — source-grounded ticket entity schema
+
+Cycle 34 is committed as `f858af5`. Cycle 35 audits exact Visual 1.0 authority
+`fixtures/visual/inventory/beacon-schema-tickets.json` against the ordered checked-in
+migration directory and its declared digest. The projection includes ten entities,
+nine field-bound child references and three explicit references to excluded tables.
+Inspect migration evolution, including the later drafts.tone column, before freezing
+any review definition. Bind exact individual SQL bytes and establish the directory
+digest recipe; neither snapshot nor fixture verifies a current database.
+
+Preserve original bytes/IDs/field order/reference identity. Audit PK/FK membership,
+explicit reference columns, nullability, cardinalities and selected-table scope.
+NOT NULL and primary-key constraints must not disappear from a source-grounded
+review; nullable bytes/tone must not become non-null. The two join tables declare
+FKs without PK/UNIQUE constraints, so no compound key may be invented. Existing
+reference fields may be addressed only through the actual public model contract;
+no synthetic field IDs or identifying relationship meaning is inferred. If
+relevant SQL constraints are missing, use a separate explicitly derived definition
+with generic existing vocabulary, retaining immutable original source/download.
+
+Native admission requires exact field/key/nullability text, field-bound reference
+ownership and endpoint/cardinality fidelity, with located target limitations.
+Evaluate existing entity renderers first; at least one suitable target is required.
+Lean data-only gates apply only if source/manifest changes alone suffice; concrete
+runtime/proof changes reopen full applicable gates. No business-specific schema
+or renderer branch is authorized. Cycle 36 waits for cycle 35's completed commit.
+
+### Cycle 35 semantic checkpoint — existing 1.0 constraints suffice
+
+The migration audit confirms 35 fields across ten projected entities, nine internal
+FK references and three declared external-reference omissions. The later tone
+column is already present. Only attachments.bytes and drafts.tone are nullable;
+all other fields are explicitly NOT NULL or primary keys. Neither two-FK join
+table declares PK/UNIQUE membership. No compound or identifying key is inferred.
+
+A separate source-backed review may add these nullable booleans and strengthen
+nine parent reference endpoints with field name `id`. Both concepts already exist
+in the frozen Visual 1.0 schema; public validation resolves endpoint field by
+existing name, so no synthetic IDs, version upgrade or vocabulary change is
+needed. Preserve original fixture SHA-256
+`3ea8d7e5c8941457901cecb9a6755bc02fd5119c0a9e6fb92bf9e21d4881054e`.
+The directory digest is independently reproduced as SHA-256 of the four raw SQL
+files concatenated in lexicographic filename order without separators:
+`8a3e9b961a37bcce32cad3187344203535e63994b6a1d46e02f8bb99e6649c90`.
+Publish and bind every exact file; no current-database claim follows.
+
+Initial Graphviz and Mermaid native baselines qualify; Mermaid's entity-level
+endpoint projection remains disclosed. Lini is font-only unqualified with other
+field/cardinality/endpoint checks passing. Fresh derived-source qualification must
+prove every added constraint and named parent endpoint without silently upgrading
+target fidelity. Data-only affected gates remain appropriate only while runtime/
+proof code stays unchanged. Cycle 35 remains incomplete.
+
+### Cycle 35 derived/native checkpoint — typography and SQL downloads
+
+Independent source comparison finds exactly 44 additions in reviewed definition
+`3c77db334e429fb92e2b11d59dddc3aa57f8e3c049b8ce4e2cbcfce124a57975`:
+35 SQL-grounded nullable booleans and nine existing-name parent id bindings.
+All other source content remains unchanged; original and all four raw SQL files
+are separately hash-bound/published. Source tests 2/87 pass. Dialect/deployment
+claims remain bounded to declared snapshot constraints, not a verified live engine.
+
+Derived Graphviz/Mermaid native checks pass, with Mermaid's entity-level endpoint
+approximation retained. The original Lini font-only limitation is resolved in a
+private native probe by a generic per-reference label-child font size of 14;
+original and derived documents pass all 12 checks without geometry/port/cardinality
+or nullability changes. The actual derived PNG is independently visually approved:
+all 35 field rows and nine labeled references remain readable. Candidate native
+source SHA is `f70076d782f7e9f095c6f5191dc226c62f009be1d359c787047d381e7198c82d`,
+SVG `dc09b99cd6f56751aa1baf8443f1cb3745bfecf98b9f3113299194fc6eb619ec`,
+PNG `f277400fc6a48427b351f5361c03af7be1d4641010f22c94ab61608beb9ac858`.
+These are probe evidence, not final rebuilt receipts.
+
+Approve the bounded renderer typography change with existing entity regressions;
+no business/count/ID branch or new vocabulary is required. Exact .sql downloads
+need generic extension/MIME support under existing safe path/hash/token ownership
+checks. Shared UI/runtime changes reopen full required gates; data-only completion
+is no longer applicable. Ordinary/annotated interchange evidence remains separate
+from modern presentation qualification. Final production/replay/UI gates and cycle
+35 completion remain pending.
+
+### Cycle 35 frozen implementation checkpoint — full gates pending
+
+Source tests 2/87 and type checks pass. The derived definition remains the exact
+44-addition same-version review; original fixture and four SQL files are unchanged.
+Production changes are bounded to one native Lini entity-reference caption child
+font-size property and .sql in the existing explicit source-asset extension
+allowlist. Safe namespace/path/hash/token rules are unchanged. Selected SQL UI
+controls verify all four exact filenames/bytes/hashes, corrupt-response recovery,
+unsafe extension/traversal refusals and stale Blob cleanup.
+
+Original and derived native Graphviz 11, Mermaid nine and Lini 12 required checks
+pass. Existing canary/commerce/entity controls pass 33 tests / 629 assertions,
+including mapped reference ownership, actual 14px captions and fitted visible
+font bounds. Static model/module/public-boundary audit is approved: no vocabulary,
+source field invention, fixture dispatch or semantic-loss approximation added.
+Mermaid entity-level endpoint representation stays disclosed and ordinary
+interchange support remains separate. Full required gates and final artifacts are
+pending; cycle 35 is not complete.
+
+### Cycle 35 closeout — complete, ready for commit
+
+The final full run passes 971 tests, zero failures and 25,156 assertions across
+175 files in 177.00 seconds (`.cache/cycle35-retry1-full.log`). Two initial stale
+caption-style assertions were corrected without removing endpoint/range checks;
+focused compiler 17/264 passes. Build/fetch/package evidence preceded that test-only
+correction and remains valid because runtime was unchanged. All required source/
+type/build/fetch/package/browser/native/catalog/showcase/replay/reviews/replay/site
+and full/selected/catalog/showcase UI gates pass.
+
+Fresh reviews cover 34 examples: 75 qualified, seven unqualified, 20 unsupported,
+zero execution failures, 246 assets, five captures and 29 authoritative sources.
+All 82 native SVG and 82 PNG replays pass. Review UI all 34/34 and selected 1/34
+retain shared controls, Chromium 153.0.8010.12 and zero errors. Every exact SQL
+filename/byte/hash, corrupt-response recovery, unsafe extension/traversal refusal
+and late Blob cleanup control passes. Source 2/87 and native entity 33/629 pass
+without summing overlapping runs.
+
+All enriched presentations qualify: Graphviz 11 checks, Mermaid nine and Lini 12.
+Mermaid's entity-level endpoint representation remains explicitly approximate,
+not equivalent field-port realization; ordinary interchange loss claims remain
+separate. Actual Lini source/SVG/PNG hashes match the independently inspected
+candidate; root also inspects the built Graphviz PNG. Final derived Visual 1.0
+SHA is `3c77db334e429fb92e2b11d59dddc3aa57f8e3c049b8ce4e2cbcfce124a57975`;
+original fixture `3ea8d7e5c8941457901cecb9a6755bc02fd5119c0a9e6fb92bf9e21d4881054e`
+and all four migration files remain unchanged.
+
+Final native/model/modularity review approves exactly 35 source-grounded nullable
+flags and nine parent name bindings using existing Visual 1.0 concepts. All keys,
+reference IDs/order/cardinalities and three excluded-reference omissions remain
+intact; no compound PK/UNIQUE, synthetic IDs, inferred identification or current
+database fact is added. Native per-reference typography and generic safe SQL
+asset support preserve ownership, exact source and hash fences without fixture
+branches. Existing CONTRACT-089 suffices, unchanged. Previous checkpoint holds
+are resolved; freeze for per-document commit. Cycle 36 cannot start before cycle
+35 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -3555,8 +3692,9 @@ Cycle 25 is committed as `2374106`; cycle 26 is committed as `2bd17fd`.
 Cycle 27 is committed as `05b2b84`; cycle 28 is committed as `587471d`.
 Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
-Cycle 33 is committed as `c766035`. Cycle 34 is complete and ready for commit;
-cycles 35–68 remain pending, with cycle 35 gated on the cycle 34 commit.
+Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
+Cycle 35 is complete and ready for commit; cycles 36–68 remain pending,
+with cycle 36 gated on the cycle 35 commit.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

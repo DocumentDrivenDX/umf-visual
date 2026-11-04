@@ -41,6 +41,15 @@ async function waitForCitationAsset(page:Page,outputPath:string,state:'enabled'|
  }
 }
 const raceProbe=structuredClone(reviews[0]);raceProbe.id='race-probe';raceProbe.title=`${raceProbe.title} selection race`;raceProbe.originalEvidence={...raceProbe.originalEvidence,integrationCaseId:'race-probe'};
+const raceSourceAsset=citationAssets(reviews.find((review:any)=>citationAssets(review).length>0)??{})[0];
+if(raceSourceAsset){
+ raceProbe.sources=[...(Array.isArray(raceProbe.sources)?raceProbe.sources:[]),
+  {path:raceSourceAsset.path,sha256:raceSourceAsset.sha256,label:'Unsupported extension control'},
+  {path:raceSourceAsset.path,sha256:raceSourceAsset.sha256,label:'Traversal path control'}];
+ raceProbe.publishedAssets=[...(Array.isArray(raceProbe.publishedAssets)?raceProbe.publishedAssets:[]),
+  {...raceSourceAsset,outputPath:'reviews/race-probe/unsupported.exe'},
+  {...raceSourceAsset,outputPath:'reviews/../race-probe/migrations/rejected.sql'}];
+}
 const uiReviews=[...reviews,raceProbe];
 async function downloadBytes(page:Page,selector:string,target:string,occurrence?:number):Promise<{filename:string;bytes:Uint8Array}>{
  const matches=page.locator(selector),count=await matches.count();
@@ -231,10 +240,10 @@ async function assertRenderingNotes(page:Page,row:any,reviewId:string,backend:st
  if(expectedCircularGrid&&!(await caveat.innerText()).includes('native block grid approximates circular node placement while retaining the authored clockwise order'))throw Error(`${reviewId}/${backend} circular native-grid approximation is not explained beside the preview.`);
  if(expected.length&&await notesPanel.evaluate(element=>(element as HTMLDetailsElement).open))await notesPanel.locator(':scope > summary').click();
 }
-const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.yaml':'application/yaml;charset=utf-8','.yml':'application/yaml;charset=utf-8','.toml':'application/toml;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
+const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.yaml':'application/yaml;charset=utf-8','.yml':'application/yaml;charset=utf-8','.toml':'application/toml;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8','.sql':'text/plain;charset=utf-8'};
 let corruptPath:string|undefined;
 let delayedCapturePath:string|undefined,delayedCaptureCount=0,signalDelayedRequest!:()=>void;
-let corruptCitationChecked=false,delayedCitationPath:string|undefined,delayedCitationCount=0,signalDelayedCitation!:()=>void,signalDelayedCitationFulfilled!:()=>void;
+let corruptCitationChecked=false,corruptSqlCitationChecked=false,delayedCitationPath:string|undefined,delayedCitationCount=0,signalDelayedCitation!:()=>void,signalDelayedCitationFulfilled!:()=>void;
 let includeRaceProbe=true;
 let previousRecipeUrl:string|undefined;
 const delayedCaptureRequested=new Promise<void>(resolve=>{signalDelayedRequest=resolve;});
@@ -273,6 +282,15 @@ try{
  if(raceCapture){
   delayedCapturePath=raceCapture.capturePath;
   await page.locator('[data-example-id="race-probe"]').click();
+  if(raceSourceAsset){
+   for(const outputPath of ['reviews/race-probe/unsupported.exe','reviews/../race-probe/migrations/rejected.sql']){
+    await page.waitForTimeout(100);
+    const unsafeLinks=await page.locator('.source-asset-download').evaluateAll((elements,path)=>elements.filter(element=>(element as HTMLAnchorElement).dataset.outputPath===path).map(element=>({disabled:(element as HTMLAnchorElement).getAttribute('aria-disabled'),title:(element as HTMLAnchorElement).title})),outputPath);
+    if(unsafeLinks.some(link=>link.disabled!=='true'||!link.title.includes('outside the configured presentation namespace')))throw Error(`Unlisted or traversal source path was not safely refused: ${outputPath} ${JSON.stringify(unsafeLinks)}.`);
+    if(!unsafeLinks.length&&outputPath.endsWith('.exe'))throw Error(`Unlisted source extension did not produce a refusal control: ${outputPath}.`);
+   }
+   checks.push('unlisted source extensions and traversal paths remain refused in the same asset namespace');
+  }
   await Promise.race([delayedCaptureRequested,new Promise((_,reject)=>setTimeout(()=>reject(Error('The delayed historical capture request did not start.')),5000))]);
   await page.locator(`[data-example-id="${first.id}"]`).click();
   await page.waitForFunction(id=>(document.querySelector('#historical-capture') as HTMLImageElement|null)?.alt.endsWith(id)===true,raceCapture.integrationCaseId,{timeout:10000});
@@ -351,13 +369,14 @@ try{
     if(downloaded.filename!==String(asset.path).split('/').pop()||sha(downloaded.bytes)!==asset.sha256||!Buffer.from(downloaded.bytes).equals(expected))throw Error(`${review.id} cited source asset ${asset.path} occurrence ${occurrence+1}/${occurrences} differs from its exact hash-verified published bytes.`);
    }
    checks.push(`${review.id} cited source asset ${asset.path} downloads exact hash-verified bytes at all ${occurrences} source-citation occurrence(s)`);
-   if(!corruptCitationChecked){
+   const isSql=/\.sql$/i.test(asset.outputPath),selectedSqlExpected=selectedReviews.some((candidate:any)=>citationAssets(candidate).some((candidateAsset:any)=>/\.sql$/i.test(candidateAsset.outputPath)));
+   if((isSql&&!corruptSqlCitationChecked)||(!corruptCitationChecked&&!selectedSqlExpected)){
     const next=reviews.find((candidate:any)=>candidate.id!==review.id);if(!next)throw Error('No second review exists for the corrupt cited-source control.');
     corruptPath=asset.outputPath;await page.locator(`[data-example-id="${next.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,next.title,{timeout:30000});
     await page.locator(`[data-example-id="${review.id}"]`).click();await waitForCitationAsset(page,asset.outputPath,'hash-refused',occurrences);
     corruptPath=undefined;await page.locator(`[data-example-id="${next.id}"]`).click();await page.waitForFunction(title=>document.querySelector('#diagram-title')?.textContent===title,next.title,{timeout:30000});
     await page.locator(`[data-example-id="${review.id}"]`).click();await waitForCitationAsset(page,asset.outputPath,'enabled',occurrences);
-    corruptCitationChecked=true;checks.push(`${review.id} corrupt cited source asset is hash-refused and recovers on a fresh selection`);
+    corruptCitationChecked=true;if(isSql)corruptSqlCitationChecked=true;checks.push(`${review.id} corrupt cited source asset is hash-refused and recovers on a fresh selection`);
    }
   }
   if(evidence?.kind==='synthetic-integration-witness'){
@@ -483,6 +502,7 @@ try{
    await page.screenshot({path:desktopScreenshot,fullPage:true});
   }
  }
+ if(selectedReviews.some((candidate:any)=>citationAssets(candidate).some((asset:any)=>/\.sql$/i.test(asset.outputPath)))&&!corruptSqlCitationChecked)throw Error('The selected SQL source asset did not receive an isolated corrupt-byte refusal and recovery check.');
  const deployment=reviews.find((review:any)=>review.id==='beacon-deployment');
  if(!deployment)throw Error('The beacon-deployment review row is missing from the native-quality UI regression.');
  for(const [backend,status] of [['graphviz','qualified'],['mermaid','unqualified'],['lini','unqualified']] as const){

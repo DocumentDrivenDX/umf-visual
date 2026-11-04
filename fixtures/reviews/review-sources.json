@@ -1845,6 +1845,100 @@
         "sourceDownloadPath": "reviews/beacon-reply-draft/authoritative-source.json",
         "scope": "This exact UMF fixture JSON is the review definition. It preserves eight participant identities and fields, eight ordered messages and their authored UMF call/return kinds, and eight steps focused one-to-one on those messages. The TOML `reply-draft` journey supplies eight ordered from/to/label steps; its matching elements supply the participant names, details, kinds and statuses. The final step matches the TOML relation explicitly marked `return`; the journey itself has no message-kind field, so the other seven UMF `call` kinds are fixture-authored defaults, not explicit TOML declarations. The first-appearance participant order, step titles/focus, and the fixture question are UMF projections; the TOML journey has no question field. The architecture-model source identifies itself as fictional. Neither file establishes activations, durations, concurrency, current state, or deployment."
       }
+    },
+    {
+      "id": "beacon-schema-tickets",
+      "title": "What Beacon keeps for a ticket",
+      "description": "A source-backed review of the ten-entity ticket slice, retaining the original Visual 1.0.0 selection while making SQL nullability and explicit parent id bindings inspectable. The reviewed selection does not represent the full migration directory or a current database.",
+      "kind": "structure",
+      "form": "entities",
+      "definitionPath": "fixtures/reviews/definitions/beacon-schema-tickets.json",
+      "definitionSha256": "3c77db334e429fb92e2b11d59dddc3aa57f8e3c049b8ce4e2cbcfce124a57975",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-schema-tickets.json",
+          "sha256": "3ea8d7e5c8941457901cecb9a6755bc02fd5119c0a9e6fb92bf9e21d4881054e",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies the original ten entity IDs, roles and field order/types/key markers, nine internal references and three explicit out-of-scope reference omissions, plus the ticket-focused title, question, audience and migration-directory locator."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0001_workspace.sql",
+          "sha256": "a73f69ed5ae7d99fdd29d1a9bb77ec8b2c0efd10eb79f2d12450b5a3bcc10c93",
+          "pointer": "CREATE TABLE workspaces, agents, settings, integrations",
+          "label": "Checked-in Beacon SQL migration snapshot",
+          "description": "The exact checked-in migration bytes identify tables outside this ticket-focused projection and the parent tables referenced by selected foreign keys; they do not add those tables to the reviewed selection."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0002_tickets.sql",
+          "sha256": "943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7",
+          "pointer": "CREATE TABLE customers, tickets, messages, attachments, tags, ticket_tags",
+          "label": "Checked-in Beacon SQL migration snapshot",
+          "description": "The exact checked-in migration bytes define six selected tables, all 20 columns, declared primary/foreign-key constraints, and their NOT NULL clauses."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0003_drafts.sql",
+          "sha256": "ae6addeba332887844e609c9025c3bfa70649896b1cb334ceb5cf7e4b1ccf49b",
+          "pointer": "CREATE TABLE kb_articles, drafts, draft_sources, reviews; ALTER TABLE drafts ADD COLUMN tone",
+          "label": "Checked-in Beacon SQL migration snapshot",
+          "description": "The exact checked-in migration bytes define four selected tables, all 15 columns, declared primary/foreign-key constraints, and the later drafts.tone column."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0004_jobs.sql",
+          "sha256": "0da0273a7461813a9c970da4e374134a10aa5f07002a2fc1c4e850aafc7497fb",
+          "pointer": "CREATE TABLE jobs, job_runs, schedules",
+          "label": "Checked-in Beacon SQL migration snapshot",
+          "description": "The exact checked-in migration bytes identify three tables outside this ticket-focused projection; they are not added to the reviewed selection."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-schema-tickets.json",
+          "sha256": "3ea8d7e5c8941457901cecb9a6755bc02fd5119c0a9e6fb92bf9e21d4881054e",
+          "outputPath": "reviews/beacon-schema-tickets/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes; this original remains available unchanged."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0001_workspace.sql",
+          "sha256": "a73f69ed5ae7d99fdd29d1a9bb77ec8b2c0efd10eb79f2d12450b5a3bcc10c93",
+          "outputPath": "reviews/beacon-schema-tickets/migrations/0001_workspace.sql",
+          "mediaType": "text/plain",
+          "description": "Exact checked-in SQL migration bytes from 0001_workspace.sql; published unchanged for the source-backed review."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0002_tickets.sql",
+          "sha256": "943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7",
+          "outputPath": "reviews/beacon-schema-tickets/migrations/0002_tickets.sql",
+          "mediaType": "text/plain",
+          "description": "Exact checked-in SQL migration bytes from 0002_tickets.sql; published unchanged for the source-backed review."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0003_drafts.sql",
+          "sha256": "ae6addeba332887844e609c9025c3bfa70649896b1cb334ceb5cf7e4b1ccf49b",
+          "outputPath": "reviews/beacon-schema-tickets/migrations/0003_drafts.sql",
+          "mediaType": "text/plain",
+          "description": "Exact checked-in SQL migration bytes from 0003_drafts.sql; published unchanged for the source-backed review."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0004_jobs.sql",
+          "sha256": "0da0273a7461813a9c970da4e374134a10aa5f07002a2fc1c4e850aafc7497fb",
+          "outputPath": "reviews/beacon-schema-tickets/migrations/0004_jobs.sql",
+          "mediaType": "text/plain",
+          "description": "Exact checked-in SQL migration bytes from 0004_jobs.sql; published unchanged for the source-backed review."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-schema-tickets.json",
+        "sourceSha256": "3ea8d7e5c8941457901cecb9a6755bc02fd5119c0a9e6fb92bf9e21d4881054e",
+        "documentId": "visual:beacon-schema-tickets",
+        "visualId": "beacon-schema-tickets",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-schema-tickets/authoritative-source.json",
+        "scope": "The exact original Visual 1.0.0 fixture remains unchanged and available as the authoritative source download. It supplies the ten selected entity identities and roles, 35 field names/order/types/key markers, nine internal child references, three explicit references to excluded tables, title, question, audience, and historical migration-directory locator. The four individually hash-bound SQL snapshots reproduce that directory digest as SHA-256 over their raw bytes concatenated in lexicographic filename order with no separators. This separate Visual 1.0.0 review definition adds only source-backed nullability for all 35 columns: false for explicit NOT NULL or PRIMARY KEY constraints, and true for attachments.bytes and the later drafts.tone because their source column declarations permit NULL and binds each reference source endpoint to the explicitly named parent id column in REFERENCES ... (id). Existing field keys, reference identities, TO fields, direction, cardinalities, and omission note remain unchanged; neither ticket_tags nor draft_sources has a declared primary key or UNIQUE constraint, so no compound key is added. The reviewed ten-entity ticket-oriented selection is not the complete migration directory: workspaces, agents, settings, integrations, jobs, job_runs, and schedules stay outside it. These checked-in migration snapshots and fixture do not establish current database contents, deployment, or runtime behavior."
+      }
     }
   ]
 }

@@ -447,7 +447,16 @@ describe('pinned Lini presentation quality',()=>{
   const source=readVisualDocument(readFileSync(resolve(import.meta.dir,'../../fixtures/catalog/canary-entities.json'),'utf8'),'json'),good=await renderDocument(source);
   try{
    expect(result(good.checks,'lini-connection-endpoints')).toBe('pass');
-   expect(good.plan.source).toContain('[ "emits \\\"events\\\"" { translate: 0 -24; } ]');
+   expect(good.plan.source).toContain('[ "emits \\\"events\\\"" { translate: 0 -24; font-size: 14; } ]');
+   const referenceMaps=good.plan.elementMap.filter(item=>item.kind==='reference');
+   const captions=await good.page.evaluate(nativeIds=>nativeIds.map(nativeId=>{
+    const text=globalThis.document.querySelector(`g.lini-link.lini-style-${nativeId} > text.lini-link-label`) as SVGTextElement|null;
+    if(!text)return null;
+    const bounds=text.getBoundingClientRect(),style=getComputedStyle(text);
+    return{text:text.textContent?.trim()??'',fontSize:style.fontSize,visible:style.visibility!=='hidden'&&style.display!=='none'&&Number(style.opacity)>0&&Number(style.fillOpacity)>0&&style.fill!=='none',width:bounds.width,height:bounds.height};
+   }),referenceMaps.map(item=>item.nativeId));
+   expect(captions).toHaveLength(referenceMaps.length);
+   expect(captions.every(item=>item!==null&&item.text.length>0&&item.fontSize==='14px'&&item.visible&&item.width>0&&item.height>=10)).toBe(true);
    const link=good.page.locator('g.lini-link.lini-style-r1'),caption=link.locator('text.lini-link-label'),circle=link.locator('circle.lini-marker');
    expect(await circle.count()).toBe(1);
    const clearance=await link.evaluate(element=>{

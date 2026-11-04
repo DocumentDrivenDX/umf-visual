@@ -499,7 +499,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     const label=[identificationLabel,reference.label,exact.length?'['+exact.join('; ')+']':undefined].filter(Boolean).join(' '),className=safeId('r',i);
     add(reference.id,path('/structure/references/'+i),className,'reference');
     styleRules.push(`.${className} { stroke: --teal-deep;${reference.identification==='non-identifying'?' stroke-style: dashed;':''} }`);
-    const caption=label?` [ ${quoteChecked(label,path('/structure/references/'+i+'/label'))} { translate: ${relationshipCaptionTranslate}; } ]`:'';
+    const caption=label?` [ ${quoteChecked(label,path('/structure/references/'+i+'/label'))} { translate: ${relationshipCaptionTranslate}; font-size: 14; } ]`:'';
     children.push(`${from} ${operator} ${to} .${className} { along: 0.5; }${caption}`);
     if(a.approximate||b.approximate)approx(path('/structure/references/'+i),'Exact endpoint multiplicities',`Lini uses unmarked endpoint(s) for nonstandard exact ranges and prints their exact text in the relationship label${a.approximate&&b.approximate?'':'; conventional endpoints use native crow’s-foot markers'}.`);
     if(reference.identification)approx(path('/structure/references/'+i+'/identification'),'Relationship identification '+reference.identification,'Lini has no intrinsic identifying/non-identifying connector semantics; the distinction is written in the visible relationship label'+(reference.identification==='non-identifying'?' and a dashed line style.':'.'));

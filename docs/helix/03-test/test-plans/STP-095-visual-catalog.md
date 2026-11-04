@@ -1039,3 +1039,30 @@ mandatory ink proof; current TB passes all 13 checks. Original source and exact
 remaining backend failure sets stay unchanged. No portable semantics or quality
 threshold is altered. Earlier checkpoint holds are resolved: cycle 34 is complete,
 ready for commit, and cycle 35 waits for that commit.
+
+
+Cycle 35 focused plan verifies source-backed nullability and existing-name parent
+field bindings against ordered migration snapshots, preserving original bytes and
+key/reference identity. No undeclared compound keys or synthetic field IDs may be
+introduced. Native entity caption typography controls retain actual field ports,
+cardinality/markers, complete field text and readable fit across original/derived
+and existing entity fixtures. SQL asset downloads retain exact filenames/bytes,
+safe published-path/hash ownership and stale-response cleanup. Runtime/shared UI
+changes require full applicable gates; ordinary interchange losses are not modern
+presentation support claims. Source 2/87 and native probe evidence are green;
+final rebuilt receipts and cycle closeout remain pending.
+
+
+Cycle 35 closeout: 971/0, 25,156 assertions across 175 files in 177.00s. Test-only
+stale caption expectations are corrected with endpoint/range assertions retained;
+compiler 17/264 passes, runtime unchanged. All required native/corpus/consumer/
+source/build/site/UI gates pass. Reviews: 34 examples, 75 qualified, seven
+unqualified, 20 unsupported, zero execution failures, 246 assets and 82 native
+SVG/PNG replays. All-mode 34/34 and selected 1/34 retain shared controls and zero
+errors, including exact SQL downloads, corruption/unsafe-path and late-response
+controls. Source 2/87 and entity native 33/629 pass. All three enriched entity
+presentations qualify under their precise field-endpoint subsets; ordinary
+interchange claims remain separate. Original sources are immutable and same1.0
+review uses only SQL-grounded nullability/named parent endpoints. No new vocabulary
+or inferred compound/identifying key is introduced. Cycle 35 is complete, ready
+for commit; previous holds are resolved and cycle 36 waits for that commit.
