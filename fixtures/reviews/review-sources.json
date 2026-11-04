@@ -2678,6 +2678,60 @@
         "sourceDownloadPath": "reviews/helix-request/authoritative-source.json",
         "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition adds only each selected participant's exact source element `evidence` array; all other payload fields are unchanged. The cited architecture-model TOML bytes match the fixture digest exactly. The request view explicitly points to journey `request`; its six ordered from/to/label steps, title, and takeaway match the six sequence message endpoints/labels, six step titles/focus IDs, sequence title, and takeaway. Participants are the first-seen unique journey endpoints and match source element IDs/labels/details/kinds/statuses/evidence through fixture role mappings. The final message `kind: return` is a Visual sequence projection for the final docs-to-runtime journey step, not an explicit journey field. The question, audience, form, kind, message/step IDs, call/return classifications, and role values are Visual fixture projections. Other source relations, notes, jobs, and the optional documentor relation belong to other model projections and are not merged into this request journey. The source evidence strings are authored provenance records, not independently checked citations or current operational facts. No current execution/deployment claim is made."
       }
+    },
+    {
+      "id": "helix-solution-overview",
+      "title": "How HELIX turns intent into governing documents",
+      "description": "A source-bound context overview with exact source takeaway, responsibilities, and relation walkthrough preserved.",
+      "kind": "flow",
+      "form": "lanes",
+      "definitionPath": "fixtures/reviews/definitions/helix-solution-overview.json",
+      "definitionSha256": "14ed788f646f68c067b6e8fbeac187bca86edd5a168ca1c05e9c08e2989b6c7a",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/helix-solution-overview.json",
+          "sha256": "c17c672fa2c31f27012648e6282506bb92b1a975fde16d6fecc36046269c5084",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies seven ordered nodes, four lanes and their memberships, seven relationships with why/status/evidence, title, question, and source locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-model.toml",
+          "sha256": "6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2",
+          "pointer": "/view/context, selected /element and /relation records",
+          "label": "Cited HELIX architecture model",
+          "originalLocator": "helix:docs/helix/02-design/architecture-model.toml",
+          "resolvedSource": "helix/docs/helix/02-design/architecture-model.toml",
+          "description": "Exact TOML bytes resolved from the fixture locator. The context view supplies its source title, direction, takeaway and ordered element selection; selected element records supply layer and responsibility job; relation records supply the six numbered notes and one unnumbered optional note."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/helix-solution-overview.json",
+          "sha256": "c17c672fa2c31f27012648e6282506bb92b1a975fde16d6fecc36046269c5084",
+          "outputPath": "reviews/helix-solution-overview/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-model.toml",
+          "sha256": "6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2",
+          "outputPath": "reviews/helix-solution-overview/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact cited architecture-model TOML bytes published without transformation."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/helix-solution-overview.json",
+        "sourceSha256": "c17c672fa2c31f27012648e6282506bb92b1a975fde16d6fecc36046269c5084",
+        "documentId": "visual:helix-solution-overview",
+        "visualId": "helix-solution-overview",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-solution-overview/authoritative-source.json",
+        "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition preserves all original fields and adds the exact context-view takeaway; appends each selected element's exact `job` sentence to its existing detail with two line breaks, retaining the detail as prefix; and adds six ordered walkthrough steps from relation records with source `step` 1–6 (exact relation label/note and existing edge focus ID), followed by one unnumbered `when: optional` step from the final relation (exact label/note/focus), grounded by `why: optional host tooling`. All nodes, labels, existing details, role/status/evidence fields, edges, why/status/evidence fields, lanes/memberships, IDs, title/question/audience, and source metadata otherwise remain unchanged. The cited architecture-model TOML bytes match the fixture digest exactly. The four lane groups correspond to selected source element `layer` values; lane IDs/role are Visual projections. The context view's source title remains in the published TOML; the authored Visual title is not replaced. Its `direction: LR` is source-only because this Visual 1.0.0 shape has no direction field. The source model's built statuses and evidence are authored records, not checks of current deployment or runtime behavior."
+      }
     }
   ]
 }

@@ -1407,3 +1407,24 @@ Only six source-exact evidence arrays added in separate 1.0 definition, all othe
 original payload unchanged, located native omissions retained and native artifacts
 byte-identical. No current verification claim/shared-code/model/C089 change.
 All holds resolved; cycle 48 complete pending commit, cycle 49 commit-gated.
+
+
+Cycle 49 focused freeze: source 2/58/type/source/diff pass. Separate 1.0 review adds
+seven source-exact duties, six numbered relation notes without tag/when, optional
+seventh and explicit context takeaway, preserving all original other fields/bytes.
+Final G13/M11 qualify; L11/13 retains caption/font limits. No shared-code/model
+change, C089 unchanged. Lean 14 planned with complete all-review replay/selected
+shared UI/public/native/catalog/site; retained C45 full1,026/0/26,266/showcase/all 44 UI
+conditional on fingerprints. Final built visual review and gates pending; cycle 49
+incomplete, cycle 50 commit-gated.
+
+
+Cycle 49 closeout: all 14 affected gates pass, source 2/58/final site included.
+Actual 48 entries/102 qualified/16 unqualified/26 unsupported/zero execution failures,
+118 native SVG/PNG pairs, 354 render assets, 43 authorities, five captures. All 47 prior
+fingerprints identical justify retained C45 full1,026/0/26,266/showcase/all 44 UI.
+Fresh G13/M11 independently approved complete duties/lanes/relations; L11/13 exact
+caption/font limits retained. Source-backed duties, six numbered notes+optional and
+context takeaway preserve original/exactsource/otherfields with existing 1.0 types.
+No current verification/shared-code/model/C089 change. All holds resolved;
+cycle 49 complete pending commit, cycle 50 commit-gated.
