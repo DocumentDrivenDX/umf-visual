@@ -190,6 +190,8 @@ test('engine-target reviewed showcase preserves its original Visual definition a
 test('architecture network follows the exact documented container nodes and connections',()=>{
  const example=manifest.examples.find(row=>row.id==='umf-native-interchange-architecture')!;
  const v=visual(document(example));
+ expect(example.definitionPath).toBe('fixtures/showcase/definitions/umf-native-interchange-architecture-reviewed.json');
+ expect(v.layout).toEqual({kind:'flow',direction:'LR'});
  expect(v.nodes?.map(node=>node.label)).toEqual([
   'Native source','Native parser / compiler','Importer','UMF programmatic model','Versioned vocabularies',
   'Explicit target projection','Exporter','Native serializer / compiler','Fidelity and provenance','YAML / JSON artifact'
@@ -203,6 +205,44 @@ test('architecture network follows the exact documented container nodes and conn
  const source=read(example.sources[0]!.path).toString('utf8');
  for(const label of v.nodes!.map(node=>node.label))expect(source).toContain('['+label+']');
  expect(source).toContain('M <--> Y[YAML / JSON artifact]');
+ expect(v.annotations?.map(annotation=>annotation.text)).toEqual([
+  'The implementation provides a browser-compatible library and host-side tooling sharing the same programmatic model. No persistent service, database, cloud runtime, or network registry is required by the brief.',
+  'UMF library/tooling — Technology Direction: TypeScript compiled to JavaScript; JSON-compatible values; YAML authoring. Responsibility: Model access, operations, diagnostics. Boundary: Browser-compatible dependencies and packaged vocabularies; host I/O stays outside the library.',
+  'Vocabulary packages — Technology Direction: JSON Schema structural definitions plus semantic specifications. Responsibility: Versions, validation, capabilities, fixtures. Boundary: Package metadata is data; it does not authorize code execution.',
+  'Native adapters — Technology Direction: Selected ecosystem parsers/compiler APIs. Responsibility: Import/export through native semantic representations. Boundary: Native output must pass native validation.',
+  'Conformance harness — Technology Direction: Bun test runner; separate browser execution and pinned native oracles. Responsibility: Round-trip and projection evidence. Boundary: Evidence generation is separate from support declarations.'
+ ]);
+ expect(v.annotations?.[4]?.text).toContain('Evidence generation is separate from support declarations');
+});
+
+test('reviewed native interchange showcase preserves the original definition and exact Level 2 scope',()=>{
+ const example=manifest.examples.find(row=>row.id==='umf-native-interchange-architecture')!;
+ const originalPath='fixtures/showcase/definitions/umf-native-interchange-architecture.json';
+ const sourcePath='fixtures/showcase/sources/umf/architecture.md';
+ const originalBytes=read(originalPath),originalDoc=JSON.parse(originalBytes.toString('utf8')) as Document;
+ const reviewedDoc=document(example),expected=structuredClone(originalDoc) as any;
+ const source=read(sourcePath).toString('utf8');
+ expected.vocabularies['umf.visual'].version='1.4.0';
+ expected.extensions['umf.visual'].layout={kind:'flow',direction:'LR'};
+ expected.extensions['umf.visual'].annotations=[
+  {id:'container-overview',text:'The implementation provides a browser-compatible library and host-side tooling sharing the same programmatic model. No persistent service, database, cloud runtime, or network registry is required by the brief.'},
+  {id:'unit-library-tooling',text:'UMF library/tooling — Technology Direction: TypeScript compiled to JavaScript; JSON-compatible values; YAML authoring. Responsibility: Model access, operations, diagnostics. Boundary: Browser-compatible dependencies and packaged vocabularies; host I/O stays outside the library.'},
+  {id:'unit-vocabulary-packages',text:'Vocabulary packages — Technology Direction: JSON Schema structural definitions plus semantic specifications. Responsibility: Versions, validation, capabilities, fixtures. Boundary: Package metadata is data; it does not authorize code execution.'},
+  {id:'unit-native-adapters',text:'Native adapters — Technology Direction: Selected ecosystem parsers/compiler APIs. Responsibility: Import/export through native semantic representations. Boundary: Native output must pass native validation.'},
+  {id:'unit-conformance-harness',text:'Conformance harness — Technology Direction: Bun test runner; separate browser execution and pinned native oracles. Responsibility: Round-trip and projection evidence. Boundary: Evidence generation is separate from support declarations.'}
+ ];
+ expect(reviewedDoc).toEqual(expected);
+ expect(originalDoc.vocabularies['umf.visual']?.version).toBe('1.0.0');
+ expect((originalDoc.extensions?.['umf.visual'] as any)?.annotations).toBeUndefined();
+ expect(source).toContain('## Level 2: Container Diagram');
+ expect(source).toContain('No persistent service,');
+ expect(source).toContain('Evidence generation is separate from support declarations');
+ expect(source).toContain('flowchart LR');
+ expect(example.sources.map(ref=>ref.path)).toContain(sourcePath);
+ expect(example.sources.map(ref=>ref.path)).toContain(originalPath);
+ expect(example.publishedAssets?.map(asset=>asset.outputPath)).toContain('showcase/umf-native-interchange-architecture/original-visual-1.0.json');
+ expect(hash(originalBytes)).toBe('bdab026d978f400b0bbebbf3debed991ff2e710a7eed6b559387c4eeeb5992b0');
+ expect(hash(read(sourcePath))).toBe('b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db');
 });
 
 test('UMF architecture stack has ordered memberships and introduces no directed edges',()=>{

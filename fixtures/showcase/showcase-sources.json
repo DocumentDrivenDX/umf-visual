@@ -48,19 +48,43 @@
     {
       "id": "umf-native-interchange-architecture",
       "title": "From native sources to native targets",
-      "description": "The documented UMF container diagram: native input, importer, shared model, explicit projection, exporter and fidelity evidence.",
+      "description": "The documented native interchange architecture with its selected Level 2 responsibilities and boundaries. The reviewed view preserves the container flows, source direction, and separation between evidence generation and support declarations.",
       "kind": "flow",
       "form": "network",
-      "definitionPath": "fixtures/showcase/definitions/umf-native-interchange-architecture.json",
-      "definitionSha256": "bdab026d978f400b0bbebbf3debed991ff2e710a7eed6b559387c4eeeb5992b0",
+      "definitionPath": "fixtures/showcase/definitions/umf-native-interchange-architecture-reviewed.json",
+      "definitionSha256": "aa23c8a37e19e44a458eb4b49fc872979a642a8ba856c70b06591f82883303fb",
       "sources": [
         {
           "path": "fixtures/showcase/sources/umf/architecture.md",
           "sha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
           "originPath": "docs/helix/02-design/architecture.md",
           "originSha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
-          "pointer": "Level 2: Container Diagram",
-          "description": "Exact public architecture document snapshot; the nodes and connections follow its container diagram."
+          "pointer": "Level 2: Container Diagram, introduction and unit table",
+          "description": "Exact architecture document snapshot. The selected Level 2 text gives the no-service context and the four unit technology/responsibility/boundary rows; its Mermaid diagram supplies ten nodes, ten directed links and LR flow."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-native-interchange-architecture.json",
+          "sha256": "bdab026d978f400b0bbebbf3debed991ff2e710a7eed6b559387c4eeeb5992b0",
+          "originPath": "fixtures/showcase/definitions/umf-native-interchange-architecture.json",
+          "originSha256": "bdab026d978f400b0bbebbf3debed991ff2e710a7eed6b559387c4eeeb5992b0",
+          "pointer": "Original Visual 1.0.0 definition",
+          "description": "The prior curated definition is preserved byte-for-byte as the baseline for the separate reviewed definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/umf/architecture.md",
+          "sha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
+          "outputPath": "showcase/umf-native-interchange-architecture/architecture.md",
+          "mediaType": "text/markdown",
+          "description": "Exact pinned architecture source bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-native-interchange-architecture.json",
+          "sha256": "bdab026d978f400b0bbebbf3debed991ff2e710a7eed6b559387c4eeeb5992b0",
+          "outputPath": "showcase/umf-native-interchange-architecture/original-visual-1.0.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.0.0 curated definition bytes, preserved separately from the reviewed definition."
         }
       ]
     },
