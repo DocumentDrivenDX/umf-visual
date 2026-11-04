@@ -2300,6 +2300,60 @@
         "sourceDownloadPath": "reviews/helix-adr-options/authoritative-source.json",
         "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separately reviewed definition adds one source-backed matrix item, `option-naive`, with the exact first alternative and its Pros, Cons, and Evaluation cells from the cited ADR’s Alternatives table. Original `option-1` and `option-2` IDs and relative order, all three criterion IDs/types, the selected `option-2`, and its reason are preserved. The cited ADR’s raw SHA-256 exactly matches the digest in the fixture locator. The selected decision is the ADR’s historical authored evaluation, not a claim about current tracker implementation, concurrency, corruption handling, or safety guarantees. No weights, numeric ratings, or other claims are added."
       }
+    },
+    {
+      "id": "helix-containers",
+      "title": "HELIX's containers",
+      "description": "A source-bound review of the Level 2 HELIX container diagram, retaining the exact Visual 1.0.0 projection.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/visual/inventory/helix-containers.json",
+      "definitionSha256": "6278e01d27da22e6424e9c7d4ed4acc75a04da1099560e627aebef8e66226da6",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/helix-containers.json",
+          "sha256": "6278e01d27da22e6424e9c7d4ed4acc75a04da1099560e627aebef8e66226da6",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies three boundaries, seven container nodes, seven labeled directed edges, roles, title, question, and the cited architecture locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture.md",
+          "sha256": "9296c500ec9c9b8382ab4d6e2b7ce1f39528dd49e2454c1d38722bddd12242ef",
+          "pointer": "Level 2: Container Diagram and container-responsibility table",
+          "label": "Cited HELIX architecture",
+          "originalLocator": "helix:docs/helix/02-design/architecture.md",
+          "resolvedSource": "helix/docs/helix/02-design/architecture.md",
+          "description": "Exact Markdown bytes resolved from the fixture locator. The Level 2 Mermaid diagram and following table support the depicted boundaries, containers, directed relationships, technologies, and responsibilities."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/helix-containers.json",
+          "sha256": "6278e01d27da22e6424e9c7d4ed4acc75a04da1099560e627aebef8e66226da6",
+          "outputPath": "reviews/helix-containers/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture.md",
+          "sha256": "9296c500ec9c9b8382ab4d6e2b7ce1f39528dd49e2454c1d38722bddd12242ef",
+          "outputPath": "reviews/helix-containers/architecture.md",
+          "mediaType": "text/markdown",
+          "description": "Exact cited architecture Markdown bytes published without transformation."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/helix-containers.json",
+        "sourceSha256": "6278e01d27da22e6424e9c7d4ed4acc75a04da1099560e627aebef8e66226da6",
+        "documentId": "visual:helix-containers",
+        "visualId": "helix-containers",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-containers/authoritative-source.json",
+        "scope": "The exact Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. Its three boundaries, seven containers, seven directed labeled relationships, title, question, node/group IDs, and role assignments are preserved. The cited architecture.md bytes match the fixture's SHA-256 exactly. Its Level 2 Mermaid diagram and container-responsibility table support the selected structure and descriptions. The title, question, IDs, and role assignments are Visual-fixture projections rather than literal architecture fields. The architecture document records authored design; it does not establish current deployment or runtime behavior."
+      }
     }
   ]
 }

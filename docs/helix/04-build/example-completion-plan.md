@@ -4167,6 +4167,81 @@ amendment states preservation/qualification outcomes, not private layout algorit
 All earlier holds are resolved. Cycle 41 is complete pending its per-document
 commit; cycle 42 must not begin before that commit.
 
+### Forty-second-cycle scope — historical HELIX container diagram
+
+Cycle 41 is committed as `a920106`. Cycle 42 reviews exact Visual 1.0 source
+`fixtures/visual/inventory/helix-containers.json`: seven nodes, three boundary
+groups and seven explicitly labeled directed edges. The cited local architecture
+Markdown matches declared SHA-256
+`9296c500ec9c9b8382ab4d6e2b7ce1f39528dd49e2454c1d38722bddd12242ef`.
+Its Level 2 Mermaid diagram matches every selected node/detail, group membership
+and relation. Prefer exact alias with a separately bound exact Markdown snapshot;
+no concrete missing diagram fact warrants enrichment. Preserve the isolated
+methodology-documents node, both distinct wraps-same-source relations, own/external
+roles and runtime boundary without inferred extra connections or current compliance.
+The responsibility table is source context, not a reason to expand this diagram's
+selected question into unrelated implementation claims.
+
+Evaluate existing grouped-flow native renderings first. Qualification requires
+readable complete node/details and group captions, visible boundaries/exact
+membership, all seven labeled directed relations, caption clearance from actual
+paths and unrelated nodes, and no phantom inventory. Target layout is renderer
+policy, not inherited authored TB semantics. At least one suitable target is
+required; other limits retain exact successful-unqualified/unsupported receipts.
+Use lean affected gates if data-only; shared renderer/proof/UI changes reopen full
+applicable gates. Cycle 42 is in progress and cycle 43 waits for its commit.
+
+### Cycle 42 focused checkpoint — exact data-only container review
+
+Source 2/45 passes for the exact original Visual 1.0 alias and separately bound
+matching architecture Markdown. All selected Level 2 facts are already represented;
+no enrichment is needed. Independently viewed baseline Mermaid 10/10 is suitable,
+with all seven containers/details, three boundaries and seven labeled relations.
+Graphviz remains font-only unqualified; Lini retains exact endpoint/caption and
+font unqualified results. These are successful native-quality limitations, not
+execution failures or claims of semantic impossibility.
+
+Private explicit-TB Graphviz qualifies, but a proposed generic grouped orientation
+estimate failed caption clearance on a renamed/reduced control. The selector is
+rejected; no production renderer, proof, UI or model code changes are retained.
+Private capacity evidence does not qualify a new default or imply authored layout.
+The original source/digest remains immutable and C089 is unchanged.
+
+This data-only cycle uses proportionate fresh source/type/focused tests, build,
+public browser/package, fetch/native and catalog checks, fresh complete reviews
+build/native+PNG replay, site build, selected-case review UI with always-run shared
+controls and catalog UI. Unchanged C41 full 1,016/0 with 26,023 assertions, showcase
+and all 40 review UI evidence is retained rather than rerun. Shared-code changes
+would reopen full gates. All lean gates remain pending; cycle 42 is in progress
+and cycle 43 must wait for its per-document commit.
+
+### Cycle 42 closeout — complete, ready for commit
+
+All 14 affected gates pass: source/type/focused 2/45, build, real browser, package,
+fetch/native/catalog, complete reviews build+native/PNG replay, site build,
+selected-case review UI with shared controls and catalog UI. Fresh reviews contain
+41 entries, 89 qualified, ten unqualified, 24 unsupported, zero execution failures,
+297 assets, 99 native SVG plus 99 PNG replays, 36 authoritative-source records
+and five captures. Fresh built Mermaid 10/10 is independently visually approved;
+all seven nodes/details, three boundaries and seven labeled directed relations
+remain complete. Graphviz font-only and Lini caption/font limitations retain exact
+unqualified receipts, without implying semantic inability.
+
+The unchanged-entry receipt `.cache/cycle42-unchanged-reviews.json` establishes
+identical definition/native-source/SVG/PNG/status fingerprints for all 40 prior
+entries. Retained C41 full 1,016/0 with 26,023 assertions, showcase and all 40 review
+UI evidence therefore remains valid; unchanged full/corpus UI is not redundantly
+rerun. The private grouped-orientation probe is discarded: C42 explicit TB
+succeeded, but the generic renamed/reduced control failed caption clearance.
+No production selector, runtime, proof or UI change is retained.
+
+Original Visual 1.0 and matching architecture Markdown remain exact; source 2/45
+passes with no derived definition or schema change. Final model/interface review
+confirms exact alias, historical boundary/relationship claims and no invented
+current compliance or connections. C089 remains unchanged. Earlier pending holds
+are resolved. Cycle 42 is complete pending its per-document commit; cycle 43 must
+not begin before that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -4187,8 +4262,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is complete, ready for its per-document commit;
-cycles 42–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is complete, ready for its per-document commit;
+cycles 43–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

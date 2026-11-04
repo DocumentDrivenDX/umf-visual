@@ -1226,3 +1226,31 @@ adds only the missing actual ADR alternative/three cells, preserving original an
 exact ADR bytes. Existing map kinds/model and presentation-only export boundaries
 remain intact. All previous holds are resolved; cycle 41 is complete pending commit
 and cycle 42 remains commit-gated.
+
+
+Cycle 42 focused checkpoint: exact source alias 2/45 and matching architecture
+snapshot require no semantic enrichment. Independently viewed M10/10 is suitable;
+G font-only and L endpoint/font results remain source-bound unqualified receipts.
+Private grouped-direction estimator fails a renamed/reduced native caption
+control and is rejected; no shared runtime/proof/UI/model change is retained.
+C089 remains unchanged. Data-only fresh gates cover source/type/focus, build,
+browser/package, fetch/native/catalog, complete reviews build+SVG/PNG replay,
+site/selected-case UI with always-run shared controls and catalog UI. Retain
+unchanged C41 full 1,016/0/26,023 assertions, showcase and full all 40 review UI
+coverage. All lean gates remain pending; cycle 42 is incomplete and cycle 43 waits
+for its commit.
+
+
+Cycle 42 closeout: all 14 affected gates pass, including source 2/45/type/build,
+real browser/package, fetch/native/catalog, complete reviews/replay/site and
+selected-case UI with shared controls/catalog UI. Reviews: 41 entries, 89 qualified,
+10 unqualified, 24 unsupported, zero execution failures, 297 assets, 99 native SVG/PNG replay
+pairs, 36 authorities, five captures. Fresh M10/10 is independently visually approved;
+G font-only/L caption+font retain exact unqualified outcomes. All 40 prior entries
+have identical definition/native source/SVG/PNG/status fingerprints in the
+unchanged-entry receipt, supporting retained C41 full 1,016/0/26,023 assertions,
+showcase and all 40 UI evidence. No shared runtime/proof/UI changes remain; the
+private orientation selector was rejected after a generic-control failure despite
+successful C42 TB. Original/exact architecture snapshot remain unchanged, with no
+derived definition/model change; C089 is unchanged. Previous holds are resolved;
+cycle 42 is complete pending commit and cycle 43 remains commit-gated.
