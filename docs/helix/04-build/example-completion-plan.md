@@ -4242,6 +4242,97 @@ current compliance or connections. C089 remains unchanged. Earlier pending holds
 are resolved. Cycle 42 is complete pending its per-document commit; cycle 43 must
 not begin before that commit.
 
+### Forty-third-cycle scope — HELIX repository context
+
+Cycle 42 is committed as `2586b06`. Cycle 43 reviews exact Visual 1.0 source
+`fixtures/visual/inventory/helix-context.json`, a seven-node/seven-edge network.
+The cited architecture-model TOML matches digest
+`6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2`.
+Its explicit context view selects the seven IDs and exact title/takeaway. Audit
+its induced relations/details/roles/statuses/why/evidence before freezing an exact
+alias. This authority differs from the Markdown Level 1 diagram; do not substitute
+that other projection. Preserve the docs-to-runtime feedback cycle, distinct
+marker/catalog/documents roles and optional host-tooling rationale. Evidence paths
+and built statuses remain historical source assertions, not independently verified
+current runtime capabilities. Source LR advice does not become an invented Visual
+layout where none was authored.
+
+Require actual readable labels/details and all seven directed caption owners,
+visible correct role adaptations or located inventory, complete source context,
+and strict path/unrelated-node clearance. Do not apply DAG placement to a cyclic
+source by dropping a relation. Reuse existing family profiles first; no vocabulary
+gap is indicated. Data-only lean gates are appropriate only with an existing
+suitable target and unchanged shared code; otherwise apply full relevant gates.
+The rejected C42 grouped selector is not carried forward. Cycle 43 is complete, ready for its per-document commit;
+cycle 44 waits for its per-document commit.
+
+### Cycle 43 semantic checkpoint — source-numbered relation walkthrough
+
+The initial exact-alias proposal is superseded by concrete source capture: six
+selected TOML relations carry explicit step ordinals 1–6 and exact note prose,
+and the seventh has an unnumbered note with why `optional host tooling`.
+A separate reviewed Visual 1.0 definition preserves original bytes/all nodes and
+edges while projecting these facts into existing walkthrough steps. Six numbered
+entries use relation labels as titles, exact notes as captions and existing edge
+IDs as focus; ordered array positions and stable context-step IDs preserve the
+source ordinals. They MUST NOT receive tag or when: frozen 1.0 permits tag only
+with when, which would make them unnumbered. A seventh when:optional context item
+retains its exact note outside numbering, grounded in the authored optional reason.
+No seventh source ordinal, execution timing or substituted journey label is inferred.
+
+Source LR direction remains retained/disclosed source context rather than a new
+portable layout or version upgrade. Source/native focused tests and final gate
+scope remain pending. No model change is required; cycle 43 remains in progress
+and cycle 44 is commit-gated.
+
+### Cycle 43 focused freeze — data-only walkthrough capture
+
+Final source 2/56, type/source/diff checks pass. Independent reviewed-definition
+comparison confirms that only seven walkthrough entries are added: six exact
+relation-note steps in source ordinal order, with no tags/when, plus the exact
+optional tooling note outside numbering. Every other payload field equals the
+original. The separate journey labels are not substituted; source LR remains
+retained/disclosed rather than an invented Visual layout. Original and cited TOML
+bytes remain immutable, with no schema/version change.
+
+Fresh derived native G11/M10 qualify; L11/12 retains its exact caption collision
+limit. All three native source bytes equal the original baseline: walkthroughs
+are source-retained consumer context, with the microsite's separate exact ordered
+focus view, not an invented interactive native operation. No shared renderer,
+proof or UI change is retained. A sandbox bootstrap denial in the source agent's
+review-build attempt is environment history, not a native or semantic failure;
+root's authorized gate path will execute the actual build.
+
+Run the same 14 affected gates as C42: source/type/focus/build/browser/package,
+fetch/native/catalog, complete reviews/native+PNG replay, site, selected C43 UI
+with shared controls and catalog UI. Retain unchanged C41 full 1,016/0/26,023,
+showcase/all 40 UI and unchanged C42 native evidence, subject to fresh prior-entry
+fingerprint/replay confirmation. All lean gates remain pending; cycle 43 remains
+in progress and cycle 44 remains commit-gated. C089 is unchanged.
+
+### Cycle 43 closeout — complete, ready for commit
+
+All 14 affected gates pass: source 2/56/type/build, real public browser/package,
+fetch/native/catalog, complete reviews/native+PNG replay, site, selected-case UI
+with shared walkthrough controls and catalog UI. Fresh reviews contain 42 entries,
+91 qualified, 11 unqualified, 24 unsupported,zero execution failures, 306 assets,
+102 native SVG plus 102 PNG replays, 37 authoritative-source records and five captures.
+Selected C43 walkthrough UI/shared controls and catalog UI pass Chromium 153 with
+zero errors. Fresh built G11/M10 are independently visually approved suitable
+presentations; L retains the exact prior endpoint/caption unqualified receipt.
+
+The unchanged-entry receipt `.cache/cycle 43-unchanged-reviews.json` establishes
+identical definition/native-source/SVG/PNG/status fingerprints for all 41 prior
+entries. Retain unchanged C41 full 1,016/0/26,023 assertions, showcase/all 40 UI and
+C42 checks; no full unchanged corpus rerun is claimed. Original and cited TOML
+bytes remain exact. The separate same 1.0 definition adds only six numbered relation
+notes without tag/when and the exact seventh optional note; all non-step payload
+is identical. Shared UI verifies ordered source-addressed focus context, while
+native sources remain byte-identical and do not imply interactive sequencing.
+No new semantic field, version, runtime/proof/UI policy or current evidence claim
+is introduced. C089 remains unchanged. All previous holds are resolved; cycle 43
+is complete pending its per-document commit and cycle 44 must wait for that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -4262,8 +4353,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is complete, ready for its per-document commit;
-cycles 43–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is complete, ready for its per-document commit;
+cycles 44–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

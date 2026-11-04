@@ -2354,6 +2354,60 @@
         "sourceDownloadPath": "reviews/helix-containers/authoritative-source.json",
         "scope": "The exact Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. Its three boundaries, seven containers, seven directed labeled relationships, title, question, node/group IDs, and role assignments are preserved. The cited architecture.md bytes match the fixture's SHA-256 exactly. Its Level 2 Mermaid diagram and container-responsibility table support the selected structure and descriptions. The title, question, IDs, and role assignments are Visual-fixture projections rather than literal architecture fields. The architecture document records authored design; it does not establish current deployment or runtime behavior."
       }
+    },
+    {
+      "id": "helix-context",
+      "title": "HELIX in a repository",
+      "description": "A source-bound review of the architecture model's context view, adding its numbered relation walkthrough and optional host-tooling item.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/reviews/definitions/helix-context.json",
+      "definitionSha256": "40360767d43ef319918d32b73f525e43025f3f3b99893b278e9aaa6e698114e4",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/helix-context.json",
+          "sha256": "2bc7de3649b9592a66a28c17f9e64ad3648a03a4efee4c7a601d1f271d9f7f9c",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies seven selected nodes and seven labeled, explained relationships with their evidence, plus the title, question, takeaway, and cited architecture-model locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-model.toml",
+          "sha256": "6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2",
+          "pointer": "/view/context and selected /element and /relation records",
+          "label": "Cited HELIX architecture model",
+          "originalLocator": "helix:docs/helix/02-design/architecture-model.toml",
+          "resolvedSource": "helix/docs/helix/02-design/architecture-model.toml",
+          "description": "Exact TOML bytes resolved from the fixture locator. The context view selects the seven element IDs and provides its title/takeaway; selected element and relation records provide labels, details, kinds, statuses, evidence, captions, and explanations."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/helix-context.json",
+          "sha256": "2bc7de3649b9592a66a28c17f9e64ad3648a03a4efee4c7a601d1f271d9f7f9c",
+          "outputPath": "reviews/helix-context/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-model.toml",
+          "sha256": "6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2",
+          "outputPath": "reviews/helix-context/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact cited architecture-model TOML bytes published without transformation."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/helix-context.json",
+        "sourceSha256": "2bc7de3649b9592a66a28c17f9e64ad3648a03a4efee4c7a601d1f271d9f7f9c",
+        "documentId": "visual:helix-context",
+        "visualId": "helix-context",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-context/authoritative-source.json",
+        "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separately reviewed Visual 1.0.0 definition adds six ordered walkthrough steps for the architecture model's numbered relations 1–6: each exact relation label becomes the step title, its exact note becomes the caption, and its existing edge ID is the focus. A final unnumbered `when: optional` item uses the seventh relation's exact label/note/focus; optionality is supported by `why: optional host tooling` and the source element's optional-tool description, and it carries no invented step number. All original nodes and edges, their IDs, labels, details, role/status/evidence fields, explanations, title, question, takeaway, and source locator remain unchanged. The architecture-model TOML bytes match the fixture's digest exactly. Role values are fixture mappings from source element kinds. The context view's direction remains source-only because Visual 1.0.0 has no layout direction field. The model's `built` statuses and evidence strings are authored records, not independent checks of current deployment or runtime behavior."
+      }
     }
   ]
 }

@@ -1062,7 +1062,7 @@ SVG/PNG replays. All-mode 34/34 and selected 1/34 retain shared controls and zer
 errors, including exact SQL downloads, corruption/unsafe-path and late-response
 controls. Source 2/87 and entity native 33/629 pass. All three enriched entity
 presentations qualify under their precise field-endpoint subsets; ordinary
-interchange claims remain separate. Original sources are immutable and same1.0
+interchange claims remain separate. Original sources are immutable and same 1.0
 review uses only SQL-grounded nullability/named parent endpoints. No new vocabulary
 or inferred compound/identifying key is introduced. Cycle 35 is complete, ready
 for commit; previous holds are resolved and cycle 36 waits for that commit.
@@ -1081,7 +1081,7 @@ Cycle 36 closeout: all 18 gates pass, including full suite 980/0, 25,305 asserti
 177 files, 180.69s. Reviews cover 35 examples, 78 qualified, seven unqualified,
 20 unsupported, 255 assets, 30 authoritative sources and 85 native SVG/PNG replays.
 All-entry 35/35 and selected 1/35 UI modes retain shared controls; catalog/showcase
-UI pass. The same1.0 review has exactly 31 source-backed changes and preserves the
+UI pass. The same 1.0 review has exactly 31 source-backed changes and preserves the
 original/SQL bytes. Settings zero-or-one, combined PK/FK and three nullable fields
 are independently inspected in built outputs. Exact row-token proof and implicit
 grid field-side policy pass named-port/explicit-layout/TB/standalone/renamed-degree
@@ -1254,3 +1254,41 @@ private orientation selector was rejected after a generic-control failure despit
 successful C42 TB. Original/exact architecture snapshot remain unchanged, with no
 derived definition/model change; C089 is unchanged. Previous holds are resolved;
 cycle 42 is complete pending commit and cycle 43 remains commit-gated.
+
+
+Cycle 43 semantic checkpoint: separate same 1.0 reviewed definition captures six
+source-numbered relation notes as ordered walkthrough entries, exact relation
+titles/captions and existing-edge focus. Entries 1–6 have no tag/when; source
+ordinal-to-array order must be tested because tag requires when and makes a step
+unnumbered. The seventh source note uses when:optional, grounded in authored
+optional-host-tooling rationale, outside numbering. Original nodes/edges/bytes
+remain intact; no scheduling, journey-label substitution or model upgrade is
+introduced. Focused tests/native/gates remain pending; cycle 43 is incomplete.
+
+
+Cycle 43 focused freeze: source 2/56/type/source/diff pass. The separate 1.0 review
+adds only six exact source-ordered relation-note steps (no tag/when) and the seventh
+exact optional context note; every other payload field equals original. Source LR
+and historical evidence remain qualified source context. Native G11/M10 qualify;
+L11/12 retains exact caption failure and all three native source byte sequences equal
+the original baseline. Ordered focus inspection is separately qualified shared UI,
+not native animation. No shared runtime/proof/UI/model change is retained. Same 14
+C42 affected gates are planned with fresh all-review replay and selected/shared UI;
+retain C41 full1,016/0/26,023/showcase/all 40 UI and unchanged C42 evidence subject to
+fingerprint confirmation. Sandbox bootstrap denial is environment history, not
+semantic/native refusal. Cycle 43 remains incomplete; cycle 44 is commit-gated.
+
+
+Cycle 43 closeout: all 14 affected gates pass, including source 2/56/type/build,
+public browser/package, fetch/native/catalog, complete reviews/replay/site,
+selected walkthrough UI with shared controls and catalog UI. Reviews: 42 entries,
+91 qualified, 11 unqualified, 24 unsupported, zero execution failures, 306 assets, 102 native
+SVG/PNG replay pairs, 37 authorities, five captures. G11/M10 fresh built artifacts are
+independently approved; L retains exact endpoint/caption limitation. Chromium 153
+UI has zero errors. All 41 prior definition/native source/SVG/PNG/status fingerprints
+are identical, supporting retained C41 full1,016/0/26,023/showcase/all 40 UI and C42
+checks. The separate 1.0 source adds only six numbered notes (no tag/when) plus one
+optional note with exact relation focus; other payload/original/source bytes stay
+intact. Native bytes unchanged, shared UI walkthrough separately verified, no
+runtime/proof/model change; C089 unchanged. Previous holds are resolved; cycle 43
+is complete pending commit and cycle 44 remains commit-gated.
