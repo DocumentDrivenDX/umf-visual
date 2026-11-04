@@ -1734,6 +1734,58 @@
         "sourceDownloadPath": "reviews/beacon-field-guide/authoritative-source.json",
         "scope": "This exact UMF fixture is the review definition. It preserves the seven elements selected by the `field-guide` view, their four authored lane groups and memberships, and the six relations induced by selected endpoints. Its four numbered steps reproduce the source relations marked 1 through 4; the final `throughout` note reproduces the source audit-span relation. The authored caveat names source elements left outside this view and preserves the placeholder/unknown statuses for Policy rules and Attachment store. The architecture-model source identifies itself as fictional; neither file establishes current state or deployment."
       }
+    },
+    {
+      "id": "beacon-reply-draft",
+      "title": "Drafting a reply",
+      "description": "The exact Visual 1.0.0 sequence fixture for the fictional Beacon reply-draft journey and its matching architecture-model source.",
+      "kind": "sequence",
+      "form": "lifelines",
+      "definitionPath": "fixtures/visual/inventory/beacon-reply-draft.json",
+      "definitionSha256": "27bd905cb5b93ba2f7f788375c6ea07f6ee06e92f6592f5e153f884a9448a9a5",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-reply-draft.json",
+          "sha256": "27bd905cb5b93ba2f7f788375c6ea07f6ee06e92f6592f5e153f884a9448a9a5",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies the eight participant fields, eight ordered message fields including their UMF call/return kinds, eight focused steps, the question, and the source locator."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "pointer": "/journey/reply-draft",
+          "label": "Fictional architecture-model source",
+          "description": "The exact checked-in TOML bytes define the `reply-draft` journey and its eight ordered from/to/label steps; participant fields are drawn from the matching source elements, and the final step also matches the source relation explicitly marked `return`. The source labels the model fictional."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-reply-draft.json",
+          "sha256": "27bd905cb5b93ba2f7f788375c6ea07f6ee06e92f6592f5e153f884a9448a9a5",
+          "outputPath": "reviews/beacon-reply-draft/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "outputPath": "reviews/beacon-reply-draft/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact fictional architecture-model TOML bytes cited by the original UMF fixture."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-reply-draft.json",
+        "sourceSha256": "27bd905cb5b93ba2f7f788375c6ea07f6ee06e92f6592f5e153f884a9448a9a5",
+        "documentId": "visual:beacon-reply-draft",
+        "visualId": "beacon-reply-draft",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-reply-draft/authoritative-source.json",
+        "scope": "This exact UMF fixture JSON is the review definition. It preserves eight participant identities and fields, eight ordered messages and their authored UMF call/return kinds, and eight steps focused one-to-one on those messages. The TOML `reply-draft` journey supplies eight ordered from/to/label steps; its matching elements supply the participant names, details, kinds and statuses. The final step matches the TOML relation explicitly marked `return`; the journey itself has no message-kind field, so the other seven UMF `call` kinds are fixture-authored defaults, not explicit TOML declarations. The first-appearance participant order, step titles/focus, and the fixture question are UMF projections; the TOML journey has no question field. The architecture-model source identifies itself as fictional. Neither file establishes activations, durations, concurrency, current state, or deployment."
+      }
     }
   ]
 }

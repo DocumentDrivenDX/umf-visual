@@ -946,3 +946,42 @@ quality thresholds are preserved. The implicit Graphviz orientation remains a
 private placement estimate; explicit overrides, full source topology and actual
 native proof remain authoritative. Cycle 32 is complete, ready for commit;
 previous pending checkpoints are resolved and cycle 33 waits for that commit.
+
+
+Wrapped sequence text controls independently reconstruct owned visible lines and
+raw native text against source words, preserving authored hard-break multiplicity
+while permitting additional soft wraps. Exercise hidden/zero-opacity/transparent,
+truncated/reordered and flattened text, syntax-like quoted payloads and different
+participant counts. Native scopes/IDs, message order/endpoints/kinds and activation
+suppression remain separate mandatory obligations. Existing ladder/lifelines,
+loop/note and tree regressions must pass after shared parser changes.
+
+Cycle 33 checkpoint: four source tests and independent two-test/71-assertion native
+controls pass. Static model/private interface review is approved; current source
+qualifies natively without threshold changes. Latest legacy and full integrated
+gates remain pending; this is not a completion claim.
+
+
+Cycle 33 visual correction supersedes the preceding formal native pass: multiline
+captions crossed message/lifeline strokes. The bounded flat-sequence native-
+primitive composition remains unqualified until independently proved. Verify
+separate source-owned text/path carriers, exact participant/message inventory and
+order, return styling, disclosed helper lifelines without activation/time meaning,
+and actual stroke clearance as well as typography. Downloaded source must be the
+executed native input and raw SVG/hash/replay must remain available. Preserve
+existing frame/note sequence behavior and its regressions; no SVG postprocessing
+or private placement algorithm becomes portable semantics.
+
+
+Cycle 33 closeout: runtime suite 962/0, 24,846 assertions, 172 files, 176.53s;
+focused native 3/153, legacy rich 8/129 and source/compiler 10/117 pass. The final
+canonical manifest-only kind correction passes source 2/33 and source/type checks,
+with rebuilt final review/UI evidence and unchanged runtime. All required native/
+corpus/browser/build/site/packed-consumer gates pass. Reviews cover 32 examples,
+71 qualified, five unqualified, 20 unsupported, zero execution failures, 228 assets
+and 76 native SVG/PNG replays. All 32/32 and selected 1/32 UI modes retain shared
+controls and zero errors. The actual built flat sequence passes ten checks and
+visual inspection; original sources remain immutable. Exact primitive inventory,
+visible ownership, hard breaks, marker direction and caption/stroke clearance are
+proved without weakening existing legacy sequence obligations. Cycle 33 is
+complete, ready for commit; previous qualification holds are resolved.

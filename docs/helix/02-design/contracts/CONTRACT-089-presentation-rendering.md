@@ -42,8 +42,12 @@ authored views; the renderer MUST NOT invent arrows in a structure stack.
 
 `compilePresentation(document, options)` is exported through the separate
 `/presentation` package entry. Options select `backend: graphviz | mermaid | lini`,
-optional `direction: LR | TB` and `theme: presentation/1`. The default direction
-is LR. Themes are versioned independently of the visual model and interchange.
+optional `direction: LR | TB` and `theme: presentation/1`. LR is the fallback
+when no qualified backend/form policy selects an implicit direction. Such a policy
+MUST disclose its renderer-owned choice and MUST NOT override an explicit caller
+direction or authored layout through implicit selection. Authored layout retains
+its defined precedence. Direction selection does not add portable layout meaning.
+Themes are versioned independently of the visual model and interchange.
 
 Success returns `ok:true`, `profileId:umf.visual.presentation/1`, backend, native
 `nativeFormat` (`dot`, `mermaid` or `lini`), exact native `source`, `elementMap`, `omissions` and
@@ -107,9 +111,13 @@ MUST remain visible. Unknown content is preserved in the original document;
 content outside the visible view MUST be inventoried, not silently certified.
 
 Gallery reproductions MUST bind exact upstream source bytes and a pinned commit.
-Lini tree and sequence qualification additionally requires actual native hierarchy
-connections and source-order messages, including self-call geometry, return/async
-distinctions, participant-owned notes and the declared loop extent. A note MUST NOT
+Lini tree qualification additionally requires actual native hierarchy connections.
+Sequence qualification requires source-order messages, including self-call geometry,
+return/async distinctions, participant-owned notes and the declared loop extent
+where admitted. A disclosed composition from executed native primitives MAY
+represent a bounded sequence subset, provided independent native proof establishes
+its participant/lifeline ownership, message endpoints/order/kinds and complete
+owned captions; helper geometry MUST NOT become logical messages or activations. A note MUST NOT
 be implemented as an invented call. Native palette, icon styling and pixel
 placement remain interpreter decisions; approximations must describe what changed.
 Source-level claims do not qualify another backend or editable interchange profile.
@@ -454,6 +462,13 @@ participant in both native structure and rendered SVG. Matching text elsewhere
 MUST NOT satisfy ownership. Missing, changed or reparented fields MUST fail the
 corresponding realization proof. These mapping rows do not declare new Visual
 identities or vocabulary fields.
+
+Kinds `message-caption` and `participant-lifeline` MAY separately map a message's
+exact label pointer and a participant-owned native lifeline in a composed view.
+They are presentation carriers for existing identities, not new Visual messages,
+annotations or timing facts. Qualification MUST prove actual native ownership,
+full helper/primitive inventory, visible glyph/line paint and caption clearance;
+soft wrapping MUST preserve complete text order and authored hard line boundaries.
 
 Native automatic activation intervals MUST be suppressed where the source does
 not authorize them. Explicitly typed call/return styling does not authorize

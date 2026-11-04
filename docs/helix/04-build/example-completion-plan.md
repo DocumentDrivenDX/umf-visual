@@ -3272,6 +3272,138 @@ and do not expand historical host support. CONTRACT-089 remains unchanged. All
 previous pending checkpoints are resolved by this closeout. Freeze for the
 per-document commit; cycle 33 must not start before cycle 32 is committed.
 
+### Thirty-third-cycle scope — fictional reply-draft lifelines
+
+Cycle 32 is committed as `4abe6bd`. Cycle 33 reviews exact Visual 1.0 authority
+`fixtures/visual/inventory/beacon-reply-draft.json`: eight ordered participants,
+eight ordered messages and eight focus steps, without authored layout/groups.
+The matching fictional architecture TOML identifies `reply-draft` as a journey,
+not a view. Preserve the original source locator string; companion evidence must
+identify the actual journey collection. Compare exact title/takeaway and journey
+from/to/label order, and selected element metadata. The UMF question, participant
+order and call/return classification remain authored projection facts unless
+explicitly present in that source; no current deployment claim follows.
+
+Reuse qualified sequence support first. Native acceptance requires exact participant
+identity/owned label/detail/role/status, each message's endpoints/order/label/kind
+including the API-to-web return, and honest static-step limitations. Shared context
+separately preserves all ordered step titles and resolved focus IDs. Do not infer
+activation, elapsed time, response pairing, concurrency or additional messages.
+No new portable concept is indicated. If existing runtime/proof qualifies, use
+focused source/native controls, fresh review/replay/site, selected UI with shared
+controls and public/packed consumers; runtime/proof changes reopen full applicable
+gates. Cycle 34 waits for the completed cycle 33 commit.
+
+### Cycle 33 focused checkpoint — compact native sequence text
+
+Exact source/journey evidence passes four source tests; fixture SHA-256 remains
+`27bd905cb5b93ba2f7f788375c6ea07f6ee06e92f6592f5e153f884a9448a9a5`.
+The companion accurately identifies the TOML journey, while call/return kinds,
+question and participant order remain authored UMF projection choices. No new
+vocabulary or source facts are added.
+
+The eight-participant native baseline was too small. A generic existing-family
+Lini refinement wraps full metadata/message text and tightens private spacing,
+with larger readable metadata fonts. The current source passes native quality at
+1787.506×721.4 without reducing thresholds. Independent controls pass two tests /
+71 assertions: owned visible lines retain all source words/order and hard-break
+multiplicity; hidden, zero-opacity, transparent, truncated, reordered and flattened
+text fails. Literal syntax-like quoted payloads and different participant counts
+pass. Native parsing uses structural scopes and declared identities, not source
+participant-order fallback. Emitter wrapping is not the proof oracle.
+
+Static model/interface review approves the narrow renderer-only change. Latest
+legacy request-ladder/lifelines, loop/note/tree and full applicable integration/
+consumer/UI gates remain pending; cycle 33 is incomplete and cycle 34 waits for
+its completed commit. Existing CONTRACT-089 criteria suffice; no private spacing
+or wrapping algorithm becomes a portable requirement.
+
+### Cycle 33 composition correction — visual qualification pending
+
+The preceding formal pass is superseded by visual review: wrapped message captions
+cross their own arrows and an intermediate lifeline. Readable font size alone is
+insufficient. The [pinned native sequence implementation](https://github.com/monfa-red/lini/blob/v1.1.0/src/layout/sequence/messages.rs)
+fixes caption size/rise and midpoint placement; styled label translate/along survives desugaring but does not
+change sequence output. As observed on 2026-11-04, the [official releases](https://github.com/monfa-red/lini/releases)
+provided no newer release. These are target
+implementation limitations, not missing portable sequence semantics.
+
+Authorize a bounded private flat-sequence lowering to actual pinned native
+primitives. Preserve one logical participant and message mapping each, exact
+participant/message order, labels/metadata and directed/return kinds. Separate
+text carriers and message paths must achieve native clearance; lifeline segments
+and layout guides remain disclosed unmapped helpers, never messages, activations
+or durations. Downloaded Lini must be the actual executed source, with raw native
+SVG/hash/replay evidence; no postprocessed SVG may masquerade as raw output.
+Existing qualified sequence frame/note paths remain separate unless independently
+proved under the new composition. No source mutation, business/count/ID branch or
+portable field is authorized.
+
+Require original and renamed/different-count native controls, exact text and hard
+break recovery, full logical/helper inventories, participant/lifeline ownership,
+message row order/endpoints/kinds, no text/stroke collisions and ordinary fit/font/
+clip checks. New composition qualification and legacy regressions remain pending.
+Cycle 33 is incomplete; cycle 34 remains gated on its per-document commit.
+
+### Cycle 33 static freeze checkpoint — flat and legacy scopes separate
+
+Frozen compiler/source controls pass 10 tests / 117 assertions with source/type
+checks green. Public annotations already receive a located scope refusal before
+sequence dispatch; root sequence layout is core-invalid. The flat helper admits
+only rectangular lifelines with call/return messages and no frames/notes/selfcalls;
+other sequence cases retain the existing native sequence path. Independent flat
+witnesses therefore use call/return-only data, while explicit async dispatch and
+legacy async/frame/note suites retain their original obligations. No readability
+threshold or source meaning is relaxed by separating these profiles.
+
+Static review approves presentation-only message-caption and participant-lifeline
+mapping kinds, exact source pointers, native owner wrappers, original-string text
+validation and located shape/icon/metadata accounting. Compiler helpers remain
+private/browser-compatible and runtime imports avoid a cycle. Mandatory computed
+typography proof is retained. Independent native mutation/fit and latest legacy
+regressions, followed by full applicable gates, remain pending. No qualification
+or completion follows from this static checkpoint.
+
+### Cycle 33 closeout — complete, ready for commit
+
+The final runtime full suite passes 962 tests, zero failures and 24,846 assertions
+across 172 files in 176.53 seconds (`.cache/cycle33-retry2-full.log`). Subsequent
+canonical manifest kind correction is data-only (`sequence`, not stale `flow`):
+focused source 2/33 and source/type checks pass; rebuilt final evidence retains the
+unchanged runtime full-suite result. Focused native controls 3/153, legacy rich
+8/129 and source/compiler 10/117 pass without summing overlapping runs.
+
+All required build/fetch/browser/native/catalog/showcase/replay/site and catalog/
+showcase UI gates pass. Final packed installed typecheck and Bun/Node smoke pass
+after test-only optional narrowing and source-preserving soft-wrap expectations.
+Fresh reviews contain 32 examples, 71 qualified, five unqualified, 20 unsupported
+and zero execution failures: 228 assets, 76 native SVG and 76 PNG replays, five
+captures and 27 authoritative sources. Review UI all 32/32 and selected 1/32 retain
+shared controls with Chromium 153.0.8010.12 and zero errors.
+
+The actual built Lini 1.1.0 artifact is independently inspected: eight participants
+with owned metadata, eight source-ordered arrows and clear complete captions,
+including the dashed API-to-web return. All ten checks pass with 47 Arial glyph
+runs, 39 text carriers and native bounds 1860×964. Executed native source SHA-256
+is `1afa6818106b51d3f72396e0eebb6b166dea728f7dc7e5f9537662d09685f55e`;
+SVG is `2edfd78b8ba2561437f256fb1c3454826d9011dbfe29c20867c68ad1d7ff87a8`;
+PNG is `485dce689d45469010a91c094f309b2d5f4995d9bda06351b56577a8c9b9dd03`.
+Original UMF `27bd905cb5b93ba2f7f788375c6ea07f6ee06e92f6592f5e153f884a9448a9a5`
+and fictional TOML `5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910`
+remain unchanged. Companion provenance identifies a journey, not a declared view;
+question, participant order and call/return kinds retain authored projection scope.
+
+Final model/interface/modularity audit approves private native-primitive flat
+lifelines composition and presentation-only caption/lifeline maps, with actual
+owner wrappers, full identified/anonymous inventory, exact expected/actual shape
+counts, visible paint, directional marker tip and independent text/hard-break
+proof. Missing owner/header primitive and phantom controls remain strict. Legacy
+async/self-call/frame/note paths and their tests remain separate. No new core
+fields, source enrichment, business/count branches, activation/time meaning or
+host support claims are introduced. Earlier visual blockers and pending holds are
+resolved by this final artifact and evidence. Freeze for commit; cycle 34 cannot
+start before cycle 33 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -3289,8 +3421,9 @@ Cycle 23 is committed as `8efc657`; cycle 24 is committed as `5af7b4c`.
 Cycle 25 is committed as `2374106`; cycle 26 is committed as `2bd17fd`.
 Cycle 27 is committed as `05b2b84`; cycle 28 is committed as `587471d`.
 Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
-Cycle 31 is committed as `34c2a63`. Cycle 32 is complete and ready for commit;
-cycles 33–68 remain pending, with cycle 33 gated on the cycle 32 commit.
+Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
+Cycle 33 is complete and ready for commit; cycles 34–68 remain pending,
+with cycle 34 gated on the cycle 33 commit.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

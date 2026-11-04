@@ -4,6 +4,9 @@ import type {Visual,VisualNode} from '../extensions/visual';
 import {quoteLiniProfile} from '../interchange/lini/profile-syntax';
 import {liniShapeDefinition} from './lini-shapes';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
+import {compileLiniFlatSequence} from './lini-sequence-flat';
+import {wrapLiniSequenceText,liniSequenceParticipantFieldText} from './lini-sequence-text';
+export {wrapLiniSequenceText,liniSequenceParticipantFieldText} from './lini-sequence-text';
 
 const base='/extensions/umf.visual';
 const path=(value:string)=>base+(value.startsWith('/')?value:'/'+value);
@@ -12,7 +15,6 @@ const fail=(code:string,sourcePath:string,message:string):PresentationFailure=>(
 const id=(prefix:string,index:number)=>prefix+(index+1);
 const orderBy=<T extends {id:string}>(rows:T[],order?:string[])=>order?rows.map((item,index)=>({item,index})).sort((a,b)=>(order.indexOf(a.item.id)<0?Number.MAX_SAFE_INTEGER:order.indexOf(a.item.id))-(order.indexOf(b.item.id)<0?Number.MAX_SAFE_INTEGER:order.indexOf(b.item.id))||a.index-b.index).map(row=>row.item):rows;
 const quoteText=(text:string,sourcePath:string)=>{try{return q(text);}catch(reason){throw Object.assign(new Error(reason instanceof Error?reason.message:'Text cannot be encoded by Lini.'),{sourcePath});}};
-export function liniSequenceParticipantFieldText(field:'detail'|'role'|'status',value:string):string{return field==='detail'?value:field==='role'?(value==='process'?'Process':'Role: '+value):'Status: '+value;}
 const nativeIcons=new Set(['user','rocket','seal','presentation','heart','gear','cloud','house','database','folder-simple','cpu','bell','star','ghost','video-camera','wall','check','warning','globe','lock','key','lightning','magnifying-glass','arrow-right']);
 const iconToken=(value:string)=>nativeIcons.has(value)?value:undefined;
 type Rich = {visual:Visual;direction:'LR'|'TB'};
@@ -73,6 +75,7 @@ export function compileLiniTree(visual:Visual,direction:'LR'|'TB'):PresentationP
 
 /** Compile ordered lifelines, message operators, interval frames, and anchored notes. */
 export function compileLiniSequence(visual:Visual):PresentationPlan|PresentationFailure {
+ const flat=compileLiniFlatSequence(visual);if(flat)return flat;
  const sequence=visual.sequence;if(!sequence)return fail('PRESENTATION_LINI_SEQUENCE',path('/sequence'),'Sequence content is required.');
  const elements:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];
  const add=(logicalId:string,sourcePath:string,nativeId:string,kind:PresentationElement['kind'])=>elements.push({logicalId,sourcePath,nativeId,kind});
