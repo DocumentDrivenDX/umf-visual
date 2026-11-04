@@ -5701,6 +5701,67 @@ assets; canonical40d510 reviewed binding is fresh. C089 unchanged; STP/tracker a
 C089 validation complete. Cycle63 complete pending per-document commit; cycle64
 must wait for that commit.
 
+### Sixty-fourth-cycle scope — selected Beacon SQL core
+
+Cycle63 is committed as `bd8cc2a`. Cycle64 reviews canonical
+`beacon-relational-core`: five selected tables/19 fields/five field-bound FK
+references. Independently audit exact migrations0001/0002 and relevant later
+migration evolution. Original1.1 already matches selected fields, PK/FK badges,
+SQL nullability (only attachments.bytes nullable), exact source/target columns and
+one-parent/zero-or-many-child cardinalities. ChildFK columns are nonunique and
+nonnullable; no compound keys or identifying semantics inferred. Later0003/0004
+do not alter selected tables. Exact alias is sufficient absent concrete gap;
+do not manufacture enrichment or imply all migration tables are shown.
+
+Preserve originaldefinition/source locator and bind exact001+002 SQL downloads;
+canonical manifest remains original if meaning unchanged. Fresh native field/key/
+nullable/port/cardinality proof and actual fit required after C63 generic changes.
+Typical16 canonical-data gates only if sharedcode unchanged and suitable target;
+retain C63full1071/27755/209 +all58UI with unchanged58review/eightshowcase evidence.
+Full gates if shared changes. Cycle64 in progress; cycle65 commit-gated.
+
+### Cycle 64 focused freeze — exact selected SQL alias
+
+Source/showcase13/604,source/type/diff pass. Original1.1 definitionec5d648e…8556
+remains exact canonical alias: five tables/19 fields/five two-sided field references,
+SQL-declared badges/nullability and source-grounded cardinalities. Selected-slice
+manifest description avoids completeness claims; two exact migration downloads and
+original JSON are separately published. No source changes or derived enrichment.
+
+Fresh G11/M9/L12 all qualify and images independently reviewed with complete owned
+fields, bytes nullable and exact FK contacts/cardinalities. Mermaid retains its
+explicit entity-level endpoint representation rather than field-port equivalence.
+Final source/model/interface static review approved; no sharedcode/schema/proof/
+C089 change. Sixteen canonical-data gates underway with source customfocus.
+RetainC63full1071/27755/209/all58sharedUI only if prior58reviews and other eight
+showcase definition/nativeSource/SVG/PNG/status fingerprints remain unchanged.
+Cycle64 incomplete pending gates,cycle65 commit-gated; docs frozen.
+
+### Cycle 64 closeout — complete, exact SQL alias qualified
+
+All16 canonical-data gates pass, including source/showcase13/604/source/type,
+build/browser/package/fetch/native/catalog/showcase+replay/reviews+replay/site/
+site-tests/showcaseUI. Canonical original1.1 remains
+`ec5d648e2ef6db90831fa8a41fc83f9e998017c2fd22919be52188d733b98556`.
+Fresh G11/M9/L12 all qualify and independently viewed: all five tables/19 fields,
+exact PK/FK/nullability, five references/source-target field identities and SQL-
+grounded cardinalities preserved. Mermaid explicitly uses entity-level endpoint
+representation, not field-port equivalence. No derived definition or gratuitous
+schema enrichment; source SQL and original bytes are unchanged.
+
+Showcase totals9 entries/18qualified/5unqualified/4unsupported/zero execution
+failures/23nativeSVG+PNG pairs69assets. All58review and eight other showcase
+fingerprints unchanged; reviews58/120qualified/26unqualified/28unsupported/
+146pairs438assets53authoritiesfivecaptures retained. Both published SQL files and
+originalJSON verified byte/hash exact. Selected-slice description avoids claiming
+all migration tables are represented. Later migrations do not alter selected facts.
+
+Unchanged sharedcode justifies retained C63full1071/0/27755/209files181.03s and
+sharedall58UI; no newfullBun/allreviewUI run is claimed. All affected canonical/source/
+public/native/replay/site/UI checks are fresh. No runtime/proof/schema/C089 changes
+or example branches. Final source/native/model/interface audit approved. Cycle64
+complete pending per-document commit; cycle65 must wait for that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -5721,8 +5782,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is committed as `a6f639e`. Cycle 60 is committed as `093c93d`. Cycle 61 is committed as `f2cee65`. Cycle 62 is committed as `1c6fac4`. Cycle 63 is complete pending commit;
-cycles 64–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is committed as `a6f639e`. Cycle 60 is committed as `093c93d`. Cycle 61 is committed as `f2cee65`. Cycle 62 is committed as `1c6fac4`. Cycle 63 is committed as `bd8cc2a`. Cycle 64 is complete pending commit;
+cycles 65–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

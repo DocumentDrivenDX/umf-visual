@@ -178,7 +178,7 @@
     {
       "id": "beacon-relational-core",
       "title": "Beacon's relational core",
-      "description": "Five related tables from the Beacon workspace and ticket migrations, including only SQL-declared keys, foreign keys and nullability.",
+      "description": "A selected five-table relational slice from the Beacon workspace and ticket migrations. Displayed keys, foreign keys and nullability come only from SQL declarations; other tables in those migrations are outside this view.",
       "kind": "structure",
       "form": "entities",
       "definitionPath": "fixtures/showcase/definitions/beacon-relational-core.json",
@@ -199,6 +199,29 @@
           "originSha256": "943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7",
           "pointer": "CREATE TABLE customers, tickets, messages, attachments",
           "description": "Selected relational tables and foreign-key constraints, copied unchanged from the Beacon source migration."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0001_workspace.sql",
+          "sha256": "a73f69ed5ae7d99fdd29d1a9bb77ec8b2c0efd10eb79f2d12450b5a3bcc10c93",
+          "outputPath": "showcase/beacon-relational-core/migrations/0001_workspace.sql",
+          "mediaType": "text/plain",
+          "description": "Exact pinned workspace migration bytes."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0002_tickets.sql",
+          "sha256": "943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7",
+          "outputPath": "showcase/beacon-relational-core/migrations/0002_tickets.sql",
+          "mediaType": "text/plain",
+          "description": "Exact pinned ticket migration bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/beacon-relational-core.json",
+          "sha256": "ec5d648e2ef6db90831fa8a41fc83f9e998017c2fd22919be52188d733b98556",
+          "outputPath": "showcase/beacon-relational-core/original-visual-1.1.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.1.0 definition bytes."
         }
       ]
     },

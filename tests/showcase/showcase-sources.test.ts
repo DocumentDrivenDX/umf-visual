@@ -407,6 +407,60 @@ test('Beacon relational rows and links match the pinned SQL migrations',()=>{
   ['workspaces','tickets','id','workspace_id'],['tickets','messages','id','ticket_id'],['messages','attachments','id','message_id']
  ];
  expect(v.structure!.references!.map(reference=>[reference.from.node,reference.to.node,reference.from.field,reference.to.field])).toEqual(expectedLinks);
+ const sourceTables=new Map<string,Map<string,{type:string;keys:string[];nullable:boolean;reference?:{table:string;field:string}}>>();
+ for(const match of migration.matchAll(/CREATE TABLE (\w+) \(([\s\S]*?)\n\);/gu)){
+  const table=match[1]!,columns=new Map<string,{type:string;keys:string[];nullable:boolean;reference?:{table:string;field:string}}>();
+  for(const line of match[2]!.split('\n')){
+   const column=line.match(/^\s{2}(\w+)\s+([\w]+)(.*?)[,]?\s*$/u);
+   if(!column)continue;
+   const [,name,type,tail]=column;
+   const ref=tail!.match(/REFERENCES (\w+)\((\w+)\)/u);
+   columns.set(name!,{type:type!,keys:[...(tail!.includes('PRIMARY KEY')?['pk']:[]),...(ref?['fk']:[])],nullable:!tail!.includes('NOT NULL')&&!tail!.includes('PRIMARY KEY'),...(ref?{reference:{table:ref[1]!,field:ref[2]!}}:{})});
+  }
+  sourceTables.set(table,columns);
+ }
+ expect([...sourceTables.keys()]).toEqual(['workspaces','agents','settings','integrations','customers','tickets','messages','attachments','tags','ticket_tags']);
+ expect(v.structure!.entities!.map(entity=>entity.fields.length).reduce((sum,count)=>sum+count,0)).toBe(19);
+ for(const entity of v.structure!.entities!){
+  const columns=sourceTables.get(entity.node)!;
+  for(const field of entity.fields){
+   const source=columns.get(field.name)!;
+   expect(source,`${entity.node}.${field.name} exists in SQL`).toBeDefined();
+   expect(field.type).toBe(source.type);
+   expect(JSON.stringify(field.keys??[])).toBe(JSON.stringify(source.keys));
+   expect(field.nullable).toBe(source.nullable);
+  }
+ }
+ const sqlLinks=[...sourceTables].flatMap(([table,columns])=>[...columns].flatMap(([field,column])=>column.reference?[[column.reference.table,table,column.reference.field,field]]:[]));
+ expect(sqlLinks.filter(link=>expectedLinks.some(expected=>expected.every((part,index)=>part===link[index])))).toEqual(expectedLinks);
  for(const needle of ['CREATE TABLE workspaces','CREATE TABLE customers','CREATE TABLE tickets','CREATE TABLE messages','CREATE TABLE attachments','REFERENCES workspaces(id)','REFERENCES customers(id)','REFERENCES tickets(id)','REFERENCES messages(id)','bytes bigint'])expect(migration).toContain(needle);
  expect(v.structure!.entities!.flatMap(entity=>entity.fields).every(field=>field.nullable!==undefined)).toBe(true);
+});
+
+test('Beacon relational showcase publishes its exact selected sources and original definition',()=>{
+ const example=manifest.examples.find(row=>row.id==='beacon-relational-core')!;
+ const sqlPaths=[
+  'fixtures/visual/sources/beacon/migrations/0001_workspace.sql',
+  'fixtures/visual/sources/beacon/migrations/0002_tickets.sql'
+ ];
+ const originalPath='fixtures/showcase/definitions/beacon-relational-core.json';
+ expect(example.definitionPath).toBe(originalPath);
+ expect(example.description).toContain('selected five-table relational slice');
+ expect(example.sources.map(source=>source.path)).toEqual(sqlPaths);
+ expect(example.publishedAssets?.map(asset=>asset.path)).toEqual([...sqlPaths,originalPath]);
+ for(const [index,path] of sqlPaths.entries()){
+  const source=example.sources[index]!,asset=example.publishedAssets![index]!;
+  const bytes=read(path);
+  expect(hash(bytes)).toBe(source.sha256);
+  expect(asset.sha256).toBe(source.sha256);
+  expect(asset.mediaType).toBe('text/plain');
+  expect(asset.outputPath).toMatch(/\.sql$/u);
+ }
+ const originalBytes=read(originalPath),definitionAsset=example.publishedAssets![2]!;
+ expect(hash(originalBytes)).toBe('ec5d648e2ef6db90831fa8a41fc83f9e998017c2fd22919be52188d733b98556');
+ expect(definitionAsset.sha256).toBe(hash(originalBytes));
+ expect(definitionAsset.outputPath).toBe('showcase/beacon-relational-core/original-visual-1.1.json');
+ const payload=JSON.parse(originalBytes.toString('utf8')) as Document;
+ expect(visual(payload).kind).toBe('structure');
+ expect(visual(payload).structure?.entities?.map(entity=>entity.node)).toEqual(['workspaces','customers','tickets','messages','attachments']);
 });
