@@ -228,11 +228,11 @@
     {
       "id": "umf-logical-interface-architecture",
       "title": "Named interfaces, shared composition",
-      "description": "The documented catalog-to-Ashlar path, authored with explicit shapes, container layout and named logical connection ports in umf.visual 1.2.0. Glyphs and anchors express visual intent; they do not assert extra runtime capabilities.",
+      "description": "The selected catalog-to-Ashlar path and its resolver-pinning rationale, with publication-bound continuation identity. Authored shapes, container layout and named logical connection ports remain visual intent, not deployment or network claims.",
       "kind": "flow",
       "form": "network",
-      "definitionPath": "fixtures/showcase/definitions/umf-logical-interface-architecture.json",
-      "definitionSha256": "f47d185a7e1c900cb9bea7da5f12d75489e521e737a432c6b47fc263b5d8ef00",
+      "definitionPath": "fixtures/showcase/definitions/umf-logical-interface-architecture-reviewed.json",
+      "definitionSha256": "453bfb4f1f08b8e06598082fc35db77617d74fd6cab9161fe025657fe321727d",
       "sources": [
         {
           "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
@@ -241,7 +241,23 @@
           "originPath": "docs/helix/02-design/solution-designs/SD-031-engine-target-adapters.md",
           "originSha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
           "pointer": "Domain Model; Solution Approaches; Scope",
-          "description": "The exact documented Q → AR → AP connection subset; geometric shapes, composition order and logical anchor names are additional authored visual intent."
+          "description": "Exact pinned source snapshot. The selected Domain Model flow and the rejected latest-table-read rationale plus continuation identity are preserved; diagram layout, shapes and named anchors are authored visual intent."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
+          "sha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
+          "outputPath": "showcase/umf-logical-interface-architecture/engine-target-adapters.md",
+          "mediaType": "text/markdown",
+          "description": "Exact pinned SD-031 source snapshot."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-logical-interface-architecture.json",
+          "sha256": "f47d185a7e1c900cb9bea7da5f12d75489e521e737a432c6b47fc263b5d8ef00",
+          "outputPath": "showcase/umf-logical-interface-architecture/original-visual-1.2.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.2.0 definition, preserved separately from the reviewed 1.4.0 definition."
         }
       ]
     },

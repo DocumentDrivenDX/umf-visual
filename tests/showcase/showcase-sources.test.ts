@@ -464,3 +464,43 @@ test('Beacon relational showcase publishes its exact selected sources and origin
  expect(visual(payload).kind).toBe('structure');
  expect(visual(payload).structure?.entities?.map(entity=>entity.node)).toEqual(['workspaces','customers','tickets','messages','attachments']);
 });
+
+test('UMF logical interface review preserves the diagram and adds only selected Ashlar pinning context',()=>{
+ const example=manifest.examples.find(row=>row.id==='umf-logical-interface-architecture')!;
+ const originalPath='fixtures/showcase/definitions/umf-logical-interface-architecture.json';
+ const sourcePath='fixtures/showcase/sources/umf/engine-target-adapters.md';
+ const originalBytes=read(originalPath),originalDoc=JSON.parse(originalBytes.toString('utf8')) as Document;
+ const reviewedDoc=document(example),expected=structuredClone(originalDoc) as any;
+ const source=read(sourcePath).toString('utf8'),sourcePlain=normalizedSourceText(source.replace(/[`*]/gu,'')),originalVisual=expected.extensions['umf.visual'];
+ const annotations=[
+  {id:'ashlar-latest-read-rejected',text:'Rejected: Latest-table reads on Ashlar. They can mix table versions from different publications. Every read is resolver-pinned instead.'},
+  {id:'ashlar-continuation-identity',text:'The Ashlar target identity includes the publication vector, so a Continuation[K] recording its digest raises StaleContinuation on any other publication.'}
+ ];
+ expected.vocabularies['umf.visual'].version='1.4.0';
+ originalVisual.annotations=annotations;
+ expect(reviewedDoc).toEqual(expected);
+ expect(originalDoc.vocabularies['umf.visual']?.version).toBe('1.2.0');
+ expect(reviewedDoc.vocabularies['umf.visual']?.version).toBe('1.4.0');
+ expect(visual(reviewedDoc).layout).toEqual(visual(originalDoc).layout);
+ expect(visual(reviewedDoc).groups).toEqual(visual(originalDoc).groups);
+ expect(visual(reviewedDoc).nodes).toEqual(visual(originalDoc).nodes);
+ expect(visual(reviewedDoc).edges).toEqual(visual(originalDoc).edges);
+ expect(visual(reviewedDoc).annotations).toEqual(annotations);
+ for(const fact of [
+  'Latest-table reads on Ashlar.',
+  'They can mix table versions from different publications.',
+  'Every read is resolver-pinned instead.',
+  'The Ashlar target identity includes the publication vector,',
+  'a Continuation[K] recording its digest raises StaleContinuation on any other publication.'
+ ])expect(sourcePlain).toContain(normalizedSourceText(fact));
+ expect(visual(reviewedDoc).annotations?.some(annotation=>/ActionExecutor|BulkTarget|latest-table reads/iu.test(annotation.text)&&annotation.id!=='ashlar-latest-read-rejected')).toBe(false);
+ expect(example.definitionPath).toBe('fixtures/showcase/definitions/umf-logical-interface-architecture-reviewed.json');
+ expect(example.sources[0]?.path).toBe(sourcePath);
+ expect(example.sources[0]?.pointer).toContain('Solution Approaches');
+ expect(example.publishedAssets?.map(asset=>asset.path)).toEqual([sourcePath,originalPath]);
+ expect(example.publishedAssets?.[0]?.sha256).toBe('f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021');
+ expect(example.publishedAssets?.[1]?.sha256).toBe(hash(originalBytes));
+ expect(example.publishedAssets?.[1]?.outputPath).toBe('showcase/umf-logical-interface-architecture/original-visual-1.2.json');
+ expect(hash(originalBytes)).toBe('f47d185a7e1c900cb9bea7da5f12d75489e521e737a432c6b47fc263b5d8ef00');
+ expect(hash(read(sourcePath))).toBe('f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021');
+});

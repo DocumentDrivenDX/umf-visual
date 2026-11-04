@@ -5762,6 +5762,67 @@ public/native/replay/site/UI checks are fresh. No runtime/proof/schema/C089 chan
 or example branches. Final source/native/model/interface audit approved. Cycle64
 complete pending per-document commit; cycle65 must wait for that commit.
 
+### Sixty-fifth-cycle scope — named logical interface anchors
+
+Cycle64 is committed as `5216089`. Cycle65 reviews canonical
+`umf-logical-interface-architecture`: original1.2 three nodes/two boundaries/two
+links with explicit named ports, node shapes, rootgrid and groupstack order.
+These are authored visual intent, not source-declared network transport ports or
+physical deployment. Preserve that intent; do not overwrite authored layout with
+source MermaidLR. Exact SD-031f6b8f164 selected DomainModel/SolutionApproaches
+provides the narrow catalog→resolver→pinned-read flow. Audit only responsive pinning/
+publication identity and rejected latest-table-read context, retaining decisionstatus.
+Do not duplicate broad C60 ownership/Truss/action/bulk/search context into this
+selected interface slice. Raw1.2 original remains immutable; existing fields suffice.
+
+Fresh native exactport/shape/group/order/text evidence must qualify a target; target
+fallback disclosures must stay distinct from physical port equivalence. Canonical
+manifest revieweddata seam only if source meaning changes. Typicaldata16 if shared
+code unchanged; retainC63full1071/27755/209/shared58UI conditional unchanged58review/
+eightshowcase fingerprints. Fullgates if shared changes. Cycle65 in progress;
+cycle66 waits for per-document commit.
+
+### Cycle 65 source checkpoint — pinning and continuation context
+
+Final reviewed1.4 SHA `453bfb4f1f08b8e06598082fc35db77617d74fd6cab9161fe025657fe321727d`
+adds only two selected source notes: explicit Rejected latest-table-read rationale
+and publication-vector/Continuation digest identity with StaleContinuation refusal.
+Raw1.2f47d185a…ef00 and all authored rootgrid/groupstack/shapes/namedports/links/
+caveats remain intact. Source/showcase14/627/source/type/diff pass, exact SD-031
+source preserved and separately published. No added runtime capability claims.
+
+Graphviz and Mermaid retain existing located grid-geometry approximations: component/
+source order does not promise native exact two-column geometry. Lini is the actual
+native composition witness, subject to fresh enriched qualification. Named anchors
+remain logical, not physical network ports. Static source/model/interface approved;
+no sharedcode/schema/proof/C089 change indicated. Finalnative receipts pending
+before canonicaldata16 freeze; cycle65 incomplete,cycle66 commit-gated.
+
+### Cycle 65 closeout — complete, named anchors with source pinning context
+
+All16 canonical-data gates pass, source/showcase14/627/source/type and affected
+build/public browser/package/fetch/native/catalog/showcase+replay/reviews+replay/site/
+site-tests/showcaseUI included. Final reviewed1.4 canonical binding
+`453bfb4f1f08b8e06598082fc35db77617d74fd6cab9161fe025657fe321727d`
+retains original1.2 authored shapes/rootgrid/groupstack/namedports/two links/caveats,
+adding only Rejected latest-table-read rationale and publication-bound continuation
+identity. Raw original and exact SD-031 published downloads verified byte/hash exact.
+No physical network ports, deployment or broader capability claims inferred.
+
+Fresh Lini12/12 suitable with exact authored two-column composition and complete
+owned context, independently approved PNG5a791f14…2846d. Graphviz12/13 and Mermaid
+10/11 fail only fitted-font; their explicit grid approximations preserve logical
+order/composition without exact two-column geometry claims. No target quality or
+source meaning waived. Showcase totals9 entries/16qualified/7unqualified/4unsupported/
+zero execution failures/23nativeSVG+PNG pairs69assets.
+
+All58review and eight other showcase fingerprints unchanged; review totals remain
+58/120qualified/26unqualified/28unsupported/146pairs438assets53authoritiesfivecaptures.
+Retain C63full1071/0/27755/209files181.03s/sharedall58UI because sharedcode unchanged;
+no new fullBun/allreviewUI claim. No schema/runtime/proof/C089 change or example
+branches. Final source/native/model/interface audit approved. Cycle65 complete
+pending per-document commit; cycle66 must wait for that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -5782,8 +5843,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is committed as `a6f639e`. Cycle 60 is committed as `093c93d`. Cycle 61 is committed as `f2cee65`. Cycle 62 is committed as `1c6fac4`. Cycle 63 is committed as `bd8cc2a`. Cycle 64 is complete pending commit;
-cycles 65–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is committed as `a6f639e`. Cycle 60 is committed as `093c93d`. Cycle 61 is committed as `f2cee65`. Cycle 62 is committed as `1c6fac4`. Cycle 63 is committed as `bd8cc2a`. Cycle 64 is committed as `5216089`. Cycle 65 is complete pending commit;
+cycles 66–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 
@@ -5869,3 +5930,13 @@ interface review approved without new vocabulary/map kinds or example conditions
 Fresh complete Mermaid qualification must supersede stale pre-fix private receipts
 before full18 begins. Full18 and final closeout pending; cycle59 incomplete,
 cycle60 commit-gated. Focused docs frozen for gate handoff.
+
+
+Cycle65 finalfocusedfreeze: exact453bfb4f…727d native Lini12/12 qualifies, actual
+ownedtwo-notefooter/authoredtwo-columncomposition/namedports/topology approved.
+Graphviz12/13 and Mermaid10/11 each fail only fittedfont, honestlyunqualified;
+their existing gridapproximations remain explicit. Source14/627/type/source/diffpass,
+no sharedcode/schema/proof/C089 change. Canonicaldata16 approved, retainedC63full
+1071/27755/209/shared58UI conditional all58review/eightothershowcase fingerprints
+unchanged. Finalsource/native/model/interface focusedreview approved; cycle65
+incomplete pending gates,cycle66 commit-gated. Docs frozen for handoff.
