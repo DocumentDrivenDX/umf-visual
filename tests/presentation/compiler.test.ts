@@ -4,6 +4,7 @@ import {createVisualDocument,type Visual} from '../../src/extensions/visual';
 import {compilePresentation,type PresentationOptions} from '../../src/presentation';
 
 const document=(v:Visual)=>createVisualDocument(v,'test:'+v.id,'1.1.0');
+const document14=(v:Visual)=>createVisualDocument(v,'test:'+v.id,'1.4.0');
 
 describe('presentation compiler',()=>{
  it('projects architecture flow with groups, labels, endpoints and identity maps without mutating input',()=>{
@@ -13,6 +14,27 @@ describe('presentation compiler',()=>{
   expect(plan.source).toContain('digraph UMFPresentation');expect(plan.source).toContain('Portable TypeScript library');expect(plan.source).toContain('cluster_g1');expect(plan.source).toContain('cluster_g2');expect(plan.source).toContain('n1 -> n2');expect(plan.source).toContain('tooltip="Application execution stays outside the portable core."');
   expect(plan.elementMap.map(x=>x.logicalId)).toEqual(['architecture','core','axon','native','host','uses']);
   expect(JSON.stringify(d)).toBe(before);
+ });
+
+ it('raises Graphviz edge-caption typography only for ungrouped TB decision flows',()=>{
+  const decision=document14({id:'generic-decision',kind:'flow',form:'network',question:'Which route applies?',layout:{kind:'flow',direction:'TB',order:['entry','choice','left','right']},nodes:[{id:'entry',label:'Entry',shape:'rectangle'},{id:'choice',label:'Choose',shape:'diamond'},{id:'left',label:'Left outcome',shape:'rectangle'},{id:'right',label:'Right outcome',shape:'rectangle'}],edges:[{id:'start',from:'entry',to:'choice'},{id:'yes',from:'choice',to:'left',label:'Yes'},{id:'no',from:'choice',to:'right',label:'No'}]});
+  const plan=compilePresentation(decision,{backend:'graphviz'});expect(plan.ok).toBe(true);if(plan.ok){expect(plan.source).toContain('rankdir="TB"');expect(plan.source).toContain('edge [fontname="Arial", fontsize=18,');expect(plan.source).toContain('label="Yes"');expect(plan.source).toContain('label="No"');}
+
+  const renamed=document14({id:'different-decision',kind:'flow',form:'pipeline',question:'Where next?',layout:{kind:'flow',direction:'TB',order:['start','gate','retry','finish','archive']},nodes:[{id:'start',label:'Begin',shape:'rectangle'},{id:'gate',label:'Gate',shape:'diamond'},{id:'retry',label:'Retry',shape:'rectangle'},{id:'finish',label:'Finish',shape:'rectangle'},{id:'archive',label:'Archive',shape:'diamond'}],edges:[{id:'a',from:'start',to:'gate',label:'Ready'},{id:'b',from:'gate',to:'retry',label:'Wait'},{id:'c',from:'gate',to:'finish',label:'Proceed'},{id:'d',from:'finish',to:'archive'}]});
+  const renamedPlan=compilePresentation(renamed,{backend:'graphviz'});expect(renamedPlan.ok).toBe(true);if(renamedPlan.ok)expect(renamedPlan.source).toContain('edge [fontname="Arial", fontsize=18,');
+
+  const grouped=document14({id:'grouped-decision',kind:'flow',form:'network',question:'Grouped?',groups:[{id:'boundary',label:'Boundary',role:'zone'}],nodes:[{id:'gate',label:'Gate',shape:'diamond',group:'boundary'},{id:'done',label:'Done',group:'boundary'}],edges:[{id:'go',from:'gate',to:'done',label:'Go'}]});
+  const groupPlan=compilePresentation(grouped,{backend:'graphviz'});expect(groupPlan.ok).toBe(true);if(groupPlan.ok)expect(groupPlan.source).toContain('edge [fontname="Arial", fontsize=12,');
+  const horizontal=document14({id:'horizontal-decision',kind:'flow',form:'network',question:'Horizontal?',nodes:[{id:'start',label:'Start'},{id:'gate',label:'Gate',shape:'diamond'},{id:'end',label:'End'}],edges:[{id:'a',from:'start',to:'gate',label:'Continue'},{id:'b',from:'gate',to:'end',label:'Finish'}]});
+  const horizontalPlan=compilePresentation(horizontal,{backend:'graphviz',direction:'LR'});expect(horizontalPlan.ok).toBe(true);if(horizontalPlan.ok){expect(horizontalPlan.source).toContain('rankdir="LR"');expect(horizontalPlan.source).toContain('edge [fontname="Arial", fontsize=12,');}
+  const authoredLr=document14({id:'authored-lr',kind:'flow',form:'network',question:'Authored LR?',layout:{kind:'flow',direction:'LR'},nodes:[{id:'gate',label:'Gate',shape:'diamond'},{id:'done',label:'Done'}],edges:[{id:'go',from:'gate',to:'done',label:'Go'}]});
+  const authoredLrPlan=compilePresentation(authoredLr,{backend:'graphviz',direction:'TB'});expect(authoredLrPlan.ok).toBe(true);if(authoredLrPlan.ok){expect(authoredLrPlan.source).toContain('rankdir="LR"');expect(authoredLrPlan.source).toContain('edge [fontname="Arial", fontsize=12,');}
+  const nondecision=document14({id:'plain-network',kind:'flow',form:'network',question:'Plain flow?',nodes:[{id:'from',label:'From'},{id:'to',label:'To'}],edges:[{id:'link',from:'from',to:'to',label:'Link'}]});
+  const plainPlan=compilePresentation(nondecision,{backend:'graphviz'});expect(plainPlan.ok).toBe(true);if(plainPlan.ok)expect(plainPlan.source).toContain('edge [fontname="Arial", fontsize=12,');
+  const state=document({id:'state-font-profile',kind:'state',form:'machine',question:'State?',nodes:[{id:'ready',label:'Ready'},{id:'done',label:'Done'}],state:{initial:'ready',transitions:[{id:'finish',from:'ready',to:'done',event:'finish'}]}});
+  const statePlan=compilePresentation(state,{backend:'graphviz'});expect(statePlan.ok).toBe(true);if(statePlan.ok)expect(statePlan.source).toContain('edge [fontname="Arial", fontsize=13,');
+  const entity=document({id:'entity-font-profile',kind:'structure',form:'entities',question:'Entities?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{name:'id',keys:['pk']}]},{node:'b',fields:[{name:'id',keys:['pk']}]}],references:[{id:'ref',from:{node:'b',field:'id'},to:{node:'a',field:'id'},label:'belongs to'}]}});
+  const entityPlan=compilePresentation(entity,{backend:'graphviz'});expect(entityPlan.ok).toBe(true);if(entityPlan.ok)expect(entityPlan.source).toContain('edge [fontname="Arial", fontsize=12,');
  });
 
  it('keeps free-text annotations as separately mapped native text carriers',()=>{
