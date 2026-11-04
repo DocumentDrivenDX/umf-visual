@@ -3117,6 +3117,61 @@
         "sourceDownloadPath": "reviews/tpl-design-process/authoritative-source.json",
         "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.4.0 definition preserves all fourteen node IDs/labels/order, fifteen edge IDs/endpoints/labels, title/question, and source metadata; it upgrades only the visual vocabulary version and adds source-mapped node shapes plus a root flow direction. Mermaid square-bracket declarations map to rectangles, brace-delimited J and M map to diamonds, and graph TD maps to flow direction TB. The fixture's two `kind: return` values are Visual-flow projections; the cited source uses ordinary directed arrows for all edges. No roles or additional nodes/edges are inferred, and no material from adjacent design-activity sections is merged into the selected Process Flow. The source digest matches HELIX commit ceb218e6fffbb5c6e43dfc5b42aa0c665e2b5481."
       }
+    },
+    {
+      "id": "tpl-sd-components",
+      "title": "Component Interactions",
+      "description": "A source-bound solution-design interaction graph with source-mapped node shapes and top-to-bottom direction in Visual 1.4.",
+      "kind": "flow",
+      "form": "pipeline",
+      "definitionPath": "fixtures/reviews/definitions/tpl-sd-components.json",
+      "definitionSha256": "ad290d4e4cbeb57c7d3a9e0d05cc82e22e420ef85902b24c7ea2ae978df0a1be",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/tpl-sd-components.json",
+          "sha256": "90083a017055e3b3cb7ffecd16023f73707c4f45a0672fb7a0b38cc64c7bd202",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact original Visual 1.0.0 fixture supplies seven ordered component identities/labels, six directed interactions, title/question, and the cited solution-design example locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/solution-design-example.md",
+          "sha256": "5fac95cb298eb6534f2622aff81438c9e144954f3d8760694ff039360e120ab2",
+          "pointer": "Component Interactions Mermaid graph",
+          "label": "Cited HELIX solution-design example",
+          "originalLocator": "helix:workflows/activities/02-design/artifacts/solution-design/example.md",
+          "resolvedSource": "helix/workflows/activities/02-design/artifacts/solution-design/example.md",
+          "observedRevision": "ab76e319f7a98d5df8417d6f16bbd5791c356271",
+          "description": "Exact Markdown bytes resolved from the fixture locator at the recorded HELIX commit. The selected graph supplies seven node declarations, a top-to-bottom direction, a cylinder-shaped Source Rows node, and six directed component interactions. Adjacent component responsibilities, technology rationale, and traceability material are outside this selected view."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/tpl-sd-components.json",
+          "sha256": "90083a017055e3b3cb7ffecd16023f73707c4f45a0672fb7a0b38cc64c7bd202",
+          "outputPath": "reviews/tpl-sd-components/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/solution-design-example.md",
+          "sha256": "5fac95cb298eb6534f2622aff81438c9e144954f3d8760694ff039360e120ab2",
+          "outputPath": "reviews/tpl-sd-components/solution-design-example.md",
+          "mediaType": "text/markdown",
+          "description": "Exact historical solution-design example bytes resolved from the fixture locator."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/tpl-sd-components.json",
+        "sourceSha256": "90083a017055e3b3cb7ffecd16023f73707c4f45a0672fb7a0b38cc64c7bd202",
+        "documentId": "visual:tpl-sd-components",
+        "visualId": "tpl-sd-components",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/tpl-sd-components/authoritative-source.json",
+        "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.4.0 definition preserves all seven node IDs/labels/order, the existing `rows` store role, six edge IDs/endpoints, title/question, and source metadata; it upgrades only the visual vocabulary version and adds source-mapped node shapes plus a root flow direction. Mermaid square-bracket declarations map to rectangles, `Rows[(Source Rows)]` maps to a cylinder, and graph TD maps to flow direction TB. No roles, labels, or edges are inferred or changed. Component responsibilities, technology rationale, and traceability elsewhere in the source file are not merged into this selected interaction graph. The source digest matches HELIX commit ab76e319f7a98d5df8417d6f16bbd5791c356271."
+      }
     }
   ]
 }
