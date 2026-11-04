@@ -56,6 +56,11 @@ describe('presentation compiler',()=>{
   for(const backend of ['graphviz','mermaid','lini'] as const)expect(compilePresentation(d,{backend})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_ANNOTATION_SCOPE',path:'/extensions/umf.visual/annotations'}]});
  });
 
+ it('preserves source-owned notes on lane diagrams without changing their lane or edge maps',()=>{
+  const d=createVisualDocument({id:'lane-notes',kind:'flow',form:'lanes',question:'How do these lanes relate?',title:'Lane note scope',groups:[{id:'people',label:'People',role:'lane'},{id:'system',label:'System',role:'lane'}],nodes:[{id:'requester',label:'Requester',group:'people'},{id:'runtime',label:'Runtime',group:'system'}],edges:[{id:'request',from:'requester',to:'runtime',label:'asks'}],annotations:[{id:'scope',text:'This note is outside the event sequence.'}]},'test:lane-notes','1.4.0');
+  for(const backend of ['graphviz','mermaid','lini'] as const){const plan=compilePresentation(d,{backend});expect(plan.ok).toBe(true);if(!plan.ok)continue;expect(plan.elementMap.filter(item=>item.kind==='group')).toHaveLength(2);expect(plan.elementMap.filter(item=>item.kind==='node')).toHaveLength(2);expect(plan.elementMap.filter(item=>item.kind==='edge')).toHaveLength(1);expect(plan.elementMap.filter(item=>item.kind==='annotation')).toEqual([{logicalId:'scope',sourcePath:'/extensions/umf.visual/annotations/0/id',nativeId:'a1',kind:'annotation'}]);expect(plan.source).toContain(backend==='mermaid'?'This#32;note#32;is#32;outside#32;the#32;event#32;sequence.':'This note is outside the event sequence.');}
+ });
+
  it('refuses circular layout plus unanchored annotations before backend dispatch',()=>{
   const d=createVisualDocument({id:'circular-annotations',kind:'flow',form:'network',question:'How are these arranged?',layout:{kind:'circular',order:['a','b']},nodes:[{id:'a',label:'A',shape:'rectangle'},{id:'b',label:'B',shape:'rectangle'}],edges:[{id:'link',from:'a',to:'b',routing:{kind:'straight'}}],annotations:[{id:'note',text:'Detached text'}]},'test:circular-annotations','1.4.0');
   for(const backend of ['graphviz','mermaid','lini'] as const)expect(compilePresentation(d,{backend})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_ANNOTATION_CIRCULAR',path:'/extensions/umf.visual/annotations'}]});

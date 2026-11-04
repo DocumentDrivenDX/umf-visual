@@ -375,6 +375,13 @@ declaration and painted carrier, and reject hidden, borrowed, changed or extra
 annotation carriers. Existing field, endpoint and cardinality obligations remain
 in force; layout helpers MUST NOT enter the logical reference inventory.
 
+Flow/lanes presentations MAY retain unanchored source annotations on separately
+owned native text carriers. Annotation carriers MUST NOT alter the logical node,
+lane/group or edge inventory, membership or topology. The same exact source/native/
+painted-text ownership obligations apply independently of lane enclosure proof;
+excluding a mapped annotation from a logical inventory MUST NOT exempt unknown
+carriers or waive hidden, borrowed or changed annotation text.
+
 ## Neutral entity-card projection
 
 When a native E/R grammar requires identification that the source leaves

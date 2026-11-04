@@ -80,6 +80,7 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
  }
  if(visual.kind==='state'&&(visual.state?.transitions??[]).some(transition=>transition.path!==undefined))checks.push('state-path-caption-ownership');
  if(visual.kind==='structure'&&visual.form==='entities'&&(visual.annotations?.length??0)>0)checks.push('entity-annotation-native-text');
+ if(visual.kind==='flow'&&visual.form==='lanes'&&(visual.annotations?.length??0)>0)checks.push('flow-annotation-native-text');
  if(backend!=='lini'&&visual.nodes?.some(node=>node.ports?.length))checks.push(backend==='graphviz'?'graphviz-node-port-rows':'mermaid-labeled-port-fallbacks');
  return checks.sort();
 }

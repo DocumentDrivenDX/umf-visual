@@ -724,7 +724,8 @@ export async function verifyPresentationQuality(
   }
  }
 
- if(visual.kind==='structure'&&visual.form==='entities'&&(visual.annotations?.length??0)>0){
+ const annotationProfile=visual.kind==='structure'&&visual.form==='entities'||visual.kind==='flow'&&visual.form==='lanes';
+ if(annotationProfile&&(visual.annotations?.length??0)>0){
   const annotations=visual.annotations!,maps=plan.elementMap.filter(item=>item.kind==='annotation'),failures:string[]=[],expectedIds:string[]=[];
   if(maps.length!==annotations.length)failures.push(`annotation map inventory ${maps.length} differs from ${annotations.length} source annotations`);
   for(let index=0;index<annotations.length;index++){
@@ -772,7 +773,8 @@ export async function verifyPresentationQuality(
     if(!id||child?.id!==id||child.values.length!==1||child.values[0]!==annotations[index]!.text)failures.push(`annotation ${annotations[index]!.id} does not have exact owned Lini AST text in footer block ${id??'(missing)'}`);
    }
   }
-  checks.push(pass('entity-annotation-native-text',sourceSha256,failures.length===0,failures.length?failures.join('; '):`${annotations.length} source-indexed entity annotations preserve their complete ordered text in unique, painted native SVG carriers with exact AST/source ownership.`));
+  const checkId=visual.kind==='structure'?'entity-annotation-native-text':'flow-annotation-native-text';
+  checks.push(pass(checkId,sourceSha256,failures.length===0,failures.length?failures.join('; '):`${annotations.length} source-indexed ${visual.kind==='structure'?'entity':'flow/lanes'} annotations preserve their complete ordered text in unique, painted native SVG carriers with exact AST/source ownership.`));
  }
 
  if(plan.backend!=='lini'&&visual.nodes?.some(node=>node.ports?.length)){

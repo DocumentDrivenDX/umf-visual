@@ -1961,28 +1961,28 @@
           "sha256": "a73f69ed5ae7d99fdd29d1a9bb77ec8b2c0efd10eb79f2d12450b5a3bcc10c93",
           "pointer": "CREATE TABLE declarations in 0001_workspace.sql",
           "label": "Checked-in Beacon SQL migration snapshot",
-          "description": "The checked-in SQL migration snapshots reproduce the fixture\u2019s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
+          "description": "The checked-in SQL migration snapshots reproduce the fixture’s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
         },
         {
           "path": "fixtures/visual/sources/beacon/migrations/0002_tickets.sql",
           "sha256": "943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7",
           "pointer": "CREATE TABLE declarations in 0002_tickets.sql",
           "label": "Checked-in Beacon SQL migration snapshot",
-          "description": "The checked-in SQL migration snapshots reproduce the fixture\u2019s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
+          "description": "The checked-in SQL migration snapshots reproduce the fixture’s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
         },
         {
           "path": "fixtures/visual/sources/beacon/migrations/0003_drafts.sql",
           "sha256": "ae6addeba332887844e609c9025c3bfa70649896b1cb334ceb5cf7e4b1ccf49b",
           "pointer": "CREATE TABLE declarations in 0003_drafts.sql",
           "label": "Checked-in Beacon SQL migration snapshot",
-          "description": "The checked-in SQL migration snapshots reproduce the fixture\u2019s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
+          "description": "The checked-in SQL migration snapshots reproduce the fixture’s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
         },
         {
           "path": "fixtures/visual/sources/beacon/migrations/0004_jobs.sql",
           "sha256": "0da0273a7461813a9c970da4e374134a10aa5f07002a2fc1c4e850aafc7497fb",
           "pointer": "CREATE TABLE declarations in 0004_jobs.sql",
           "label": "Checked-in Beacon SQL migration snapshot",
-          "description": "The checked-in SQL migration snapshots reproduce the fixture\u2019s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
+          "description": "The checked-in SQL migration snapshots reproduce the fixture’s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
         }
       ],
       "publishedAssets": [
@@ -2048,14 +2048,14 @@
           "sha256": "bfaf187d4763816fb331af03c39e79c9c9333f7c27576fe0f854ee860657c1a7",
           "pointer": "/extensions/umf.visual",
           "label": "Authoritative UMF fixture",
-          "description": "The exact Visual 1.0.0 fixture supplies the selected stack view\u2019s 15 ordered element identities and fields, five ordered layer declarations, title, question, takeaway, audience, and the cited architecture-model locator."
+          "description": "The exact Visual 1.0.0 fixture supplies the selected stack view’s 15 ordered element identities and fields, five ordered layer declarations, title, question, takeaway, audience, and the cited architecture-model locator."
         },
         {
           "path": "fixtures/visual/sources/beacon/architecture-model.toml",
           "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
           "pointer": "/view/stack",
           "label": "Fictional architecture-model source",
-          "description": "The exact checked-in TOML bytes select the stack view\u2019s 15 elements in order and provide its title/takeaway plus each selected element\u2019s name, detail, kind, status, and layer label. Layer identifiers/order and the view question are Visual-fixture projections; the model labels itself fictional."
+          "description": "The exact checked-in TOML bytes select the stack view’s 15 elements in order and provide its title/takeaway plus each selected element’s name, detail, kind, status, and layer label. Layer identifiers/order and the view question are Visual-fixture projections; the model labels itself fictional."
         }
       ],
       "publishedAssets": [
@@ -2083,7 +2083,7 @@
         "envelopeVersion": "0.10.0",
         "modelVersion": "1.0.0",
         "sourceDownloadPath": "reviews/beacon-stack/authoritative-source.json",
-        "scope": "This exact Visual 1.0.0 fixture remains unchanged as the review definition. Its `stack` selection preserves the 15 element IDs and order; the checked-in fictional TOML supplies the same selected view order, title, takeaway, and each element\u2019s name, optional detail, kind, status, and layer label. Actor/store/platform/own roles are the fixture mapping from source element kinds and platform ownership. The five displayed layer labels follow first appearance in the selected elements; layer IDs are presentation projections, not literal TOML identifiers. The question, audience, and source locator are authored in the Visual fixture; the TOML view has no question field. Zones, tiers, relations, and journey steps are not part of this stack selection and are not imported. Neither file establishes current deployment or runtime behavior."
+        "scope": "This exact Visual 1.0.0 fixture remains unchanged as the review definition. Its `stack` selection preserves the 15 element IDs and order; the checked-in fictional TOML supplies the same selected view order, title, takeaway, and each element’s name, optional detail, kind, status, and layer label. Actor/store/platform/own roles are the fixture mapping from source element kinds and platform ownership. The five displayed layer labels follow first appearance in the selected elements; layer IDs are presentation projections, not literal TOML identifiers. The question, audience, and source locator are authored in the Visual fixture; the TOML view has no question field. Zones, tiers, relations, and journey steps are not part of this stack selection and are not imported. Neither file establishes current deployment or runtime behavior."
       }
     },
     {
@@ -2895,7 +2895,7 @@
         "envelopeVersion": "0.10.0",
         "modelVersion": "1.0.0",
         "sourceDownloadPath": "reviews/tpl-arch-context/authoritative-source.json",
-      "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition preserves all original node IDs/labels, four edge IDs/endpoints/protocol labels, title/question and source metadata, then adds the exact Type, Purpose, and Protocol cells from each corresponding Level 1 system-context table row to node detail. It does not infer or rewrite Visual roles; source types remain literal in the added detail. Existing graph edges preserve the source Mermaid protocol labels, while node details retain the table's more specific Protocol cells (for example, HTTPS browser versus HTTPS). The cited Markdown digest matches the fixture in HELIX commit 19065f860a9e26b0cb52831de59b524ed6a55de6. The file is a DepositMatch architecture example/template and does not establish a deployed system or current operational state."
+        "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition preserves all original node IDs/labels, four edge IDs/endpoints/protocol labels, title/question and source metadata, then adds the exact Type, Purpose, and Protocol cells from each corresponding Level 1 system-context table row to node detail. It does not infer or rewrite Visual roles; source types remain literal in the added detail. Existing graph edges preserve the source Mermaid protocol labels, while node details retain the table's more specific Protocol cells (for example, HTTPS browser versus HTTPS). The cited Markdown digest matches the fixture in HELIX commit 19065f860a9e26b0cb52831de59b524ed6a55de6. The file is a DepositMatch architecture example/template and does not establish a deployed system or current operational state."
       }
     },
     {
@@ -3226,6 +3226,60 @@
         "modelVersion": "1.0.0",
         "sourceDownloadPath": "reviews/tpl-sd-domain/authoritative-source.json",
         "scope": "The exact original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.4.0 definition preserves all seven entity IDs/labels/order, empty fields, six reference IDs/endpoints/labels/cardinalities, no-fields omission, title/question, and source metadata; it upgrades only the vocabulary version and adds four exact Business Rules as annotations. The selected ER diagram has no fields or key declarations; none are invented, and the 'one bank CSV and one invoice CSV' readiness rule does not change the relationship cardinalities. The fixture's reference IDs and structure vocabulary are Visual projections. The child Business Rules subsection is included because it belongs to the selected Domain Model; System Decomposition and later material are not merged into it. The source digest matches HELIX commit ab76e319f7a98d5df8417d6f16bbd5791c356271."
+      }
+    },
+    {
+      "id": "tpl-so-map",
+      "title": "System map",
+      "description": "A source-bound review of the HELIX solution-overview system map, preserving its original Visual 1.0 fixture and adding the selected source legend and Mermaid direction.",
+      "kind": "flow",
+      "form": "lanes",
+      "definitionPath": "fixtures/reviews/definitions/tpl-so-map.json",
+      "definitionSha256": "b5a784c9ec8e34fde9fb473df7d3b09695c60ace972f508313fe768eabfff797",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/tpl-so-map.json",
+          "sha256": "09b7ec44040a73a7789c021e84e449622f6b845bce2583ea3e2c3a60ed1d3096",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "Exact original Visual 1.0.0 fixture with four lanes, six nodes, six directed labeled edges, authored omissions, question, title and source locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/tpl-so-map-example.md",
+          "sha256": "88d89ce44e5e77f273d1d352915ace98f143e2723de31932b8ab18dd37eeeb9b",
+          "pointer": "selected `## System map` prose and Mermaid block",
+          "label": "Cited HELIX solution-overview example",
+          "originalLocator": "helix:workflows/activities/02-design/artifacts/solution-overview/example.md",
+          "resolvedSource": "helix/workflows/activities/02-design/artifacts/solution-overview/example.md",
+          "description": "Exact Markdown bytes resolved from the fixture locator. The selected System map supplies a left-to-right Mermaid direction and the exact explanatory paragraphs retained as unanchored annotations; no per-edge kind assignment is stated by its global arrow legend."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/tpl-so-map.json",
+          "sha256": "09b7ec44040a73a7789c021e84e449622f6b845bce2583ea3e2c3a60ed1d3096",
+          "outputPath": "reviews/tpl-so-map/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/tpl-so-map-example.md",
+          "sha256": "88d89ce44e5e77f273d1d352915ace98f143e2723de31932b8ab18dd37eeeb9b",
+          "outputPath": "reviews/tpl-so-map/solution-overview-example.md",
+          "mediaType": "text/markdown",
+          "description": "Exact cited HELIX Markdown bytes published without transformation."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/tpl-so-map.json",
+        "sourceSha256": "09b7ec44040a73a7789c021e84e449622f6b845bce2583ea3e2c3a60ed1d3096",
+        "documentId": "visual:tpl-so-map",
+        "visualId": "tpl-so-map",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/tpl-so-map/authoritative-source.json",
+        "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.4.0 definition preserves the original envelope, visual ID, title, question, four lane groups, six nodes, six directed labeled edges, omissions and source metadata. It adds `layout: flow/LR` from the selected Mermaid `flowchart LR`, and preserves three exact selected-section prose paragraphs as annotations: the ownership/arrow/catalog/adjacent-reference legend, the statement that arrows describe information or actions and boxes are content or actors rather than running services, and the runtime-versus-HELIX responsibility/planning-authorization paragraph. The shaded-region statement is retained as text only; no group ownership is inferred from the referenced image. The global dashed/solid legend is retained as text only; no individual edge kind is inferred. The catalog label already summarizes templates, prompts, metadata and mode contracts. Other sections such as Parts and boundaries, Critical flows, Vocabulary and reading path, and Maintenance are outside this selected System map view. No present-day runtime or deployment claim is made."
       }
     }
   ]

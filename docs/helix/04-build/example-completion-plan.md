@@ -4263,7 +4263,7 @@ and strict path/unrelated-node clearance. Do not apply DAG placement to a cyclic
 source by dropping a relation. Reuse existing family profiles first; no vocabulary
 gap is indicated. Data-only lean gates are appropriate only with an existing
 suitable target and unchanged shared code; otherwise apply full relevant gates.
-The rejected C42 grouped selector is not carried forward. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is complete pending commit;
+The rejected C42 grouped selector is not carried forward. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is complete pending commit;
 cycle 44 waits for its per-document commit.
 
 ### Cycle 43 semantic checkpoint — source-numbered relation walkthrough
@@ -4353,7 +4353,7 @@ scope-qualified; do not silently conflate another view or invent source facts.
 No new vocabulary is indicated. Evaluate existing generic zoned/tier policies and
 actual all-caption/group clearance; at least one target must be suitable, other
 native limitations retain honest receipts. Lean affected gates apply if data-only,
-full relevant gates if shared renderer/proof/UI changes. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is complete pending commit;
+full relevant gates if shared renderer/proof/UI changes. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is complete pending commit;
 cycle 45 waits for its per-document commit.
 
 ### Cycle 44 focused freeze — data-only zoned walkthrough
@@ -4418,7 +4418,7 @@ actual caption/route clearance, and separately qualified ordered source-focus UI
 No implied physical swimlane alignment, chronology or activation is inferred.
 Evaluate actual source-backed definition fit before choosing gates: lean if data-only
 with a suitable target, full applicable gates if shared runtime/proof/UI changes.
-C089 already covers the family; no amendment is indicated. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is complete pending commit;
+C089 already covers the family; no amendment is indicated. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is complete pending commit;
 cycle 46 waits for its per-document commit.
 
 ### Cycle 45 focused freeze — responsibility capture and lane proof repair
@@ -4550,7 +4550,7 @@ source-stable row members and vertical bands under the existing stack profile.
 Portable/support grouping is source-authored classification, not execution order
 or priority. Existing C37 stack policy may suffice, but no qualification rests on
 unenriched baseline alone. Lean affected gates apply if data-only; shared renderer/
-proof/UI changes require full relevant gates. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is complete pending commit; cycle 48 waits
+proof/UI changes require full relevant gates. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is complete pending commit; cycle 48 waits
 for its per-document commit. C089 changes only if a material generic gap appears.
 
 ### Cycle 47 focused checkpoint — complete source-guided parts
@@ -4615,7 +4615,7 @@ clearance. No activation, duration, concurrency or extra message is inferred.
 Shared focus inspection is distinct from native export interaction. At least one
 suitable target is required; precise G/M subset refusals remain honest. Lean 14
 affected gates apply only if shared runtime/proof/UI code stays unchanged; otherwise
-full relevant gates apply. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is complete pending commit; cycle 49 waits for its commit.
+full relevant gates apply. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is complete pending commit; cycle 49 waits for its commit.
 
 ### Cycle 48 focused freeze — participant provenance preservation
 
@@ -4743,7 +4743,7 @@ should suffice; source responsibility semantics stay outside renderer policy.
 Require actual enriched labels/details, all six directed connections and strict
 readable fit/ownership. Use lean 14 affected gates only for data-only change with
 at least one suitable native target; shared renderer/proof/UI changes require full
-applicable gates. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is complete pending commit; cycle 51 waits for its commit.
+applicable gates. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is complete pending commit; cycle 51 waits for its commit.
 
 ### Cycle 50 focused freeze — exact historical component semantics
 
@@ -4861,7 +4861,7 @@ not evidence of a deployed/current system.
 Require actual enriched labels/details, four separately owned HTTPS/CSV-upload
 connections and readable fit/clearance. No new vocabulary is indicated. Lean 14
 affected gates if unchanged shared code and suitable fresh native target; full
-applicable gates for shared renderer/proof/UI change. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is complete pending commit;
+applicable gates for shared renderer/proof/UI change. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is complete pending commit;
 cycle 53 waits for its per-document commit.
 
 ### Cycle 52 focused checkpoint — actual card separation
@@ -5302,6 +5302,80 @@ Native/source/model/interface review is approved. C089's minimal annotation
 ownership clarification and STP/tracker validation are complete. Cycle 58 complete
 pending its per-document commit; cycle 59 must wait for that commit.
 
+### Fifty-ninth-cycle scope — template system map
+
+Cycle 58 is committed as `9466548`. Cycle 59 reviews `tpl-so-map`: six nodes,
+four declared lane groups and six directed labeled links. The exact cited
+solution-overview example digest 88d89ce4 matches the selected System map section.
+Preserve original Visual 1.0 bytes and projection-specific lane interpretation.
+Audit selected prose as well as its Mermaid graph: source LR orientation,
+ownership/style legend, boxes as actors/content rather than running services,
+runtime versus HELIX responsibilities and planning authorization boundary.
+Existing current-version layout/annotations may capture these in a separate
+reviewed definition; do not infer per-edge dashed classifications from a global
+legend or merge adjacent Parts and Critical flows sections.
+
+Require exact native lane membership/visible enclosure and all six labeled edge
+identities/endpoints, with any admitted prose on complete owned text carriers.
+No source facts become deployment claims or new vocabulary. Fresh enriched native
+qualification determines gate scope: lean 14 only for data-only changes with a
+suitable target and unchanged-entry fingerprints; shared implementation/proof/UI
+changes require full 18. Retained C58 full 1,061/0/27,374 across 206 files and all
+57 UI is available only when unchanged evidence justifies it. Cycle 59 in progress;
+cycle 60 waits for its per-document commit.
+
+### Cycle 59 focused checkpoint — lane graph and explanatory context
+
+Reviewed 1.4 SHA `b5a784c9ec8e34fde9fb473df7d3b09695c60ace972f508313fe768eabfff797`
+adds only authored LR flow layout and three exact selected System map paragraphs.
+Original raw1.0, four lane groups/six nodes/six directed labeled links and caveat
+remain unchanged. The shaded/dashed legend stays source text, not invented group
+ownership or individual edge classifications. Source 2 tests/29 assertions and
+type/source/diff checks pass; selected 88d89ce4 source is mirrored exactly.
+
+Generic existing flow footer composition now admits flow/lanes annotations.
+Compiler 20/179/type pass. Shared annotation proof retains C58 exact source,
+quote-aware native text, painted owner and complete carrier checks through mandatory
+`flow-annotation-native-text`. Lane proof excludes only typed, indexed mapped
+annotation carriers from logical inventories; six nodes/four groups/six links,
+visible enclosures and exact membership remain independently mandatory. C089 adds
+that generic boundary only, without schema/map-kind or placement algorithms.
+
+Focused native proof is still running; no final qualification claim is made here.
+Mermaid's observed baseline is suitable apart from the repaired inventory accounting;
+Graphviz and Lini quality limitations remain subject to fresh exact receipts, with
+no waivers. Shared admission/proof changes require full 18 gates, not retained-only
+lean evidence. No further layout search is required for the at-least-one suitable
+target criterion. Cycle59 incomplete; cycle60 commit-gated.
+
+### Cycle 59 closeout — complete, ready for commit
+
+All 18 required gates pass. Full Bun: 1,065 pass, zero fail, 27,498 assertions
+across 208 files in 181.38 seconds. Source2/29, compiler20/179 and combined native
+proof7/485 pass (existing lanes4/226, entity annotations2/182, new lanes1/77;
+not additional overlapping totals). Source/type/build/fetch/package/public browser,
+native/catalog/showcase/reviews/replays/site and all UI gates pass. All58-entry
+and selected C59 UI include shared controls; catalog214 native SVGs and showcase23
+renders/46 SVG+PNG previews pass Chromium153 without errors.
+
+Fresh reviews contain58 entries,120 qualified,26 unqualified,28 unsupported,
+zero execution failures,146 native SVG/PNG pairs,438 assets,53 authoritative-source
+records and five captures. Actual Mermaid12/12 is independently suitable: four
+labeled lane enclosures, six owned nodes/six exact labeled directed links and all
+three complete prose annotations. Graphviz's genuine caption/header/clipping/font
+limits and Lini's genuine caption/frame/font limits remain unqualified, with exact
+assets and failure receipts replayed. Superseded phantom annotation/helper inventory
+findings are absent; neither real quality limits nor semantics were waived.
+
+Reviewed1.4 `b5a784c9ec8e34fde9fb473df7d3b09695c60ace972f508313fe768eabfff797`
+preserves raw1.0 and all original graph/lane/source content, adding authored LR and
+three exact selected-section paragraphs only. Global shaded/dashed prose does not
+invent ownership or per-edge classifications. Generic annotation admission and
+mandatory independent native text proof preserve separate logical inventory and
+lane membership. No schema/map-kind/example branches; final native/source/model/
+interface review approved. C089/STP/tracker validated and frozen. Cycle59 complete
+pending its per-document commit; cycle60 must wait for that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -5322,8 +5396,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is complete pending commit;
-cycles 59–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is complete pending commit;
+cycles 60–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 
@@ -5397,3 +5471,15 @@ embedded here.
 | 66 | `lini-gallery-checkout-sequence` | `fixtures/showcase/definitions/lini-gallery-checkout-sequence.json` |
 | 67 | `lini-gallery-product-mindmap` | `fixtures/showcase/definitions/lini-gallery-product-mindmap.json` |
 | 68 | `lini-gallery-commerce-entities` | `fixtures/showcase/definitions/lini-gallery-commerce-entities.json` |
+
+
+Cycle59 final focused freeze: combined native proof 7 tests/485 assertions passes
+(existing lanes4/226, entity annotations2/182, new lane annotations1/77), type/diff
+pass. Source2/29 and compiler20/179 remain green. Exact indexed annotation maps
+and known diagram-content/conditional annotation-footer wrappers are separated
+from logical inventory; renamed positives and missing/hidden/borrowed/phantom
+controls preserve both membership and full-text obligations. Static source/model/
+interface review approved without new vocabulary/map kinds or example conditions.
+Fresh complete Mermaid qualification must supersede stale pre-fix private receipts
+before full18 begins. Full18 and final closeout pending; cycle59 incomplete,
+cycle60 commit-gated. Focused docs frozen for gate handoff.
