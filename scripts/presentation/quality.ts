@@ -37,7 +37,25 @@ const exactFieldText=(candidate:string,name:string,type:string|undefined)=>{
  if(!type)return value===norm(name);
  return new RegExp(`(?:^|\\s)${escRe(name)}\\s*:\\s*${escRe(type)}(?:$|\\s)`).test(value);
 };
-const dotRowHasMarker=(row:string,marker:string)=>decodeDotLabel(row.replace(/<[^>]*>/g,' ')).split('·').map(norm).some(part=>part===marker||part.startsWith(marker+' '));
+const FIELD_BADGE_TOKENS=new Set(['PK','FK','UK','NULL','NOT NULL']);
+const fieldBadgeTokens=(value:string):string[]|undefined=>{
+ const normalized=norm(value).toUpperCase();if(!normalized)return[];
+ const tokens=normalized.split(/\s*[·,]\s*/u).map(norm);
+ return tokens.every(token=>FIELD_BADGE_TOKENS.has(token))?tokens:undefined;
+};
+const exactBadgeSet=(actual:string[],expected:string[])=>actual.length===expected.length&&[...actual].sort().every((token,index)=>token===[...expected].sort()[index]);
+const dotRowBadgeTokens=(row:string):string[]|undefined=>{
+ const fontRuns=[...row.matchAll(/<FONT\b[^>]*>([\s\S]*?)<\/FONT>/giu)].map(match=>decodeDotLabel((match[1]??'').replace(/<[^>]*>/gu,' ')));
+ const tokens:string[]=[];
+ for(const run of fontRuns){const parsed=fieldBadgeTokens(run);if(!parsed||parsed.length===0)return undefined;tokens.push(...parsed);}
+ return tokens;
+};
+const dotRowHasOrderedBadgePrefix=(row:string,expectsBadges:boolean,fieldText:string)=>{
+ const runs=[...row.matchAll(/<FONT\b[^>]*>[\s\S]*?<\/FONT>/giu)];
+ const structural=norm(decodeDotLabel(row.replace(/<FONT\b[^>]*>[\s\S]*?<\/FONT>/giu,' __UMF_FIELD_BADGE__ ').replace(/<[^>]*>/gu,' ')));
+ const expected=norm(`${Array.from({length:runs.length},()=> '__UMF_FIELD_BADGE__').join(' ')} ${fieldText}`);
+ return (expectsBadges?runs.length>0:runs.length===0)&&structural===expected;
+};
 const elementFor=(plan:PresentationPlan,kind:PresentationElement['kind'],sourcePath:string)=>plan.elementMap.find(e=>e.kind===kind&&e.sourcePath===sourcePath);
 const objectName=(o:Record<string,unknown>)=>text(o.name);
 const nativeIdForNode=(plan:PresentationPlan,id:string)=>plan.elementMap.find(e=>e.kind==='node'&&e.logicalId===id)?.nativeId
@@ -103,7 +121,7 @@ export async function verifyPresentationQuality(
    cls:g.getAttribute('class')??'',title:titleOf(g),id:g.getAttribute('id')??g.getAttribute('data-id')??'',shapeTags:[...g.querySelectorAll(':scope > rect,:scope > polygon,:scope > ellipse,:scope > path,:scope > circle')].map(shape=>({tag:shape.tagName.toLowerCase(),radius:Number(shape.getAttribute('rx')??0)})),polygonPoints:[...g.querySelectorAll(':scope > polygon')].map(polygon=>{const element=polygon as SVGPolygonElement,points=[...element.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(element.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};});return points.length>1&&Math.hypot(points[0]!.x-points.at(-1)!.x,points[0]!.y-points.at(-1)!.y)<.5?points.slice(0,-1):points;}),
    ancestorClusters:(()=>{const ids:string[]=[];let p=g.parentElement;while(p&&p.tagName.toLowerCase()!=='svg'){if(p.matches('g.cluster'))ids.push(p.getAttribute('id')??'');p=p.parentElement;}return ids;})(),
    ownText:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge,g.lini-node[data-id]')===g).map(visibleText).filter(Boolean),
-   ownTextDetails:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge,g.lini-node[data-id]')===g).map(el=>({value:visibleText(el),bounds:box(el)})).filter(x=>x.value),
+   ownTextDetails:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge,g.lini-node[data-id]')===g).map(el=>{const baseline=el instanceof SVGTextElement&&el.y.baseVal.length?new DOMPoint(0,el.y.baseVal.getItem(0).value).matrixTransform(el.getScreenCTM()!).y-rootRect.y:undefined;return({value:visibleText(el),bounds:box(el),baseline});}).filter(x=>x.value),
    bounds:box(g),
    polygon:primaryPolygon??null,
    polygons:nativePolygons,
@@ -387,18 +405,20 @@ export async function verifyPresentationQuality(
       if(!renderedPort||!fieldRow)problems.push(`${entity.node}.${field.name} and its type are not visible together in its own entity row/port`);
       const keys=(field.keys??[]).map(k=>k.toUpperCase());
       const nullText=field.nullable===undefined?'':field.nullable?'NULL':'NOT NULL';
-      for(const marker of [...keys,...(nullText?[nullText]:[])]){
-       const matchingRows=nodeCarrier.ownTextDetails.filter(t=>t.value.split('·').some(part=>norm(part)===marker));
-       const rowCenter=fieldRow?fieldRow.bounds.y+fieldRow.bounds.height/2:NaN;
-       const markerRow=matchingRows.sort((a,b)=>fieldRow?Math.abs((a.bounds.y+a.bounds.height/2)-rowCenter)-Math.abs((b.bounds.y+b.bounds.height/2)-rowCenter):0)[0];
-       const sameRow=(row:typeof matchingRows[number])=>!!fieldRow&&Math.min(row.bounds.y+row.bounds.height,fieldRow.bounds.y+fieldRow.bounds.height)-Math.max(row.bounds.y,fieldRow.bounds.y)>0;
-       if(!markerRow||!fieldRow||!matchingRows.some(sameRow))problems.push(`${entity.node}.${field.name} ${marker} marker is not present in its own native field-cell row`);
-       if(fieldRow&&markerRow&&Math.abs((fieldRow.bounds.y+fieldRow.bounds.height/2)-(markerRow.bounds.y+markerRow.bounds.height/2))>20)problems.push(`${entity.node}.${field.name} ${marker} marker is not aligned with its field row (${Math.abs((fieldRow.bounds.y+fieldRow.bounds.height/2)-(markerRow.bounds.y+markerRow.bounds.height/2)).toFixed(1)}px)`);
-      }
+      const expectedBadgeTokens=[...keys,...(nullText?[nullText]:[])];
+      const sameRow=(detail:typeof nodeCarrier.ownTextDetails[number])=>!!fieldRow&&(detail.baseline!==undefined&&fieldRow.baseline!==undefined?Math.abs(detail.baseline-fieldRow.baseline)<=.75:Math.min(detail.bounds.y+detail.bounds.height,fieldRow.bounds.y+fieldRow.bounds.height)-Math.max(detail.bounds.y,fieldRow.bounds.y)>0&&Math.abs((detail.bounds.y+detail.bounds.height/2)-(fieldRow.bounds.y+fieldRow.bounds.height/2))<=4);
+      const visibleRowText=nodeCarrier.ownTextDetails.filter(sameRow),fieldText=norm(`${field.name}${field.type?': '+field.type:''}`);
+      const fieldGlyphs=visibleRowText.filter(detail=>norm(detail.value.replace(/\u00a0/gu,' '))===fieldText);
+      const badgeGlyphs=visibleRowText.filter(detail=>norm(detail.value.replace(/\u00a0/gu,' '))!==fieldText);
+      const visibleTokens:string[]=[];let visibleBadgesValid=true;
+      for(const glyph of badgeGlyphs){const tokens=fieldBadgeTokens(glyph.value);if(!tokens){visibleBadgesValid=false;continue;}visibleTokens.push(...tokens);}
+      if(fieldGlyphs.length!==1||!visibleBadgesValid||!exactBadgeSet(visibleTokens,expectedBadgeTokens))problems.push(`${entity.node}.${field.name} SVG field row does not contain exactly its own name/type and key/nullability badge tokens (field runs ${fieldGlyphs.length}, observed ${visibleBadgesValid?visibleTokens.join(', '):'unrecognized'}; expected ${expectedBadgeTokens.join(', ')||'none'})`);
+      if(fieldRow&&fieldGlyphs[0]&&badgeGlyphs.some(glyph=>glyph.bounds.x>fieldGlyphs[0]!.bounds.x))problems.push(`${entity.node}.${field.name} badge tokens do not precede the field name in its SVG row`);
       const astLabel=text(byName.get(nodeId!)?.label),portPattern=new RegExp(`<TD\\b(?=[^>]*\\bPORT=["']${escRe(port??'')}["'])[^>]*>([\\s\\S]*?)<\\/TD>`,'i');
       const astRowHtml=portPattern.exec(astLabel)?.[1];
-      const astRowText=astRowHtml?norm(decodeDotLabel(astRowHtml.replace(/<[^>]*>/g,' '))):'';
-      if(!astRowHtml||!exactFieldText(astRowText,field.name,field.type)||keys.some(k=>!dotRowHasMarker(astRowHtml,k))||(nullText&&!dotRowHasMarker(astRowHtml,nullText)))problems.push(`${entity.node}.${field.name} row is absent from its exact Graphviz AST port`);
+      const astBadgeTokens=astRowHtml?dotRowBadgeTokens(astRowHtml):undefined;
+      const astFieldText=astRowHtml?norm(decodeDotLabel(astRowHtml.replace(/<FONT\b[^>]*>[\s\S]*?<\/FONT>/giu,' ').replace(/<[^>]*>/gu,' '))):'';
+      if(!astRowHtml||astBadgeTokens===undefined||!exactBadgeSet(astBadgeTokens,expectedBadgeTokens)||astFieldText!==fieldText||!dotRowHasOrderedBadgePrefix(astRowHtml,expectedBadgeTokens.length>0,fieldText))problems.push(`${entity.node}.${field.name} row is absent from its exact Graphviz AST port or has incorrect key/nullability tokens`);
      });
      if(entity.fields.length===0&&!label.includes(text(visual.nodes?.find(n=>n.id===entity.node)?.label)))problems.push(`empty entity ${entity.node} is missing its label`);
     });

@@ -3674,6 +3674,119 @@ branches. Existing CONTRACT-089 suffices, unchanged. Previous checkpoint holds
 are resolved; freeze for per-document commit. Cycle 36 cannot start before cycle
 35 is committed.
 
+### Thirty-sixth-cycle scope — workspace schema constraints
+
+Cycle 35 is committed as `aa0bc52`. Cycle 36 audits exact Visual 1.0 source
+`fixtures/visual/inventory/beacon-schema-workspace.json`, SHA-256
+`74cc43f6171ed212876b6fab8fc9ee1429dbd4bca2e7c79394d46e9800bb3dad`.
+The same four migration snapshots define seven selected entities, 24 fields and
+six internal references. Preserve original bytes and the three cross-slice
+omissions; publish all exact SQL files and retain the established directory-digest
+recipe, with no current database/deployment claim.
+
+Separate source-backed same1.0 review should add 24 nullable flags, six parent
+field-name bindings and correct settings child cardinality. Only default_tone,
+connected_at and finished_at are nullable. settings.workspace_id is both PK and FK:
+a workspace may have zero or one settings row, while every settings row references
+exactly one workspace. The other five nonunique child FKs remain zero-or-many.
+Do not infer relationship identification, mandatory child existence, synthetic
+field IDs or new vocabulary. Existing Visual 1.0 constraints express all facts.
+
+Native acceptance includes all key/nullability/field-port ownership plus a
+specific zero-or-one settings endpoint marker/control, distinct from the original
+zero-or-many. Evaluate existing entity renderers after the preceding typography
+fix. Lean source/native/reviews/replay/site/selected UI with shared controls and
+public/packed-consumer gates are appropriate if runtime/proof/UI is unchanged;
+concrete shared changes reopen full applicable gates. Cycle 37 waits for the
+completed cycle 36 commit.
+
+### Cycle 36 source/native checkpoint — key tokens and routing channels
+
+Derived same1.0 definition SHA is
+`8d10facd6485082b67c77195207035cff8f9e68c7ee4cfff66be0770409b4043`;
+source tests 2/83 and type/diff checks pass. SQL-grounded settings PK+FK and
+non-nullability remain explicit; its corrected child endpoint is zero-or-one,
+with other child cardinalities unchanged. Native circle+bar is confirmed and an
+isolated old circle+fork mutation fails the exact marker proof.
+
+Mermaid passes nine checks. Graphviz exposes an existing false-negative proof of
+combined PK/FK badges: qualify exact tokens in the owned visible row and AST
+prefix, with missing/extra key and NULL-versus-NOT-NULL controls. No substring or
+whole-diagram marker search may replace field ownership. Lini reports three T002
+warnings and a genuinely dangling workspace-to-jobs source endpoint despite exact
+named ports; retain the warnings/refusal and strict attachment proof. Probe generic
+native entity spacing/channel budgets before changing renderer policy, without
+removing source parent bindings or adding fixture conditions.
+
+Source concepts remain complete; these are target/proof issues, not vocabulary
+gaps. Any shared renderer/proof correction reopens full applicable gates. Current
+native admission and cycle 36 completion remain pending.
+
+### Cycle 36 native-policy checkpoint — horizontal field corridors
+
+Uniform grid-gap and column-count probes do not resolve the dangling field route;
+side-free native endpoints incorrectly choose top/bottom card contacts. Neither
+failed experiment is accepted as a source workaround or qualified output.
+A guarded native policy instead selects explicit horizontal field sides from the
+actual emitted default two-column entity grid: opposing columns face each other,
+same-column references use the outer corridor. Only an unauthored selected default
+grid is eligible; explicit layouts and node-level endpoint source remain unchanged.
+No source ID/count condition, padding experiment or routing/tolerance waiver is
+retained.
+
+All pinned diagnostics and 12 mandatory checks pass in native probes on original/
+reviewed workspace and ticket slices, canary, explicit commerce and renamed
+three-/four-degree controls. Actual workspace and current ticket PNGs are
+independently inspected and readable with exact row contacts; corrected settings
+circle+bar and combined keys remain visible. Workspace candidate PNG SHA is
+`b8a3b902c063dd130622bf6bed7f51d95d5a0b65516059dbe8c1829121327058`.
+Graphviz exact-badge controls now preserve source Visual1.0 and pass 4/46, with
+prior exact-port 1/17 and hostile entity 1/15 regressions passing.
+
+Static model/private policy review approves bounded production implementation,
+conditional on independent automated guards/negative controls and full required
+gates/fresh receipts. No new vocabulary or source constraint is introduced;
+cycle 36 remains incomplete.
+
+### Cycle 36 closeout — complete, ready for commit
+
+All 18 required gates pass. The final full suite is 980 tests, zero failures,
+25,305 assertions across 177 files in 180.69 seconds. Source/type/build/fetch/
+package/browser/native/catalog/showcase/replay/reviews/replay/site and all UI gates
+pass. Fresh reviews contain 35 examples, 78 qualified, seven unqualified and 20
+unsupported renders, 255 assets and 30 authoritative-source records, with all 85
+native SVG and 85 PNG replays passing. All-entry UI 35/35 and selected workspace
+1/35 retain shared controls; catalog/showcase UI pass without errors.
+
+The immutable original remains
+`74cc43f6171ed212876b6fab8fc9ee1429dbd4bca2e7c79394d46e9800bb3dad`;
+reviewed same1.0 definition remains
+`8d10facd6485082b67c77195207035cff8f9e68c7ee4cfff66be0770409b4043`.
+Exactly 31 source-grounded changes comprise 24 nullable flags, six named parent
+id bindings and one settings child zero-or-one correction. settings.workspace_id
+retains combined PK/FK, all other cardinalities/identities/keys/order and three
+cross-slice omissions remain unchanged, and no identifying relationship or current
+schema fact is invented. Four exact SQL snapshots/directory digest are preserved.
+
+Actual built workspace Graphviz/Mermaid/Lini PNGs and current reviewed ticket Lini
+are independently inspected and qualified within their disclosed subsets. Workspace
+PNG hashes: Graphviz `149d73e04be737e1a854d25f7452ac5eaa69e30fb0a2cb96002b40ab932a8365`,
+Mermaid `ec65a4400e0f46a3b2b4712b389c2053420190d43dd45736b0c0d60109505823`,
+Lini `b8a3b902c063dd130622bf6bed7f51d95d5a0b65516059dbe8c1829121327058`.
+No dangling field route remains; corrected settings circle+bar and exact field
+rows are visible. Ordinary interchange and Mermaid entity-level approximation
+claims remain separate from field-port qualification.
+
+Final model/interface/modularity review approves exact owned-row/AST badge token
+proof and guarded implicit-grid horizontal field sides. Actual emitted component
+order includes standalone nodes; named ports, explicit layouts, node-level
+endpoints and TB retain prior behavior. Renamed/degree controls, 20/284 compiler
+checks and reviewed ticket/entity regressions pass. Failed spacing/side-free
+experiments and all previous checkpoint holds are resolved without removing
+source bindings, diagnostics or strict native checks. No new vocabulary, fixture
+branch or tolerance waiver is added; CONTRACT-089 remains unchanged. Freeze for
+per-document commit. Cycle 37 must not start before cycle 36 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -3693,8 +3806,8 @@ Cycle 27 is committed as `05b2b84`; cycle 28 is committed as `587471d`.
 Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
-Cycle 35 is complete and ready for commit; cycles 36–68 remain pending,
-with cycle 36 gated on the cycle 35 commit.
+Cycle 35 is committed as `aa0bc52`. Cycle 36 is complete and ready for commit;
+cycles 37–68 remain pending, with cycle 37 gated on the cycle 36 commit.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

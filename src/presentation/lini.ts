@@ -485,14 +485,29 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
    }
    const entityComponents=nodes.map(node=>({id:node.id,row:entityRows.get(node.id)??standaloneRows.get(node.id)})).filter((item):item is {id:string;row:string}=>item.row!==undefined);
    children.push(...ordered(entityComponents,rootLayout?.order).map(item=>item.row));
-   const endpoint=(end:{node:string;field?:string;fieldId?:string;portId?:string},refIndex:number,side:'from'|'to'):string|undefined=>{
+   const implicitTwoColumnGrid=visual.form==='entities'&&!rootLayout&&direction==='LR'&&rootColumns===2;
+   const componentPosition=new Map(ordered(entityComponents,rootLayout?.order).map((item,index)=>[item.id,index]));
+   const fieldEndpointSide=(nodeId:string,otherNodeId:string):'left'|'right'|undefined=>{
+    if(!implicitTwoColumnGrid)return;
+    const ownPosition=componentPosition.get(nodeId),otherPosition=componentPosition.get(otherNodeId);
+    if(ownPosition===undefined||otherPosition===undefined)return;
+    const ownColumn=ownPosition%2,otherColumn=otherPosition%2;
+    if(ownColumn===otherColumn)return ownColumn===0?'left':'right';
+    return otherColumn>ownColumn?'right':'left';
+   };
+   const endpoint=(end:{node:string;field?:string;fieldId?:string;portId?:string},otherNodeId:string,refIndex:number,side:'from'|'to'):string|undefined=>{
     const id=nodeIds.get(end.node),entity=entityByNode.get(end.node)?.entity;if(!id||!entity)return;
     if(end.portId){const node=nodes.find(item=>item.id===end.node),port=findPort(node,end.portId);if(!port)return;const portSide={north:'top',east:'right',south:'bottom',west:'left'} as const;return id+'.p'+(node!.ports!.indexOf(port)+1)+(port.side?':'+portSide[port.side]:'');}
-    const native=fieldReference(id,end.field,end.fieldId,entity,id);if(native&&native!==id){approx(path('/structure/references/'+refIndex+'/'+side),'Field endpoint '+JSON.stringify(end.fieldId??end.field),`Lini draws the native relationship to the exact entity field row ${native} on its ${side==='from'?'right':'left'} side.`);return native+(side==='from'?':right':':left');}
+    const native=fieldReference(id,end.field,end.fieldId,entity,id);if(native&&native!==id){
+     const fieldSide=fieldEndpointSide(end.node,otherNodeId)??(side==='from'?'right':'left');
+     const representation=implicitTwoColumnGrid?`Lini draws the native relationship to the exact entity field row ${native} on its ${fieldSide} side, selected from the implicit two-column component placement.`:`Lini draws the native relationship to the exact entity field row ${native} on its ${side==='from'?'right':'left'} side.`;
+     approx(path('/structure/references/'+refIndex+'/'+side),'Field endpoint '+JSON.stringify(end.fieldId??end.field),representation);
+     return native+':'+fieldSide;
+    }
     return native;
    };
    for(let i=0;i<(structure.references??[]).length;i++){
-    const reference=structure.references![i]!,from=endpoint(reference.from,i,'from'),to=endpoint(reference.to,i,'to');if(!from||!to)return failure('PRESENTATION_LINI_ENDPOINT',path('/structure/references/'+i),'A relationship endpoint does not resolve to an entity field or node.');
+    const reference=structure.references![i]!,from=endpoint(reference.from,reference.to.node,i,'from'),to=endpoint(reference.to,reference.from.node,i,'to');if(!from||!to)return failure('PRESENTATION_LINI_ENDPOINT',path('/structure/references/'+i),'A relationship endpoint does not resolve to an entity field or node.');
     const a=cardinalityMarker(reference.fromCardinality,reference.fromMultiplicity,'from'),b=cardinalityMarker(reference.toCardinality,reference.toMultiplicity,'to');
     const operator=`${a.marker}-${b.marker}`,exact=[a.label?`from ${a.label}`:undefined,b.label?`to ${b.label}`:undefined].filter(Boolean);
     const identificationLabel=reference.identification?(reference.identification==='identifying'?'Identifying':'Non-identifying'):undefined;

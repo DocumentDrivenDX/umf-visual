@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {describe,expect,it} from 'bun:test';
+import {createHash} from 'node:crypto';
 import {createVisualDocument,type Visual} from '../../src/extensions/visual';
 import {compilePresentation} from '../../src/presentation';
 
@@ -50,6 +51,68 @@ describe('Lini presentation compiler',()=>{
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
   expect(result.source).toContain('|entity#n1| "Workspaces"');expect(result.source).toContain('|cell#f1| "id · PK · NOT NULL"; "uuid"');expect(result.source).toContain('n1.f1:right ++-o< n2.f2:left .r1 { along: 0.5; } [ "contains" { translate: 0 -24; font-size: 14; } ]');
   expect(result.elementMap).toContainEqual({logicalId:'workspace-id',sourcePath:'/extensions/umf.visual/structure/entities/0/fields/0',nativeId:'n1.f1',kind:'field'});expect(result.elementMap).toContainEqual({logicalId:'membership',sourcePath:'/extensions/umf.visual/structure/references/0',nativeId:'r1',kind:'reference'});expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/entities/0/fields/0/keys')).toBe(true);expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/entities/0/fields/0/nullable')).toBe(true);
+ });
+
+ it('faces implicit two-column field endpoints by emitted component position while preserving node and port endpoints',()=>{
+  const source=document({id:'implicit-field-sides',kind:'structure',form:'entities',question:'Which rows connect?',nodes:[
+   {id:'origin',label:'Origin',ports:[{id:'north-port',side:'north'}]},
+   {id:'standalone',label:'Standalone node'},
+   {id:'same-column',label:'Same column'},
+   {id:'other-column',label:'Other column'},
+   {id:'last-same-column',label:'Last same column'},
+  ],structure:{entities:[
+   {node:'origin',fields:[{id:'origin-id',name:'id',type:'Id'}]},
+   {node:'same-column',fields:[{id:'same-id',name:'id',type:'Id'}]},
+   {node:'other-column',fields:[{id:'other-id',name:'id',type:'Id'}]},
+   {node:'last-same-column',fields:[{id:'last-id',name:'id',type:'Id'}]},
+  ],references:[
+   {id:'same-column-link',from:{node:'origin',fieldId:'origin-id'},to:{node:'same-column',fieldId:'same-id'}},
+   {id:'cross-column-link',from:{node:'origin',fieldId:'origin-id'},to:{node:'other-column',fieldId:'other-id'}},
+   {id:'same-column-later-link',from:{node:'origin',fieldId:'origin-id'},to:{node:'last-same-column',fieldId:'last-id'}},
+   {id:'named-port-link',from:{node:'origin',portId:'north-port'},to:{node:'other-column',fieldId:'other-id'}},
+   {id:'node-level-link',from:{node:'origin'},to:{node:'other-column'}},
+  ]}});
+  const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
+  expect(result.source).toContain('columns: repeat(2);');
+  expect(result.source).toContain('n1.f1:left - n3.f1:left .r1 { along: 0.5; }');
+  expect(result.source).toContain('n1.f1:right - n4.f1:left .r2 { along: 0.5; }');
+  expect(result.source).toContain('n1.f1:left - n5.f1:left .r3 { along: 0.5; }');
+  expect(result.source).toContain('n1.p1:top - n4.f1:left .r4 { along: 0.5; }');
+  expect(result.source).toContain('n1 - n4 .r5 { along: 0.5; }');
+  expect(result.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/structure/references/0/from')?.representation).toContain('on its left side, selected from the implicit two-column component placement');
+ });
+
+ it('keeps implicit grid side selection generic across renamed entities and changed relationship degree',()=>{
+  const source=document({id:'renamed-degree-three',kind:'structure',form:'entities',question:'Which records relate?',nodes:[
+   {id:'workspace_catalog',label:'Catalog'},
+   {id:'person',label:'Person'},
+   {id:'settings',label:'Settings'},
+   {id:'job',label:'Job'},
+  ],structure:{entities:[
+   {node:'workspace_catalog',fields:[{name:'id',type:'Id'}]},
+   {node:'person',fields:[{name:'workspace_id',type:'Id'}]},
+   {node:'settings',fields:[{name:'workspace_id',type:'Id'}]},
+   {node:'job',fields:[{name:'workspace_id',type:'Id'}]},
+  ],references:[
+   {id:'catalog-person',from:{node:'workspace_catalog',field:'id'},to:{node:'person',field:'workspace_id'}},
+   {id:'catalog-settings',from:{node:'workspace_catalog',field:'id'},to:{node:'settings',field:'workspace_id'}},
+   {id:'catalog-job',from:{node:'workspace_catalog',field:'id'},to:{node:'job',field:'workspace_id'}},
+  ]}});
+  const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
+  expect(result.source).toContain('n1.f1:right - n2.f1:left .r1 { along: 0.5; }');
+  expect(result.source).toContain('n1.f1:left - n3.f1:left .r2 { along: 0.5; }');
+  expect(result.source).toContain('n1.f1:right - n4.f1:left .r3 { along: 0.5; }');
+  expect(result.elementMap.filter(item=>item.kind==='reference')).toHaveLength(3);
+ });
+
+ it('preserves explicit entity layouts and single-column direction side conventions',()=>{
+  const explicit=document({id:'explicit-field-sides',kind:'structure',form:'entities',question:'Which rows connect?',layout:{kind:'grid',columns:2,order:['b','a']},nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{name:'id',type:'Id'}]},{node:'b',fields:[{name:'a_id',type:'Id'}]}],references:[{id:'ab',from:{node:'a',field:'id'},to:{node:'b',field:'a_id'}}]}});
+  const explicitResult=compilePresentation(explicit,{backend:'lini'});expect(explicitResult.ok).toBe(true);if(!explicitResult.ok)return;
+  expect(explicitResult.source).toContain('n1.f1:right - n2.f1:left .r1 { along: 0.5; }');
+  expect(explicitResult.source.indexOf('|entity#n2|')).toBeLessThan(explicitResult.source.indexOf('|entity#n1|'));
+  expect(createHash('sha256').update(explicitResult.source).digest('hex')).toBe('34e423905f308585f642c4b3533c80786eb836dda86ef82502dfaadecd15becc');
+  const vertical=compilePresentation(document({id:'vertical-field-sides',kind:'structure',form:'entities',question:'Which rows connect?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{name:'id',type:'Id'}]},{node:'b',fields:[{name:'a_id',type:'Id'}]}],references:[{id:'ab',from:{node:'a',field:'id'},to:{node:'b',field:'a_id'}}]}}),{backend:'lini',direction:'TB'});
+  expect(vertical.ok).toBe(true);if(!vertical.ok)return;expect(vertical.source).toContain('columns: repeat(1);');expect(vertical.source).toContain('n1.f1:right - n2.f1:left .r1 { along: 0.5; }');
  });
 
  it('shows exact nonstandard ranges without assigning a conventional marker',()=>{

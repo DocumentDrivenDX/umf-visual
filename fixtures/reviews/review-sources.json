@@ -1939,6 +1939,100 @@
         "sourceDownloadPath": "reviews/beacon-schema-tickets/authoritative-source.json",
         "scope": "The exact original Visual 1.0.0 fixture remains unchanged and available as the authoritative source download. It supplies the ten selected entity identities and roles, 35 field names/order/types/key markers, nine internal child references, three explicit references to excluded tables, title, question, audience, and historical migration-directory locator. The four individually hash-bound SQL snapshots reproduce that directory digest as SHA-256 over their raw bytes concatenated in lexicographic filename order with no separators. This separate Visual 1.0.0 review definition adds only source-backed nullability for all 35 columns: false for explicit NOT NULL or PRIMARY KEY constraints, and true for attachments.bytes and the later drafts.tone because their source column declarations permit NULL and binds each reference source endpoint to the explicitly named parent id column in REFERENCES ... (id). Existing field keys, reference identities, TO fields, direction, cardinalities, and omission note remain unchanged; neither ticket_tags nor draft_sources has a declared primary key or UNIQUE constraint, so no compound key is added. The reviewed ten-entity ticket-oriented selection is not the complete migration directory: workspaces, agents, settings, integrations, jobs, job_runs, and schedules stay outside it. These checked-in migration snapshots and fixture do not establish current database contents, deployment, or runtime behavior."
       }
+    },
+    {
+      "id": "beacon-schema-workspace",
+      "title": "What a workspace keeps",
+      "description": "A source-backed review of the seven-entity workspace and jobs slice, retaining the original Visual 1.0.0 selection while making SQL nullability, parent id bindings, and the one-to-one settings limit inspectable. It does not represent the full migration directory or a current database.",
+      "kind": "structure",
+      "form": "entities",
+      "definitionPath": "fixtures/reviews/definitions/beacon-schema-workspace.json",
+      "definitionSha256": "8d10facd6485082b67c77195207035cff8f9e68c7ee4cfff66be0770409b4043",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-schema-workspace.json",
+          "sha256": "74cc43f6171ed212876b6fab8fc9ee1429dbd4bca2e7c79394d46e9800bb3dad",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies seven entity identities and roles, 24 authored field names/order/types/key markers, six references, and the title, question, audience, and migration-directory locator."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0001_workspace.sql",
+          "sha256": "a73f69ed5ae7d99fdd29d1a9bb77ec8b2c0efd10eb79f2d12450b5a3bcc10c93",
+          "pointer": "CREATE TABLE declarations in 0001_workspace.sql",
+          "label": "Checked-in Beacon SQL migration snapshot",
+          "description": "The checked-in SQL migration snapshots reproduce the fixture\u2019s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0002_tickets.sql",
+          "sha256": "943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7",
+          "pointer": "CREATE TABLE declarations in 0002_tickets.sql",
+          "label": "Checked-in Beacon SQL migration snapshot",
+          "description": "The checked-in SQL migration snapshots reproduce the fixture\u2019s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0003_drafts.sql",
+          "sha256": "ae6addeba332887844e609c9025c3bfa70649896b1cb334ceb5cf7e4b1ccf49b",
+          "pointer": "CREATE TABLE declarations in 0003_drafts.sql",
+          "label": "Checked-in Beacon SQL migration snapshot",
+          "description": "The checked-in SQL migration snapshots reproduce the fixture\u2019s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0004_jobs.sql",
+          "sha256": "0da0273a7461813a9c970da4e374134a10aa5f07002a2fc1c4e850aafc7497fb",
+          "pointer": "CREATE TABLE declarations in 0004_jobs.sql",
+          "label": "Checked-in Beacon SQL migration snapshot",
+          "description": "The checked-in SQL migration snapshots reproduce the fixture\u2019s migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job tables in 0001_workspace.sql and 0004_jobs.sql establish nullability for all 24 represented columns and six declared foreign keys; 0002_tickets.sql and 0003_drafts.sql are digest inputs outside this view."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-schema-workspace.json",
+          "sha256": "74cc43f6171ed212876b6fab8fc9ee1429dbd4bca2e7c79394d46e9800bb3dad",
+          "outputPath": "reviews/beacon-schema-workspace/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0001_workspace.sql",
+          "sha256": "a73f69ed5ae7d99fdd29d1a9bb77ec8b2c0efd10eb79f2d12450b5a3bcc10c93",
+          "outputPath": "reviews/beacon-schema-workspace/migrations/0001_workspace.sql",
+          "mediaType": "text/plain",
+          "description": "Exact checked-in SQL migration bytes published unchanged for the source-backed review."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0002_tickets.sql",
+          "sha256": "943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7",
+          "outputPath": "reviews/beacon-schema-workspace/migrations/0002_tickets.sql",
+          "mediaType": "text/plain",
+          "description": "Exact checked-in SQL migration bytes published unchanged for the source-backed review."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0003_drafts.sql",
+          "sha256": "ae6addeba332887844e609c9025c3bfa70649896b1cb334ceb5cf7e4b1ccf49b",
+          "outputPath": "reviews/beacon-schema-workspace/migrations/0003_drafts.sql",
+          "mediaType": "text/plain",
+          "description": "Exact checked-in SQL migration bytes published unchanged for the source-backed review."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0004_jobs.sql",
+          "sha256": "0da0273a7461813a9c970da4e374134a10aa5f07002a2fc1c4e850aafc7497fb",
+          "outputPath": "reviews/beacon-schema-workspace/migrations/0004_jobs.sql",
+          "mediaType": "text/plain",
+          "description": "Exact checked-in SQL migration bytes published unchanged for the source-backed review."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-schema-workspace.json",
+        "sourceSha256": "74cc43f6171ed212876b6fab8fc9ee1429dbd4bca2e7c79394d46e9800bb3dad",
+        "documentId": "visual:beacon-schema-workspace",
+        "visualId": "beacon-schema-workspace",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-schema-workspace/authoritative-source.json",
+        "scope": "The exact original Visual 1.0.0 fixture remains unchanged and available as the authoritative source download. It supplies seven entity identities and roles, 24 field names/order/types/key markers, six references, title, question, audience, and the migration-directory locator. Four individually hash-bound SQL snapshots reproduce the declared migration-directory digest as SHA-256 over raw bytes concatenated in lexicographic filename order with no separators. The selected workspace/job schema evidence in 0001_workspace.sql and 0004_jobs.sql supports nullability for all 24 fields and confirms six declared foreign keys referencing parent id columns. Twenty-one fields are NOT NULL or primary keys; settings.default_tone, integrations.connected_at, and job_runs.finished_at permit NULL. settings.workspace_id is both primary key and foreign key, so one workspace may have zero or one settings row; the other five child foreign keys are nonunique and permit zero or many children. The review adds six parent id field-name bindings; existing reference identities, direction, child field bindings, version, nodes, field keys, order, types and other cardinalities are preserved; the three cross-slice references remain omitted as stated by the original fixture. 0002_tickets.sql and 0003_drafts.sql are included only to reproduce the all-four snapshot digest and do not expand this selection. Neither fixture nor migration snapshots establish current database contents, deployment, or runtime behavior."
+      }
     }
   ]
 }

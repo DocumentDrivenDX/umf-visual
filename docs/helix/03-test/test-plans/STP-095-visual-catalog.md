@@ -1066,3 +1066,26 @@ interchange claims remain separate. Original sources are immutable and same1.0
 review uses only SQL-grounded nullability/named parent endpoints. No new vocabulary
 or inferred compound/identifying key is introduced. Cycle 35 is complete, ready
 for commit; previous holds are resolved and cycle 36 waits for that commit.
+
+
+Cycle 36 controls require exact combined key tokens in each owned visible/AST
+field row, with missing/extra token and NULL/NOT NULL negatives. SQL-unique child
+FKs receive zero-or-one markers without identifying-relationship inference; an
+isolated old fork mutation must fail. Native routing warnings and dangling field
+endpoints remain failures, not layout approximations or semantic omissions.
+Generic spacing probes preserve all source bindings; runtime/proof corrections
+reopen full applicable gates. Source 2/83 passes; native admission remains pending.
+
+
+Cycle 36 closeout: all 18 gates pass, including full suite 980/0, 25,305 assertions,
+177 files, 180.69s. Reviews cover 35 examples, 78 qualified, seven unqualified,
+20 unsupported, 255 assets, 30 authoritative sources and 85 native SVG/PNG replays.
+All-entry 35/35 and selected 1/35 UI modes retain shared controls; catalog/showcase
+UI pass. The same1.0 review has exactly 31 source-backed changes and preserves the
+original/SQL bytes. Settings zero-or-one, combined PK/FK and three nullable fields
+are independently inspected in built outputs. Exact row-token proof and implicit
+grid field-side policy pass named-port/explicit-layout/TB/standalone/renamed-degree
+controls and current ticket regressions; no diagnostic or attachment tolerance is
+weakened. Failed native experiments remain history, not qualified fallbacks.
+Cycle 36 is complete, ready for commit; previous holds are resolved and cycle 37
+waits for that commit.
