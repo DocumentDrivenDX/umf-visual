@@ -2191,6 +2191,61 @@
         "sourceDownloadPath": "reviews/documentor-pipeline/authoritative-source.json",
         "scope": "The exact Visual 1.0.0 fixture remains unchanged as the review definition and preserves its participant/message IDs, labels, endpoints, kinds, order, title, question, and source locator. The fixture’s locator `helix:tools/documentor/docs/guide/developer/walkthrough.md` resolves to the HELIX repository path `tools/documentor/docs/guide/developer/walkthrough.md`; its SHA-256 exactly matches the checked-in byte-identical Markdown snapshot published here. The source’s Mermaid Sequence diagram confirms the participant aliases/labels, message captions, directions, and ordering. The message IDs and `lifelines` form are fixture projections. The surrounding walkthrough says `check` writes nothing to disk, but no check run or current deployment is claimed. Other prose steps and test evidence in the walkthrough are outside this selected Sequence view."
       }
+    },
+    {
+      "id": "helix-activities",
+      "title": "HELIX’s activities",
+      "description": "A source-preserving review of seven HELIX activity directory names, retaining the original Visual chain as an authored projection.",
+      "kind": "flow",
+      "form": "pipeline",
+      "definitionPath": "fixtures/visual/inventory/helix-activities.json",
+      "definitionSha256": "7aba4b411ded096e0d491b5d5a1a7d70b4a8e5dada68a083282dc9b813dd7bfe",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/helix-activities.json",
+          "sha256": "7aba4b411ded096e0d491b5d5a1a7d70b4a8e5dada68a083282dc9b813dd7bfe",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies seven activity IDs, labels, directory details, six directed chain edges, and the title, question, and source locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/activities-directory-index.json",
+          "sha256": "ac0e5a9c426199c86ede99cbc427cf39324cd71cc4dc2024fa188d2da546d78b",
+          "pointer": "Direct child directory names of workflows/activities",
+          "label": "HELIX directory-name index",
+          "originalLocator": "helix:workflows/activities",
+          "resolvedSource": "helix/workflows/activities",
+          "observedRevision": "f8e8a50cb26b8a3aa45404fa68a5071fad2a461d",
+          "description": "A deterministic index of the seven direct child Git tree entries at the recorded HELIX revision. It records names only and does not reproduce the fixture’s declared directory digest or snapshot activity contents."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/helix-activities.json",
+          "sha256": "7aba4b411ded096e0d491b5d5a1a7d70b4a8e5dada68a083282dc9b813dd7bfe",
+          "outputPath": "reviews/helix-activities/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/activities-directory-index.json",
+          "sha256": "ac0e5a9c426199c86ede99cbc427cf39324cd71cc4dc2024fa188d2da546d78b",
+          "outputPath": "reviews/helix-activities/activity-directory-index.json",
+          "mediaType": "application/json",
+          "description": "Exact name-only index and provenance receipt for the locally resolved HELIX activities directory."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/helix-activities.json",
+        "sourceSha256": "7aba4b411ded096e0d491b5d5a1a7d70b4a8e5dada68a083282dc9b813dd7bfe",
+        "documentId": "visual:helix-activities",
+        "visualId": "helix-activities",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-activities/authoritative-source.json",
+        "scope": "The exact Visual 1.0.0 fixture remains unchanged as the review definition and preserves seven activity IDs, labels, directory details, six directed edges, order, title, question, and source locator. The locator `helix:workflows/activities` resolves locally to the HELIX repository path `workflows/activities`; the recorded checkout revision is f8e8a50cb26b8a3aa45404fa68a5071fad2a461d. Its direct child directory names match the fixture details, as recorded in a separately hashed name-only index. The fixture’s declared directory digest sha256:8cc83bfd0f7e7788b14ac88920dc4bfa5d7efd481e1e77ee26d9144d44a3481c is preserved but its byte-level recipe was not reproduced; the index does not claim a byte match. The six-edge chain and its order remain fixture-authored projection; directory numbering does not make the chain a mandatory execution order, and Iterate documentation describes feedback into earlier work. No activity roles, statuses, concurrency, back-edges, or current operational claims are added."
+      }
     }
   ]
 }

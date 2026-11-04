@@ -1168,3 +1168,30 @@ visual inspection qualify the source; G/M retain precise subset refusals. Origin
 Visual 1.0/cited Markdown and public/model boundaries remain intact. No new map kind,
 semantic field or activation/duration inference is introduced. Previous holds are
 resolved; cycle 39 is complete pending commit and cycle 40 remains commit-gated.
+
+
+Cycle 40 focused checkpoint: source 2/33 preserves exact Visual 1.0 and binds a
+separately hashed name-only directory index, explicitly not a reproduction of the
+historical declared directory digest. G11/M10 qualify. The bounded Lini implicit
+DAG corridor policy changes only graphs without authored edge labels; every string
+label retains previous spacing, explicit root layout bypass and caller direction
+remain intact. Renamed four-node LR/TB, labeled and explicit-order compiler
+controls pass (23 tests); native regression 29/319 passes. The actual Lini candidate
+qualifies 13 checks and is visually approved with all seven cards/six straight
+arrows readable. No threshold, topology, vocabulary or public map change is made;
+C089 is unchanged. Full gates remain pending and cycle 40 is incomplete.
+
+
+Cycle 40 closeout: all 18 gates pass; full 1,004/0, 25,871 assertions, 184 files,
+199.59s. Reviews contain 39 entries, 87 qualified, eight unqualified,
+22 unsupported, zero execution failures, 285 assets, 95 native SVG/PNG replay
+pairs, 34 authoritative sources and five captures. All 39/39 and selected 1/39 UI
+retain shared controls; catalog 214 SVG and showcase 46 SVG/PNG previews (23 renders)
+pass Chromium 153 with zero errors. Source 2/33, compiler 23 passed and native
+regression 29/319 pass. Fresh G11/M10/L13 checks and independent all-target visual
+inspection qualify complete cards/details/topology. Private absent-caption spacing
+retains labeled source byte identity and explicit layout/direction controls.
+Original source is unchanged; the index's own hash is not the unreproduced historic
+directory digest. No mandatory/current workflow semantics or new model field is
+introduced, no catalog is vendored, and C089 remains unchanged. Previous holds are
+resolved; cycle 40 is complete pending commit and cycle 41 remains commit-gated.

@@ -4019,6 +4019,76 @@ self-call criteria describe conformance rather than private placement constants.
 All prior checkpoint holds are resolved. Cycle 39 is complete pending its
 per-document commit; cycle 40 must not begin before that commit.
 
+### Fortieth-cycle scope — HELIX activity projection
+
+Cycle 39 is committed as `1380ac1`. Cycle 40 reviews the exact Visual 1.0 source
+`fixtures/visual/inventory/helix-activities.json`: seven activity nodes with exact
+00–06 directory details and six explicit directed chain edges. Preserve its IDs,
+labels, details, question and edge order/topology without adding activity roles,
+statuses, concurrency, iteration/back edges or mandatory execution requirements.
+The cited `helix:workflows/activities` directory is available locally with the
+seven matching directories. Its declared digest requires a reproducible directory
+snapshot/recipe audit before claiming a byte match; matching names alone are not
+such proof. The chain remains an authored visual projection, not a claim that all
+HELIX work must execute those phases serially or reflect current tool behavior.
+
+Evaluate existing generic pipeline plans and actual native caption/field fit first.
+No portable vocabulary gap is indicated. Exact alias is preferred unless a concrete
+relevant source omission warrants a separate source-backed definition preserving
+original bytes. Data-only gates may reuse unchanged corpus evidence while requiring
+fresh source/native case, review replay, site/selected UI with shared controls and
+public/package boundaries. Any shared renderer/proof/UI change reopens applicable
+full gates. Cycle 40 remains in progress; cycle 41 waits for its commit.
+
+### Cycle 40 focused checkpoint — caption-aware private DAG spacing
+
+Source audit preserves the exact Visual 1.0 fixture as authoritative alias. A
+separately hashed small JSON index records only the seven local directory names
+and observed revision/tree identity; it does not reproduce the declared directory
+digest or vendor activity contents. The six-edge chain is fixture-authored
+projection, not mandatory universal sequencing; no optionality, feedback edge or
+current operational claim is inferred. Source focus passes 2/33.
+
+Graphviz11/Mermaid10 qualify. Original Lini LR and explicit TB failed fitted font
+legibility. The approved private LR candidate uses a compact rank corridor for
+existing eligible implicit flat DAGs with no authored edge label; any string label,
+including empty string, retains the prior corridor. Explicit root layout bypass
+and caller direction remain authoritative. The production candidate qualifies all
+13 native checks at a 2348×418 native extent and independently viewed 1600×900 PNG,
+with seven readable cards and six straight short arrows. More compact experimental
+spacing produced detours and is not retained. Labeled overview/canary source byte
+identity is retained; the overview's previous limitations are not reclassified.
+
+Compiler focus passes 23 tests, including renamed four-node, LR/TB, labeled and
+explicit-order controls. Existing native quality passes 29/319; type/source/diff
+checks pass. This is a private placement improvement with no new semantic field,
+map kind, public support promise or C089 algorithm mandate. Full applicable gates
+remain pending; cycle 40 is incomplete and cycle 41 remains commit-gated.
+
+### Cycle 40 closeout — complete, ready for commit
+
+All 18 gates pass. The final full suite is 1,004 passed, zero failed, 25,871
+assertions across 184 files in 199.59s. Source/type/build/fetch, package consumers,
+public browser, native execution, catalog, showcase/replay, reviews/replay, site
+and full/selected UI pass. Fresh reviews contain 39 entries, 87 qualified, eight
+unqualified, 22 unsupported, zero execution failures, 285 assets, 95 native SVG
+plus 95 PNG replays, 34 authoritative-source records and five captures. All-entry
+39/39 and selected 1/39 UI preserve shared controls; catalog 214 SVG and showcase 46
+SVG/PNG previews (23 renders) pass Chromium 153 with zero errors.
+
+Source 2/33, compiler 23 passed and native regression 29/319 pass. Fresh built
+Graphviz 11/Mermaid 10/Lini 13 required checks pass and all three PNGs are independently
+visually approved: seven exact activity cards/details and six clear directed links.
+The absent-caption implicit-DAG corridor is private target placement; labeled
+C32/canary source byte identity and explicit direction/layout controls remain
+intact. Implementation audit finds no example/business-name branches. No new
+model field, map kind or semantic interpretation is introduced; C089 is unchanged.
+The original Visual fixture remains immutable. The name-only index has its own
+hash and recorded scope, explicitly not a reproduction of the historical declared
+directory digest; no HELIX catalog content is vendored and no mandatory/current
+workflow claim is made. All earlier holds are resolved. Cycle 40 is complete pending
+its per-document commit; cycle 41 must not begin before that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -4039,8 +4109,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is complete, ready for its per-document commit;
-cycles 40–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is complete, ready for its per-document commit;
+cycles 41–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

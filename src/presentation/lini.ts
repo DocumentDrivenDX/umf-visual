@@ -250,7 +250,9 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
   const dagLayers=dagRanks?Array.from({length:Math.max(0,...dagRanks.values())+1},(_,rank)=>nodes.filter(node=>dagRanks.get(node.id)===rank)):[];
   const dagNodeWidths=new Map(nodes.map(node=>[node.id,Math.max(240,estimateTextWidth(node.label)+48,node.detail?estimateTextWidth(node.detail)+48:0)]));
   const dagNodeHeight=(node:VisualNode)=>72+(node.detail?28:0)+(node.role==='process'&&node.label!=='Process'&&node.detail!=='Process'?18:0);
-  const dagRowGap=40,dagColumnGap=176,dagRankGap=176,dagPadding=36;
+  // Unlabelled native links need only a modest rank corridor. Keep the wider
+  // spacing whenever a caption is authored so the pinned renderer has room to route it.
+  const dagRowGap=40,dagColumnGap=176,dagRankGap=edges.every(edge=>edge.label===undefined)?80:176,dagPadding=36;
   const dagColumnWidths=dagLayers.map(layer=>Math.max(0,...layer.map(node=>dagNodeWidths.get(node.id)!)));
   const dagLayerWidths=dagLayers.map(layer=>direction==='LR'?Math.max(0,...layer.map(node=>dagNodeWidths.get(node.id)!)):layer.reduce((sum,node)=>sum+dagNodeWidths.get(node.id)!,0)+Math.max(0,layer.length-1)*dagColumnGap);
   const dagLayerHeights=dagLayers.map(layer=>direction==='LR'?layer.reduce((sum,node)=>sum+dagNodeHeight(node),0)+Math.max(0,layer.length-1)*dagRowGap:Math.max(0,...layer.map(dagNodeHeight)));

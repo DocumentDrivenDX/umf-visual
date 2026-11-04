@@ -22,6 +22,22 @@ describe('Lini presentation compiler',()=>{
   expect(mirrored.source).toContain('|rect#message-caption1| "inspect"');
  });
 
+ it('uses compact implicit rank spacing only when no edge caption needs a routing corridor',()=>{
+  const graph={id:'renamed-unlabelled-flow',kind:'flow' as const,form:'pipeline' as const,question:'Where does work go?',nodes:[{id:'seed',label:'Seed'},{id:'shape',label:'Shape'},{id:'verify',label:'Verify'},{id:'publish',label:'Publish'}],edges:[{id:'seed-shape',from:'seed',to:'shape'},{id:'shape-verify',from:'shape',to:'verify'},{id:'verify-publish',from:'verify',to:'publish'}]};
+  const source=document(graph);
+  const horizontal=compilePresentation(source,{backend:'lini',direction:'LR'});expect(horizontal.ok).toBe(true);if(!horizontal.ok)return;
+  expect(horizontal.source).toContain('direction: row;');expect(horizontal.source).toContain('width: 1272;');
+  expect(horizontal.source).toContain('|box#n1| "Seed" { pin: center; translate: -480 0;');expect(horizontal.source).toContain('|box#n4| "Publish" { pin: center; translate: 480 0;');
+  expect(horizontal.elementMap.filter(item=>item.kind==='edge').map(item=>item.logicalId)).toEqual(graph.edges.map(edge=>edge.id));
+  const vertical=compilePresentation(source,{backend:'lini',direction:'TB'});expect(vertical.ok).toBe(true);if(!vertical.ok)return;
+  expect(vertical.source).toContain('direction: column;');expect(vertical.source).toContain('height: 648;');expect(vertical.source).not.toContain('width: 1272;');
+  expect(vertical.source.indexOf('|box#n1|')).toBeLessThan(vertical.source.indexOf('|box#n2|'));
+  const labelled=compilePresentation(document({...graph,edges:[{...graph.edges[0]!,label:'prepares'},...graph.edges.slice(1)]}),{backend:'lini'});expect(labelled.ok).toBe(true);if(!labelled.ok)return;
+  expect(labelled.source).toContain('width: 1560;');expect(labelled.source).toContain('"prepares"');
+  const explicit=compilePresentation(document({...graph,layout:{kind:'flow',direction:'LR',order:['publish','verify','shape','seed']}}),{backend:'lini'});expect(explicit.ok).toBe(true);if(!explicit.ok)return;
+  expect(explicit.source).toContain('direction: row;');expect(explicit.source).not.toContain('width: 1272;');expect(explicit.source.indexOf('|box#n4|')).toBeLessThan(explicit.source.indexOf('|box#n1|'));
+ });
+
  it('emits native nested groups, safe labels, node details and scoped connections',()=>{
   const source=document({id:'nested',kind:'flow',form:'network',question:'Which group contains the service?',title:'Service topology',groups:[{id:'services',label:'Services',detail:'Owned boundary',role:'zone'},{id:'workers',label:'Workers',parent:'services',role:'lane'}],nodes:[{id:'api',label:'API "front"',detail:'Public endpoint',role:'actor',group:'services'},{id:'worker',label:'Worker',role:'own',group:'workers'},{id:'db',label:'Database',role:'store'}],edges:[{id:'read',from:'worker',to:'db',label:'reads',kind:'data'}]});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
