@@ -40,32 +40,40 @@ export function assertReplayedQualityMatches(input:{exampleId:string;backend:Pre
 export function requiredPresentationChecks(backend:PresentationBackend,visual:Visual):string[]{
  const checks=['native-source-hash','document-visual-present','native-svg-viewbox','presentation-svg-fit','presentation-clipping','presentation-font-legibility','presentation-text-overlap'];
  if(visual.layout?.kind==='circular')checks.push('presentation-circular-layout');
- if(backend==='graphviz')checks.push(...(visual.kind==='state'?['graphviz-native-ast','graphviz-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['graphviz-native-ast','graphviz-timeline-events-and-axis']:['graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order']),...(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout?['graphviz-zoned-tier-direction']:[]));
- else if(backend==='lini')checks.push(...(visual.kind==='comparison'&&visual.form==='before-after'
-  ?['lini-native-ast','lini-native-carriers','lini-before-after-values-and-ownership']
-  :visual.kind==='comparison'&&visual.form==='quadrant'
-  ?['lini-native-ast','lini-native-carriers','lini-quadrant-coordinate-ownership']
-  :visual.kind==='metric'&&visual.form==='meter'
-  ?['lini-meter-value-and-reference-geometry']
-  :visual.kind==='metric'&&visual.form==='stat'
-  ?['lini-native-ast','lini-native-carriers','lini-stat-events-and-date-scale']
-  :visual.kind==='metric'&&visual.form==='bar'
-  ?['lini-native-ast','lini-native-carriers','lini-category-bar-values-and-category-ownership']
-  :visual.kind==='metric'&&visual.form==='line'
-  ?['lini-native-ast','lini-trend-series-and-date-value-geometry']
-  :visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')
-  ?['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-timeline-events-and-date-scale','lini-entity-field-rows']
-  :visual.kind==='timeline'&&visual.form==='roadmap'
-  ?['lini-native-ast','lini-native-carriers','lini-roadmap-period-lane-span-ownership']
-  :visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
-  ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']
-  :['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows']),
-  ...(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout?['lini-zoned-tier-columns']:[]),
-  ...(visual.kind==='flow'&&(visual.form==='pipeline'||visual.form==='network')&&!visual.layout&&!(visual.groups?.length)&&
-    (visual.nodes??[]).every(node=>!node.group&&!node.parent)&&
-    directedDagRanks((visual.nodes??[]).map(node=>node.id),(visual.edges??[]).filter(edge=>edge.kind!=='return'))
-    ?['lini-directed-flow-dependency-ranks']:[]));
- else checks.push(...(visual.kind==='state'?['mermaid-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['mermaid-timeline-event-ledger']:['mermaid-native-node-carriers',...(visual.form==='entities'?['mermaid-er-fields-and-relations']:[...(visual.kind==='flow'?['mermaid-flow-paths']:[]),'mermaid-containment-and-order'])]));
+ if(backend==='graphviz'){
+  checks.push(...(visual.kind==='state'?['graphviz-native-ast','graphviz-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['graphviz-native-ast','graphviz-timeline-events-and-axis']:['graphviz-native-ast','graphviz-native-carriers','graphviz-edge-endpoints-and-paths',visual.form==='entities'?'graphviz-entity-field-rows':'graphviz-containment-and-order']));
+  if(visual.kind==='structure'&&visual.form==='nested')checks.push('nested-native-carriers','nested-native-captions','nested-native-containment','nested-no-synthetic-links');
+  if(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout)checks.push('graphviz-zoned-tier-direction');
+ }else if(backend==='lini'){
+  const liniChecks=visual.kind==='structure'&&visual.form==='nested'
+   ?['lini-native-ast','lini-native-carriers','lini-nested-source-node-identity','lini-nested-parent-containment']
+   :visual.kind==='comparison'&&visual.form==='before-after'
+   ?['lini-native-ast','lini-native-carriers','lini-before-after-values-and-ownership']
+   :visual.kind==='comparison'&&visual.form==='quadrant'
+   ?['lini-native-ast','lini-native-carriers','lini-quadrant-coordinate-ownership']
+   :visual.kind==='metric'&&visual.form==='meter'
+   ?['lini-meter-value-and-reference-geometry']
+   :visual.kind==='metric'&&visual.form==='stat'
+   ?['lini-native-ast','lini-native-carriers','lini-stat-events-and-date-scale']
+   :visual.kind==='metric'&&visual.form==='bar'
+   ?['lini-native-ast','lini-native-carriers','lini-category-bar-values-and-category-ownership']
+   :visual.kind==='metric'&&visual.form==='line'
+   ?['lini-native-ast','lini-trend-series-and-date-value-geometry']
+   :visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')
+   ?['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-timeline-events-and-date-scale','lini-entity-field-rows']
+   :visual.kind==='timeline'&&visual.form==='roadmap'
+   ?['lini-native-ast','lini-native-carriers','lini-roadmap-period-lane-span-ownership']
+   :visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
+   ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']
+   :['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows'];
+  checks.push(...liniChecks);
+  if(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout)checks.push('lini-zoned-tier-columns');
+  const canRankFlow=visual.kind==='flow'&&(visual.form==='pipeline'||visual.form==='network')&&!visual.layout&&!(visual.groups?.length)&&(visual.nodes??[]).every(node=>!node.group&&!node.parent);
+  if(canRankFlow&&directedDagRanks((visual.nodes??[]).map(node=>node.id),(visual.edges??[]).filter(edge=>edge.kind!=='return')))checks.push('lini-directed-flow-dependency-ranks');
+ }else{
+  checks.push(...(visual.kind==='state'?['mermaid-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['mermaid-timeline-event-ledger']:['mermaid-native-node-carriers',...(visual.form==='entities'?['mermaid-er-fields-and-relations']:[...(visual.kind==='flow'?['mermaid-flow-paths']:[]),'mermaid-containment-and-order'])]));
+  if(visual.kind==='structure'&&visual.form==='nested')checks.push('nested-native-carriers','nested-native-captions','nested-native-containment','nested-no-synthetic-links');
+ }
  if(backend!=='lini'&&visual.nodes?.some(node=>node.ports?.length))checks.push(backend==='graphviz'?'graphviz-node-port-rows':'mermaid-labeled-port-fallbacks');
  return checks.sort();
 }

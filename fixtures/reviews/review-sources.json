@@ -1460,6 +1460,72 @@
         "sourceDownloadPath": "reviews/beacon-deployment/authoritative-source.json",
         "scope": "This exact UMF fixture JSON is the review definition. It retains all thirteen node IDs, labels, details, roles, statuses, and five authored zones with tier ordering and present details; all fifteen relations induced by endpoints in the selected `deployment` view are preserved, including the return kind, `why` text, and unknown status. Title, question, takeaway, audience, and historical source locator remain source-authored. The exact architecture-model TOML is separately cited and downloadable; it labels itself fictional and supplies the selected elements' zone assignments and tiers. No elements from other views or journey steps are added, and neither source establishes a deployed or current Beacon system."
       }
+    },
+    {
+      "id": "beacon-estate-landscape",
+      "title": "Support tools estate",
+      "description": "The exact nested Visual fixture for the fictional estate, its four systems, and Beacon’s five application containers.",
+      "kind": "structure",
+      "form": "nested",
+      "definitionPath": "fixtures/reviews/definitions/beacon-estate-landscape.json",
+      "definitionSha256": "791e157a41f4bae00b2a350cc2d506337a278a973dec1c8c4bfa6740c050607d",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-estate-landscape.json",
+          "sha256": "47a6ec51e97ccef53755874423d80975526cf05a381432cddbc6f92518e69063",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact original Visual 1.0.0 fixture supplies the ten node identities, parent forest, original fields, caveat, and source locator. It remains byte-for-byte unchanged."
+        },
+        {
+          "path": "fixtures/visual/sources/estate/estate.toml",
+          "sha256": "fba6a89d5fb778b126ed386fab82eb92759d04240522073ef48c363fbd7bd59a",
+          "pointer": "/system",
+          "label": "Fictional estate source",
+          "description": "The exact TOML bytes name the four systems and example repositories and supply the estate title and takeaway. The file identifies the estate as fictional."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "pointer": "/view/containers",
+          "label": "Fictional Beacon architecture source",
+          "description": "The exact TOML bytes identify the five selected application containers in the Beacon layer and also show the excluded sign-in proxy and Beacon data stores. The source labels its architecture model fictional."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-estate-landscape.json",
+          "sha256": "47a6ec51e97ccef53755874423d80975526cf05a381432cddbc6f92518e69063",
+          "outputPath": "reviews/beacon-estate-landscape/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes; the reviewed omission is in a separate definition."
+        },
+        {
+          "path": "fixtures/visual/sources/estate/estate.toml",
+          "sha256": "fba6a89d5fb778b126ed386fab82eb92759d04240522073ef48c363fbd7bd59a",
+          "outputPath": "reviews/beacon-estate-landscape/estate.toml",
+          "mediaType": "application/toml",
+          "description": "Exact fictional estate source TOML bytes named by the original Visual fixture."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "outputPath": "reviews/beacon-estate-landscape/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact fictional architecture-model TOML bytes supporting the selected Beacon parts and the stated omission."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-estate-landscape.json",
+        "sourceSha256": "47a6ec51e97ccef53755874423d80975526cf05a381432cddbc6f92518e69063",
+        "documentId": "visual:beacon-estate-landscape",
+        "visualId": "beacon-estate-landscape",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-estate-landscape/authoritative-source.json",
+        "scope": "The original UMF fixture remains unchanged and authoritative for ten authored node identities and fields, with four systems nested under the estate and five Beacon application containers nested under Beacon; it has no authored edges and retains its original caveat. This separate reviewed definition adds a source-backed omission: the Beacon container view also includes the sign-in proxy and Beacon database, job queue, and attachment store, while this landscape shows only the five application containers in the Beacon layer. The estate TOML and architecture-model TOML both identify fictional examples; neither describes a current organization or deployed estate."
+      }
     }
   ]
 }

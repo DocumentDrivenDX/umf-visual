@@ -8,6 +8,7 @@ import {directedDagRanks} from './dag-layout';
 import {orderTiered} from './tier-layout';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
 import {compileLiniSequence,compileLiniTree} from './lini-rich';
+import {compileLiniNestedPresentation} from './lini-nested';
 import {compileLiniTimelinePresentation} from './lini-timeline';
 import {stateTransitionCaption,validateStateMachineScope} from './state';
 
@@ -189,6 +190,7 @@ function fieldReference(nodeId:string,fieldName:string|undefined,fieldId:string|
 
 /** Emit a deterministic, readable Lini source view; renderer effects stay in Lini. */
 export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):PresentationPlan|PresentationFailure{
+ if(visual.kind==='structure'&&visual.form==='nested')return compileLiniNestedPresentation(visual,direction);
  if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones'))return compileLiniTimelinePresentation(visual);
  if(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'){
   try{return visual.kind==='sequence'?compileLiniSequence(visual):compileLiniTree(visual,direction);}

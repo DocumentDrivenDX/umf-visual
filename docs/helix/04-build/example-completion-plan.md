@@ -2785,6 +2785,89 @@ No vocabulary, current deployment or host capability expansion is inferred.
 Commit follows in this change; git history is authoritative. Cycle 28 remains
 pending until cycle 27 is committed; this resolves all earlier checkpoint holds.
 
+### Twenty-eighth-cycle scope — fictional nested estate
+
+Cycle 28 implementation and verification are complete, ready for commit, using original authoritative source
+`fixtures/visual/inventory/beacon-estate-landscape.json`, SHA-256
+`47a6ec51e97ccef53755874423d80975526cf05a381432cddbc6f92518e69063`.
+Originating fictional estate TOML matches declared digest
+`fba6a89d5fb778b126ed386fab82eb92759d04240522073ef48c363fbd7bd59a`;
+referenced Beacon architecture evidence supplies only its selected parts. Audit
+source completeness before alias/derivation. Preserve ten node identities, estate
+parent over four systems and Beacon parent over five parts, exact labels/details/
+roles/statuses and authored omission of other systems' internals. No edges are
+authored; containment must not imply dependencies or invented semantic groups.
+
+Existing node.parent vocabulary suffices. Native container carriers retain logical
+node identity, exact metadata and actual nested enclosure; independent AST/SVG
+proof checks direct/transitive containment, sibling separation and parent-caption
+ownership/clearance. Reusable family modules remain target adapters, with no
+fixture-specific dispatch. Applicable runtime/public/native/catalog gates follow
+actual changes; commit cycle 28 before starting cycle 29.
+
+For future data-only cycles, a generic UI example-ID filter may reduce repeated
+unchanged per-case inspection only while always running common controls and full
+manifest/source/native-replay validation. Shared UI/runtime/proof changes still
+require the complete affected cohort. No filter implementation is part of this
+checkpoint, and existing AGENTS/source/native requirements are unchanged.
+
+### Twenty-eighth-cycle focused containment checkpoint
+
+Original JSON remains immutable at 47a6ec51…9063. Separate reviewed definition
+`791e157a41f4bae00b2a350cc2d506337a278a973dec1c8c4bfa6740c050607d`
+adds only selected-app-parts scope caveat; original estate caveat, ten nodes and
+all facts/parent relations remain unchanged. Source/provenance checks pass six
+tests/113 assertions with independent original/estate/Beacon source bindings.
+
+Private source-ordered forest indexing and separate native family adapters preserve
+one logical node map per container/leaf, true enclosure and no synthetic edges.
+Nested flow root-layout scope follows core validation; tree hints remain core
+invalid. Unsupported valid target layout subsets use explicit presentation codes,
+while invalid/empty/internal/mixed diagnostics remain blocking. G/M tracked native
+controls pass four tests/48 assertions and pure controls seven tests/57 assertions.
+Graphviz qualifies 15/15 checks; Mermaid retains font-only unqualified quality,
+with native ownership/containment/no-link obligations passing. Lini native controls
+pass five tests/35 assertions, including different-count/two-root flow order,
+question-only and quoted multiline arrow text. Dynamic inventory/nearest-owner
+metadata replaces fixture-count assumptions; hidden/moved/phantom controls persist.
+Final Lini inventory/regressions, classifier regression check and all broader
+required gates remain pending; cycle 28 is incomplete.
+
+### Twenty-eighth-cycle closeout — 2026-11-03
+
+The final isolated full suite passes **928 tests, zero failures, 23,887 assertions
+across 161 files in 169.82 seconds**. All required source/type/build, fetch/native,
+public-browser, packed Bun/Node consumer, catalog/showcase/review/site and shared
+UI gates pass without browser errors. Public browser covers 27 reviewed definitions/
+63 plans. Catalog covers 53 items; showcase nine examples/23 qualified variants and
+23 SVG/PNG replays. Reviews cover 27 documents/60 qualified plus three unqualified
+native-quality variants, zero execution failures, 189 assets and 63 SVG/PNG replays.
+Review UI passes 27 examples, catalog UI 53 items and showcase UI nine examples/
+23 qualified variants. Estate Graphviz qualifies 15 checks and Lini qualifies all
+required/general checks; Mermaid retains only its exact font-quality failure.
+
+Original JSON remains unchanged at SHA-256
+`47a6ec51e97ccef53755874423d80975526cf05a381432cddbc6f92518e69063`.
+Separate reviewed definition
+`791e157a41f4bae00b2a350cc2d506337a278a973dec1c8c4bfa6740c050607d`
+adds only selected-app-parts scope caveat, preserving original caveat/nodes/parent
+facts and separately bound fictional estate/Beacon snapshots. Root inspected actual
+Graphviz PNG `41f2b4d669a38ab0405bf15af3da12b90897be0e2ceddf2bdc87ea2af4b0350d`
+and Lini PNG `19cc06b38fad938114b1f29a55f231d9361f68996580ad0bcd0715bb1d0de836`.
+
+Final source/model/interface/proof/modularity audit passes. A pure containment
+forest index and native family adapters retain one logical identity per container/
+leaf, actual nested enclosure, exact owned metadata and no invented edges/groups.
+Native AST/DOM plus SVG geometry and hidden/moved/phantom controls independently
+qualify ownership; different-count/multi-root/question-only controls remove fixture
+assumptions. Valid flow root hints retain bounded target support; core-invalid tree
+hints and unknown layout keys preserve public validation, while private capability
+refusals remain precisely located. Classifier regression is restored and mixed
+quality replay remains strict. No portable vocabulary, current organization or
+host capability expansion is claimed. Commit follows in this change; git history
+is authoritative. Cycle 29 remains pending until cycle 28 is committed; this resolves
+all earlier checkpoint holds.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -2800,7 +2883,8 @@ Cycle 19 is committed as `122e5c6`; cycle 20 is committed as `adefa85`.
 Cycle 21 is committed as `b9257c8`; cycle 22 is committed as `ae58a76`.
 Cycle 23 is committed as `8efc657`; cycle 24 is committed as `5af7b4c`.
 Cycle 25 is committed as `2374106`; cycle 26 is committed as `2bd17fd`.
-Cycle 27 is complete and ready for commit; cycles 28–68 remain pending.
+Cycle 27 is committed as `05b2b84`; cycle 28 is complete and ready for commit.
+Cycles 29–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

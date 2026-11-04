@@ -17,6 +17,7 @@ import {verifyLiniBarPresentationQuality} from './lini-bar-quality';
 import {verifyLiniTrendPresentationQuality} from './lini-trend-quality';
 import {verifyLiniBeforeAfterPresentationQuality} from './lini-before-after-quality';
 import {verifyLiniRoadmapPresentationQuality} from './lini-roadmap-quality';
+import {verifyLiniNestedPresentationQuality} from './lini-nested-quality';
 import {inspectLiniVisibleInk,type LiniVisibleInkReport} from './lini-visible-ink';
 
 type Box={x:number;y:number;width:number;height:number};
@@ -95,6 +96,7 @@ export async function verifyLiniPresentationQuality(
  const {document,plan}=input,sourceSha256=sha(plan.source),checks:PresentationQualityCheck[]=[];
  let visual:Visual|undefined;try{visual=getVisual(document);}catch{/* checked below */}
  if(visual?.kind==='timeline'&&visual.form==='roadmap')return verifyLiniRoadmapPresentationQuality(page,input);
+ if(visual?.kind==='structure'&&visual.form==='nested')return verifyLiniNestedPresentationQuality(page,input);
  if(visual&&(visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'))return verifyLiniRichPresentationQuality(page,input);
  if(visual?.kind==='comparison'&&visual.form==='quadrant')return verifyLiniQuadrantPresentationQuality(page,input);
  if(visual?.kind==='comparison'&&visual.form==='before-after')return verifyLiniBeforeAfterPresentationQuality(page,input);

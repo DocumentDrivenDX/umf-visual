@@ -721,3 +721,23 @@ or changed failure facts MUST fail verification. No individual quality threshold
 or proof obligation is waived. UI inspection/downloads MUST state native quality
 is not qualified and expose concrete source-bound limitations. Existing qualified
 rows retain every qualification requirement.
+
+
+## Native nested-node containment
+
+A bounded structure/nested profile MUST preserve each logical source node identity
+whether represented by a native container or leaf. Parent references require true
+native enclosure, without invented semantic groups or hierarchy edges. Native proof
+MUST bind exact node inventory, parent associations, direct/transitive bounds,
+disjoint siblings and owned captions/details/role/status; renderer helpers remain
+unmapped and may not hide phantom carriers. Metadata must belong to its nearest
+logical owner. Original full content survives native wrapping.
+
+A private source-ordered containment index MAY be shared across adapters without
+backend geometry or source mutation. For structure/nested, admitted flow root layout/order governs only direct roots;
+descendants retain source sibling order absent their own meaning. Tree layout
+remains restricted by core validation to structure/tree and is not admitted by
+this profile. Unsupported hints/content receive located accounting. Native AST and
+actual SVG containment/visible ownership are both required; source parsing alone
+cannot qualify a rendering. Missing/moved children, metadata or phantom carriers
+must fail independently. Existing general quality and mixed-outcome gates apply.

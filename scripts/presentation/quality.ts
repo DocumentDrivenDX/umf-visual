@@ -8,6 +8,7 @@ import type {PresentationElement,PresentationPlan} from '../../src/presentation'
 import {stateTransitionCaption} from '../../src/presentation/state';
 import {planDateHistoryEvents} from '../../src/presentation/timeline-layout';
 import {verifyLiniPresentationQuality} from './lini-quality';
+import {verifyNestedBrowserQuality} from './nested-quality';
 
 export interface PresentationQualityCheck {
  check:string;
@@ -68,6 +69,7 @@ export async function verifyPresentationQuality(
  await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden;background:#fff}#frame{width:1600px;height:900px;display:flex;align-items:center;justify-content:center}#frame svg{display:block;max-width:1600px;max-height:900px;width:auto;height:auto}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});
  await page.locator('#frame').evaluate((el,markup)=>{el.innerHTML=markup;},svg);
  await page.locator('#frame svg').evaluate(root=>{const element=root as SVGSVGElement;element.style.maxWidth='none';element.style.maxHeight='none';element.style.width='100%';element.style.height='100%';});
+ if(plan.backend!=='lini'&&visual.kind==='structure'&&visual.form==='nested')checks.push(...await verifyNestedBrowserQuality(page,{plan,visual,nativeAst:input.nativeAst}));
  const dom=await page.locator('#frame svg').evaluate((root)=>{
   const s=root as SVGSVGElement,view=s.viewBox.baseVal,rootRect=s.getBoundingClientRect();
   const normalize=(s:string)=>s.replace(/\s+/g,' ').trim();
@@ -197,8 +199,8 @@ export async function verifyPresentationQuality(
    checks.push(pass('graphviz-timeline-events-and-axis',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${visual.timeline?.events?.length??0} exact event/date cards have source-index ownership, nonoverlapping native carriers, and linear UTC-day x positions; the axis is undirected and unmapped.`));
   }else if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')){
    checks.push(pass('graphviz-timeline-events-and-axis',sourceSha256,false,'Graphviz JSON AST is required to bind every date-history event and the unmapped date-axis helper.'));
-  }else if(ast&&Array.isArray(ast.objects)&&Array.isArray(ast.edges)){
-   const objects=ast.objects,edges=ast.edges;
+  }else if(ast&&Array.isArray(ast.objects)&&(Array.isArray(ast.edges)||visual.kind==='structure'&&visual.form==='nested'&&!(visual.edges?.length))){
+   const objects=ast.objects,edges=Array.isArray(ast.edges)?ast.edges:[];
    const byName=new Map(objects.map(o=>[objectName(o),o]));
    const carrier=(cls:string,title:string)=>dom.carriers.find(c=>c.cls.split(/\s+/).includes(cls)&&c.title===title);
    const fieldPortEntry=(port:string|undefined)=>port?plan.elementMap.find(e=>e.kind==='field'&&e.nativeId===port):undefined;
@@ -220,12 +222,14 @@ export async function verifyPresentationQuality(
    const missing:string[]=[];
    for(const e of plan.elementMap){
     if(e.kind==='visual'||e.kind==='reference'||e.kind==='field'||e.kind==='edge'||e.kind==='port')continue;
-    const title=e.kind==='group'||e.kind==='layer'?'cluster_'+e.nativeId:e.nativeId;
-    const cls=e.kind==='group'||e.kind==='layer'?'cluster':'node';
+    const nestedContainer=visual.kind==='structure'&&visual.form==='nested'&&visual.nodes?.some(node=>node.parent===e.logicalId);
+    const title=e.kind==='group'||e.kind==='layer'||nestedContainer?'cluster_'+e.nativeId:e.nativeId;
+    const cls=e.kind==='group'||e.kind==='layer'||nestedContainer?'cluster':'node';
     if(!carrier(cls,title))missing.push(`${e.kind} ${e.nativeId}`);
    }
    const expectedNodeElements=plan.elementMap.filter(e=>e.kind==='node'||e.kind==='entity');
-   const astNodeMissing=expectedNodeElements.filter(e=>!byName.has(e.nativeId)).map(e=>e.nativeId);
+   const byNativeId=new Map(objects.filter(object=>typeof object.id==='string').map(object=>[text(object.id),object]));
+   const astNodeMissing=expectedNodeElements.filter(e=>!byName.has(e.nativeId)&&!byNativeId.has(e.nativeId)).map(e=>e.nativeId);
    if(visual.kind==='flow')for(const node of visual.nodes??[]){
     const id=nativeIdForNode(plan,node.id),nodeSvg=id?carrier('node',id):undefined;
     if(!nodeSvg||!norm(nodeSvg.ownText.join(' ')).includes(norm(node.label)))missing.push(`node label ${node.id}`);
@@ -412,7 +416,10 @@ export async function verifyPresentationQuality(
     const semanticVisible=semanticEdges.length>0;if(semanticVisible)hierarchyProblems.push('stack contains a visible connector; only invisible layout constraints are qualified');
    }
    if(visual.form==='entities'){} // references are not containment edges.
-   if(visual.kind==='flow'||visual.form==='stack')checks.push(pass('graphviz-containment-and-order',sourceSha256,hierarchyProblems.length===0,hierarchyProblems.length?hierarchyProblems.join('; '):visual.form==='stack'?'Layer cluster geometry follows authored order; invisible constraints are excluded as semantic connections.':'Every nested group and grouped node is geometrically contained by its mapped native cluster.'));
+   if(visual.kind==='flow'||visual.form==='stack'||visual.kind==='structure'&&visual.form==='nested'){
+    if(visual.kind==='structure'&&visual.form==='nested'){const nested=checks.find(check=>check.check==='nested-native-containment');checks.push(pass('graphviz-containment-and-order',sourceSha256,nested?.result==='pass',nested?.details??'Nested native containment proof is missing.'));}
+    else checks.push(pass('graphviz-containment-and-order',sourceSha256,hierarchyProblems.length===0,hierarchyProblems.length?hierarchyProblems.join('; '):visual.form==='stack'?'Layer cluster geometry follows authored order; invisible constraints are excluded as semantic connections.':'Every nested group and grouped node is geometrically contained by its mapped native cluster.'));
+   }
   }
  }else if(plan.backend==='lini'){
   checks.push(...await verifyLiniPresentationQuality(page,{document,plan,nativeAst:input.nativeAst}));
@@ -478,7 +485,7 @@ export async function verifyPresentationQuality(
   }else{
   // Mermaid IDs are generated by Mermaid but preserve the compiler's safe native IDs.
   const blockCircular=visual.layout?.kind==='circular'&&plan.source.includes('\nblock-beta\n');
-  const mermaidNodeCarrier=(nativeId:string)=>dom.carriers.find(c=>blockCircular?c.id.endsWith('-'+nativeId):c.id.includes(`flowchart-${nativeId}-`)||c.id.includes(`entity-${nativeId}-`)||c.title===nativeId);
+  const mermaidNodeCarrier=(nativeId:string)=>{const logicalId=plan.elementMap.find(item=>item.kind==='node'&&item.nativeId===nativeId)?.logicalId;return dom.carriers.find(c=>blockCircular?c.id.endsWith('-'+nativeId):visual.kind==='structure'&&visual.form==='nested'&&visual.nodes?.some(node=>node.parent===logicalId)&&c.cls.split(/\s+/u).includes('cluster')&&c.id.endsWith('-'+nativeId))??dom.carriers.find(c=>blockCircular?c.id.endsWith('-'+nativeId):c.id.includes(`flowchart-${nativeId}-`)||c.id.includes(`entity-${nativeId}-`)||c.title===nativeId);};
   const missing:string[]=[];
   for(const e of plan.elementMap){
    if(e.kind==='visual'||e.kind==='reference'||e.kind==='field'||e.kind==='edge')continue;
@@ -487,8 +494,8 @@ export async function verifyPresentationQuality(
    if(!found)missing.push(`${e.kind} ${e.nativeId}`);
   }
   const expectedNodeLabels=plan.elementMap.filter(e=>e.kind==='node'||e.kind==='entity').map(e=>{
-   const index=Number(e.sourcePath.split('/').at(-1));
-   const label=e.kind==='entity'?visual.structure?.entities?.[index]?visual.nodes?.find(n=>n.id===visual.structure!.entities![index]!.node)?.label:undefined:visual.nodes?.[index]?.label;
+   const index=Number(e.sourcePath.split('/').filter(Boolean).at(-1)==='id'?e.sourcePath.split('/').filter(Boolean).at(-2):e.sourcePath.split('/').filter(Boolean).at(-1));
+   const label=e.kind==='entity'?visual.structure?.entities?.[index]?visual.nodes?.find(n=>n.id===visual.structure!.entities![index]!.node)?.label:undefined:visual.nodes?.find(node=>node.id===e.logicalId)?.label;
    const nodeId=e.kind==='entity'?visual.structure?.entities?.[index]?.node:e.logicalId;
    const node=visual.nodes?.find(n=>n.id===nodeId);
    const requiredText=node?.role==='process'?norm([label,node.detail,label==='Process'||node.detail==='Process'?undefined:'Process'].filter(Boolean).join(' ')):label??'';
@@ -662,6 +669,7 @@ export async function verifyPresentationQuality(
    }
    checks.push(pass('mermaid-containment-and-order',sourceSha256,problems.length===0,problems.length?problems.join('; '):visual.form==='stack'?'Mapped layer subgraphs contain their nodes and follow authored left-to-right geometry.':'Mapped Mermaid subgraphs geometrically contain each child group and grouped node.'));
   }
+  if(visual.kind==='structure'&&visual.form==='nested'){const nested=checks.find(check=>check.check==='nested-native-containment');checks.push(pass('mermaid-containment-and-order',sourceSha256,nested?.result==='pass',nested?.details??'Nested native containment proof is missing.'));}
   }
  }
 

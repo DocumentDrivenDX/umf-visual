@@ -825,3 +825,29 @@ failures, complete assets and native/PNG replay. Strict status/failure-set/hash/
 missing-proof/default-policy controls and visible modal limitations preserve every
 individual check, with execution failures blocking. Exact fictional source,
 portable vocabulary and historical deployment claims remain unchanged.
+
+
+## Nested-node containment conformance
+
+Verify container and leaf identities across renamed and different-count forests,
+multiple roots, question-only fallback, valid flow root order and source sibling
+order. Public layout controls must use createVisualDocument and compilePresentation
+so core-invalid tree hints cannot serve as qualification witnesses. Inspect actual native AST hierarchy and SVG enclosure rather than inferred
+edges or flattened DOM assumptions. Moved/escaped children, sibling overlap,
+hidden/moved metadata, parent-caption collisions and phantom leaves/containers must
+fail. Count actual native inventory with source-derived helper exclusions and
+exact nearest-owner metadata. Quoted arrow text must not count as an authored
+edge; no hierarchy links are synthesized. Preserve source/derived provenance,
+unknown content accounting and all general fit/clipping/font/overlap obligations.
+
+
+Cycle 28 closeout: final isolated suite passes 928 tests, zero failures and 23,887
+assertions across 161 files in 169.82 seconds. All required native/corpus/review/UI,
+public-browser, packed-consumer, source/type/build and actual source/model/interface
+checks pass. Generic nested containment preserves logical container/leaf identity,
+exact metadata, parent enclosure and source order without invented edges. Tracked
+AST/DOM/SVG ownership, hidden/moved/phantom and different-count/root-layout controls
+pass. Original fictional source is immutable; separate reviewed scope caveat and
+both originating snapshots are independently bound. G/L qualify; M retains its
+source-bound font-only unqualified result. No new vocabulary/current estate or
+host capability claim is introduced.

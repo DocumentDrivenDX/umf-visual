@@ -13,6 +13,7 @@ import {compileLiniBarPresentation} from './lini-bar';
 import {compileLiniTrendPresentation} from './lini-trend';
 import {compileLiniBeforeAfterPresentation} from './lini-before-after';
 import {compileLiniRoadmapPresentation} from './lini-roadmap';
+import {compileNestedPresentation} from './nested';
 import {orderTiered} from './tier-layout';
 
 export type PresentationBackend='graphviz'|'mermaid'|'lini';
@@ -108,7 +109,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  if(visual.layout?.kind==='circular'&&((visual.groups?.length??0)>0||(visual.nodes??[]).some(node=>node.group||node.parent)))return {ok:false,diagnostics:[diag('PRESENTATION_CIRCULAR_SCOPE',BASE+'/layout','Circular placement is currently qualified only for ungrouped root flow/network nodes; no nested-layout fallback is selected.')]};
  const rich=visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree';
  const supported=visual.kind==='flow'&&(visual.form==='network'||visual.form==='pipeline'||visual.form==='zoned')
-  ||visual.kind==='structure'&&(visual.form==='stack'||visual.form==='entities'||visual.form==='tree')
+  ||visual.kind==='structure'&&(visual.form==='stack'||visual.form==='entities'||visual.form==='tree'||visual.form==='nested')
   ||visual.kind==='sequence'&&(visual.form==='lifelines'||visual.form==='ladder')
   ||visual.kind==='state'&&visual.form==='machine'
   ||visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')
@@ -118,6 +119,7 @@ export function compilePresentation(document:Document,options:PresentationOption
  if(!supported)return {ok:false,diagnostics:[diag('PRESENTATION_FORM',BASE+'/form','No presentation projection is qualified for '+visual.kind+'/'+visual.form+'.')]};
 
  const backend=optionValues.backend as PresentationBackend,dir=(optionValues.direction??'LR') as 'LR'|'TB';
+ if(visual.kind==='structure'&&visual.form==='nested'&&backend!=='lini')return compileNestedPresentation(visual,backend,dir);
  if(visual.kind==='timeline'&&visual.form==='roadmap'){
   if(backend!=='lini')return {ok:false,diagnostics:[diag('PRESENTATION_BACKEND_SUBSET',BASE+'/form','This period-scaled lane roadmap is currently qualified only for the pinned Lini backend.')]};
   return compileLiniRoadmapPresentation(visual);
