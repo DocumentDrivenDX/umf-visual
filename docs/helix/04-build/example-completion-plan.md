@@ -4263,7 +4263,7 @@ and strict path/unrelated-node clearance. Do not apply DAG placement to a cyclic
 source by dropping a relation. Reuse existing family profiles first; no vocabulary
 gap is indicated. Data-only lean gates are appropriate only with an existing
 suitable target and unchanged shared code; otherwise apply full relevant gates.
-The rejected C42 grouped selector is not carried forward. Cycle 43 is complete, ready for its per-document commit;
+The rejected C42 grouped selector is not carried forward. Cycle 43 is committed as `3a5ece8`. Cycle 44 is complete, ready for its per-document commit;
 cycle 44 waits for its per-document commit.
 
 ### Cycle 43 semantic checkpoint — source-numbered relation walkthrough
@@ -4333,6 +4333,71 @@ No new semantic field, version, runtime/proof/UI policy or current evidence clai
 is introduced. C089 remains unchanged. All previous holds are resolved; cycle 43
 is complete pending its per-document commit and cycle 44 must wait for that commit.
 
+### Forty-fourth-cycle scope — HELIX deployment zones
+
+Cycle 43 is committed as `3a5ece8`. Cycle 44 reviews exact Visual 1.0 source
+`fixtures/visual/inventory/helix-deployment.json`: seven nodes, four zone groups
+with tiers 1–4 and seven labeled directed edges. The same exact cited TOML digest
+`6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2`
+contains an explicit deployment view with matching selection/title/takeaway and
+source zone/tier membership. Preserve every group, literal tier, role/status/detail,
+why/evidence and feedback relation without interpreting tiers as chronology or
+mandatory physical alignment. Optional documentor remains source-qualified host
+tooling, not a required HELIX component or current compliance claim.
+
+Audit the same selected relation step/note fields as C43: six source-numbered
+notes fit existing ordered steps without tag/when, and the unnumbered optional
+note fits when:optional. Prefer a separate same 1.0 review preserving original bytes
+and all other payload. Responsibility/job/layer prose from the source must remain
+scope-qualified; do not silently conflate another view or invent source facts.
+No new vocabulary is indicated. Evaluate existing generic zoned/tier policies and
+actual all-caption/group clearance; at least one target must be suitable, other
+native limitations retain honest receipts. Lean affected gates apply if data-only,
+full relevant gates if shared renderer/proof/UI changes. Cycle 44 is complete, ready for its per-document commit;
+cycle 45 waits for its per-document commit.
+
+### Cycle 44 focused freeze — data-only zoned walkthrough
+
+Source 2/58, type/source/diff pass. Independent payload comparison confirms the
+review adds only six exact numbered relation notes without tag/when and the exact
+optional seventh note; every non-step field equals original, including all four
+tier declarations/memberships. The separate journey is not substituted. No source
+fact, version or portable field changes beyond existing walkthrough capture.
+Fresh derived G13/M10 qualify and both PNGs are independently visually approved;
+literal tiers are visible without claiming mandatory physical ordering. L12/13
+retains the same caption/frame unqualified result. All native source bytes equal
+the original baseline, and static native omissions/shared UI focus inspection stay
+separately qualified.
+
+No production runtime/proof/UI changes are retained; C089 is unchanged. Apply the
+same 14 affected gates as C42/43, including fresh complete review replay and selected
+C44 UI with always-run shared controls/catalog UI. Retain unchanged C41 full1,016/0/
+26,023 assertions/showcase/all 40 UI and C42/43 fingerprint history, subject to fresh
+prior-entry identity verification. Cycle 44 remains in progress pending lean gates;
+cycle 45 remains commit-gated. No further Lini layout probe is included.
+
+### Cycle 44 closeout — complete, ready for commit
+
+All 14 affected gates pass: source 2/58/type/build, public browser/package,
+fetch/native/catalog, complete reviews/native+PNG replay/site, selected C44
+walkthrough UI with shared controls and catalog UI. Reviews contain 43 entries,
+93 qualified, 12 unqualified, 24 unsupported,zero execution failures, 315 assets,
+105 native SVG plus 105 PNG replays, 38 authoritative sources and five captures. UI passes
+Chromium 153 with zero errors. Fresh built G13/M10 PNGs are independently visually
+approved, with all seven nodes, four labeled literal tiers/memberships and seven
+relations readable. L retains the same endpoint/frame-caption unqualified receipt.
+No physical tier ordering guarantee is inferred.
+
+All 42 prior definition/native-source/SVG/PNG/status fingerprints are identical in
+`.cache/cycle 44-unchanged-reviews.json`, supporting retained C41 full 1,016/0/
+26,023 assertions/showcase/all 40 UI and fresh C42/43 evidence. No unchanged full
+suite or full cohort rerun is claimed. Original/version/groups/tiers and exact cited
+source remain intact; reviewed steps add six source-numbered notes without tag/when
+and the exact optional note, without journey substitution. No renderer/proof/UI/
+model change or new source fact is introduced. C089 remains unchanged. All holds
+are resolved; cycle 44 is complete pending its per-document commit and cycle 45
+must not begin before that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -4353,8 +4418,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is complete, ready for its per-document commit;
-cycles 44–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is complete, ready for its per-document commit;
+cycles 45–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

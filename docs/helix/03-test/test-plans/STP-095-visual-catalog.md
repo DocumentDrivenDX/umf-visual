@@ -1102,7 +1102,7 @@ Cycle 37 closeout: all 18 gates pass, full 987/0, 25,525 assertions, 179 files,
 196.64s. Reviews: 36 entries, 81 qualified, seven unqualified, 20 unsupported,
 264 assets and 88 native SVG/PNG replays; all 36/36 and selected 1/36 UI modes keep
 shared controls and no errors. Catalog/showcase UI pass. Source 3/118, compiler
-21/297, row proof 3/89 and legacy quality 29/319 pass. Original1.0 source remains
+21/297, row proof 3/89 and legacy quality 29/319 pass. Original 1.0 source remains
 exact. G/L are independently visually approved suitable stack views; Mermaid's
 rotated left-to-right band view and role/status omissions remain qualified limits,
 not authored LR semantics. No new model field or inferred topology is introduced.
@@ -1292,3 +1292,28 @@ optional note with exact relation focus; other payload/original/source bytes sta
 intact. Native bytes unchanged, shared UI walkthrough separately verified, no
 runtime/proof/model change; C089 unchanged. Previous holds are resolved; cycle 43
 is complete pending commit and cycle 44 remains commit-gated.
+
+
+Cycle 44 focused freeze: source 2/58/type/source/diff pass. Independent comparison
+confirms seven added walkthrough notes only: six exact numbered entries without
+tag/when and the exact optional seventh; all non-step fields, four tiers/membership
+and original 1.0 bytes remain intact. G13/M10 fresh derived visuals qualify and are
+independently approved; L12/13 retains exact caption/frame limitation. All native
+source bytes equal baseline, with static omission and shared focus-view evidence
+separate. No runtime/proof/UI/model change or physical-tier-order guarantee is
+introduced; C089 unchanged. Same 14 affected gates with fresh all-review replay and
+selected/shared UI are planned, retaining unchanged C41 full1,016/0/26,023/showcase/
+all 40 UI plus C42/43 fingerprint history. Cycle 44 is incomplete; cycle 45 commit-gated.
+
+
+Cycle 44 closeout: all 14 affected gates pass, source 2/58, public/package/native/
+catalog/all-review replay/site and selected walkthrough/shared UI covered. Reviews:
+43 entries, 93 qualified, 12 unqualified, 24 unsupported, zero execution failures,
+315 assets, 105 native SVG/PNG pairs, 38 authorities and five captures. Chromium 153
+UI is error-free; fresh G13/M10 visuals independently approved, L exact endpoint/
+frame-caption limit retained. All 42 prior entry fingerprints are identical,
+supporting retained C41 full1,016/0/26,023/showcase/all 40 UI plus C42/43 evidence.
+Original 1.0/source/groups/tiers remain exact; six numbered relation notes plus
+optional seventh preserve all other payload and do not substitute journey labels.
+No physical tier-order guarantee, shared-code/model change or C089 amendment.
+Previous holds resolved; cycle 44 complete pending commit, cycle 45 commit-gated.
