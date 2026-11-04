@@ -248,13 +248,48 @@ test('reviewed native interchange showcase preserves the original definition and
 test('UMF architecture stack has ordered memberships and introduces no directed edges',()=>{
  const example=manifest.examples.find(row=>row.id==='umf-architecture-stack')!;
  const v=visual(document(example));
+ expect(example.definitionPath).toBe('fixtures/showcase/definitions/umf-architecture-stack-reviewed.json');
  expect(v.kind).toBe('structure');expect(v.form).toBe('stack');expect(v.edges).toBeUndefined();
  expect(v.structure?.layers?.map(layer=>layer.label)).toEqual([
   'Authoring and consumers','Adapter boundary','Portable library','Versioned definitions','Native ecosystems'
  ]);
  expect(v.nodes?.map(node=>node.layer)).toEqual(['authors','adapters','library','vocabularies','ecosystems']);
+ expect(v.nodes?.map(node=>node.detail)).toEqual([
+  'Create, inspect, validate, compare and transform artifacts',
+  'Pair native parsers and serializers around explicit projections. Native output must pass native validation. Native semantics remain source-specific where no safe common mapping exists.',
+  'Model access, operations and diagnostics. Browser-compatible dependencies and packaged vocabularies; host I/O stays outside the library.',
+  'Versioned structural definitions and semantic specifications. Versions, validation, capabilities and fixtures. Package metadata is data; it does not authorize code execution.',
+  'Selected native parsers, compilers and serializers'
+ ]);
  const source=read(example.sources[0]!.path).toString('utf8');
  for(const fact of ['Schema authors and tooling','Native adapters','UMF library/tooling','Vocabulary packages','Native ecosystem tools'])expect(source).toContain(fact);
+});
+
+test('reviewed architecture stack preserves the original order and adds only selected component boundaries',()=>{
+ const example=manifest.examples.find(row=>row.id==='umf-architecture-stack')!;
+ const originalPath='fixtures/showcase/definitions/umf-architecture-stack.json';
+ const sourcePath='fixtures/showcase/sources/umf/architecture.md';
+ const originalBytes=read(originalPath),originalDoc=JSON.parse(originalBytes.toString('utf8')) as Document;
+ const reviewedDoc=document(example),expected=structuredClone(originalDoc) as any;
+ const source=read(sourcePath).toString('utf8');
+ const originalNodes=expected.extensions['umf.visual'].nodes;
+ originalNodes.find((node:any)=>node.id==='native-adapters').detail+='. Native output must pass native validation. Native semantics remain source-specific where no safe common mapping exists.';
+ originalNodes.find((node:any)=>node.id==='umf-library').detail+='. Browser-compatible dependencies and packaged vocabularies; host I/O stays outside the library.';
+ originalNodes.find((node:any)=>node.id==='vocabulary-packages').detail+='. Versions, validation, capabilities and fixtures. Package metadata is data; it does not authorize code execution.';
+ expect(reviewedDoc).toEqual(expected);
+ expect(originalDoc.vocabularies['umf.visual']?.version).toBe('1.0.0');
+ expect(originalNodes.map((node:any)=>node.label)).toEqual(['Schema authors and tooling','Native adapters','UMF library / tooling','Vocabulary packages','Native ecosystem tools']);
+ expect((originalDoc.extensions?.['umf.visual'] as any)?.edges).toBeUndefined();
+ for(const fact of [
+  'Browser-compatible dependencies and packaged vocabularies; host I/O stays outside the library',
+  'Package metadata is data; it does not authorize code execution',
+  'Native output must pass native validation',
+  'Native semantics remain source-specific where no safe common mapping exists'
+ ])expect(source).toContain(fact);
+ expect(example.sources.map(ref=>ref.path)).toContain(originalPath);
+ expect(example.publishedAssets?.map(asset=>asset.outputPath)).toContain('showcase/umf-architecture-stack/original-visual-1.0.json');
+ expect(hash(originalBytes)).toBe('c2b689e760568953d82e3fbb37b3fd8a182875a88f470bdcb788aee7893730c5');
+ expect(hash(read(sourcePath))).toBe('b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db');
 });
 
 test('logical metamodel E/R contains no invented database key or nullability claims',()=>{

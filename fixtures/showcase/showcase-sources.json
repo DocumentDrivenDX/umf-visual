@@ -91,19 +91,43 @@
     {
       "id": "umf-architecture-stack",
       "title": "Layers around the UMF model",
-      "description": "A reading-order stack of the documented authoring, adapter, library, vocabulary and native-tool components; no directed dependencies are added.",
+      "description": "A source-bound reading-order stack of architecture components. The reviewed definition preserves the five bands and adds selected library, vocabulary and adapter boundaries without asserting dependencies or execution order.",
       "kind": "structure",
       "form": "stack",
-      "definitionPath": "fixtures/showcase/definitions/umf-architecture-stack.json",
-      "definitionSha256": "c2b689e760568953d82e3fbb37b3fd8a182875a88f470bdcb788aee7893730c5",
+      "definitionPath": "fixtures/showcase/definitions/umf-architecture-stack-reviewed.json",
+      "definitionSha256": "a0444dd8adfb395732da4b0a9ce6a7612134b56a1ec08f676d7790202e730d41",
       "sources": [
         {
           "path": "fixtures/showcase/sources/umf/architecture.md",
           "sha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
           "originPath": "docs/helix/02-design/architecture.md",
           "originSha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
-          "pointer": "Level 2: Container Diagram; Level 3: Component Diagram",
-          "description": "The documented units and their named responsibilities. The vertical arrangement is authored for presentation and does not assert execution order."
+          "pointer": "Level 2: Container Diagram table; Level 3: Component Diagram, Adapter pair row",
+          "description": "Exact architecture document snapshot. Selected unit boundaries add browser-compatible library dependencies with host I/O outside, package metadata as non-authorizing data, and native-specific adapter semantics/validation."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-architecture-stack.json",
+          "sha256": "c2b689e760568953d82e3fbb37b3fd8a182875a88f470bdcb788aee7893730c5",
+          "originPath": "fixtures/showcase/definitions/umf-architecture-stack.json",
+          "originSha256": "c2b689e760568953d82e3fbb37b3fd8a182875a88f470bdcb788aee7893730c5",
+          "pointer": "Original Visual 1.0.0 definition",
+          "description": "The previous five-band reading-order definition is preserved byte-for-byte as the baseline for the reviewed definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/umf/architecture.md",
+          "sha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
+          "outputPath": "showcase/umf-architecture-stack/architecture.md",
+          "mediaType": "text/markdown",
+          "description": "Exact pinned architecture source bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-architecture-stack.json",
+          "sha256": "c2b689e760568953d82e3fbb37b3fd8a182875a88f470bdcb788aee7893730c5",
+          "outputPath": "showcase/umf-architecture-stack/original-visual-1.0.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.0.0 curated definition bytes, preserved separately from the reviewed definition."
         }
       ]
     },
