@@ -297,6 +297,7 @@ export function compileLiniPresentation(visual:Visual,direction:'LR'|'TB'='LR'):
     if(!from||!to)return failure('PRESENTATION_LINI_STATE_ENDPOINT',path('/state/transitions/'+index),'A state transition endpoint is not a declared state node.');
     const nativeId=safeId('t',index);
     add(transition.id,path('/state/transitions/'+index),nativeId,'transition');
+    if(transition.path)add(transition.id,path('/state/transitions/'+index+'/path'),nativeId,'state-path-caption');
     styleRules.push(`.${nativeId} { stroke: --teal-deep; }`);
    }
    children=ordered(nodes,rootLayout?.kind==='flow'?rootLayout.order:undefined).map(node=>nodeDeclaration(node,nodeIds.get(node.id)!,undefined,markerCells.get(node.id)??[]));

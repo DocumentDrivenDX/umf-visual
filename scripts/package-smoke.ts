@@ -28,6 +28,7 @@ const licensePin=await Bun.file('spec/interchange/lini-licenses/manifest.json').
 if(JSON.stringify(await Bun.file(join(packedRuntime,'licenses/manifest.json')).json())!==JSON.stringify(licensePin))throw Error('Installed runtime license provenance changed');
 for(const license of licensePin.files)if(Bun.CryptoHasher.hash('sha256',await Bun.file(join(packedRuntime,'licenses',license.name)).bytes(),'hex')!==license.sha256)throw Error('Installed runtime third-party notice missing');
 const mermaidSequence=JSON.parse(await Bun.file('fixtures/visual/inventory/helix-request.json').text());
+const ticketLifecycle=JSON.parse(await Bun.file('fixtures/visual/inventory/beacon-ticket-lifecycle.json').text());
 const liniFlow=JSON.parse(await Bun.file('fixtures/catalog/canary-flow.json').text());
 const liniMetric=JSON.parse(await Bun.file('fixtures/visual/forms/umf-ac-coverage.json').text());
 const fullEntity=JSON.parse(await Bun.file('fixtures/catalog/canary-entities.json').text());
@@ -49,6 +50,16 @@ if(typeof renderLiniPresentation!=='function')throw Error('Installed public Lini
 const doc=createVisualDocument({id:'consumer',kind:'flow',form:'network',question:'Does installation work?',nodes:[{id:'n',label:'Installed consumer'}]});
 const presentationPlans=[compilePresentation(doc,{backend:'graphviz'}),compilePresentation(doc,{backend:'mermaid'}),compilePresentation(doc,{backend:'lini'})];
 for(const plan of presentationPlans){if(!plan.ok||plan.profileId!=='umf.visual.presentation/1'||!plan.source||!plan.elementMap.length)throw Error('Installed presentation compiler failed');}
+const lifecycle=readVisualDocument(JSON.stringify(JSON.parse(${JSON.stringify(JSON.stringify(ticketLifecycle))})),'json'),lifecycleBefore=JSON.stringify(lifecycle),lifecycleVisual=getVisual(lifecycle),lifecycleState=lifecycleVisual.state;
+if(!lifecycleState)throw Error('Installed lifecycle model lost its state machine.');
+/** @type {Array<'graphviz'|'mermaid'|'lini'>} */ const lifecycleBackends=['graphviz','mermaid','lini'];
+for(const backend of lifecycleBackends){
+ const plan=compilePresentation(lifecycle,{backend,theme:'presentation/1'});if(!plan.ok)throw Error('Installed public lifecycle compiler failed '+backend+': '+JSON.stringify(plan.diagnostics));
+ const transitions=plan.elementMap.filter(item=>item.kind==='transition'),paths=plan.elementMap.filter(item=>item.kind==='state-path-caption');
+ if(transitions.length!==6||paths.length!==6||JSON.stringify(paths.map(item=>item.logicalId))!==JSON.stringify(lifecycleState.transitions.map(item=>item.id))||!plan.source.includes('Path:'))throw Error('Installed public lifecycle source/path mapping failed '+backend);
+ for(const[index,transition]of lifecycleState.transitions.entries())if(paths[index]?.sourcePath!=='/extensions/umf.visual/state/transitions/'+index+'/path'||paths[index]?.nativeId!==transitions[index]?.nativeId||!plan.source.includes(backend==='mermaid'?transition.event.replaceAll(' ','#32;'):transition.event))throw Error('Installed public lifecycle mapping lost '+transition.id+' on '+backend);
+}
+if(JSON.stringify(lifecycle)!==lifecycleBefore)throw Error('Installed public lifecycle compile mutated its source.');
 const publicSequence=createVisualDocument({id:'installed-flat-sequence',kind:'sequence',form:'lifelines',question:'What happens to the reply?',sequence:{
  participants:[{id:'author',label:'Author',detail:'Keep the authored context\\nthrough the full handoff'},{id:'editor',label:'Editor'},{id:'reviewer',label:'Reviewer'},{id:'release',label:'Release coordinator'}],
  messages:[{id:'draft',from:'author',to:'release',label:'Send the reviewed reply draft\\nwith complete author context',kind:'call'},{id:'edit',from:'release',to:'editor',label:'Ask for wording edits',kind:'call'},{id:'approve',from:'editor',to:'reviewer',label:'Confirm the final language',kind:'call'},{id:'return',from:'reviewer',to:'author',label:'Return approval to the author',kind:'return'}]},steps:[{id:'prepare',title:'Prepare',focus:['author']},{id:'edit-step',title:'Edit',focus:['editor']},{id:'review-step',title:'Review',focus:['reviewer']},{id:'release-step',title:'Release',focus:['release']}]},'visual:installed-flat-sequence','1.4.0');

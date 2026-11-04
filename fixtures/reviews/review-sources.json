@@ -2085,6 +2085,58 @@
         "sourceDownloadPath": "reviews/beacon-stack/authoritative-source.json",
         "scope": "This exact Visual 1.0.0 fixture remains unchanged as the review definition. Its `stack` selection preserves the 15 element IDs and order; the checked-in fictional TOML supplies the same selected view order, title, takeaway, and each element\u2019s name, optional detail, kind, status, and layer label. Actor/store/platform/own roles are the fixture mapping from source element kinds and platform ownership. The five displayed layer labels follow first appearance in the selected elements; layer IDs are presentation projections, not literal TOML identifiers. The question, audience, and source locator are authored in the Visual fixture; the TOML view has no question field. Zones, tiers, relations, and journey steps are not part of this stack selection and are not imported. Neither file establishes current deployment or runtime behavior."
       }
+    },
+    {
+      "id": "beacon-ticket-lifecycle",
+      "title": "A ticket’s phases",
+      "description": "A source-bound review of the fictional Beacon ticket phase states and transitions.",
+      "kind": "state",
+      "form": "lifecycle",
+      "definitionPath": "fixtures/visual/inventory/beacon-ticket-lifecycle.json",
+      "definitionSha256": "0e0b1724b647060b80754c4b3cc77ea92c08f2ab0f7607cf3cd69dfbe35403c8",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-ticket-lifecycle.json",
+          "sha256": "0e0b1724b647060b80754c4b3cc77ea92c08f2ab0f7607cf3cd69dfbe35403c8",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies the state and transition IDs, labels, initial/final markers, event captions, path groups, title, question, takeaway, and cited Python source locator."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/beacon/ticket_state.py",
+          "sha256": "9447e4c82588b667b7394bb0acb79607774dabed977bfe8e751ad6ca94603775",
+          "pointer": "Phase enum and TRANSITIONS mapping",
+          "label": "Cited fictional Python source",
+          "description": "The exact Python bytes define four Phase values and the possible transition pairs. They do not define the Visual event captions, main/alternate path labels, initial/final markers, or the diagram’s authoring metadata; those remain fixture-authored. The source docstring identifies the example as fictional."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-ticket-lifecycle.json",
+          "sha256": "0e0b1724b647060b80754c4b3cc77ea92c08f2ab0f7607cf3cd69dfbe35403c8",
+          "outputPath": "reviews/beacon-ticket-lifecycle/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/beacon/ticket_state.py",
+          "sha256": "9447e4c82588b667b7394bb0acb79607774dabed977bfe8e751ad6ca94603775",
+          "outputPath": "reviews/beacon-ticket-lifecycle/ticket_state.py",
+          "mediaType": "text/x-python",
+          "description": "Exact cited fictional Python source bytes for source-preserving download; the file is offered as text and is not executed."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-ticket-lifecycle.json",
+        "sourceSha256": "0e0b1724b647060b80754c4b3cc77ea92c08f2ab0f7607cf3cd69dfbe35403c8",
+        "documentId": "visual:beacon-ticket-lifecycle",
+        "visualId": "beacon-ticket-lifecycle",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-ticket-lifecycle/authoritative-source.json",
+        "scope": "The original Visual 1.0.0 fixture remains unchanged as the review definition. It preserves four state IDs and labels, six ordered transition IDs and endpoints, initial/final markers, event captions, main/alternate path annotations, and its question/takeaway. The cited Python source independently supports the four Phase values and the six possible endpoint pairs; it does not specify transition captions, path groups, initial/final markers, or ordering. Those are fixture-authored semantics, not claims attributed to the Python file. The source docstring calls Beacon a fictional example; neither file establishes a deployed or current lifecycle."
+      }
     }
   ]
 }

@@ -391,14 +391,23 @@ limits remain explicit; support for one group/layout combination does not imply
 all combinations are qualified.
 
 
-## Flat state-machine presentation
+## Flat state presentation
 
-A qualified flat state/machine projection MUST preserve each state node and each
+A qualified flat state/machine or state/lifecycle projection MUST preserve each state node and each
 authored transition as a separately owned native carrier. Presentation mappings
 use kind `transition` at the whole `/state/transitions/i` item and kind
 `state-marker` at `/state/initial` or `/state/final/i`; these are presentation
 metadata, not portable vocabulary additions. A transition retains its directed
 endpoints and exact event, optional guard and optional action in its owned caption.
+When `path` is declared, its exact main/alternate/failure value MUST remain explicit
+in the owned transition caption as a named Path component, distinct from event,
+guard and action. Kind `state-path-caption` MUST map that transition identity at
+its exact `/state/transitions/i/path` pointer to the same native transition carrier;
+no such mapping or default path is added when absent. Qualification MUST include
+the mandatory source-bound path-caption ownership check, establishing complete
+painted glyphs within the exact carrier rather than borrowing matching text from
+another transition. Source-path classification does not invent triggers, execution
+time or target layout meaning.
 Renderer-owned marker helpers MUST remain separate from authored transitions.
 Only explicit initial/final declarations authorize their indicators; final
 membership MUST NOT suppress outgoing transitions or infer dead-end rules.

@@ -43,7 +43,7 @@ function visualOf(doc:Document):Visual{return doc.extensions!['umf.visual'] as u
 export function expectedGraphvizConnectionCount(visual:Visual):number{
  if(visual.kind==='flow')return (visual.edges??[]).length;
  if(visual.kind==='structure'&&visual.form==='entities')return (visual.structure?.references??[]).length;
- if(visual.kind==='state'&&visual.form==='machine')return (visual.state?.transitions??[]).length+1; // renderer-owned initial marker link
+ if(visual.kind==='state'&&(visual.form==='machine'||visual.form==='lifecycle'))return (visual.state?.transitions??[]).length+1; // renderer-owned initial marker link
  if(visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')){
   const layout=planDateHistoryEvents(visual.timeline?.events??[]);
   return layout?.ok&&layout.firstDay!==layout.lastDay?1:0; // one unmapped, undirected date-axis guide; never an event relation

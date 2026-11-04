@@ -7,12 +7,16 @@ import {requiredPresentationChecks} from '../../scripts/presentation/verify';
 
 const raw=await Bun.file('fixtures/visual/forms/helix-authoring-state.json').text();
 const original=readVisualDocument(raw,'json');
+const lifecycleRaw=await Bun.file('fixtures/visual/inventory/beacon-ticket-lifecycle.json').text();
+const lifecycle=readVisualDocument(lifecycleRaw,'json');
 const visual=()=>structuredClone(getVisual(original));
 const document=(value:Visual)=>createVisualDocument(value,'test:'+value.id,'1.4.0');
 
 test('compiles flat state machines to native plans with exact identity maps and no invented final state',()=>{
  for(const backend of ['graphviz','mermaid'] as const){
   const plan=compilePresentation(original,{backend});expect(plan.ok).toBe(true);if(!plan.ok)continue;
+  expect(Bun.CryptoHasher.hash('sha256',plan.source,'hex')).toBe(backend==='graphviz'?'9ad7025171efab9753bda721fbfabf8f11099b6968204478918b7c5915b3d25a':'75b7bd9960f8fd3bd74609d518beed1963ff037ab279b7897c1058b58997a964');
+  expect(plan.elementMap.some(item=>item.kind==='state-path-caption')).toBe(false);
   expect(plan.elementMap.filter(item=>item.kind==='node').map(item=>[item.logicalId,item.sourcePath])).toEqual([
    ['checked-out','/extensions/umf.visual/nodes/0/id'],['checked-in','/extensions/umf.visual/nodes/1/id']
   ]);
@@ -52,6 +56,29 @@ test('uses one mapped native final marker without dropping outgoing authored tra
 test('caption convention preserves event, optional guard, and optional action as one transition label',()=>{
  expect(stateTransitionCaption({id:'t',from:'a',to:'b',event:'submit',guard:'is valid',action:'store value'})).toBe('submit [is valid] / store value');
  expect(stateTransitionCaption({id:'t',from:'a',to:'b',event:'submit'})).toBe('submit');
+ expect(stateTransitionCaption({id:'t',from:'a',to:'b',event:'submit',path:'alternate',guard:'is valid',action:'store value'})).toBe('Path: alternate — submit [is valid] / store value');
+});
+
+test('projects lifecycle path captions as separately source-mapped text without losing transition identity',()=>{
+ const visual=getVisual(lifecycle);
+ for(const backend of ['graphviz','mermaid'] as const){
+  const plan=compilePresentation(lifecycle,{backend});expect(plan.ok).toBe(true);if(!plan.ok)continue;
+  const transitions=plan.elementMap.filter(item=>item.kind==='transition');
+  const paths=plan.elementMap.filter(item=>item.kind==='state-path-caption');
+  expect(transitions.map(item=>item.logicalId)).toEqual(visual.state!.transitions.map(item=>item.id));
+  expect(paths.map(item=>[item.logicalId,item.sourcePath,item.nativeId])).toEqual(visual.state!.transitions.map((item,index)=>[
+   item.id,`/extensions/umf.visual/state/transitions/${index}/path`,transitions[index]!.nativeId
+  ]));
+  for(const[index,transition]of visual.state!.transitions.entries()){
+   if(backend==='graphviz')expect(transitions[index]!.nativeId).toBe('t'+(index+1));
+   else{
+    const nativeState=(stateId:string)=>'n'+(visual.nodes!.findIndex(node=>node.id===stateId)+1);
+    expect(transitions[index]!.nativeId).toBe(`${nativeState(transition.from)}->${nativeState(transition.to)}|${encodeURIComponent(stateTransitionCaption(transition))}`);
+   }
+   expect(plan.source).toContain(backend==='graphviz'?`Path: ${transition.path} — ${transition.event}`:`Path:#32;${transition.path}#32;—#32;${transition.event.replaceAll(' ','#32;')}`);
+  }
+  expect(plan.source.match(/Path:/gu)).toHaveLength(6);
+ }
 });
 
 test('state machine receipts require dedicated backend-native transition and marker proofs',()=>{

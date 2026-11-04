@@ -1108,3 +1108,33 @@ rotated left-to-right band view and role/status omissions remain qualified limit
 not authored LR semantics. No new model field or inferred topology is introduced.
 Cycle 37 is complete, ready for commit; previous holds are resolved and cycle 38
 waits for that commit.
+
+
+Lifecycle/path controls preserve transition identity/endpoints/event/guard/action
+and explicit Path classification, with exact path-pointer maps required only when
+source-declared. Independently verify owned painted leaf captions, no matching-
+text borrowing, exact native class tokens, initial/final helper separation and
+full-caption Mermaid tuple uniqueness. Missing/wrong/extra path, alpha-zero or
+zero-width paint and source/AST-only mutations must fail. No-path machine and
+renamed/different-count controls retain compatibility; no default path is invented.
+
+Cycle 38 checkpoint: actual original-source G/M qualify; Lini's correct semantic
+content remains native-quality unqualified for endpoints/legibility. Failed private
+layout experiments are discarded without source/threshold changes. Existing state/
+Lini 33/352 and isolated prefix1/8 controls pass; final focused/full gates remain
+pending. Shared .py downloads are exact verified source assets, not executable UI.
+Cycle 38 remains incomplete.
+
+
+Cycle 38 closeout: all 18 gates pass; full 995/0, 25,751 assertions, 181 files,
+172.80s. Reviews: 37 entries, 83 qualified, eight unqualified, 20 unsupported,
+273 assets, 32 authoritative sources, five captures and 91 native SVG/PNG replays.
+All 37/37 and selected 1/37 UI modes retain shared controls and no errors, including
+exact Python source download/corrupt recovery; catalog/showcase UI pass. Original
+source and model version remain immutable. G10/M9 qualify and are independently
+visually approved; L11/13 retains exact endpoint/font unqualified results with
+mandatory path ownership passing. New5/155 and prior33/352 controls pass. Required
+path maps, painted owned text, exact tokens/tuples, no-path compatibility and
+source/AST mutation negatives remain strict. No schema/source inference or failed
+layout workaround is introduced. Cycle 38 is complete, ready for commit; previous
+holds are resolved and cycle 39 waits for that commit.

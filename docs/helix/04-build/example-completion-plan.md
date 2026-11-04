@@ -3850,6 +3850,98 @@ assumption. No quality threshold, vocabulary or fixture-specific policy is added
 Existing CONTRACT-089 suffices. Previous holds are resolved; freeze for commit.
 Cycle 38 must not start before cycle 37 is committed.
 
+### Thirty-eighth-cycle scope — fictional ticket lifecycle
+
+Cycle 37 is committed as `da55e80`. Cycle 38 reviews exact Visual 1.0 source
+`fixtures/visual/inventory/beacon-ticket-lifecycle.json`, SHA-256
+`0e0b1724b647060b80754c4b3cc77ea92c08f2ab0f7607cf3cd69dfbe35403c8`.
+Cited fictional Python snapshot digest matches
+`9447e4c82588b667b7394bb0acb79607774dabed977bfe8e751ad6ca94603775`.
+Audit four enum values and six transition pairs, including assigned self-loop and
+answered-to-assigned return. Python does not declare event text, main/alternate
+path partition or initial state: those, labels/question/takeaway and explicit final
+remain authored UMF projection facts. No current implementation/trigger behavior
+is established by the snapshot. Do not infer chronology from set/enum order.
+
+Existing state/lifecycle semantics require the main transitions to form the authored
+unbranched path from initial. Native acceptance preserves all six transition IDs,
+endpoints/event captions and main/alternate classification, explicit initial/final
+marking, self-loop and reciprocal geometry. Each authored transition remains one
+owned connection; marker helpers are distinct and cannot replace transitions or
+invent execution/terminal behavior. Require exact caption ownership and actual
+loop/backedge fit/clearance, with standard font/clip/overlap gates. Existing generic
+state helpers should be extended only for concrete unsupported lifecycle/path
+meaning, without new vocabulary or fixture branches. Lean gates apply only if
+runtime/proof is unchanged; shared changes reopen full required gates. Cycle 39
+waits for cycle 38's completed per-document commit.
+
+### Cycle 38 frozen-scope checkpoint — explicit lifecycle paths
+
+Generic flat lifecycle/path projection is implemented through existing state
+adapters with no vocabulary change. An explicit named Path caption retains
+main/alternate/failure separately from event/guard/action. Presentation-only
+state-path-caption rows are required at exact declared path pointers and absent
+when undeclared. Transition item identity/count and initial/final helper separation
+remain intact; Mermaid's full endpoint/caption tuple includes path content.
+No-path machine source retains its prior behavior and no path is inferred.
+
+Independent native proofs enforce exact source/AST/SVG ownership, painted leaf
+text, map count and path content. Hidden/alpha-zero/zero-width-stroke text cannot
+borrow an identical caption from another link; exact t1/t10 syntax cannot alias.
+Isolated prefix control 1/8 and existing state/Lini 33/352 pass; final focused run
+and broader gates remain pending. Public browser/packed consumers exercise the
+additive presentation kind. Generic .py source download support retains existing
+hash/path/token fences and does not execute cited code.
+
+Actual original-source Graphviz and Mermaid qualify with readable loops/backedges,
+all four states and six transitions/path captions. Lini retains correct source/path
+content but baseline endpoint/legibility failures; wrapping/gap experiments did not
+produce suitable generic geometry and are not retained. These are honest native-
+quality limitations, not semantic refusals or waived checks. At least one suitable
+target is satisfied by G/M; no Lini layout or source workaround is claimed.
+Cycle 38 remains in progress pending full gates; cycle 39 remains commit-gated.
+
+### Cycle 38 closeout — complete, ready for commit
+
+All 18 required gates pass. Full suite: 995 tests, zero failures, 25,751 assertions
+across 181 files in 172.80 seconds. Source/type/build/fetch/package/public-browser/
+native/catalog/showcase/replay/reviews/replay/site and UI gates pass. Reviews cover
+37 entries, 83 qualified, eight unqualified, 20 unsupported, 273 assets, 32
+authoritative sources and five captures, with all 91 native SVG and 91 PNG replays
+passing. All-entry UI 37/37 and selected lifecycle 1/37 retain shared controls,
+including exact .py download and corrupt-response refusal/recovery. Catalog 214 SVG
+and showcase 46 SVG/PNG previews/23 renders pass in Chromium 153 without errors.
+
+Original Visual 1.0 source remains
+`0e0b1724b647060b80754c4b3cc77ea92c08f2ab0f7607cf3cd69dfbe35403c8`;
+the exact fictional Python snapshot remains bound separately. Four enum identities
+and six transition pairs are grounded in Python; labels/events, initial/final and
+main/alternate classification retain explicit UMF-authored scope. No source fact,
+version or schema is changed. Actual built Graphviz/Mermaid artifacts are
+independently visually approved with all states/transitions, paths, loop/backedge
+and explicit markers readable. PNG hashes:
+Graphviz `34e9e9bd99f677c6ad11dd0703a38a70b869a649052429402a6dad653e6cc440`,
+Mermaid `c7c25cc600ad3349fcf55844da677f1ab6315520f77b28defb665777ce15e479`,
+Lini `9e6916440e7ff436f86910698032dd5e601ca36d917c490754318438047f2412`.
+
+Graphviz ten and Mermaid nine required checks qualify. Lini passes 11 of 13 with
+exact source-bound endpoint/font failures, remains unqualified and is not presented
+as suitable; all path ownership checks pass. Failed private Lini layout experiments
+are discarded. New focused 5/155, existing state/Lini 33/352 and isolated exact-token
+controls pass without summing runs. Public browser/packed consumers preserve exact
+path maps and original source.
+
+Final native/model/modularity review approves generic flat lifecycle/path support,
+required-if-declared state-path-caption mappings and strict painted-owned glyph,
+exact native token/AST/source/tuple checks. No-path compatibility, no default path,
+separate initial/final helpers and outgoing-transition preservation remain intact.
+No matching caption can lend paint to a hidden owner; alpha-zero/zero-width text,
+wrong/missing paths and source-only/AST-only changes fail. Runtime policy remains
+outside vocabulary; no fixture branches or schema additions are introduced.
+CONTRACT-089 now states this bounded scope, not private placement algorithms.
+All previous holds are resolved; freeze for commit. Cycle 39 must not start before
+cycle 38 is committed.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -3870,8 +3962,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is complete and ready for commit; cycles 38–68 remain pending,
-with cycle 38 gated on the cycle 37 commit.
+Cycle 37 is committed as `da55e80`. Cycle 38 is complete and ready for commit;
+cycles 39–68 remain pending, with cycle 39 gated on the cycle 38 commit.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

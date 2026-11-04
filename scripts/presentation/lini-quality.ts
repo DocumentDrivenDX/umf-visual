@@ -23,11 +23,14 @@ import {inspectLiniVisibleInk,type LiniVisibleInkReport} from './lini-visible-in
 type Box={x:number;y:number;width:number;height:number};
 type Carrier={id:string;classes:string[];texts:string[];title:string;style:string;bounds:Box;containerBounds:Box;rectRadii:number[];sheetPaths:number;sheetGeometry:Array<{bounds:Box;signature:string}>;groups:string[];parentId:string|null;cells:Array<{id:string|null;text:string;bounds:Box}>};
 type Vector={x:number;y:number};
-type Link={classes:string[];from:string|null;to:string|null;labels:string[];labelBounds:Box[];labelClearances:number[];bounds:Box;line:{start:Vector;end:Vector;startTangent:Vector;endTangent:Vector;samples:Vector[];d:string;curveDeviation:number}|null;markers:Array<{classes:string[];tag:string;d:string;length:number;center:Vector;orientation:Vector|null;points:Vector[];bounds:Box}>;arrows:number};
+type Link={classes:string[];from:string|null;to:string|null;labels:string[];labelBounds:Box[];labelPainted:boolean[];labelClearances:number[];bounds:Box;line:{start:Vector;end:Vector;startTangent:Vector;endTangent:Vector;samples:Vector[];d:string;curveDeviation:number}|null;markers:Array<{classes:string[];tag:string;d:string;length:number;center:Vector;orientation:Vector|null;points:Vector[];bounds:Box}>;arrows:number};
 type EndpointProof={path:string;carrier:Carrier;host:Carrier;side?:string};
 type NativeDom={svg:boolean;svgBounds:Box;carriers:Carrier[];links:Link[];fontFamilies:Array<{text:string;inline:string;computed:string}>};
 const sha=(value:string)=>createHash('sha256').update(Buffer.from(value,'utf8')).digest('hex');
 const norm=(value:string)=>value.replace(/\s+/gu,' ').trim();
+const stateCaptionFromSource=(transition:NonNullable<Visual['state']>['transitions'][number])=>transition.path===undefined
+ ?stateTransitionCaption(transition)
+ :[`Path: ${transition.path} —`,transition.event,transition.guard?`[${transition.guard}]`:undefined,transition.action?`/ ${transition.action}`:undefined].filter((part):part is string=>part!==undefined&&part!=='').join(' ');
 const hasOffsetSheetPair=(sheets:Array<{bounds:Box;signature:string}>)=>{for(let i=0;i<sheets.length;i++)for(let j=i+1;j<sheets.length;j++){const {bounds:a,signature:sa}=sheets[i]!,{bounds:b,signature:sb}=sheets[j]!,offset=Math.hypot(a.x+a.width/2-b.x-b.width/2,a.y+a.height/2-b.y-b.height/2),overlapWidth=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)),overlapHeight=Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)),smaller=Math.min(a.width*a.height,b.width*b.height);if(sa===sb&&offset>1&&overlapWidth*overlapHeight>=smaller*.45)return true;}return false;};
 const pass=(check:string,sourceSha256:string,ok:boolean,details:string):PresentationQualityCheck=>({check,sourceSha256,result:ok?'pass':'fail',details});
 const at=(part:string)=>'/extensions/umf.visual'+(part.startsWith('/')?part:'/'+part);
@@ -45,6 +48,15 @@ function outsideQuoteIndex(source:string,start:number,token:string):number{
   if(source.startsWith(token,index))return index;
  }
  return-1;
+}
+function nativeTransitionCaption(source:string,from:string,to:string,nativeId:string):string|undefined{
+ const token=`${from} -> ${to} .${nativeId}`,matches:number[]=[];let search=0;while(search<source.length){const start=outsideQuoteIndex(source,search,token);if(start<0)break;const after=start+token.length;if(/[\s{]/u.test(source[after]??''))matches.push(start);search=after;}if(matches.length!==1)return;const start=matches[0]!;
+ const brace=outsideQuoteIndex(source,start+token.length,'{');if(brace<0)return;
+ const braceEnd=matchingNativeDelimiter(source,brace,'{','}');if(braceEnd<0)return;
+ let bodyStart=braceEnd+1;while(/\s/u.test(source[bodyStart]??''))bodyStart++;if(source[bodyStart]!=='[')return;
+ const bodyEnd=matchingNativeDelimiter(source,bodyStart,'[',']');if(bodyEnd<0)return;
+ const literal=/^\s*("(?:\\.|[^"\\])*")/su.exec(source.slice(bodyStart+1,bodyEnd))?.[1];if(!literal)return;
+ try{const value=JSON.parse(literal);return typeof value==='string'?value:undefined;}catch{return;}
 }
 function matchingNativeDelimiter(source:string,openIndex:number,open:string,close:string):number{
  let depth=0,quoted=false,escaped=false;
@@ -162,7 +174,7 @@ export async function verifyLiniPresentationQuality(
  const nativeAst=typeof input.nativeAst==='string'?input.nativeAst:'';
  const maps=plan.elementMap;
  const requiredMapToken=(element:PresentationPlan['elementMap'][number]):string=>{
-  if(element.kind==='edge'||element.kind==='reference'||element.kind==='transition')return'.'+element.nativeId;
+  if(element.kind==='edge'||element.kind==='reference'||element.kind==='transition'||element.kind==='state-path-caption')return'.'+element.nativeId;
   if(element.kind==='state-marker')return'#'+element.nativeId.split('.').at(-1);
   if(element.kind==='field'||element.kind==='port')return'#'+element.nativeId.split('.').at(-1);
   return'#'+element.nativeId;
@@ -197,6 +209,8 @@ export async function verifyLiniPresentationQuality(
    const normalize=(value:string)=>value.replace(/\s+/gu,' ').trim();
    const svg=root as SVGSVGElement,origin=svg.getBoundingClientRect();
    const box=(element:Element):Box=>{const rect=element.getBoundingClientRect();return{x:rect.x-origin.x,y:rect.y-origin.y,width:rect.width,height:rect.height};};
+   const paintAlpha=(value:string)=>{const color=value.trim().toLowerCase();if(color==='none'||color==='transparent')return 0;if(/^#[\da-f]{3,8}$/u.test(color)||/^[a-z]+$/u.test(color))return 1;const match=/^([a-z-]+)\(([^)]*)\)$/iu.exec(color);if(!match)return 0;const fn=match[1]!.toLowerCase(),body=match[2]!,supportsAlpha=['rgb','rgba','hsl','hsla','hwb','lab','lch','oklab','oklch','color'].includes(fn);if(!supportsAlpha)return 0;const slash=body.split('/');let alpha='1';if(slash.length>1){if(slash.length!==2)return 0;alpha=slash[1]!.trim().split(/[\s,]+/u)[0]??'1';}else{const comma=body.includes(','),parts=comma?body.split(',').map(item=>item.trim()):body.trim().split(/\s+/u);if(comma&&parts.length>=4)alpha=parts.at(-1)!;else if(!comma&&parts.length>=4&&['rgb','rgba','hsl','hsla'].includes(fn))alpha=parts.at(-1)!;}if(alpha==='none')return 0;const number=parseFloat(alpha);return Number.isFinite(number)?alpha.endsWith('%')?number/100:number:0;};
+   const paintedText=(element:Element)=>{const walker=globalThis.document.createTreeWalker(element,NodeFilter.SHOW_TEXT),leaves:boolean[]=[];while(walker.nextNode()){const node=walker.currentNode as Text;if(!(node.nodeValue??'').trim())continue;let current=node.parentElement,opacity=1,visible=true;while(current){const style=getComputedStyle(current),alpha=Number(style.opacity);if(style.display==='none'||style.visibility==='hidden'||style.visibility==='collapse')visible=false;opacity*=Number.isFinite(alpha)?alpha:1;current=current.parentElement;}const style=getComputedStyle(node.parentElement!),svgText=node.parentElement!.namespaceURI==='http://www.w3.org/2000/svg',fill=paintAlpha(style.fill)*Number(style.fillOpacity),stroke=paintAlpha(style.stroke)*Number(style.strokeOpacity)*(Number.parseFloat(style.strokeWidth)||0),color=paintAlpha(style.color);leaves.push(visible&&opacity>0&&(svgText?fill>0||stroke>0:color>0));}return leaves.length>0&&leaves.every(Boolean);};
    const ownTexts=(element:Element)=>[...element.querySelectorAll('text.lini-text')].filter(text=>text.closest('g.lini-node')===element).map(text=>normalize([...text.querySelectorAll('tspan')].map(span=>span.textContent??'').join(' ')||(text.textContent??''))).filter(Boolean);
    const carriers=[...svg.querySelectorAll('g.lini-node[data-id],g.lini-node.lini-caption')].map(element=>{
     const group=element as SVGGElement,id=group.dataset.id??'',ancestorGroups:string[]=[];let parent=group.parentElement;
@@ -217,7 +231,7 @@ export async function verifyLiniPresentationQuality(
     const labelElements=[...group.querySelectorAll(':scope > text.lini-link-label')];
     const labelClearances=labelElements.map(label=>{if(!line||length<=0)return-1;const rect=label.getBoundingClientRect(),matrix=line.getScreenCTM();if(!matrix)return-1;let minimum=Infinity;for(let sample=0;sample<=180;sample++){const local=line.getPointAtLength(length*sample/180),screen=new DOMPoint(local.x,local.y).matrixTransform(matrix),dx=Math.max(rect.left-screen.x,0,screen.x-rect.right),dy=Math.max(rect.top-screen.y,0,screen.y-rect.bottom);minimum=Math.min(minimum,Math.hypot(dx,dy));}return minimum;});
     const samples=line&&length>0?Array.from({length:181},(_,index)=>point(line,length*index/180)).filter((value):value is Vector=>value!==null):[];
-    return{classes:[...group.classList],from:group.getAttribute('data-from'),to:group.getAttribute('data-to'),labels:labelElements.map(text=>normalize([...text.querySelectorAll('tspan')].map(span=>span.textContent??'').join(' ')||text.textContent||'')).filter(Boolean),labelBounds:labelElements.map(box),labelClearances,bounds:box(group),line:start&&end&&line?{start,end,startTangent:tangent(line,0,length)??{x:0,y:0},endTangent:tangent(line,length,length)??{x:0,y:0},samples,d:line.getAttribute('d')??'',curveDeviation:curveDeviation(line)}:null,markers:markerElements.map(marker=>{const graphics=marker as SVGGraphicsElement,b=box(marker),matrix=graphics.getScreenCTM(),vertices=marker instanceof SVGPolygonElement?[...marker.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(matrix!);return{x:screen.x-origin.x,y:screen.y-origin.y};}):[],markerPath=marker instanceof SVGPathElement?marker:undefined,markerLength=markerPath?.getTotalLength()??0,orientation=markerPath&&markerLength>0?tangent(markerPath,0,markerLength):null;return{classes:[...marker.classList],tag:marker.tagName.toLowerCase(),d:marker.getAttribute('d')??'',length:markerLength,center:{x:b.x+b.width/2,y:b.y+b.height/2},orientation,points:vertices,bounds:b};}),arrows:group.querySelectorAll('.lini-marker-arrow').length};
+    return{classes:[...group.classList],from:group.getAttribute('data-from'),to:group.getAttribute('data-to'),labels:labelElements.map(text=>normalize([...text.querySelectorAll('tspan')].map(span=>span.textContent??'').join(' ')||text.textContent||'')).filter(Boolean),labelBounds:labelElements.map(box),labelPainted:labelElements.map(paintedText),labelClearances,bounds:box(group),line:start&&end&&line?{start,end,startTangent:tangent(line,0,length)??{x:0,y:0},endTangent:tangent(line,length,length)??{x:0,y:0},samples,d:line.getAttribute('d')??'',curveDeviation:curveDeviation(line)}:null,markers:markerElements.map(marker=>{const graphics=marker as SVGGraphicsElement,b=box(marker),matrix=graphics.getScreenCTM(),vertices=marker instanceof SVGPolygonElement?[...marker.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(matrix!);return{x:screen.x-origin.x,y:screen.y-origin.y};}):[],markerPath=marker instanceof SVGPathElement?marker:undefined,markerLength=markerPath?.getTotalLength()??0,orientation=markerPath&&markerLength>0?tangent(markerPath,0,markerLength):null;return{classes:[...marker.classList],tag:marker.tagName.toLowerCase(),d:marker.getAttribute('d')??'',length:markerLength,center:{x:b.x+b.width/2,y:b.y+b.height/2},orientation,points:vertices,bounds:b};}),arrows:group.querySelectorAll('.lini-marker-arrow').length};
    });
    const fontFamilies=[...svg.querySelectorAll('text')].map(element=>({text:normalize(element.textContent??''),inline:(element as SVGTextElement).style.fontFamily,computed:getComputedStyle(element).fontFamily}));
    return{svg:svg.matches('svg.lini'),svgBounds:box(svg),carriers,links,fontFamilies};
@@ -237,6 +251,8 @@ export async function verifyLiniPresentationQuality(
   const expectedTransitions=visual.state?.transitions.length??0,expectedMarkers=1+(visual.state?.final?.length??0),mappedTransitions=maps.filter(item=>item.kind==='transition').length,mappedMarkers=maps.filter(item=>item.kind==='state-marker').length;
   if(mappedTransitions!==expectedTransitions){carriersOk=false;missing.push(`state transition map count ${mappedTransitions} does not match authored count ${expectedTransitions}`);}
   if(mappedMarkers!==expectedMarkers){carriersOk=false;missing.push(`state marker map count ${mappedMarkers} does not match authored count ${expectedMarkers}`);}
+  const expectedPaths=(visual.state?.transitions??[]).filter(transition=>transition.path!==undefined).length,mappedPaths=maps.filter(item=>item.kind==='state-path-caption').length;
+  if(mappedPaths!==expectedPaths){carriersOk=false;missing.push(`state path-caption map count ${mappedPaths} does not match authored path count ${expectedPaths}`);}
  }
  for(const item of maps){
   if(item.kind==='state-marker'){
@@ -245,8 +261,13 @@ export async function verifyLiniPresentationQuality(
    continue;
   }
   if(item.kind==='transition'){
-   const transitionIndex=visual.state?.transitions.findIndex(candidate=>candidate.id===item.logicalId)??-1,transition=transitionIndex>=0?visual.state?.transitions[transitionIndex]:undefined,link=linkFor(item),caption=transition?stateTransitionCaption(transition):'';
+   const transitionIndex=visual.state?.transitions.findIndex(candidate=>candidate.id===item.logicalId)??-1,transition=transitionIndex>=0?visual.state?.transitions[transitionIndex]:undefined,link=linkFor(item),caption=transition?stateCaptionFromSource(transition):'';
    if(!transition||item.nativeId!==`t${transitionIndex+1}`||item.sourcePath!==at('/state/transitions/'+transitionIndex)||!link||link.labels.join(' ')!==norm(caption)){carriersOk=false;missing.push(`state transition ${item.logicalId} lacks its exact mapped native caption`);}
+   continue;
+  }
+  if(item.kind==='state-path-caption'){
+   const pathMatch=/^\/extensions\/umf\.visual\/state\/transitions\/(\d+)\/path$/u.exec(item.sourcePath),transitionIndex=pathMatch?Number(pathMatch[1]):-1,transition=transitionIndex>=0?visual.state?.transitions[transitionIndex]:undefined,transitionMaps=maps.filter(candidate=>candidate.kind==='transition'&&candidate.logicalId===item.logicalId),transitionMap=transitionMaps[0],from=transition?nativeFor(plan,'node',transition.from):undefined,to=transition?nativeFor(plan,'node',transition.to):undefined,link=linkFor(item),caption=transition?stateCaptionFromSource(transition):'',astCaption=transition&&from&&to?nativeTransitionCaption(nativeAst,from,to,item.nativeId):undefined;
+   if(!transition||transition.path===undefined||transition.id!==item.logicalId||transitionMaps.length!==1||item.nativeId!==transitionMap?.nativeId||transitionMap?.sourcePath!==at('/state/transitions/'+transitionIndex)||!from||!to||!link||link.from!==`visual.${from}`||link.to!==`visual.${to}`||link.labels.join(' ')!==norm(caption)||astCaption!==caption){carriersOk=false;missing.push(`state path ${item.sourcePath} is not separately bound to its exact native caption and directed transition`);}
    continue;
   }
   if(item.kind==='edge'||item.kind==='reference'){
@@ -305,6 +326,16 @@ export async function verifyLiniPresentationQuality(
     if(!found.classes.includes(expectedClass)||!geometryOk){carriersOk=false;missing.push(`node ${item.logicalId} does not use its declared native ${explicitNode.shape} geometry`);}
    }
   }
+ }
+ if(visual.kind==='state'){
+  const expectedPaths=(visual.state?.transitions??[]).map((transition,index)=>({transition,index})).filter(item=>item.transition.path!==undefined),pathMaps=maps.filter(item=>item.kind==='state-path-caption'),problems:string[]=[];
+  if(pathMaps.length!==expectedPaths.length)problems.push(`source-located path map count ${pathMaps.length} differs from ${expectedPaths.length} authored path fields`);
+  for(const{transition,index}of expectedPaths){
+   const sourcePath=`${at('/state/transitions/'+index)}/path`,rows=pathMaps.filter(item=>item.sourcePath===sourcePath),pathMap=rows[0],transitionRows=maps.filter(item=>item.kind==='transition'&&item.sourcePath===at('/state/transitions/'+index)),transitionMap=transitionRows[0],from=nativeFor(plan,'node',transition.from),to=nativeFor(plan,'node',transition.to),caption=stateCaptionFromSource(transition),link=pathMap?linkFor(pathMap):undefined,astCaption=pathMap&&from&&to?nativeTransitionCaption(nativeAst,from,to,pathMap.nativeId):undefined,paintedCaption=link?.labelPainted[0]===true;
+   if(rows.length!==1||pathMap?.logicalId!==transition.id||transitionRows.length!==1||transitionMap?.logicalId!==transition.id||pathMap?.nativeId!==transitionMap?.nativeId)problems.push(`${transition.id} does not have one exact path source-map row joined to its transition map`);
+   if(!from||!to||!link||link.from!==`visual.${from}`||link.to!==`visual.${to}`||link.labels.join(' ')!==norm(caption)||astCaption!==caption||link.labelPainted[0]!==true)problems.push(`${transition.id} explicit path text is missing or unpainted in its exact native AST/SVG transition carrier`);
+  }
+  if(expectedPaths.length||pathMaps.length)checks.push(pass('state-path-caption-ownership',sourceSha256,problems.length===0,problems.length?problems.join('; '):`${expectedPaths.length} explicit path fields have exact source-map, native AST, and owned-link captions.`));
  }
  for(const item of maps.filter(candidate=>candidate.kind==='port')){
   const match=item.sourcePath.match(/\/nodes\/(\d+)\/ports\/(\d+)$/),nodeIndex=match?Number(match[1]):-1,portIndex=match?Number(match[2]):-1,node=visual.nodes?.[nodeIndex],port=node?.ports?.[portIndex],nodeNative=node?nativeFor(plan,'entity',node.id)??nativeFor(plan,'node',node.id):undefined,localId=item.nativeId.split('.').at(-1)!;

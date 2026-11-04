@@ -48,6 +48,24 @@ try{
   }
   if(compiledBackends===0)throw Error('No reviewed backend qualified for the shared browser compiler.');
  }
+ const lifecycleInput=fixtures.find(input=>(input as any)?.extensions?.['umf.visual']?.id==='beacon-ticket-lifecycle');
+ if(!lifecycleInput)throw Error('Public lifecycle consumer fixture is missing.');
+ const lifecycleDocument=readVisualDocument(JSON.stringify(lifecycleInput),'json'),lifecycleBefore=JSON.stringify(lifecycleDocument),lifecycleVisual=getVisual(lifecycleDocument);
+ if(lifecycleVisual.form!=='lifecycle'||!lifecycleVisual.state)throw Error('Public lifecycle consumer fixture lost its lifecycle source.');
+ for(const backend of ['graphviz','mermaid','lini'] as const){
+  const plan=compilePresentation(lifecycleDocument,{backend,theme:'presentation/1'});
+  if(!plan.ok)throw Error(`Public lifecycle compiler refused ${backend}: ${JSON.stringify(plan.diagnostics)}`);
+  const transitions=plan.elementMap.filter(item=>item.kind==='transition'),paths=plan.elementMap.filter(item=>item.kind==='state-path-caption');
+  if(transitions.length!==6||paths.length!==6||JSON.stringify(transitions.map(item=>item.logicalId))!==JSON.stringify(lifecycleVisual.state.transitions.map(item=>item.id)))throw Error(`Public lifecycle transition/path map counts differ for ${backend}.`);
+  for(const[index,transition]of lifecycleVisual.state.transitions.entries()){
+   const path=paths[index];
+   if(path?.logicalId!==transition.id||path.sourcePath!==`/extensions/umf.visual/state/transitions/${index}/path`||path.nativeId!==transitions[index]?.nativeId||!plan.source.includes(`Path:`))throw Error(`Public lifecycle path carrier mapping is missing for ${backend}/${transition.id}.`);
+   const nativeEvent=backend==='mermaid'?transition.event.replaceAll(' ','#32;'):transition.event;
+   if(!plan.source.includes(nativeEvent))throw Error(`Public lifecycle event text is missing for ${backend}/${transition.id}.`);
+  }
+  if(!plan.source.includes('Path:')||JSON.stringify(lifecycleDocument)!==lifecycleBefore)throw Error(`Public lifecycle compile omitted path text or mutated source for ${backend}.`);
+  reviewedPresentationPlans++;
+ }
  const doc=readVisualDocument(JSON.stringify(fixtures[0]),'json');
  const before=JSON.stringify(doc);
  const edited=editVisual(doc,v=>({...v,takeaway:'Browser consumer edit'}));

@@ -14,15 +14,15 @@ const mermaidText=(value:string)=>Array.from(value,mermaidChar).join('');
 
 /** One visible caption convention shared with the Lini projection. */
 export function stateTransitionCaption(transition:VisualTransition):string {
- return [transition.event,transition.guard?`[${transition.guard}]`:undefined,transition.action?`/ ${transition.action}`:undefined].filter(Boolean).join(' ');
+ return [transition.path?`Path: ${transition.path} —`:undefined,transition.event,transition.guard?`[${transition.guard}]`:undefined,transition.action?`/ ${transition.action}`:undefined].filter(Boolean).join(' ');
 }
 
 /** Reject state content that this flat state projection cannot yet carry exactly. */
 export function validateStateMachineScope(visual:Visual):PresentationDiagnostic[] {
  const errors:PresentationDiagnostic[]=[];
  const add=(code:string,suffix:string,message:string)=>errors.push(diag(code,suffix,message));
- if(visual.kind!=='state'||visual.form!=='machine'){
-  add('PRESENTATION_STATE_SCOPE','/form','The state presentation profile currently supports only state/machine.');
+ if(visual.kind!=='state'||!['machine','lifecycle'].includes(visual.form)){
+  add('PRESENTATION_STATE_SCOPE','/form','The state presentation profile currently supports only state/machine and flat state/lifecycle.');
   return errors;
  }
  if(visual.groups?.length)add('PRESENTATION_STATE_COMPOSITE','/groups','Grouped state scopes are not qualified; this profile renders only flat state nodes.');
@@ -41,7 +41,7 @@ export function validateStateMachineScope(visual:Visual):PresentationDiagnostic[
  }
  for(let index=0;index<(visual.state?.transitions??[]).length;index++){
   const transition=visual.state!.transitions[index]!;
-  for(const key of ['path','status','emphasis'] as const)if(transition[key]!==undefined)add('PRESENTATION_STATE_TRANSITION_PROPERTY',`/state/transitions/${index}/${key}`,`The transition ${key} property is not yet qualified for this state profile.`);
+  for(const key of ['status','emphasis'] as const)if(transition[key]!==undefined)add('PRESENTATION_STATE_TRANSITION_PROPERTY',`/state/transitions/${index}/${key}`,`The transition ${key} property is not yet qualified for this state profile.`);
  }
  return errors;
 }
@@ -68,7 +68,11 @@ export function compileStatePresentation(visual:Visual,backend:'graphviz'|'merma
  const add=(logicalId:string,sourcePath:string,nativeId:string,kind:PresentationElement['kind'])=>map.push({logicalId,sourcePath:path(sourcePath),nativeId,kind});
  add(visual.id,'','visual','visual');
  for(let index=0;index<nodes.length;index++)add(nodes[index]!.id,`/nodes/${index}/id`,nodeIds.get(nodes[index]!.id)!,'node');
- for(let index=0;index<transitions.length;index++)add(transitions[index]!.id,`/state/transitions/${index}`,transitionIds.get(transitions[index]!.id)!,'transition');
+ for(let index=0;index<transitions.length;index++){
+  const transition=transitions[index]!,nativeId=transitionIds.get(transition.id)!;
+  add(transition.id,`/state/transitions/${index}`,nativeId,'transition');
+  if(transition.path)add(transition.id,`/state/transitions/${index}/path`,nativeId,'state-path-caption');
+ }
  const initialMarker=backend==='graphviz'?'state_initial_marker':'[*]';
  add(visual.state!.initial,'/state/initial',initialMarker,'state-marker');
  for(let index=0;index<(visual.state!.final??[]).length;index++){

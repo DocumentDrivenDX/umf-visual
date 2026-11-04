@@ -76,6 +76,7 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
   checks.push(...(visual.kind==='state'?['mermaid-state-transitions-and-markers']:visual.kind==='timeline'&&(visual.form==='history'||visual.form==='milestones')?['mermaid-timeline-event-ledger']:['mermaid-native-node-carriers',...(visual.form==='entities'?['mermaid-er-fields-and-relations']:[...(visual.kind==='flow'?['mermaid-flow-paths']:[]),'mermaid-containment-and-order'])]));
   if(visual.kind==='structure'&&visual.form==='nested')checks.push('nested-native-carriers','nested-native-captions','nested-native-containment','nested-no-synthetic-links');
  }
+ if(visual.kind==='state'&&(visual.state?.transitions??[]).some(transition=>transition.path!==undefined))checks.push('state-path-caption-ownership');
  if(backend!=='lini'&&visual.nodes?.some(node=>node.ports?.length))checks.push(backend==='graphviz'?'graphviz-node-port-rows':'mermaid-labeled-port-fallbacks');
  return checks.sort();
 }
