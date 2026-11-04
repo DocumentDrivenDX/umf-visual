@@ -4263,7 +4263,7 @@ and strict path/unrelated-node clearance. Do not apply DAG placement to a cyclic
 source by dropping a relation. Reuse existing family profiles first; no vocabulary
 gap is indicated. Data-only lean gates are appropriate only with an existing
 suitable target and unchanged shared code; otherwise apply full relevant gates.
-The rejected C42 grouped selector is not carried forward. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is complete, ready for its per-document commit;
+The rejected C42 grouped selector is not carried forward. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is complete, ready for its per-document commit;
 cycle 44 waits for its per-document commit.
 
 ### Cycle 43 semantic checkpoint — source-numbered relation walkthrough
@@ -4353,7 +4353,7 @@ scope-qualified; do not silently conflate another view or invent source facts.
 No new vocabulary is indicated. Evaluate existing generic zoned/tier policies and
 actual all-caption/group clearance; at least one target must be suitable, other
 native limitations retain honest receipts. Lean affected gates apply if data-only,
-full relevant gates if shared renderer/proof/UI changes. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is complete, ready for its per-document commit;
+full relevant gates if shared renderer/proof/UI changes. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is complete, ready for its per-document commit;
 cycle 45 waits for its per-document commit.
 
 ### Cycle 44 focused freeze — data-only zoned walkthrough
@@ -4418,7 +4418,7 @@ actual caption/route clearance, and separately qualified ordered source-focus UI
 No implied physical swimlane alignment, chronology or activation is inferred.
 Evaluate actual source-backed definition fit before choosing gates: lean if data-only
 with a suitable target, full applicable gates if shared runtime/proof/UI changes.
-C089 already covers the family; no amendment is indicated. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is complete, ready for its per-document commit;
+C089 already covers the family; no amendment is indicated. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is complete, ready for its per-document commit;
 cycle 46 waits for its per-document commit.
 
 ### Cycle 45 focused freeze — responsibility capture and lane proof repair
@@ -4550,7 +4550,7 @@ source-stable row members and vertical bands under the existing stack profile.
 Portable/support grouping is source-authored classification, not execution order
 or priority. Existing C37 stack policy may suffice, but no qualification rests on
 unenriched baseline alone. Lean affected gates apply if data-only; shared renderer/
-proof/UI changes require full relevant gates. Cycle 47 is complete, ready for its per-document commit; cycle 48 waits
+proof/UI changes require full relevant gates. Cycle 47 is committed as `e7a69fa`. Cycle 48 is complete, ready for its per-document commit; cycle 48 waits
 for its per-document commit. C089 changes only if a material generic gap appears.
 
 ### Cycle 47 focused checkpoint — complete source-guided parts
@@ -4595,6 +4595,71 @@ No new vocabulary, edge, current claim or case branch is introduced; C089 unchan
 All prior holds are resolved; cycle 47 is complete pending its per-document commit,
 and cycle 48 must not begin before that commit.
 
+### Forty-eighth-cycle scope — request journey lifelines
+
+Cycle 47 is committed as `e7a69fa`. Cycle 48 reviews exact Visual 1.0
+`fixtures/visual/inventory/helix-request.json`: six participants, six ordered
+call/return messages and six existing focus steps. The cited request view/journey
+in the exact architecture TOML digest
+`6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2`
+is the same selected authority as C46's graph projection. Preserve exact journey
+labels/title/takeaway and first-seen participant order, details/roles/statuses.
+Call/return and typed participant roles remain fixture-authored interpretation,
+not invented explicit TOML message-kind fields. Context relation notes/job duties
+and optional tooling belong to other projections and are not automatically merged.
+Exact alias is preferred absent a concrete relevant missing journey fact.
+
+Evaluate existing flat native sequence composition and complete owned metadata,
+message endpoints/order/captions, visible return styling and actual lifeline/path
+clearance. No activation, duration, concurrency or extra message is inferred.
+Shared focus inspection is distinct from native export interaction. At least one
+suitable target is required; precise G/M subset refusals remain honest. Lean 14
+affected gates apply only if shared runtime/proof/UI code stays unchanged; otherwise
+full relevant gates apply. Cycle 48 is complete, ready for its per-document commit; cycle 49 waits for its commit.
+
+### Cycle 48 focused freeze — participant provenance preservation
+
+The initial exact-alias proposal is superseded by a bounded provenance addition.
+Separate same 1.0 definition SHA-256
+`081e68ee39088788548a6e0cf96f3fc2ebc84a623080402dc14f57370873ee7d`
+adds only six exact selected-element evidence arrays to existing participants.
+Independent comparison removing those arrays equals original; all messages,
+steps, kinds/metadata/title/takeaway and version remain unchanged. Evidence is
+retained source assertion, not a live check of referenced snippets. No jobs,
+context notes or optional-tooling facts are imported from another projection.
+Source 2/49/type/source/diff pass, manifest original/derived bindings are separate.
+
+Exact derived Lini 10/10 qualifies; source/SVG/PNG equal original baseline and are
+independently visually approved with complete readable six-message sequence.
+Each added evidence array has a located native omission; source preservation and
+native view scope remain distinct. G/M retain precise subset refusals. No shared
+renderer/proof/UI/model changes or new map kinds are introduced; C089 unchanged.
+Run lean 14 affected gates with fresh all-review replay, selected C48/shared UI and
+public/native/catalog boundaries, retaining unchanged C45 full 1,026/0/26,266/
+showcase/all 44 UI subject to prior-entry fingerprints. Cycle 48 incomplete pending
+gates; cycle 49 waits for its per-document commit.
+
+### Cycle 48 closeout — complete, ready for commit
+
+All 14 affected gates pass, including final site-tests. Source 2/49/type/build,
+public browser/package/fetch/native/catalog, complete reviews/native+PNG replay/
+site and selected/shared UI/catalog UI pass. Actual manifest: 47 entries, 100 qualified,
+15 unqualified, 26 unsupported,zero execution failures, 115 native SVG plus 115 PNG
+replays, 345 render assets, 42 authorities and five captures. All 46 prior definition/
+native-source/SVG/PNG/status fingerprints are identical in
+`.cache/cycle48-unchanged-reviews.json`, justifying retained C45 full 1,026/0/
+26,266 assertions/showcase/all 44 UI. Unchanged full coverage is not claimed rerun.
+
+Fresh built Lini 10/10 is independently visually approved, with six owned participant
+metadata columns and six ordered messages/return readable. G/M retain precise
+lifelines subset refusals. Derived definition 081e68ee39088788548a6e0cf96f3fc2ebc84a623080402dc14f57370873ee7d
+adds only six exact participant evidence arrays; all other payload and original
+bytes remain intact. Each array is source-retained with located native omission,
+not current snippet verification. Source/SVG/PNG remain identical to baseline.
+No other-view notes/job duties, shared code, model field or map kind is introduced;
+C089 unchanged. All holds resolved; cycle 48 complete pending its per-document
+commit, cycle 49 must not begin before that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -4615,8 +4680,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is complete, ready for its per-document commit;
-cycles 48–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is complete, ready for its per-document commit;
+cycles 49–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

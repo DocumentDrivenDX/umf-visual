@@ -2624,6 +2624,60 @@
         "sourceDownloadPath": "reviews/helix-parts/authoritative-source.json",
         "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition preserves its nine node IDs/labels and order, two stack layers and memberships, original title/question/source metadata, then enriches each existing detail from the exact `The parts` table: complete path cell followed by the exact `Change it when` criterion. Existing detail text remains the prefix; this restores the omitted `scripts/`, `website/`, and `(non-activity files)` qualifiers. The source states that the first five parts are portable content every runtime receives and the other four support/package/publish it; the existing layers represent that split. This review selects only the parts table, not the separate Level 2 deployment-container view or the guide's request journey. The title/form/layer IDs are Visual projections. The source describes intended change-placement guidance, not current deployment/runtime behavior."
       }
+    },
+    {
+      "id": "helix-request",
+      "title": "A request becomes a governing document",
+      "description": "A source-bound sequence review of the architecture model's six-step request journey, retaining its source participant evidence.",
+      "kind": "sequence",
+      "form": "lifelines",
+      "definitionPath": "fixtures/reviews/definitions/helix-request.json",
+      "definitionSha256": "081e68ee39088788548a6e0cf96f3fc2ebc84a623080402dc14f57370873ee7d",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/helix-request.json",
+          "sha256": "48e390ee13102a71008162e8b69a5155c4817979f4eb45ebbfa73bc2477c6545",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies six participants, six ordered messages and focus steps, call/return kinds, role/status fields, title, question, takeaway, audience, and source locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-model.toml",
+          "sha256": "6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2",
+          "pointer": "/view/request, /journey/request and endpoint /element records",
+          "label": "Cited HELIX architecture model",
+          "originalLocator": "helix:docs/helix/02-design/architecture-model.toml",
+          "resolvedSource": "helix/docs/helix/02-design/architecture-model.toml",
+          "description": "Exact TOML bytes resolved from the fixture locator. The request view points to journey `request`, whose six ordered endpoint/label steps supply the sequence message order and labels; first-seen endpoints select participant element labels/details/kinds/status/evidence."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/helix-request.json",
+          "sha256": "48e390ee13102a71008162e8b69a5155c4817979f4eb45ebbfa73bc2477c6545",
+          "outputPath": "reviews/helix-request/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-model.toml",
+          "sha256": "6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2",
+          "outputPath": "reviews/helix-request/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact cited architecture-model TOML bytes published without transformation."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/helix-request.json",
+        "sourceSha256": "48e390ee13102a71008162e8b69a5155c4817979f4eb45ebbfa73bc2477c6545",
+        "documentId": "visual:helix-request",
+        "visualId": "helix-request",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-request/authoritative-source.json",
+        "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition adds only each selected participant's exact source element `evidence` array; all other payload fields are unchanged. The cited architecture-model TOML bytes match the fixture digest exactly. The request view explicitly points to journey `request`; its six ordered from/to/label steps, title, and takeaway match the six sequence message endpoints/labels, six step titles/focus IDs, sequence title, and takeaway. Participants are the first-seen unique journey endpoints and match source element IDs/labels/details/kinds/statuses/evidence through fixture role mappings. The final message `kind: return` is a Visual sequence projection for the final docs-to-runtime journey step, not an explicit journey field. The question, audience, form, kind, message/step IDs, call/return classifications, and role values are Visual fixture projections. Other source relations, notes, jobs, and the optional documentor relation belong to other model projections and are not merged into this request journey. The source evidence strings are authored provenance records, not independently checked citations or current operational facts. No current execution/deployment claim is made."
+      }
     }
   ]
 }

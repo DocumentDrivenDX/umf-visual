@@ -1385,3 +1385,25 @@ same 1.0 details capture only actual selected source-table facts. YAML assertion
 changed from indentation to semantic parsing, no writer/runtime change. No shared
 code/model/C089 amendment. Prior holds resolved; cycle 47 complete pending commit,
 cycle 48 commit-gated.
+
+
+Cycle 48 focused freeze: source 2/49/type/source/diff pass. Separate 1.0 definition
+adds only six exact participant evidence arrays; independent removal equals original,
+all messages/steps/metadata unchanged, no other-view facts imported. Source evidence
+is retained assertion, with one located native omission per array. Exact derived
+Lini 10/10 qualifies and source/SVG/PNG equal approved baseline; G/M precise subset
+refusals retained. No shared renderer/proof/UI/model change, C089 unchanged. Lean 14
+fresh gates planned with all-review replay/selected shared UI/public/native/catalog;
+retain C45 full1,026/0/26,266/showcase/all 44 UI subject to fingerprints. Cycle 48
+incomplete; cycle 49 commit-gated.
+
+
+Cycle 48 closeout: all 14 affected gates pass, source 2/49 and final site test
+included. Actual 47 entries/100 qualified/15 unqualified/26 unsupported/zero execution
+failures, 115 native SVG/PNG pairs, 345 render assets, 42 authorities, five captures.
+All 46 prior fingerprints identical justify retained C45 full1,026/0/26,266/showcase/
+all 44 UI. Fresh Lini 10/10 independently approved; G/M precise refusals retained.
+Only six source-exact evidence arrays added in separate 1.0 definition, all other
+original payload unchanged, located native omissions retained and native artifacts
+byte-identical. No current verification claim/shared-code/model/C089 change.
+All holds resolved; cycle 48 complete pending commit, cycle 49 commit-gated.
