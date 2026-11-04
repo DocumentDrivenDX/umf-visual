@@ -4263,7 +4263,7 @@ and strict path/unrelated-node clearance. Do not apply DAG placement to a cyclic
 source by dropping a relation. Reuse existing family profiles first; no vocabulary
 gap is indicated. Data-only lean gates are appropriate only with an existing
 suitable target and unchanged shared code; otherwise apply full relevant gates.
-The rejected C42 grouped selector is not carried forward. Cycle 43 is committed as `3a5ece8`. Cycle 44 is complete, ready for its per-document commit;
+The rejected C42 grouped selector is not carried forward. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is complete, ready for its per-document commit;
 cycle 44 waits for its per-document commit.
 
 ### Cycle 43 semantic checkpoint — source-numbered relation walkthrough
@@ -4353,7 +4353,7 @@ scope-qualified; do not silently conflate another view or invent source facts.
 No new vocabulary is indicated. Evaluate existing generic zoned/tier policies and
 actual all-caption/group clearance; at least one target must be suitable, other
 native limitations retain honest receipts. Lean affected gates apply if data-only,
-full relevant gates if shared renderer/proof/UI changes. Cycle 44 is complete, ready for its per-document commit;
+full relevant gates if shared renderer/proof/UI changes. Cycle 44 is committed as `f5b47f3`. Cycle 45 is complete, ready for its per-document commit;
 cycle 45 waits for its per-document commit.
 
 ### Cycle 44 focused freeze — data-only zoned walkthrough
@@ -4398,6 +4398,77 @@ model change or new source fact is introduced. C089 remains unchanged. All holds
 are resolved; cycle 44 is complete pending its per-document commit and cycle 45
 must not begin before that commit.
 
+### Forty-fifth-cycle scope — developer field-guide lanes
+
+Cycle 44 is committed as `f5b47f3`. Cycle 45 reviews exact Visual 1.0
+`fixtures/visual/inventory/helix-field-guide.json`: seven nodes, four lanes,
+seven relations and six existing ordered relation-note steps. The exact cited
+architecture TOML remains `6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2`.
+Preserve six original step IDs/titles/order/captions/focus and the conceptual-map,
+not-deployment caveat. Audit the missing seventh optional tooling note using an
+unnumbered when:optional step; do not duplicate or renumber existing six steps.
+The source element.job explanations are relevant to a developer's starting map:
+review faithful capture through existing detail/context fields, preserving original
+bytes and exact existing detail if a separate source-backed definition is needed.
+Do not invent a niche responsibility field, current capability guarantee or new
+source fact. Exact source optionality and feedback must survive.
+
+Require visible lane enclosures/membership and all exact labels/details/relations,
+actual caption/route clearance, and separately qualified ordered source-focus UI.
+No implied physical swimlane alignment, chronology or activation is inferred.
+Evaluate actual source-backed definition fit before choosing gates: lean if data-only
+with a suitable target, full applicable gates if shared runtime/proof/UI changes.
+C089 already covers the family; no amendment is indicated. Cycle 45 is complete, ready for its per-document commit;
+cycle 46 waits for its per-document commit.
+
+### Cycle 45 focused freeze — responsibility capture and lane proof repair
+
+Source 2/60/type/source/diff pass. The separate same 1.0 review preserves original
+six steps/all other fields and appends seven exact source job paragraphs to existing
+node details plus the exact seventh optional relation note. Existing conceptual-map
+caveat, lanes, topology and source assertions remain unchanged. No responsibility
+field, new model or invented current capability is introduced.
+
+Derived G13/M11 qualify; Lini retains real caption/font limitations. Two false
+lane-proof failures are corrected generically: the actual pinned store carrier is
+`lini-cyl`, and authored multiline detail text must be reconstructed from complete
+owned painted SVG lines rather than concatenated textContent. The proof includes
+root/all-ancestor visibility and functional alpha parsing, fails closed on unknown
+paint, retains exact inventory/ownership and leaves foreignObject behavior unchanged.
+Focused lanes 4/226/type/diff pass, including isolated missing-word, hidden leaf,
+rgba-zero, modern color alpha-zero, root-opacity and wrong-owner mutations. Genuine
+caption/font checks and thresholds remain unchanged.
+
+This shared proof repair requires full 18 gates rather than a data-only lean run.
+All broader evidence remains pending. C089's existing lane obligations suffice;
+no new semantic family or algorithm mandate is introduced. Cycle 45 is incomplete,
+and cycle 46 waits for its per-document commit.
+
+### Cycle 45 closeout — complete, ready for commit
+
+All 18 gates pass. Final full suite: 1,026 passed, zero failed, 26,266 assertions,
+191 files, 183.25s. Source/type/build/fetch/package/browser/native/catalog/showcase+
+replay/reviews+replay/site/all UI pass. Fresh reviews contain 44 entries, 95 qualified,
+13 unqualified, 24 unsupported,zero execution failures, 324 assets, 108 native SVG plus
+108 PNG replays, 39 authoritative sources and five captures. All 44/44 and selected C45 UI
+retain shared controls; catalog 214 SVG and showcase 46 SVG/PNG (23 renders) pass
+Chromium 153 with zero errors.
+
+Source 2/60 and lanes 4/226 pass. Fresh G13/M11 suitable PNGs are independently
+approved with all seven exact responsibilities, four lane enclosures and seven
+relations readable; ordered source notes/optional item remain separately verified
+in shared UI. Lini membership now passes actual pinned carrier and painted-line
+ownership proof; only genuine caption/font limitations remain unqualified. No
+threshold or ownership waiver is introduced. Exact `lini-cyl`, complete owned
+multiline words, ancestor/root paint, functional alpha and isolated hidden/missing/
+wrong-owner controls repair verifier recognition without changing source meaning.
+
+Original six steps/caveat/source and all other fields remain preserved. The separate
+same 1.0 review adds seven exact job paragraphs and one optional note using existing
+fields; no new vocabulary, map kind, case branch or current capability inference.
+C089 remains unchanged. Earlier holds are resolved; cycle 45 is complete pending
+its per-document commit and cycle 46 must not begin before that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -4418,8 +4489,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is complete, ready for its per-document commit;
-cycles 45–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is complete, ready for its per-document commit;
+cycles 46–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

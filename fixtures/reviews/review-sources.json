@@ -2462,6 +2462,60 @@
         "sourceDownloadPath": "reviews/helix-deployment/authoritative-source.json",
         "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separate reviewed Visual 1.0.0 definition adds six ordered steps from architecture-model relation records with source `step` 1–6, preserving each relation label, exact note, and existing edge focus ID. It adds one unnumbered optional step from the final relation's exact label/note/focus; `when: optional` is supported by its `why: optional host tooling` and the documentor element's optional host-tool description. It does not import the separate `journey.step` labels. The cited architecture-model TOML bytes match the fixture digest exactly. The deployment view's ordered element list and title/takeaway match; four zones, tier values, and node memberships project from selected element `zone`/`tier` fields. Node role values are Visual-fixture mappings from source element kinds. Existing nodes/edges, evidence/status/why fields, question, audience, IDs, and source metadata are unchanged. The deployment view does not declare a direction. Source `job` prose is outside this selected projection. The model's `built` statuses and evidence strings are authored records, not independent checks of current deployment or runtime behavior."
       }
+    },
+    {
+      "id": "helix-field-guide",
+      "title": "A developer's first map of HELIX",
+      "description": "A source-bound context field guide that adds the source responsibilities and optional tool relationship while preserving the original Visual projection.",
+      "kind": "flow",
+      "form": "lanes",
+      "definitionPath": "fixtures/reviews/definitions/helix-field-guide.json",
+      "definitionSha256": "92c5d9fde6d9e310b8983feaf5d661d9d9fb579ea5f9418bed6e4b626a8ab440",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/helix-field-guide.json",
+          "sha256": "6355a41023ce8cf89630e69e9e607d025e6b4d195b615870a0028a9337f38938",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies the seven ordered context nodes, four lanes, seven relationships, six existing steps, omissions, title, question, audience, and cited architecture-model locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-model.toml",
+          "sha256": "6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2",
+          "pointer": "/view/context, selected /element, and /relation records",
+          "label": "Cited HELIX architecture model",
+          "originalLocator": "helix:docs/helix/02-design/architecture-model.toml",
+          "resolvedSource": "helix/docs/helix/02-design/architecture-model.toml",
+          "description": "Exact TOML bytes resolved from the fixture locator. The context view selects seven elements; selected element records supply layer, name/detail/job/kind/status/evidence; relation records supply the six numbered notes and one unnumbered optional relation note."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/helix-field-guide.json",
+          "sha256": "6355a41023ce8cf89630e69e9e607d025e6b4d195b615870a0028a9337f38938",
+          "outputPath": "reviews/helix-field-guide/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-model.toml",
+          "sha256": "6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2",
+          "outputPath": "reviews/helix-field-guide/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact cited architecture-model TOML bytes published without transformation."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/helix-field-guide.json",
+        "sourceSha256": "6355a41023ce8cf89630e69e9e607d025e6b4d195b615870a0028a9337f38938",
+        "documentId": "visual:helix-field-guide",
+        "visualId": "helix-field-guide",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-field-guide/authoritative-source.json",
+        "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separately reviewed Visual 1.0.0 definition preserves its seven nodes/groups/edges and six existing steps, then appends the exact source `job` sentence to each existing node detail with two line breaks, leaving the former detail as an exact prefix. It adds an unnumbered optional seventh step from the source relation with no `step`: exact relation label, note, and existing edge focus ID, with `when: optional` grounded by `why: optional host tooling`. The six existing step IDs, title capitalization, captions, focus IDs, order, numbering-by-order, lane memberships, role/status/evidence, omissions, title, question, audience, and source locator are unchanged. The cited architecture-model TOML bytes match the fixture digest exactly. The context view element order and the four lane groups correspond to source `layer` values; group IDs and lane role are Visual-fixture projections. Source `job` prose is included in the enriched details, not turned into a new schema field. The model's `built` statuses and evidence strings are authored records, not independent checks of current deployment or runtime behavior."
+      }
     }
   ]
 }

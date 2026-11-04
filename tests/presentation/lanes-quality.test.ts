@@ -43,7 +43,7 @@ async function mappedNodeInventory(page:Page,plan:PresentationPlan){
   return nativeIds.map(nativeId=>{
    if(backend==='graphviz')return [...svg.querySelectorAll<SVGGElement>('g.node')].filter(carrier=>carrier.querySelector(':scope > title')?.textContent?.trim()===nativeId).length;
    if(backend==='mermaid')return [...svg.querySelectorAll<SVGGElement>('g.node')].filter(carrier=>carrier.id===nativeId||carrier.id.endsWith('-'+nativeId)||carrier.id.includes('-'+nativeId+'-')).length;
-   return [...svg.querySelectorAll<SVGGElement>('g.lini-node[data-id]')].filter(carrier=>carrier.getAttribute('data-id')===nativeId&&[...carrier.classList].some(name=>['lini-box','lini-oval','lini-circle','lini-ellipse','lini-diamond','lini-hexagon','lini-cylinder','lini-parallelogram','lini-note','lini-document','lini-multiple-documents'].includes(name))).length;
+   return [...svg.querySelectorAll<SVGGElement>('g.lini-node[data-id]')].filter(carrier=>carrier.getAttribute('data-id')===nativeId&&[...carrier.classList].some(name=>['lini-box','lini-oval','lini-circle','lini-ellipse','lini-diamond','lini-hexagon','lini-cyl','lini-parallelogram','lini-note','lini-document','lini-multiple-documents'].includes(name))).length;
   });
  },{backend:plan.backend,nativeIds});
 }
@@ -144,6 +144,54 @@ test('native lane proof accepts generic counts, renamed IDs, and nested subgroup
   }
  }
 },{timeout:90_000});
+
+test('native Lini lanes proof recognizes authored cylinders and rejects phantom, duplicate, misparented, or alternate shapes',async()=>{
+ const document=readVisualDocument(readFileSync('fixtures/visual/inventory/helix-field-guide.json','utf8'),'json') as Document,base=getVisual(document)! as Visual;
+ const page=await browser.newPage({viewport:{width:1600,height:900},deviceScaleFactor:1});
+ try{
+  for(const[name,visual]of[['authored',base],['renamed-mixed-shapes',renamedVisual(base)]] as const){
+   const doc=name==='authored'?document:createVisualDocument(visual,'visual:renamed-field-guide','1.4.0'),plan=compilePresentation(doc,{backend:'lini',theme:'presentation/1'});expect(plan.ok,name).toBe(true);if(!plan.ok)continue;
+   const rendered=await renderPresentationLini(plan.source);await install(page,rendered.svg);const checks=await verifyLanesPresentationQuality(page,{plan,visual,nativeAst:rendered.nativeAst});expect(laneCheck(checks)?.result,`${name}: ${laneCheck(checks)?.details}`).toBe('pass');
+   for(const node of visual.nodes?.filter(node=>node.role==='store')??[]){const id=plan.elementMap.find(item=>item.kind==='node'&&item.logicalId===node.id)!.nativeId;expect(await page.locator(`g.lini-node[data-id="${id}"].lini-cyl`).count(),`${name}/${node.id}`).toBe(1);}
+  }
+  const plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});expect(plan.ok).toBe(true);if(!plan.ok)return;const rendered=await renderPresentationLini(plan.source),store=base.nodes!.find(node=>node.role==='store')!,nativeId=plan.elementMap.find(item=>item.kind==='node'&&item.logicalId===store.id)!.nativeId;
+  for(const kind of ['wrong-class','shape-mismatch','duplicate','phantom','misparent'] as const){
+   await install(page,rendered.svg);
+   const svg=await page.locator('#frame svg').evaluate((root,{kind,nativeId})=>{
+    const svg=root as SVGSVGElement,carrier=svg.querySelector<SVGGElement>(`g.lini-node[data-id="${nativeId}"]`);if(!carrier)throw Error('Mapped cylinder carrier is absent.');
+    if(kind==='wrong-class'){carrier.classList.remove('lini-cyl');carrier.classList.add('lini-cylinder');}
+    else if(kind==='shape-mismatch'){carrier.classList.remove('lini-cyl');carrier.classList.add('lini-box');}
+    else if(kind==='duplicate')carrier.parentElement?.appendChild(carrier.cloneNode(true));
+    else if(kind==='phantom'){const phantom=carrier.cloneNode(true) as SVGGElement;phantom.setAttribute('data-id','unmapped-cylinder');carrier.parentElement?.appendChild(phantom);}
+    else{const parent=carrier.parentElement,target=[...svg.querySelectorAll<SVGGElement>('g.lini-node.lini-group[data-id]')].find(group=>!group.isSameNode(parent));if(!target)throw Error('Alternate lane is unavailable.');target.appendChild(carrier);}
+    return svg.outerHTML;
+   },{kind,nativeId});await install(page,svg);const checks=await verifyLanesPresentationQuality(page,{plan,visual:base,nativeAst:rendered.nativeAst});expect(laneCheck(checks)?.result,kind).toBe('fail');
+  }
+ }finally{await page.close();}
+},{timeout:60_000});
+
+test('native Lini lane details preserve derived multiline words and fail for missing, hidden, or misowned text leaves',async()=>{
+ const document=readVisualDocument(readFileSync('fixtures/reviews/definitions/helix-field-guide.json','utf8'),'json') as Document,visual=getVisual(document)! as Visual,plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+ const rendered=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900},deviceScaleFactor:1});
+ try{
+  await install(page,rendered.svg);const baseline=await verifyLanesPresentationQuality(page,{plan,visual,nativeAst:rendered.nativeAst});expect(laneCheck(baseline)?.result,`${laneCheck(baseline)?.details}`).toBe('pass');
+  const first=visual.nodes![0]!,nativeId=plan.elementMap.find(item=>item.kind==='node'&&item.logicalId===first.id)!.nativeId;
+  for(const mutation of ['missing-word','hidden-leaf','rgba-alpha','modern-alpha','root-opacity','wrong-owner'] as const){
+   await install(page,rendered.svg);
+   await page.locator('#frame svg').evaluate((root,{mutation,nativeId})=>{
+    const svg=root as SVGSVGElement,owner=svg.querySelector<SVGGElement>(`g.lini-node[data-id="${nativeId}"]`),cell=owner?.querySelector<SVGGElement>(':scope > g.lini-cell');if(!owner||!cell)throw Error('Source-owned multiline detail carrier is absent.');
+    if(mutation==='root-opacity'){svg.style.opacity='0';return;}
+    const leaves=[...cell.querySelectorAll<SVGTSpanElement>('text.lini-text > tspan')];if(leaves.length<2)throw Error('Expected multiline detail SVG to use distinct text leaves.');
+    if(mutation==='missing-word')leaves.at(-1)!.textContent='word removed';
+    else if(mutation==='hidden-leaf')leaves[0]!.setAttribute('opacity','0');
+    else if(mutation==='rgba-alpha')leaves[0]!.style.setProperty('fill','rgba(0, 0, 0, 0)');
+    else if(mutation==='modern-alpha')leaves[0]!.style.setProperty('fill','color(srgb 0 0 0 / 0)');
+    else{const target=[...svg.querySelectorAll<SVGGElement>('g.lini-node[data-id]')].find(node=>node!==owner&&!node.classList.contains('lini-group')&&!node.classList.contains('lini-cell'));if(!target)throw Error('Alternate node owner is unavailable.');target.appendChild(cell);}
+   },{mutation,nativeId});
+   const checks=await verifyLanesPresentationQuality(page,{plan,visual,nativeAst:rendered.nativeAst});expect(laneCheck(checks)?.result,mutation).toBe('fail');
+  }
+ }finally{await page.close();}
+},{timeout:45_000});
 
 test('native lane proof rejects forged membership, hidden outlines, and phantom nodes and groups across backends',async()=>{
  const document=sourceDocument,visual=getVisual(document)! as Visual;
