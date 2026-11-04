@@ -29,6 +29,44 @@ async function recheck(page:Page,document:ReturnType<typeof doc>,plan:Presentati
 function expectAll(checks:Awaited<ReturnType<typeof verifyLiniPresentationQuality>>,timeline=false,directedFlowRanks=false){expect(checks.map(check=>check.check)).toEqual(timeline?[...required.slice(0,4),'lini-timeline-events-and-date-scale',required[4]!]:directedFlowRanks?[...required.slice(0,4),'lini-directed-flow-dependency-ranks',required[4]!]:required);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw new Error(JSON.stringify(failed));}
 
 describe('pinned Lini presentation quality',()=>{
+ it('places ranked root-grid captions beside vertical same-column connectors',async()=>{
+  const fixtures:[string,string[],string,number][]=[
+   ['column-normal-four',['alpha','beta','gamma','delta'],'alpha-to-delta',4],
+   ['column-normal-five',['cedar','birch','elm','ash','maple'],'cedar-to-ash',5],
+  ];
+  for(const[id,ids,edgeId,expectedNodes]of fixtures){
+   const [sourceId,leftId,rightId,targetId,...extraIds]=ids;
+   const visual:Visual={id,kind:'flow',form:'network',question:'Which paths connect these components?',groups:[{id:`zone-${id}`,label:`Zone ${id}`,role:'boundary'}],nodes:[
+    {id:targetId!,label:`Target ${targetId}`},
+    ...(extraIds.length?[{id:extraIds[0]!,label:`Additional ${extraIds[0]}`}]:[]),
+    {id:rightId!,label:`Peer ${rightId}`},{id:sourceId!,label:`Source ${sourceId}`,group:`zone-${id}`},{id:leftId!,label:`Peer ${leftId}`},
+   ],edges:[
+    {id:`${sourceId}-left`,from:sourceId!,to:leftId!},{id:`${sourceId}-right`,from:sourceId!,to:rightId!},
+    ...(extraIds.length?[{id:`${rightId}-target`,from:rightId!,to:targetId!},{id:`${targetId}-extra`,from:targetId!,to:extraIds[0]!}]:[{id:`${leftId}-target`,from:leftId!,to:targetId!}]),
+    {id:edgeId,from:sourceId!,to:targetId!,label:`Connect ${sourceId} to ${targetId}`},
+   ]};
+   const native=await render(visual);
+   try{
+    expect(native.plan.elementMap.filter(item=>item.kind==='node')).toHaveLength(expectedNodes);
+    if(result(native.checks,'lini-connection-endpoints')!=='pass')throw Error(`${id}: ${native.checks.find(check=>check.check==='lini-connection-endpoints')?.details}`);
+    const target=native.plan.elementMap.find(item=>item.logicalId===edgeId&&item.kind==='edge')?.nativeId;
+    expect(target).toBeTruthy();
+    const link=native.page.locator(`g.lini-link.lini-style-${target} > path:not(.lini-marker)`),caption=native.page.locator(`g.lini-link.lini-style-${target} > text.lini-link-label`);
+    const geometry=await Promise.all([link.boundingBox(),caption.boundingBox()]);expect(geometry[0]&&geometry[1]).toBeTruthy();
+    if(!geometry[0]||!geometry[1])throw Error('Native vertical connector or caption geometry is missing.');
+    expect(geometry[0].x+geometry[0].width<=geometry[1].x||geometry[1].x+geometry[1].width<=geometry[0].x).toBe(true);
+    await caption.evaluate(element=>{const text=element as SVGTextElement,path=text.parentElement?.querySelector('path:not(.lini-marker)') as SVGPathElement;if(!path)throw Error('Native connector path is missing');const point=path.getPointAtLength(path.getTotalLength()/2),matrix=path.getScreenCTM();if(!matrix)throw Error('Native connector has no screen transform');const screen=new DOMPoint(point.x,point.y).matrixTransform(matrix),box=text.getBoundingClientRect();text.style.transform=`translate(${screen.x-(box.left+box.right)/2}px, ${screen.y-(box.top+box.bottom)/2}px)`;});
+    expect(result(await recheck(native.page,native.document,native.plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   }finally{await native.page.close();}
+  }
+ },{timeout:60_000});
+
+ it('keeps the flow-lanes root-flow caption normal unchanged',()=>{
+  const document=readVisualDocument(readFileSync(resolve('fixtures/visual/inventory/beacon-field-guide.json'),'utf8'),'json'),plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});
+  expect(plan.ok).toBe(true);if(!plan.ok)return;
+  expect(plan.source).toContain('g1.n1 -> g2.n2 .e1 { along: 0.5; } [ "opens a ticket" { translate: 0 -88; font-size: 16; } ]');
+ });
+
  it('preserves each exact-date event on a proportional native axis without a quantitative Y scale',async()=>{
   const document=readVisualDocument(readFileSync(resolve('fixtures/visual/forms/helix-releases.json'),'utf8'),'json'),native=await renderDocument(document);
   try{

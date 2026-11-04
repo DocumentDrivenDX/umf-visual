@@ -897,3 +897,20 @@ outline/inventory/owned-glyph controls qualify generic lane rendering without
 alignment or chronology inference. Two prior native-process 5s timeouts and narrow
 30s test-local execution budget are retained in execution history; all native
 assertions/quality thresholds remain unchanged and final clean gates prevail.
+
+
+Renderer-selected grid caption controls distinguish local route direction from a
+global presentation direction. Immediate same-column root neighbors may use a
+private perpendicular placement estimate only when that grid is actually selected;
+explicit layout and non-grid/lane compositions retain prior policies. Native
+reordered/renamed/different-count controls, forced overlap negatives and affected
+lane/group regressions verify the boundary without private coordinate assertions.
+
+
+Cycle 31 closeout: final full suite passes 949 tests, zero failures and 24,583
+assertions across 168 files in 280.51 seconds. All required native/corpus/review/
+replay/site/public/packed-consumer gates pass, with 72 native SVG/PNG replays and
+216 assets. Review UI all 30/30 and selected 1/30 retain shared controls and zero
+errors; catalog/showcase UI pass. Exact source authority and existing CONTRACT-089
+semantics remain unchanged. Private local-grid caption-normal correction preserves
+all nonmatching policies and strict native proof without new model fields.

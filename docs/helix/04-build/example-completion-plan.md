@@ -3070,6 +3070,110 @@ host capability claim is widened. Commit follows in this change; git history is
 authoritative. Cycle 31 remains pending until cycle 30 is committed; this resolves
 all earlier checkpoint holds.
 
+### Thirty-first-cycle scope — fictional selected integrations
+
+Cycle 31 implementation and verification are complete, ready for commit, using exact authoritative source
+`fixtures/visual/inventory/beacon-integrations.json`, SHA-256
+`a2b4557ec0b86402e4da4a9195743e106af2d91ef216396b9a81534e382e539b`.
+Matching fictional architecture TOML explicitly declares the integrations view,
+its six selected elements, title/takeaway and Beacon boundary containing API/drafter.
+Audit six induced relations/two why qualifiers and exact details/roles/statuses
+against source before alias freeze. No steps are authored. Prefer exact alias;
+no missing-view derivation is needed, and no current deployment/system facts or
+unrelated view/journey content are inferred. Publish original JSON/TOML separately.
+
+Evaluate existing grouped-flow native targets before edits. Preserve boundary
+membership, exact source-node/edge identity, visible full text and truthful rationale/
+metadata accounting. Existing vocabulary suffices. If runtime qualifies, use focused
+source/native case, real review build/replay/site, selected-case UI with shared
+controls/global validation and public consumers; do not repeat unchanged corpus/
+full suites. Concrete runtime/proof gaps reopen applicable AGENTS full gates.
+Commit cycle 31 before starting cycle 32.
+
+### Thirty-first-cycle focused renderer checkpoint
+
+Parsed originating-TOML controls pass two tests/24 assertions, confirming the
+explicit integrations view, six selected elements/relations, boundary and exact
+why/details/roles/statuses. JSON/TOML authority remains an exact alias. Actual G/M/L
+native output passes after a bounded generic root-grid caption-normal correction:
+only no-authored-layout, actual fallback grid, immediate same-column root neighbors
+use the perpendicular axis; all prior nonmatching placement policies remain.
+Caption-width budgets preserve source text/topology and native checks stay strict.
+Generic four-root and renamed/reordered five-root controls plus forced-overlap
+negative pass. Lane-bypass/explicit-layout and affected regressions plus all broad
+required gates remain pending; cycle 31 is incomplete.
+
+### Thirty-first-cycle final focused freeze
+
+Final source/runtime/tests are frozen. Focused affected checks pass 31 tests/516
+assertions, including generic renamed/reordered four/five-root native positives,
+owned-caption overlap negative, lane-flow bypass and existing lane proofs. Parsed
+source checks pass two tests/24 assertions; typecheck/diff pass. Actual G/M/L native
+outputs qualify after the narrow grid-neighbor normal estimate. Explicit layout
+and all nonmatching caption branches retain existing behavior; no source fields,
+model semantics, private offset mandate or quality threshold were added.
+
+Final source/model/interface/modularity review approves exact alias and generic
+renderer-only local-axis handling. Existing CONTRACT-089 visible-ink/clearance
+criteria cover the fix; STP records its guard/regression scope without prescribing
+private arithmetic. All mandatory source/build/native/corpus/review/replay/site/UI/
+consumer/full-suite gates are pending. Cycle 31 is incomplete; cycle 32 remains
+gated on cycle 31 commit.
+
+### Thirty-first-cycle full-suite checkpoint — 2026-11-04
+
+The first frozen-patch full suite passes **949 tests, zero failures,
+24,583 assertions across 168 files in 280.51 seconds**
+(`.cache/cycle 31-full-test.log`). Source/type/build, fetch and packed Bun/Node
+consumer checks pass. Actual source-bound G/M/L native output qualifies; original
+JSON/TOML authority remains unchanged. Browser/native/corpus/review/replay/site/UI
+stages remain queued, so cycle 31 is incomplete.
+
+Final model/interface/modularity review approves the narrow actual-grid vertical
+neighbor caption-normal estimate with explicit-layout/non-grid bypass and unchanged
+prior strategies/quality obligations. Exact source identities/topology/full text
+and fictional view scope remain preserved. Existing CONTRACT-089 criteria suffice;
+no normative algorithm or new portable fields were added. Cycle 32 remains gated on
+cycle 31 commit after all required gates pass.
+
+### Thirty-first-cycle built-native checkpoint — replay/UI pending
+
+Fresh built receipts cover 30 reviews/69 qualified/three unqualified/18 unsupported
+variants. Integrations is qualified on G/M/L with exact source definition
+`a2b4557ec0b86402e4da4a9195743e106af2d91ef216396b9a81534e382e539b`.
+PNG SHA-256 values are Graphviz
+`db059d51f1eea8a4d369c197b976b936bc9190581bea909d909016e4b6975d33`,
+Mermaid `13c87642186fc12e35aecd989ba392c8a4b9aa3c189b101a2d775b8b23d7cb7b`
+and Lini `0036497c073ef35e4281b1ebde585555600e806b5f58241352a8930ffc05d0fc`.
+Independent actual-built G/L visual inspection confirms six readable nodes and
+six captioned links, correct boundary and local-axis caption clearance. Rationale
+hover/source-only limits remain explicit; they are not claimed as persistent PNG
+content. Previous three unqualified check sets and PNG hashes are unchanged.
+Catalog 53/showcase nine examples/23 qualified plus 23 SVG/PNG replays pass. Final
+review verification/site/UI all 30/selected 1 and catalog/showcase UI remain pending;
+cycle 31 is incomplete.
+
+### Thirty-first-cycle closeout — 2026-11-04
+
+All required gates pass. The final isolated full suite is **949 tests, zero
+failures, 24,583 assertions across 168 files in 280.51 seconds**, first attempt on
+the frozen patch. Source/type/build, fetch/native, packed Bun/Node, browser,
+catalog 53 and showcase nine examples/23 qualified variants pass. Reviews cover 30
+documents/69 qualified/three unqualified/18 unsupported variants, 216 assets and 72
+native SVG/PNG replays. Final review UI receipts record all 30/30 and selected 1/30
+with sharedControls true and no errors; catalog/showcase UI also pass without errors.
+Exact source/PNG hashes and unchanged prior failure sets are recorded above.
+
+Final source/model/interface/modularity review passes: exact selected fictional
+JSON/TOML authority is unchanged, including six nodes/relations, boundary and why
+qualifiers. The private bug fix selects caption normal from actual renderer-grid
+neighbor geometry only, preserving explicit layouts/non-grid lane flow and every
+other fallback branch. Source topology/full text and strict owned-ink/endpoint/frame
+checks remain authoritative. Existing CONTRACT-089 semantics are unchanged; no
+portable fields, algorithm mandate or host capability claim were added. Commit
+follows in this change; git history is authoritative. Cycle 32 remains pending until
+cycle 31 is committed; this resolves all previous checkpoint holds.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.

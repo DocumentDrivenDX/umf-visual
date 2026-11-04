@@ -1580,6 +1580,58 @@
       }
     },
     {
+      "id": "beacon-integrations",
+      "title": "What Beacon calls outside",
+      "description": "The exact Visual 1.0.0 fixture for the fictional Beacon integrations view and its matching architecture-model source.",
+      "kind": "flow",
+      "form": "network",
+      "definitionPath": "fixtures/visual/inventory/beacon-integrations.json",
+      "definitionSha256": "a2b4557ec0b86402e4da4a9195743e106af2d91ef216396b9a81534e382e539b",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/beacon-integrations.json",
+          "sha256": "a2b4557ec0b86402e4da4a9195743e106af2d91ef216396b9a81534e382e539b",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 source fixture supplies six node identities and fields, one authored boundary group, and six directed relations induced by the selected endpoints."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "pointer": "/view/integrations",
+          "label": "Fictional architecture-model source",
+          "description": "The exact checked-in TOML bytes explicitly define the integrations view, its six elements and one group, plus the source relations between selected endpoints; the source labels the model fictional."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/beacon-integrations.json",
+          "sha256": "a2b4557ec0b86402e4da4a9195743e106af2d91ef216396b9a81534e382e539b",
+          "outputPath": "reviews/beacon-integrations/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/architecture-model.toml",
+          "sha256": "5506076ecd96344bd6b203c4d2a36ed983a7d9c37883c0e4dc65f9a59f689910",
+          "outputPath": "reviews/beacon-integrations/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact fictional architecture-model TOML bytes cited by the original UMF fixture."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/beacon-integrations.json",
+        "sourceSha256": "a2b4557ec0b86402e4da4a9195743e106af2d91ef216396b9a81534e382e539b",
+        "documentId": "visual:beacon-integrations",
+        "visualId": "beacon-integrations",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/beacon-integrations/authoritative-source.json",
+        "scope": "This exact UMF fixture is the review definition. It preserves the six elements explicitly selected by the `integrations` view, their authored fields, the explicit process boundary group containing api and drafter, and the six relations induced by selected endpoints. The source TOML explicitly defines that view, its element list and group; it does not define a deployed system. The originating architecture-model source identifies itself as fictional; neither file establishes current state or deployment."
+      }
+    },
+    {
       "id": "beacon-field-guide",
       "title": "A developer's first map of Beacon",
       "description": "The exact Visual 1.0.0 fixture for the fictional Beacon field-guide view and its matching architecture-model source.",
