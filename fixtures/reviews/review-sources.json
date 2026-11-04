@@ -2516,6 +2516,60 @@
         "sourceDownloadPath": "reviews/helix-field-guide/authoritative-source.json",
         "scope": "The original Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The separately reviewed Visual 1.0.0 definition preserves its seven nodes/groups/edges and six existing steps, then appends the exact source `job` sentence to each existing node detail with two line breaks, leaving the former detail as an exact prefix. It adds an unnumbered optional seventh step from the source relation with no `step`: exact relation label, note, and existing edge focus ID, with `when: optional` grounded by `why: optional host tooling`. The six existing step IDs, title capitalization, captions, focus IDs, order, numbering-by-order, lane memberships, role/status/evidence, omissions, title, question, audience, and source locator are unchanged. The cited architecture-model TOML bytes match the fixture digest exactly. The context view element order and the four lane groups correspond to source `layer` values; group IDs and lane role are Visual-fixture projections. Source `job` prose is included in the enriched details, not turned into a new schema field. The model's `built` statuses and evidence strings are authored records, not independent checks of current deployment or runtime behavior."
       }
+    },
+    {
+      "id": "helix-overview-map",
+      "title": "A request becomes a governing document",
+      "description": "A source-preserving review of the architecture model's request journey, without merging separate context relations into the journey.",
+      "kind": "flow",
+      "form": "pipeline",
+      "definitionPath": "fixtures/visual/inventory/helix-overview-map.json",
+      "definitionSha256": "06832538099d4b46334b6cb43bc0b674f4a2038924fe825c55ac427e2017e048",
+      "sources": [
+        {
+          "path": "fixtures/visual/inventory/helix-overview-map.json",
+          "sha256": "06832538099d4b46334b6cb43bc0b674f4a2038924fe825c55ac427e2017e048",
+          "pointer": "/extensions/umf.visual",
+          "label": "Authoritative UMF fixture",
+          "description": "The exact Visual 1.0.0 fixture supplies six ordered request-journey edges and focus steps, node identities/details/evidence, the return kind projection, omissions, question, and source locator."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-model.toml",
+          "sha256": "6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2",
+          "pointer": "/view/request, /journey/request and its steps, selected /element records",
+          "label": "Cited HELIX architecture model",
+          "originalLocator": "helix:docs/helix/02-design/architecture-model.toml",
+          "resolvedSource": "helix/docs/helix/02-design/architecture-model.toml",
+          "description": "Exact TOML bytes resolved from the fixture locator. The request view identifies a separate journey; that journey supplies its title/takeaway and six ordered from/to/label steps. First-seen endpoints select the corresponding source element records for node labels/details/kinds/status/evidence."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/inventory/helix-overview-map.json",
+          "sha256": "06832538099d4b46334b6cb43bc0b674f4a2038924fe825c55ac427e2017e048",
+          "outputPath": "reviews/helix-overview-map/authoritative-source.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF fixture bytes for source-preserving download."
+        },
+        {
+          "path": "fixtures/visual/sources/helix/architecture-model.toml",
+          "sha256": "6e13adabec034747ed6d5505668e1daef353a3df6d2c54f3e4ff799cb92acff2",
+          "outputPath": "reviews/helix-overview-map/architecture-model.toml",
+          "mediaType": "application/toml",
+          "description": "Exact cited architecture-model TOML bytes published without transformation."
+        }
+      ],
+      "originalEvidence": {
+        "kind": "authoritative-umf-source",
+        "sourcePath": "fixtures/visual/inventory/helix-overview-map.json",
+        "sourceSha256": "06832538099d4b46334b6cb43bc0b674f4a2038924fe825c55ac427e2017e048",
+        "documentId": "visual:helix-overview-map",
+        "visualId": "helix-overview-map",
+        "envelopeVersion": "0.10.0",
+        "modelVersion": "1.0.0",
+        "sourceDownloadPath": "reviews/helix-overview-map/authoritative-source.json",
+        "scope": "The exact Visual 1.0.0 fixture remains unchanged and is published byte-for-byte. The cited architecture-model TOML bytes match the fixture digest exactly. The request view has `type: journey` and points to journey `request`; that journey's six ordered endpoint/label steps, title, and takeaway match the fixture's six edge labels/endpoints, six Visual step titles/focus IDs, title, and takeaway. Node IDs, labels, details, role/status/evidence map to first-seen journey endpoints and their source element records. Visual edge and step IDs are fixture projections. The final `kind: return` is a Visual flow projection for the final docs-to-runtime edge, not a literal field on the journey step. The separate context-view relations, their why/status/evidence/notes, and element job descriptions are not merged into this selected journey; neither are the journey's separate labels replaced with relation labels. The question, audience, omissions, and flow/pipeline vocabulary are fixture-authored. Source metadata outside the request journey remains inspectable in the published exact TOML snapshot; no current deployment/runtime claim is made."
+      }
     }
   ]
 }
