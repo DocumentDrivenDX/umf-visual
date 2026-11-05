@@ -359,6 +359,37 @@
           "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
           "pointer": "MIT License",
           "description": "Exact upstream MIT license text accompanying the pinned Lini v1.1.0 source samples."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-product-mindmap.json",
+          "sha256": "1635b9fc5556daa96f7a70eb0aa1810d86b503da4e3e04d53a52bf8a6152c8b4",
+          "originPath": "fixtures/showcase/definitions/lini-gallery-product-mindmap.json",
+          "originSha256": "1635b9fc5556daa96f7a70eb0aa1810d86b503da4e3e04d53a52bf8a6152c8b4",
+          "pointer": "Original UMF Visual 1.3.0 definition",
+          "description": "Exact original UMF definition retained byte-for-byte as the semantic projection of the pinned Lini mindmap sample."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/lini/mindmap.lini",
+          "sha256": "fd4b2c771b78d49b65b0674bcdd335859b4ffbdd8a90a478c0c0ccdd26ce03b7",
+          "outputPath": "showcase/lini-gallery-product-mindmap/mindmap.lini",
+          "mediaType": "text/plain",
+          "description": "Exact pinned Lini v1.1.0 mindmap sample bytes."
+        },
+        {
+          "path": "fixtures/showcase/sources/lini/LICENSE",
+          "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "outputPath": "showcase/lini-gallery-product-mindmap/LICENSE.md",
+          "mediaType": "text/markdown",
+          "description": "Exact MIT license text accompanying the pinned Lini source sample."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-product-mindmap.json",
+          "sha256": "1635b9fc5556daa96f7a70eb0aa1810d86b503da4e3e04d53a52bf8a6152c8b4",
+          "outputPath": "showcase/lini-gallery-product-mindmap/original-visual-1.3.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF Visual 1.3.0 definition bytes."
         }
       ]
     },

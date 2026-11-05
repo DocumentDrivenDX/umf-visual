@@ -118,7 +118,27 @@ test('the three pinned Lini gallery examples preserve only their authored semant
   ['Shipping cadence','rocket'],['Build quality','seal'],['Planning','presentation'],['Customer care','heart']
  ]);
  const mindmapSource=read(mindmapExample.sources[0]!.path).toString('utf8');
- for(const topic of ['Product Vision','Weekly release train','Feature flags gate the risky work','Snapshot tests on every output','Zero clippy debt','Dogfood the tool daily','User interviews every sprint','One-page specs before code','Stages sized for one session','Small and senior','Ownership over process','Support rotations','Bug fixes beat features'])expect(mindmapSource).toContain(topic);
+ const sourceTopics=['Product Vision',...[...mindmapSource.matchAll(/^\s*\|topic(?:#[\w-]+)?\| "([^"]+)"/gmu)].map(match=>match[1])];
+ expect(sourceTopics).toEqual(mindmap.nodes!.map(node=>node.label));
+ expect([...mindmapSource.matchAll(/symbol: (rocket|seal|presentation|heart);/gmu)].map(match=>match[1])).toEqual(['rocket','seal','presentation','heart']);
+ expect(mindmap.layout?.kind==='tree'?mindmap.layout.direction:undefined).toBe('bilateral');
+ expect(mindmapExample.sources[0]?.originCommit).toBe('0502d381dbd779d72b2ac4329a19b64201422a21');
+ expect(mindmapExample.sources[0]?.originTag).toBe('v1.1.0');
+ expect(mindmapExample.sources[0]?.originPath).toBe('samples/mindmap.lini');
+ const visualSource=(mindmapDoc.extensions?.['umf.visual'] as Record<string,unknown>|undefined)?.source as {digest?:string}|undefined;
+ expect(visualSource?.digest).toBe(`sha256:${mindmapExample.sources[0]?.sha256}`);
+ expect(mindmapExample.publishedAssets?.map(asset=>asset.path)).toEqual([
+  'fixtures/showcase/sources/lini/mindmap.lini','fixtures/showcase/sources/lini/LICENSE','fixtures/showcase/definitions/lini-gallery-product-mindmap.json'
+ ]);
+ expect(mindmapExample.publishedAssets?.map(asset=>asset.sha256)).toEqual([
+  'fd4b2c771b78d49b65b0674bcdd335859b4ffbdd8a90a478c0c0ccdd26ce03b7','271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5','1635b9fc5556daa96f7a70eb0aa1810d86b503da4e3e04d53a52bf8a6152c8b4'
+ ]);
+ expect(mindmapExample.publishedAssets?.map(asset=>asset.outputPath)).toEqual([
+  'showcase/lini-gallery-product-mindmap/mindmap.lini','showcase/lini-gallery-product-mindmap/LICENSE.md','showcase/lini-gallery-product-mindmap/original-visual-1.3.json'
+ ]);
+ expect(hash(read(mindmapExample.sources[0]!.path))).toBe(mindmapExample.sources[0]!.sha256);
+ expect(hash(read(mindmapExample.sources[1]!.path))).toBe(mindmapExample.sources[1]!.sha256);
+ expect(hash(read(mindmapExample.definitionPath))).toBe(mindmapExample.definitionSha256);
 
  const commerceExample=manifest.examples.find(row=>row.id==='lini-gallery-commerce-entities')!;
  const commerceDoc=document(commerceExample),commerce=visual(commerceDoc);

@@ -5967,6 +5967,63 @@ Fresh showcase9entries16qualified7unqualified4unsupported/zero executionfailure/
 Final source/native/model/interface audit approved. Cycle66 complete pending its
 per-document commit; cycle67 must wait for that commit.
 
+### Sixty-seventh-cycle scope — pinned product mindmap
+
+Cycle66 is committed as `5af9ea6`. Cycle67 reviews canonical
+`lini-gallery-product-mindmap`: original1.3 tree19topics, one root/six branches/
+twelve child topics,18 hierarchy connections and four source icons. Exact pinned
+Lini1.1mindmapfd4b2c77 includes identical labels/parent nesting/sibling order and
+bilateral direction. Existing definition appears complete; exact alias preferred.
+Native palette/depth ramp/cardrow/wrap/padding/naturalrouting are presentation,
+not new product facts or missing portable semantic fields. No currentplanning or
+execution claims inferred from sample labels.
+
+Preserve original/native/MITlicense exact bytes and publish source downloads.
+Fresh native exact hierarchy/per-parent order/bilateral policy/icon ownership/full
+text/fit proof required; no globalpreorder or implied semanticedges beyond parent
+relations. Data16 if suitablefresh target/sharedcodeunchanged; retainC66full1078/
+27942/209/shared58UI conditional all58review/eightshowcase fingerprints unchanged.
+Fullgates if sharedfix. Cycle67 inprogress; cycle68 waits for per-document commit.
+
+### Cycle 67 focused freeze — exact pinned bilateral hierarchy
+
+Original1.3 canonical1635b9fc…c8b4 is exactalias. Source/showcase14/659/source/type/
+diff pass; nativegalleryfd4b2c77…03b7 and MITlicense271c78d5…c6a5 are separately
+published exactassets with originalJSON. All19topiclabels/parentforest/per-parent
+sourceorder/fouricons/bilateral intent are complete; no derived rewrite or extras.
+Fresh Lini10/10 is independently approved: balancedbilateral six branches/twochildren
+each and actualfour glyphs clear/readable. G/M return precise treebackend subset
+refusals, not nativeexecution failures. Nativepalette/wrap/depth/geometry targetstyle
+remain disclosed. No sharedcode/model/schema/proof/C089 change or examplebranch.
+
+Canonicaldata16 underway, retaining C66full1078/27942/209/shared58UI only if all58
+review/eightothershowcase fingerprints remain unchanged. Fresh source/public/native/
+canonicalreplay/site/UI checks required; finalcloseout pending. Cycle67 incomplete,
+cycle68 commit-gated; docs frozen.
+
+### Cycle 67 closeout — complete, pinned hierarchy and glyphs preserved
+
+All16 canonical-data gates pass, including source/showcase14/659/source/type,
+build/browser/package/fetch/native/catalog/showcase+replay/reviews+replay/site/
+site-tests/showcaseUI. Canonical original1.3 remains1635b9fc…c8b4 exactalias;
+no derived rewrite or newsemantic facts. FreshLini10/10/allrequiredchecks qualify,
+actual native0e22ef61…510a/PNG4fff3870…bfdc independently approved:19topics,
+18hierarchy connections,one root/six branches/twelve child topics,exactper-parent
+sourceorder/bilateral policy and four paintednative glyphs. G/M retain precise
+unqualified-backend-subset refusals, not executionfailure. Palette/wrap/depth/card
+geometry remains targetstyling, no runtime/productplan inference.
+
+Exact originalJSON,mindmap.lini fd4b2c77…03b7 and MITlicense271c78d5…c6a5
+are separately published and byte/hash verified. Showcase9entries/16qualified/
+7unqualified/4unsupported/zeroexecutionfailure/23nativeSVG+PNG pairs69assets.
+All58review and eightothershowcase fingerprints identical; reviews58/120qualified/
+26unqualified/28unsupported/146pairs438assets53authoritiesfivecaptures retained.
+Unchangedsharedcode justifies retained C66full1078/0/27942/209files182.90s and
+sharedall58UI; no new fullBun/allreviewUI run claimed. Freshaffected source/native/
+public/site/canonicalreplay/UI evidence complete. No runtime/proof/schema/C089
+change or examplebranch. Final source/native/model/interface audit approved.
+Cycle67 complete pending per-document commit; cycle68 must wait for that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -5987,8 +6044,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is committed as `a6f639e`. Cycle 60 is committed as `093c93d`. Cycle 61 is committed as `f2cee65`. Cycle 62 is committed as `1c6fac4`. Cycle 63 is committed as `bd8cc2a`. Cycle 64 is committed as `5216089`. Cycle 65 is committed as `01008d7`. Cycle 66 is complete pending commit;
-cycles 67–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is committed as `a6f639e`. Cycle 60 is committed as `093c93d`. Cycle 61 is committed as `f2cee65`. Cycle 62 is committed as `1c6fac4`. Cycle 63 is committed as `bd8cc2a`. Cycle 64 is committed as `5216089`. Cycle 65 is committed as `01008d7`. Cycle 66 is committed as `5af9ea6`. Cycle 67 is complete pending commit;
+cycle 68 remains pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 
