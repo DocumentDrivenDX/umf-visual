@@ -5,6 +5,7 @@ import {quoteLiniProfile} from '../interchange/lini/profile-syntax';
 import {liniShapeDefinition} from './lini-shapes';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
 import {compileLiniFlatSequence} from './lini-sequence-flat';
+import {liniNativeIcon} from './lini-native-icons';
 import {wrapLiniSequenceText,liniSequenceParticipantFieldText} from './lini-sequence-text';
 export {wrapLiniSequenceText,liniSequenceParticipantFieldText} from './lini-sequence-text';
 
@@ -15,8 +16,7 @@ const fail=(code:string,sourcePath:string,message:string):PresentationFailure=>(
 const id=(prefix:string,index:number)=>prefix+(index+1);
 const orderBy=<T extends {id:string}>(rows:T[],order?:string[])=>order?rows.map((item,index)=>({item,index})).sort((a,b)=>(order.indexOf(a.item.id)<0?Number.MAX_SAFE_INTEGER:order.indexOf(a.item.id))-(order.indexOf(b.item.id)<0?Number.MAX_SAFE_INTEGER:order.indexOf(b.item.id))||a.index-b.index).map(row=>row.item):rows;
 const quoteText=(text:string,sourcePath:string)=>{try{return q(text);}catch(reason){throw Object.assign(new Error(reason instanceof Error?reason.message:'Text cannot be encoded by Lini.'),{sourcePath});}};
-const nativeIcons=new Set(['user','rocket','seal','presentation','heart','gear','cloud','house','database','folder-simple','cpu','bell','star','ghost','video-camera','wall','check','warning','globe','lock','key','lightning','magnifying-glass','arrow-right']);
-const iconToken=(value:string)=>nativeIcons.has(value)?value:undefined;
+const iconToken=liniNativeIcon;
 type Rich = {visual:Visual;direction:'LR'|'TB'};
 
 function plan(visual:Visual,source:string,elements:PresentationElement[],omissions:PresentationOmission[],approximations:PresentationApproximation[]):PresentationPlan {
@@ -75,6 +75,9 @@ export function compileLiniTree(visual:Visual,direction:'LR'|'TB'):PresentationP
 
 /** Compile ordered lifelines, message operators, interval frames, and anchored notes. */
 export function compileLiniSequence(visual:Visual):PresentationPlan|PresentationFailure {
+ if(visual.layout!==undefined)return fail('PRESENTATION_LINI_SEQUENCE_LAYOUT',path('/layout'),'This Lini sequence profile does not preserve authored root layout. Remove the layout declaration or choose a renderer profile with native layout support.');
+ const groupWithLayout=(visual.groups??[]).find(group=>group.layout!==undefined);
+ if(groupWithLayout)return fail('PRESENTATION_LINI_SEQUENCE_LAYOUT',path('/groups/'+visual.groups!.indexOf(groupWithLayout)+'/layout'),'This Lini sequence profile does not preserve authored loop-group layout. Remove the group layout declaration or choose a renderer profile with native layout support.');
  const flat=compileLiniFlatSequence(visual);if(flat)return flat;
  const sequence=visual.sequence;if(!sequence)return fail('PRESENTATION_LINI_SEQUENCE',path('/sequence'),'Sequence content is required.');
  const elements:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];

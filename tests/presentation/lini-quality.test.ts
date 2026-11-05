@@ -634,7 +634,7 @@ describe('pinned Lini presentation quality',()=>{
     const checks=await verifyLiniPresentationQuality(page,{document,plan,nativeAst:native.nativeAst});
     const visual=getVisual(document);
     const rich=visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree';
-    if(rich){expect(checks.map(check=>check.check)).toEqual(['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']);const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw Error(JSON.stringify(failed));}
+    if(rich){const expected=visual.kind==='sequence'?['lini-rich-native-semantics','lini-rich-caption-clearance','lini-rich-svg-ownership-geometry','lini-rich-typography']:['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography'];expect(checks.map(check=>check.check).sort()).toEqual(expected.sort());const failed=checks.filter(check=>check.result!=='pass');if(failed.length)throw Error(JSON.stringify(failed));}
     else expectAll(checks);
    }finally{await page.close();}
   }

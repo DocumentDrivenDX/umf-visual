@@ -264,7 +264,7 @@
     {
       "id": "lini-gallery-checkout-sequence",
       "title": "A checkout, from order to tracking",
-      "description": "The pinned Lini sequence example becomes a renderer-neutral lifeline model. Its source declares four participants, eight ordered messages, a repeated stock reservation pair, one self-call, one async tracking request, and a note before checkout begins. Native colors and exact positions remain presentation choices.",
+      "description": "The pinned Lini sequence sample becomes a renderer-neutral lifeline model with four participants, eight ordered messages, a stock loop, self-call, three returns, async tracking request and note before checkout. Source call/loop annotations are diagram conventions; the sample does not author elapsed activation durations. Native colors and exact positions remain presentation choices.",
       "kind": "sequence",
       "form": "lifelines",
       "definitionPath": "fixtures/showcase/definitions/lini-gallery-checkout-sequence.json",
@@ -293,6 +293,37 @@
           "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
           "pointer": "MIT License",
           "description": "Exact upstream MIT license text accompanying the pinned Lini v1.1.0 source samples."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-checkout-sequence.json",
+          "sha256": "66896c5cf431d0f5931437e43da4eba7f161ebb853efe75fd310d137e4fbcb1f",
+          "originPath": "fixtures/showcase/definitions/lini-gallery-checkout-sequence.json",
+          "originSha256": "66896c5cf431d0f5931437e43da4eba7f161ebb853efe75fd310d137e4fbcb1f",
+          "pointer": "Original Visual 1.3.0 curated definition",
+          "description": "The exact original Visual definition is retained byte-for-byte as the baseline for its source-derived sequence view."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/lini/sequence.lini",
+          "sha256": "8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c",
+          "outputPath": "showcase/lini-gallery-checkout-sequence/sequence.lini",
+          "mediaType": "text/plain",
+          "description": "Exact pinned Lini v1.1.0 gallery sample bytes."
+        },
+        {
+          "path": "fixtures/showcase/sources/lini/LICENSE",
+          "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "outputPath": "showcase/lini-gallery-checkout-sequence/LICENSE.md",
+          "mediaType": "text/markdown",
+          "description": "Exact MIT license text accompanying the pinned Lini source sample."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-checkout-sequence.json",
+          "sha256": "66896c5cf431d0f5931437e43da4eba7f161ebb853efe75fd310d137e4fbcb1f",
+          "outputPath": "showcase/lini-gallery-checkout-sequence/original-visual-1.3.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.3.0 definition bytes."
         }
       ]
     },

@@ -124,7 +124,13 @@ its participant/lifeline ownership, message endpoints/order/kinds and complete
 owned captions. An admitted self-call MUST retain one logical message, with its
 painted departure and return attached to the same participant lifeline, complete
 caption clearance from every path segment, and source-order separation from the
-following message. Helper geometry MUST NOT become logical messages or activations. A note MUST NOT
+following message. Every qualified sequence caption MUST preserve complete painted
+glyphs clear of its own message path and crossed participant lifelines; an actual
+native backing/cutout strategy MAY qualify only with independently proven effective
+paint coverage and surviving owned connector/marker ink. Native proof MUST also
+establish exact loop interval/member ownership and anchored note placement without
+inventing messages or timing. Retained native properties that do not affect SVG
+paint are not qualification evidence. Helper geometry MUST NOT become logical messages or activations. A note MUST NOT
 be implemented as an invented call. Native palette, icon styling and pixel
 placement remain interpreter decisions; approximations must describe what changed.
 Source-level claims do not qualify another backend or editable interchange profile.
@@ -487,7 +493,11 @@ remain independently verified. Native stage/title wrappers are presentation
 helpers, not logical participants or messages.
 
 Kind `participant-field` maps an authored participant property at its exact
-source pointer to an owned native detail, role or status carrier. Each rendered
+source pointer to an owned native detail, role, status or icon carrier. An authored
+icon MAY use that kind for a qualified native glyph; its proof MUST bind the exact
+source symbol, painted glyph and participant ownership rather than substitute a
+text-only assertion. A role-derived default glyph without an authored icon remains
+an owned presentation helper and MUST NOT invent an icon source pointer. Each rendered
 field MUST preserve its exact value or declared textual convention on the correct
 participant in both native structure and rendered SVG. Matching text elsewhere
 MUST NOT satisfy ownership. Missing, changed or reparented fields MUST fail the

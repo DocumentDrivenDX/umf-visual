@@ -33,7 +33,7 @@ describe('native flat sequence self-call quality proof',()=>{
  it('proves the full inventory and a right-corridor self-call with exact native and SVG ownership',async()=>{
   const good=await render(await sourceDocument());
   try{
-   const rows=await checks(good);expect(result(rows,'lini-rich-native-semantics'),JSON.stringify(rows.filter(row=>row.result==='fail'))).toBe('pass');expect(result(rows,'lini-rich-svg-ownership-geometry'),JSON.stringify(rows.filter(row=>row.result==='fail'))).toBe('pass');
+   const rows=await checks(good);expect(result(rows,'lini-rich-native-semantics'),JSON.stringify(rows.filter(row=>row.result==='fail'))).toBe('pass');expect(result(rows,'lini-rich-svg-ownership-geometry'),JSON.stringify(rows.filter(row=>row.result==='fail'))).toBe('pass');expect(result(rows,'lini-rich-caption-clearance'),JSON.stringify(rows.filter(row=>row.result==='fail'))).toBe('pass');
    expect(good.plan.elementMap.filter(item=>item.kind==='message')).toHaveLength(10);
    expect(good.plan.elementMap.filter(item=>item.kind==='message-caption')).toHaveLength(10);
    const loop=good.page.locator('g.lini-node[data-id="message7"] > polyline');expect(await loop.count()).toBe(1);
@@ -44,7 +44,7 @@ describe('native flat sequence self-call quality proof',()=>{
  },{timeout:30_000});
 
  it('supports renamed calls at different message counts and participant positions without ID-specific rules',async()=>{
-  for(const variant of ['first','last','many'] as const){const good=await render(await selfCallDocument(variant));try{const rows=await checks(good);expect(result(rows,'lini-rich-native-semantics'),variant+': '+JSON.stringify(rows.filter(row=>row.result==='fail'))).toBe('pass');expect(result(rows,'lini-rich-svg-ownership-geometry'),variant+': '+JSON.stringify(rows.filter(row=>row.result==='fail'))).toBe('pass');}finally{await good.page.close();}}
+  for(const variant of ['first','last','many'] as const){const good=await render(await selfCallDocument(variant));try{const rows=await checks(good);expect(result(rows,'lini-rich-native-semantics'),variant+': '+JSON.stringify(rows.filter(row=>row.result==='fail'))).toBe('pass');expect(result(rows,'lini-rich-svg-ownership-geometry'),variant+': '+JSON.stringify(rows.filter(row=>row.result==='fail'))).toBe('pass');expect(result(rows,'lini-rich-caption-clearance'),variant+': '+JSON.stringify(rows.filter(row=>row.result==='fail'))).toBe('pass');}finally{await good.page.close();}}
  },{timeout:60_000});
 
  it('rejects a wrong native return, missing path segment, reversed arrowhead, and row-order violation',async()=>{

@@ -68,7 +68,7 @@ export function requiredPresentationChecks(backend:PresentationBackend,visual:Vi
    :visual.kind==='timeline'&&visual.form==='roadmap'
    ?['lini-native-ast','lini-native-carriers','lini-roadmap-period-lane-span-ownership']
    :visual.kind==='sequence'||visual.kind==='structure'&&visual.form==='tree'
-   ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry','lini-rich-typography']
+   ?['lini-rich-native-semantics','lini-rich-svg-ownership-geometry',...(visual.kind==='sequence'?['lini-rich-caption-clearance']:[]),'lini-rich-typography']
    :['lini-native-ast','lini-native-carriers','lini-connection-endpoints','lini-containment-and-order','lini-entity-field-rows'];
   checks.push(...liniChecks);
   if(visual.kind==='flow'&&visual.form==='zoned'&&!visual.layout)checks.push('lini-zoned-tier-columns');

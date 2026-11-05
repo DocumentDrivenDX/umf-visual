@@ -10,7 +10,7 @@ const showcase=await Bun.file(join(siteRoot,'showcase.json')).json() as {schemaV
 if(showcase.schemaVersion!==1||showcase.examples.length===0)throw new Error('Build the curated authored showcase examples before running the homepage browser gate.');
 const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
 const browser=await chromium.launch({headless:true});
-const errors:string[]=[];const checks:string[]=[];
+const errors:string[]=[];const checks:string[]=[];let corruptSourceAssetPath:string|undefined;
 async function assertAuthoredContext(page:import('playwright').Page,example:any):Promise<void>{
   const details=page.locator('#authored-context'),summary=details.locator(':scope > summary'),visual=example.definition?.extensions?.['umf.visual'];
   if(!visual||typeof visual!=='object'){if(await details.isVisible())throw new Error(`${example.id} shows authored context without a Visual payload.`);return;}
@@ -133,8 +133,23 @@ try{
     try{pathname=decodeURIComponent(new URL(route.request().url()).pathname);}catch{await route.fulfill({status:400,body:'Invalid path'});return;}
     const filePath=resolve(siteRoot,`.${pathname==='/'?'/index.html':pathname}`);
     if(filePath===siteRoot||!filePath.startsWith(siteRoot+sep)){await route.fulfill({status:404,body:'Not found'});return;}
-    const file=Bun.file(filePath);if(!(await file.exists())){await route.fulfill({status:404,body:'Not found'});return;}
-    await route.fulfill({status:200,body:Buffer.from(await file.arrayBuffer()),contentType:mime[extname(filePath)]||'application/octet-stream',headers:{'cache-control':'no-store'}});
+    const testManifest=pathname==='/showcase.json'?structuredClone(showcase):undefined;
+    if(testManifest){
+      const sequence=testManifest.examples.find((example:any)=>example.id==='lini-gallery-checkout-sequence');
+      if(sequence){
+        for(const [path,outputPath] of [
+          ['fixtures/showcase/sources/lini/rejected-extension.lini','showcase/lini-gallery-checkout-sequence/rejected.exe'],
+          ['fixtures/showcase/sources/lini/rejected-traversal.lini','showcase/../outside.lini']
+        ]){
+          sequence.sources.push({path,sha256:'8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c'});
+          sequence.publishedAssets.push({path,sha256:'8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c',outputPath,mediaType:'text/plain'});
+        }
+      }
+    }
+    const file=Bun.file(filePath);if(!testManifest&&!(await file.exists())){await route.fulfill({status:404,body:'Not found'});return;}
+    const body=testManifest?Buffer.from(JSON.stringify(testManifest)):Buffer.from(await file.arrayBuffer());
+    if(corruptSourceAssetPath===pathname.replace(/^\//u,'')){if(body.length)body[0]^=1;}
+    await route.fulfill({status:200,body,contentType:mime[extname(filePath)]||'application/octet-stream',headers:{'cache-control':'no-store'}});
   });
   await page.goto('https://umf.local/',{waitUntil:'networkidle'});
   if(!contextModuleLoaded)throw new Error('The homepage did not load its packaged authored-context ES module.');
@@ -277,6 +292,37 @@ try{
   }
   checks.push('all available native renderers are selected per scenario; unavailable choices clear stale previews and downloads');
   checks.push('every qualified renderer exposes hash-matching SVG, PNG, and native-source downloads');
+
+  const sequenceIndex=showcase.examples.findIndex((example:any)=>example.id==='lini-gallery-checkout-sequence');
+  if(sequenceIndex<0)throw new Error('The pinned Lini checkout sequence is missing from the authored showcase.');
+  const sequenceExample=showcase.examples[sequenceIndex],sequenceAssets=(sequenceExample.sources||[]).map((source:any)=>({source,asset:(sequenceExample.publishedAssets||[]).find((asset:any)=>asset.path===source.path&&asset.sha256===source.sha256)}));
+  if(sequenceAssets.length!==3||sequenceAssets.some((item:any)=>!item.asset))throw new Error('The checkout sample, license and original definition are not all published as exact source assets.');
+  await selected.nth(sequenceIndex).click();
+  for(const {source,asset} of sequenceAssets){
+    const selector=`.source-asset-download[data-output-path="${asset.outputPath}"]`;
+    await page.waitForFunction(path=>{const link=document.querySelector(`.source-asset-download[data-output-path="${path}"]`) as HTMLAnchorElement|null;return link?.getAttribute('aria-disabled')==='false';},asset.outputPath);
+    const [download]=await Promise.all([page.waitForEvent('download'),page.locator(selector).click()]);
+    const downloadedPath=`.cache/showcase-c66-${String(source.path).split('/').pop()}`;await download.saveAs(downloadedPath);
+    const downloaded=Buffer.from(await Bun.file(downloadedPath).arrayBuffer()),expectedBytes=Buffer.from(await Bun.file(resolve(siteRoot,asset.outputPath)).arrayBuffer());
+    if(download.suggestedFilename()!==String(source.path).split('/').pop()||createHash('sha256').update(downloaded).digest('hex')!==source.sha256||!downloaded.equals(expectedBytes))throw new Error(`C66 ${source.path} download differs from its exact manifest bytes.`);
+  }
+  checks.push('C66 Lini sample, license and original definition download as exact manifest-hash-matching bytes');
+  for(const {asset} of sequenceAssets){
+    corruptSourceAssetPath=asset.outputPath;
+    await selected.nth(sequenceIndex===0?1:0).click();await selected.nth(sequenceIndex).click();
+    const selector=`.source-asset-download[data-output-path="${asset.outputPath}"]`;
+    await page.waitForFunction(path=>{const link=document.querySelector(`.source-asset-download[data-output-path="${path}"]`) as HTMLAnchorElement|null;return link?.getAttribute('aria-disabled')==='true'&&link.title.toLowerCase().includes('hash does not match');},asset.outputPath);
+    corruptSourceAssetPath=undefined;
+    await selected.nth(sequenceIndex===0?1:0).click();await selected.nth(sequenceIndex).click();
+    await page.waitForFunction(path=>document.querySelector(`.source-asset-download[data-output-path="${path}"]`)?.getAttribute('aria-disabled')==='false',asset.outputPath);
+  }
+  checks.push('C66 Lini, license and original-definition downloads refuse corrupted bytes and recover on reselection');
+  await selected.nth(sequenceIndex).click();
+  for(const outputPath of ['showcase/lini-gallery-checkout-sequence/rejected.exe','showcase/../outside.lini']){
+    await page.waitForFunction(path=>{const link=document.querySelector(`.source-asset-download[data-output-path="${path}"]`) as HTMLAnchorElement|null;return link?.getAttribute('aria-disabled')==='true'&&link.title.includes('outside the configured presentation namespace');},outputPath);
+  }
+  checks.push('C66 exact-source asset controls continue to refuse unsupported extensions and traversal paths');
+  await selected.nth(0).click();
 
   for(let index=0;index<showcase.examples.length;index++){
     const example=showcase.examples[index];

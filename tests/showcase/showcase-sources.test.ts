@@ -71,7 +71,34 @@ test('the three pinned Lini gallery examples preserve only their authored semant
  ]);
  expect(sequence.notes).toEqual([{id:'checkout-note',text:'starts checkout',participants:['user'],before:'place-order'}]);
  expect(visual(sequenceDoc).groups?.map(group=>[group.id,group.label,group.role])).toEqual([['each-item','each item','loop']]);
- expect(read(sequenceExample.sources[0]!.path).toString('utf8')).toContain('user ~> shop "track parcel"');
+ const sequenceSource=read(sequenceExample.sources[0]!.path).toString('utf8');
+ const sourceParticipants=[...sequenceSource.matchAll(/^\|(icon|box|slant)#([\w-]+)\| "([^"]+)"/gmu)].map(match=>[match[2],match[3]]);
+ expect(sourceParticipants).toEqual([['user','user'],['shop','Storefront'],['pay','Payments'],['db','Orders']]);
+ const sourceMessages=[...sequenceSource.matchAll(/^[ \t]*(user|shop|pay|db)[ \t]+(->|-->|~>)[ \t]+(user|shop|pay|db)[ \t]+"([^"]+)"[ \t]*$/gmu)];
+ expect(sourceMessages).toHaveLength(8);
+ const loopStart=sequenceSource.indexOf('|loop|'),loopEnd=sequenceSource.indexOf('\n]',loopStart);
+ expect(loopStart).toBeGreaterThanOrEqual(0);
+ expect(loopEnd).toBeGreaterThan(loopStart);
+ expect(sourceMessages.map(match=>[
+  match[1],match[3],match[4],match[2]==='->'?'call':match[2]==='-->'?'return':'async',
+  (match.index??-1)>loopStart&&(match.index??-1)<loopEnd?'each-item':undefined
+ ])).toEqual(sequence.messages.map(message=>[message.from,message.to,message.label,message.kind,message.group]));
+ expect(sequenceSource).toContain('|note| "starts checkout"');
+ expect(sequenceSource).toContain('place: over user');
+ expect(sequenceSource).toContain('Calls open');
+ expect(sequenceSource).toContain('a loop repeats a span');
+ expect(sequenceExample.description).toContain('does not author elapsed activation durations');
+ expect(sequenceExample.publishedAssets?.map(asset=>asset.path)).toEqual([
+  'fixtures/showcase/sources/lini/sequence.lini','fixtures/showcase/sources/lini/LICENSE','fixtures/showcase/definitions/lini-gallery-checkout-sequence.json'
+ ]);
+ expect(sequenceExample.publishedAssets?.map(asset=>asset.sha256)).toEqual([
+  '8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c','271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5','66896c5cf431d0f5931437e43da4eba7f161ebb853efe75fd310d137e4fbcb1f'
+ ]);
+ expect(sequenceExample.publishedAssets?.map(asset=>asset.outputPath)).toEqual([
+  'showcase/lini-gallery-checkout-sequence/sequence.lini','showcase/lini-gallery-checkout-sequence/LICENSE.md','showcase/lini-gallery-checkout-sequence/original-visual-1.3.json'
+ ]);
+ expect(hash(read(sequenceExample.sources[0]!.path))).toBe('8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c');
+ expect(hash(read(sequenceExample.sources[1]!.path))).toBe('271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5');
 
  const mindmapExample=manifest.examples.find(row=>row.id==='lini-gallery-product-mindmap')!;
  const mindmapDoc=document(mindmapExample),mindmap=visual(mindmapDoc);

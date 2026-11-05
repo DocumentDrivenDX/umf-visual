@@ -5823,6 +5823,150 @@ no new fullBun/allreviewUI claim. No schema/runtime/proof/C089 change or example
 branches. Final source/native/model/interface audit approved. Cycle65 complete
 pending per-document commit; cycle66 must wait for that commit.
 
+### Sixty-sixth-cycle scope — pinned checkout sequence
+
+Cycle65 is committed as `01008d7`. Cycle66 reviews canonical
+`lini-gallery-checkout-sequence`: original1.3 four ordered participants/eight ordered
+messages, one self-call, three returns, two-message stock loop, before-first-message
+note and async tracking request. Exact native source8a526834 from pinnedLini1.1.0
+and its MIT license are retained. Native icon/shape intent is captured; colors,
+padding and exact geometry remain target presentation. Source comments describe
+native call-activation behavior, not explicit authored intervals or durations;
+do not invent execution/activation fields or timing from native helpers.
+
+Exact alias is sufficient absent concrete semantic gap; preserve original/native
+bytes and license, publish source-bound assets. Fresh native ownership/order/loop/
+selfcall/return/async/note/shape/text evidence must qualify the actual legacy sequence
+profile. No new schema or example branches. Data16 if sharedcode unchanged and
+suitabletarget, retainC63full/shared58UI with unchanged58review/eightshowcase
+fingerprints; fullgates if sharedfix. Cycle66 inprogress,cycle67 commit-gated.
+
+### Cycle 66 source/native checkpoint — exact source, real caption collision
+
+Exact original1.3 definition66896c5c…cb1f/source8a526834…0b4c remains alias;
+source/showcase14/641/source/type/diff pass. Four participants/eight messages,
+selfcall/three returns/stockloop/note/async all source-complete. Native emitted
+source97884475 is distinct from downloadable original gallery source, which must
+remain independently hash-bound with MITlicense/originalJSON.
+
+Formal Lini10/10 initially passed, but visual audit exposed real paint crossings:
+stockloop message5/6 captions intersect intermediate Paymentslifeline, with no
+native backing/mask. Initial formal pass is not final visual qualification. Generic
+richsequence native caption placement/cutout correction and independent mandatory
+paint-clearance proof required; no posthoc SVG rewrite or message/loop/async meaning
+changes. Positive source case, collision negative and existing richsequence/gallery/
+requestladder/loopnote regressions required. UI verifiedasset whitelist also needs
+narrow.lini admission with exactnamespace/hash guards unchanged and fresh sharedUI.
+Full17 canonical gates now required, superseding data16/UI-only17 planning. No source
+or portable-model fields added. Cycle66 incomplete pending runtime/proof freeze;
+cycle67 commit-gated.
+
+### Cycle 66 native composition checkpoint — readable complete sequence
+
+The pinned rich layout retained along/translate/halo properties in AST but ignored
+them in SVG paint; those failed probes are not qualification. The existing private
+positioned native sequence composer now represents bounded contiguous loop frames,
+anchored notes, async paths and participant glyphs through executed native Lini
+primitives. Complete rawsource/AST/SVG/PNG receipts remain available; no posthocSVG
+rewrite, new renderer family or portable semantic field. Explicit authored icon maps
+as participant-field at its exact pointer with independent native glyph proof.
+
+Actual candidate image is independently approved: source4participants/8messages,
+stockloop/selfcall/3returns/note/async and Ordersslant/userglyph remain intact;
+stock captions clear the intermediate lifeline and icon/note boundaries are separate.
+Compiler11/94 plus existing26/366/type/diff pass; source14/650 unchanged. Original
+simplecallreturn and renamedmultiline/selfcall source identities match HEAD archive
+(be803c53/9f09fe05), preserving the prior flat path. Public core rejects sequence
+layout via VISUAL_LAYOUT; direct compiler has defensive located target diagnostics.
+Unsupported enhanced scopes use guarded legacy fallback, not silent layout drops.
+
+Initial independent nativefocus1/21 passes allfour required checks, including new
+mandatory captionclearance and strict collision/endpoint/note/source-order controls.
+A prior30second timeout is retained as history;60second-budget rerun completed in
+3.48s. Renamed/differentcount, hiddenicon and freshbaseline-per-mutation controls
+are still being finalized; no final qualification/freeze claimed. C089 minimal native
+caption/glyph carrier criteria aligned; narrow .lini downloadallowlist preserves
+namespace/hash safety and requires freshsharedUI. Full17 canonical gates pending;
+cycle66 incomplete,cycle67 commit-gated.
+
+### Cycle 66 final focused freeze — universal sequence paint proof
+
+Final focused native controls3/59 cover original4participant sample, renamed3participant
+loop/before+after notes/async/folded-caption case and document-stencil backing mutation.
+Ladder+locatedformadaptation controls1/39 pass, compiler12/100 and baseLini26/366,
+source14/650/type/diff green. Actual C66 all11 required checks pass with sourcefa733889;
+actual ladderfd6de750 is independently approved with six messages/participant fields
+and clear former marker-lifeline crossings. No schema or source vocabulary changed.
+
+Independent mandatory caption proof runs for every admitted sequence, including
+legacy/ladder: no optional-map or form exemption. Positioned drawings use exactmapped
+lifelines; legacy native sequences derive exact anonymous sequence-body line inventory
+from source/AST participant identities and unique painted participant-center/contact
+ownership, failing missing/duplicate/unclaimed lines. All captions must clear their
+own paths and every participant lifeline. Native loop/note/icon/shape/async/field
+ownership remains separately proven. No fake ID requirement on anonymous native lines.
+
+Generic owner extents include intrinsic caption/stencil paint, including multiple-
+document backing, rather than relaxing containment. Strict differentcount controls
+exposed and closed real2.68px/1.915px overflows. Prior flatlifelines source identities
+remain exact for two archive controls; form=ladder uses the same positioned profile
+with explicit lifelines adaptation/no narrow-screenclaim. Root/group layout is core-
+invalid publicly; defensive directcompiler diagnostics remain precise, no unsupported
+classification for invalid inputs. Knownicons use shared native-symbol helper with
+explicit participant-field icon maps, no invented source pointers for defaultglyphs.
+
+Source/downloadUI retains exactnativegallery/Markdownlicense/originalJSON, narrow.lini
+allowlist plus namespace/hash guards and fresh corrupt/refusal/race controls. Full17
+canonical gates required, including all58reviewUI, finalcanonical native/replays/site/
+showcaseUI. Initial ignored nativeproperty probes and timeout histories remain, not
+qualification. C089 generic glyph/caption criteria aligned; finalstatic/source/model/
+interface approval conditioned finaltype/diff+broadergates. Cycle66 incomplete,
+cycle67 commit-gated; docs frozen for full17.
+
+### Cycle 66 closeout — complete, readable native sequence composition
+
+All17 fullcanonical retry gates pass, including all58reviewUI/site-tests/showcaseUI,
+exact source downloads/corrupt recovery and namespace refusal. Full Bun1078pass,
+zero fail,27942assertions across209files182.90s. Source14/650,compiler12/100,
+baseLini26/366,richnative9/142,readable3/156 and publicrenderer2/109 pass; oldflat
+sourceidentity remains exact for two controls. Focused extension3/59 and ladder1/39
+are recorded separately, not summed into overlapping suite totals.
+
+Initial full1075pass/3fail/27810assertions/209files185.91s is retained. Public tests
+expected the old sequence DSL substring; corrected tests bind exact message/caption
+maps and native self/async source geometry with all CSP/failclosed checks unchanged.
+The second public failure was cascading missing evidence after that abort. The third
+proof failure required an unrequested role-derived actor icon despite old flat source
+identity. Explicit authored icons remain mandatory exactparticipant-field mappings;
+role-derived helpers are optional0/1, with exactsource/AST/SVG owner/symbol/paint proof
+when present and no fabricated icon source pointer. This corrects helper expectations,
+not source icon loss or caption quality. Initial30s nativefocus timeout and3.48s
+60s-budget rerun remain history; no hang/qualification waiver inferred.
+
+Exact original1.3 canonical66896c5c…cb1f and pinnedgallery8a526834…0b4c/MITlicense
+271c78d5…c6a5 remain unchanged and separately published with verified bytes/hashes.
+Emitted sourcefa733889…cb7c is distinct from originalgallery and correctly bound;
+actual C66PNG6c8cb921…71ff9 qualifies all11 checks. Complete4participants8messages,
+selfcall/three returns/stockloop/note/async/shapes/icon retained; captions now clear
+all lifelines/paths. The original formalpass was superseded by real paint evidence
+and corrected through generic nativeprimitives, not SVGpostprocessing or hidden loss.
+Affected requestladder canonical4cbfdea8…949e uses disclosed lifelines adaptation,
+sourcefd6de750…5546/PNG005bacc2…96b0, all11 checks pass with exact6participants/
+6messages and clearformer marker-line collisions. No narrow-screenladder claim.
+
+Mandatory captionproof covers every admitted sequence, including legacy anonymous
+lifelines with strict exactinventory/uniqueparticipant attachment, never optionalmap
+or form bypass. Shapeowner bounds, loop/note/async/icon ownership and glyph paint
+negatives remain strict. Core-invalid sequence layouts fail corepublicvalidation;
+defensive directcompiler diagnostics preserve exact pointers. No new portablefields,
+mapkind or examplebranch; minimal C089caption/iconcarrier criteria aligned.
+
+Fresh showcase9entries16qualified7unqualified4unsupported/zero executionfailure/
+23SVG+PNG pairs69assets; reviews58/120qualified26unqualified28unsupported/
+146pairs438assets53authoritiesfivecaptures. All assets replay and shared UI pass.
+Final source/native/model/interface audit approved. Cycle66 complete pending its
+per-document commit; cycle67 must wait for that commit.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -5843,8 +5987,8 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is committed as `a6f639e`. Cycle 60 is committed as `093c93d`. Cycle 61 is committed as `f2cee65`. Cycle 62 is committed as `1c6fac4`. Cycle 63 is committed as `bd8cc2a`. Cycle 64 is committed as `5216089`. Cycle 65 is complete pending commit;
-cycles 66–68 remain pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is committed as `a6f639e`. Cycle 60 is committed as `093c93d`. Cycle 61 is committed as `f2cee65`. Cycle 62 is committed as `1c6fac4`. Cycle 63 is committed as `bd8cc2a`. Cycle 64 is committed as `5216089`. Cycle 65 is committed as `01008d7`. Cycle 66 is complete pending commit;
+cycles 67–68 remain pending.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 
