@@ -6024,6 +6024,143 @@ public/site/canonicalreplay/UI evidence complete. No runtime/proof/schema/C089
 change or examplebranch. Final source/native/model/interface audit approved.
 Cycle67 complete pending per-document commit; cycle68 must wait for that commit.
 
+### Sixty-eighth-cycle scope — pinned commerce entities, final population item
+
+Cycle67 is committed as `50308a6`. Finalcycle68 reviews canonical
+`lini-gallery-commerce-entities`: original1.3 six entities/16 fields/five references,
+four literalPK/threeFK badges and target-only authored cardinalities. Exact pinned
+Lini1.1source74d84391 has two namedfield-row connections and three entity-level
+connections. The order→LineItem:right endpoint is a native wallhint, not order_id
+binding; user.pk→order.user_fk:left also preserves rawwall intent outside typed
+fieldendpoint side semantics. No SQL nullability, sourcecardinality, compoundkey or
+identifying relation inferred. Pinnedcoordinates/palette remain sourcepresentation;
+UMF's authoredthree-column adaptation and wallside omission stay explicit.
+
+Preferexactalias ifsourcecomplete; preserve raworiginal/native/MITlicense, no
+artificialfields/rewrites. Fresh actual fieldrow/key/endpoint/cardinality/ownership/
+fit proof and images required. Data16 ifsharedunchanged+suitabletarget, C66full1078/
+27942/209/shared58UI retained with fingerprint evidence; fullgates ifsharedfix.
+Aftercycle68gates+per-document commit, perform final68-item population/order/commit
+and globalmodel/interface/modularity audit. No nextcycle. Cycle68 incomplete.
+
+### Cycle 68 model-boundary correction — existing entity-wall port
+
+The initial exactalias recommendation is superseded by existing-model audit.
+Current1.3 already supports nodeports with optional labels and side=east, referenced
+by portId. Source order→LineItem:right is entity-level and can therefore be retained
+as a derived logical east-wall port without inventing order_id field binding or a
+new vocabulary/version. Preserve original rawdefinition, derive a separate reviewed
+same1.3 projection with explicit portidentity attribution and correct the obsolete
+'no endpoint wall-side property' omission. An optional display label is not required;
+any visible generated portID is projection identity, not an authored sourcefield.
+
+Source user.pk→order.user_fk:left remains field-bound; current field/port mutual
+exclusion prevents combining both identities, so preserve fieldbinding and disclose
+that source-only side limitation instead of inventing equivalence. Fresh native
+probe must prove exactport/eastwallcontact/cardinality and unchanged16fields/badges,
+with no phantomfield or alteredmeaning. No new1.5field warranted. Cycle68 incomplete.
+
+### Cycle 68 source freeze — existing east-wall port, no inferred fields
+
+Reviewed same1.3 SHA `18ed2114baec8108e6c231738fb0869630473b49d6c70d738ed281fe388f8317`
+adds only derivedlogical right-wall/east port on LineItem, targets it from the
+entity-level order-items reference and replaces obsolete omission with accurate
+remaining field+side limitation. No portlabel invented, no order_id field binding,
+all16field names/types/literalkey badges and five targetcardinality operators intact.
+Original6f1f5a5f…c090/native74d84391/MITlicense unchanged and published separately;
+revieweddefinition also published. Source/showcase14/706/type/source/diff pass.
+
+Source/model/interface review approved existing1.3typedportsemantics. user_fk:left
+keeps exactfield identity and source-only sidecaveat; no unsupported1.5schema needed.
+A prose-only pinnedrevision typo in manifest description was reported for correction;
+authoritativeoriginCommit field remains correct. Fresh reviewednativequalification
+pending, not inferred from originalall-target baseline. No sharedcode/C089 change
+indicated; data16 only after actualreviewedtarget suitability. Cycle68 incomplete.
+
+### Cycle 68 native checkpoint — exact named-port proof, not broader tolerance
+
+Reviewed18ed images independently confirm entity-level rightwall port and unchanged
+sixentities/16fields/five targetcardinality references. Graphviz nativeJSON retains
+full headport p1:e, but SVGtitle omits the HTMLportname; proof must bind unique mapped
+SVGedge ID plus exactASTnodes/ports/ownedpath/markers instead of treating lossy display
+title as sole identity. Lini namedentitywallport cell textedge differs from actual
+bodywall/cardinalityterminal; proof must branch namedports to source-bound ownedport/
+side/rowcenter and actualpaintedentitywall contact. Field-row strictcontact remains
+unchanged; no blanket tolerance enlargement. Wrongport/side/owner, offwallpath/marker,
+phantom and existingfieldrow negatives required.
+
+This is a generic target-specific proof repair, not native/runtime/source rewriting.
+Existingportsemantics suffice, no C089newvocabulary clause. Full17canonical gates
+required after focusedproof freeze, superseding data16 intent. Source14/706 unchanged;
+finalqualification pending, not inferred from visible correctness alone. Cycle68
+incomplete; no latercycle or all68completion claim yet.
+
+### Cycle 68 final focused freeze — strict native named-wall ports
+
+Final source14/706/type/source/diff reviewed18ed…8317 same1.3 and raw6f1f5a5f…c090
+remain frozen. Gfocused2/62/type/diff pass: exactunique sourceport/reference maps,
+fullASTnode/port IDs, uniqueSVGedge IDs and qualifiedcanonical title normalization;
+actualownedpainted smallest HTMLport-row border/compass/contact/rowspan proven.
+Observed native one-unit clip is mapped with actualCTM plus0.5CSS numeric allowance,
+not a coarseglobalbudget or double-counted paintedstroke. Missing/duplicate/wrong/
+hidden/detached identity and geometry controls fail; omittedside does not inventeast.
+
+Final Lini qualityfile30/390/type/diff passes. Newnamedportbranch uses uniqueactual
+paintedbodyrect, correctownedport/side/row, paintedshaft/cardinalityglyphs and measured
+source-derived wall→outward orderedglyphchain with shaftjoining exactlyone member.
+Fork/bar/circle arrangements are independently verified, not fork-only assumptions.
+UniformconformalCTM/strokescale required; nonuniform/shear failclosed. Bothsource/
+target/no-cardinality endpoints require paint/conformal/directwall proof; west/north
+orientedcoordinates correct. Wrongmap/owner/side/row/moved/reversed/hidden/transparent/
+body/rootopacity controls fail. Existingfield-row contact/port/cardinality checks
+remain unchanged; no widenedglobaltolerance or schema additions. G/L static findings
+closed, final source/model/interface and actualimages approved, formal freshall-target
+receipts deferred to fullbuild. ExistingC089portownership criteria suffice.
+
+Full17 canonical gates frozen for execution; no data-onlyretainedfull substitution
+for sharedproofchanges. Fresh source/native/canonical/reviews/replays/public/package/
+site/all58UI/catalog/showcaseUI required. No lastcyclecompletion claim until gates and
+per-document commit; all68population/order/commit/modularity audit follows. Cycle68
+incomplete; docs frozen for full17.
+
+### Cycle 68 closeout — complete, final commit pending
+
+All 17 fresh gates pass. Full Bun reports 1,080 pass, zero fail, 28,104
+assertions across 209 files in 192.26 seconds. Source/type/build/fetch/package,
+real public browser/native execution, catalog, showcase and reviews builds and
+all native/PNG replays, site build/tests, all 58 review UI entries and showcase
+UI pass. Source focus is 14 tests/706 assertions; Graphviz named-port focus is
+2/62 and the full Lini quality file is 30/390. Existing field-row, paint,
+cardinality and endpoint obligations remain strict.
+
+Fresh canonical definition `18ed2114baec8108e6c231738fb0869630473b49d6c70d738ed281fe388f8317`
+qualifies on Graphviz 12 checks, Mermaid 10 and Lini 12. Actual built PNGs,
+canonical bindings and all four exact source/license/original/reviewed downloads
+were independently reviewed. The same Visual 1.3 definition captures the
+entity-level east wall through the existing named-port vocabulary; the separate
+field-bound left-side hint remains explicitly source-only. No nullability,
+parent cardinality, synthetic field, schema field or example branch is added.
+Observed east/west named-port profiles and their strict native geometry controls
+do not assert arbitrary SVG transforms or unobserved native north-side coverage.
+
+Final built showcase totals are nine entries, 16 qualified, seven unqualified,
+four unsupported, zero execution failures, 23 native/PNG pairs and 69 render
+assets. Reviews retain 58 entries, 120 qualified, 26 unqualified, 28 unsupported,
+zero execution failures, 146 native/PNG pairs and 438 render assets. Each of
+these 67 semantic examples has at least one qualified target. The 68th ordered
+cycle is the opaque native-only witness: exact bytes and refusal evidence are
+preserved without fabricated semantic projection or qualified diagram claims.
+
+Read-only population/ancestry audit finds 68 unique ordered inventory entries,
+58 unique review IDs plus nine distinct canonical IDs and one opaque witness.
+The five early review IDs use their explicit `miro-` aliases; manifest display
+order is independent of cycle order. All 67 prior cycle commits exist in order,
+ending at `50308a6`; final ancestry count will be checked after this commit.
+No business/example-name conditional was found in the reviewed presentation,
+QA or portable visual implementation. Model/interface separation and existing
+C089 obligations remain intact. All 68 cycle work is complete pending the final
+per-document commit; no extra audit commit or next cycle is planned.
+
 ### Ordered cycle inventory
 
 Cycle 1 is committed as `284974f`; cycle 2 is committed as `ad714b5`.
@@ -6044,8 +6181,9 @@ Cycle 29 is committed as `fa9e230`; cycle 30 is committed as `29df89e`.
 Cycle 31 is committed as `34c2a63`; cycle 32 is committed as `4abe6bd`.
 Cycle 33 is committed as `c766035`; cycle 34 is committed as `f858af5`.
 Cycle 35 is committed as `aa0bc52`; cycle 36 is committed as `4ed835c`.
-Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is committed as `a6f639e`. Cycle 60 is committed as `093c93d`. Cycle 61 is committed as `f2cee65`. Cycle 62 is committed as `1c6fac4`. Cycle 63 is committed as `bd8cc2a`. Cycle 64 is committed as `5216089`. Cycle 65 is committed as `01008d7`. Cycle 66 is committed as `5af9ea6`. Cycle 67 is complete pending commit;
-cycle 68 remains pending.
+Cycle 37 is committed as `da55e80`. Cycle 38 is committed as `57f2dcc`. Cycle 39 is committed as `1380ac1`. Cycle 40 is committed as `3408ea1`. Cycle 41 is committed as `a920106`. Cycle 42 is committed as `2586b06`. Cycle 43 is committed as `3a5ece8`. Cycle 44 is committed as `f5b47f3`. Cycle 45 is committed as `1e04915`. Cycle 46 is committed as `d65f7c5`. Cycle 47 is committed as `e7a69fa`. Cycle 48 is committed as `bff12a2`. Cycle 49 is committed as `3cb49ac`. Cycle 50 is committed as `19d9443`. Cycle 51 is committed as `af14ea9`. Cycle 52 is committed as `25522e5`. Cycle 53 is committed as `8b88f19`. Cycle 54 is committed as `d19c102`. Cycle 55 is committed as `fb0ff57`. Cycle 56 is committed as `0372d0f`. Cycle 57 is committed as `79675e1`. Cycle 58 is committed as `9466548`. Cycle 59 is committed as `a6f639e`. Cycle 60 is committed as `093c93d`. Cycle 61 is committed as `f2cee65`. Cycle 62 is committed as `1c6fac4`. Cycle 63 is committed as `bd8cc2a`. Cycle 64 is committed as `5216089`. Cycle 65 is committed as `01008d7`. Cycle 66 is committed as `5af9ea6`. Cycle 67 is committed as `50308a6`. All 68 cycle reviews and required gates are complete; the final cycle 68 commit is pending.
+The final population is 67 semantic examples with at least one qualified target each,
+plus one explicitly opaque native-only preservation/refusal witness. No later cycle remains.
 Source control supplies commit identity; no self-referential commit hash is
 embedded here.
 

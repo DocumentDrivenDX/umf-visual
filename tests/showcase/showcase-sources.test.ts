@@ -142,6 +142,14 @@ test('the three pinned Lini gallery examples preserve only their authored semant
 
  const commerceExample=manifest.examples.find(row=>row.id==='lini-gallery-commerce-entities')!;
  const commerceDoc=document(commerceExample),commerce=visual(commerceDoc);
+ const originalCommerceDoc=JSON.parse(read('fixtures/showcase/definitions/lini-gallery-commerce-entities.json').toString('utf8')) as Document;
+ const expectedReviewedDoc=JSON.parse(JSON.stringify(originalCommerceDoc)) as Document,expectedReviewed=visual(expectedReviewedDoc);
+ expectedReviewed.nodes!.find(node=>node.id==='item')!.ports=[{id:'right-wall',side:'east'}];
+ expectedReviewed.structure!.references!.find(reference=>reference.id==='order-items')!.to={node:'item',portId:'right-wall'};
+ expectedReviewed.omissions=["The native order-to-LineItem :right marker is represented as an east-side endpoint port. For user.pk -o< order.user_fk:left, UMF preserves both field anchors but cannot combine the target field with an explicit side port; that wall-side hint remains source-only."];
+ expect(commerceExample.definitionPath).toBe('fixtures/showcase/definitions/lini-gallery-commerce-entities-reviewed.json');
+ expect(hash(read('fixtures/showcase/definitions/lini-gallery-commerce-entities.json'))).toBe('6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090');
+ expect(commerceDoc).toEqual(expectedReviewedDoc);
  expect(commerceDoc.vocabularies['umf.visual']?.version).toBe('1.3.0');
  expect(commerce.nodes?.map(node=>node.label)).toEqual(['User','Order','LineItem','Product','Cart','Category']);
  expect(commerce.layout).toEqual({kind:'grid',columns:3,order:['user','order','item','product','cart','category']});
@@ -161,6 +169,21 @@ test('the three pinned Lini gallery examples preserve only their authored semant
  expect(fields.get('cart')?.map(field=>[field.name,field.type])).toEqual([['items','int'],['updated','timestamp']]);
  expect(fields.get('category')?.map(field=>[field.name,field.type])).toEqual([['name','varchar'],['slug','varchar']]);
  expect(commerce.structure!.entities!.flatMap(entity=>entity.fields).every(field=>field.nullable===undefined)).toBe(true);
+ const commerceSource=read(commerceExample.sources[0]!.path).toString('utf8');
+ const sourceFields=new Map<string,Array<[string|undefined,string,string]>>();
+ for(const entityId of ['user','order','item','product','cart','category']){
+  const entityStart=commerceSource.indexOf(`|entity#${entityId}|`),contentStart=commerceSource.indexOf('[',entityStart),contentEnd=commerceSource.indexOf('\n]',contentStart);
+  expect(entityStart).toBeGreaterThanOrEqual(0); expect(contentStart).toBeGreaterThan(entityStart); expect(contentEnd).toBeGreaterThan(contentStart);
+  const tokens=[...commerceSource.slice(contentStart,contentEnd).matchAll(/"([^"]*)"/g)].map(match=>match[1]).filter(token=>token.length>0);
+  const rows:Array<[string|undefined,string,string]>=[];
+  for(let index=0;index<tokens.length;){
+   if(tokens[index]==='PK'||tokens[index]==='FK'){
+    rows.push([tokens[index]!.toLowerCase(),tokens[index+1]!,tokens[index+2]!]); index+=3;
+   }else{rows.push([undefined,tokens[index]!,tokens[index+1]!]); index+=2;}
+  }
+  sourceFields.set(entityId,rows);
+ }
+ for(const entity of commerce.structure!.entities!)expect(sourceFields.get(entity.node)).toEqual(entity.fields.map(field=>[field.keys?.[0],field.name!,field.type!]));
  expect(commerce.structure?.references?.map(reference=>[
   reference.from.node,reference.from.field,reference.to.node,reference.to.field,reference.fromCardinality,reference.toCardinality
  ])).toEqual([
@@ -170,8 +193,27 @@ test('the three pinned Lini gallery examples preserve only their authored semant
   ['product','id','item','product_id',undefined,'zero-or-many'],
   ['category',undefined,'product',undefined,undefined,'zero-or-many']
  ]);
- expect(commerce.omissions?.join(' ')).toContain('right wall');
- expect(commerce.omissions?.join(' ')).toContain('no endpoint wall-side property');
+ expect(commerce.omissions?.join(' ')).toContain('field anchors');
+ expect(commerce.omissions?.join(' ')).toContain('side port');
+ expect([...commerceSource.matchAll(/^(?:user\.pk -o< order\.user_fk:left|user -o\+ cart|order -\+< item:right|product\.pk -o< item\.product_fk|category -o< product)$/gmu)].map(match=>match[0])).toEqual([
+  'user.pk -o< order.user_fk:left','user -o+ cart','order -+< item:right','product.pk -o< item.product_fk','category -o< product'
+ ]);
+ expect(commerce.nodes?.find(node=>node.id==='item')?.ports).toEqual([{id:'right-wall',side:'east'}]);
+ expect(commerce.structure?.references?.find(reference=>reference.id==='order-items')?.to).toEqual({node:'item',portId:'right-wall'});
+ expect(commerce.omissions?.[0]).toContain('field anchors');
+ expect(commerce.omissions?.[0]).toContain('wall-side hint remains source-only');
+ expect(commerceExample.publishedAssets?.map(asset=>asset.path)).toEqual([
+  'fixtures/showcase/sources/lini/entity_hero.lini','fixtures/showcase/sources/lini/LICENSE','fixtures/showcase/definitions/lini-gallery-commerce-entities.json','fixtures/showcase/definitions/lini-gallery-commerce-entities-reviewed.json'
+ ]);
+ expect(commerceExample.publishedAssets?.map(asset=>asset.sha256)).toEqual([
+  '74d843915dda51be10a31294007d5a78f0491780375df55b1c056f507bd244e6','271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5','6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090','18ed2114baec8108e6c231738fb0869630473b49d6c70d738ed281fe388f8317'
+ ]);
+ expect(commerceExample.publishedAssets?.map(asset=>asset.outputPath)).toEqual([
+  'showcase/lini-gallery-commerce-entities/entity_hero.lini','showcase/lini-gallery-commerce-entities/LICENSE.md','showcase/lini-gallery-commerce-entities/original-visual-1.3.json','showcase/lini-gallery-commerce-entities/reviewed-visual-1.3.json'
+ ]);
+ expect(hash(read(commerceExample.sources[0]!.path))).toBe(commerceExample.sources[0]!.sha256);
+ expect(hash(read(commerceExample.sources[1]!.path))).toBe(commerceExample.sources[1]!.sha256);
+ expect(hash(read(commerceExample.definitionPath))).toBe(commerceExample.definitionSha256);
  for(const source of commerceExample.sources)if(source.originPath==='LICENSE')expect(read(source.path).toString('utf8')).toContain('MIT License');
  for(const example of [sequenceExample,mindmapExample,commerceExample])expect(example.sources.filter(source=>source.originPath==='LICENSE')).toHaveLength(1);
 });

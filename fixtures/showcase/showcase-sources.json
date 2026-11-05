@@ -396,11 +396,11 @@
     {
       "id": "lini-gallery-commerce-entities",
       "title": "A small commerce schema",
-      "description": "Six entities and five relationships from the pinned Lini entity sample. Field names, type labels, and declared PK/FK markers are retained. Relationship cardinality is authored only where the source places its marker: at each target end. The source's order-to-LineItem `:right` marker is a native routing hint, not an order_id field relationship; UMF records the entity-level reference and target cardinality and documents the unavailable wall-side anchor. Native positions and palette are styling; the authored UMF layout uses a three-column grid.",
+      "description": "Six entities and five relationships from the pinned Lini entity sample. Field names, type labels, literal PK/FK markers, and target-end cardinalities are retained; no nullability or parent-side cardinality is inferred. The reviewed definition represents the source's order-to-LineItem `:right` as an east-side entity port, not an order_id field relationship. The field-bound user.pk-to-order.user_fk `:left` hint remains source-only because a field endpoint cannot also declare a port. Native positions and palette are styling; the authored UMF layout uses a three-column grid.",
       "kind": "structure",
       "form": "entities",
-      "definitionPath": "fixtures/showcase/definitions/lini-gallery-commerce-entities.json",
-      "definitionSha256": "6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090",
+      "definitionPath": "fixtures/showcase/definitions/lini-gallery-commerce-entities-reviewed.json",
+      "definitionSha256": "18ed2114baec8108e6c231738fb0869630473b49d6c70d738ed281fe388f8317",
       "sources": [
         {
           "path": "fixtures/showcase/sources/lini/entity_hero.lini",
@@ -412,7 +412,7 @@
           "originTag": "v1.1.0",
           "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
           "pointer": "Complete entity sample",
-          "description": "Exact upstream sample bytes from monfa-red/lini v1.1.0 at 0502d381dbd779d72b2ac4329a19b64201422a21."
+          "description": "Exact upstream sample bytes from monfa-red/lini v1.1.0 at 0502d381dbd779d72b2ac4329a19b64201422a21; its entity rows and target-end markers ground the field, key, and cardinality facts."
         },
         {
           "path": "fixtures/showcase/sources/lini/LICENSE",
@@ -425,6 +425,44 @@
           "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
           "pointer": "MIT License",
           "description": "Exact upstream MIT license text accompanying the pinned Lini v1.1.0 source samples."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-commerce-entities.json",
+          "sha256": "6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090",
+          "originPath": "fixtures/showcase/definitions/lini-gallery-commerce-entities.json",
+          "originSha256": "6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090",
+          "pointer": "Original UMF Visual 1.3.0 definition",
+          "description": "The original definition is retained byte-for-byte as the baseline for a separate reviewed definition that adds the source-declared east-side endpoint port."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/lini/entity_hero.lini",
+          "sha256": "74d843915dda51be10a31294007d5a78f0491780375df55b1c056f507bd244e6",
+          "outputPath": "showcase/lini-gallery-commerce-entities/entity_hero.lini",
+          "mediaType": "text/plain",
+          "description": "Exact pinned Lini v1.1.0 entity sample bytes."
+        },
+        {
+          "path": "fixtures/showcase/sources/lini/LICENSE",
+          "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "outputPath": "showcase/lini-gallery-commerce-entities/LICENSE.md",
+          "mediaType": "text/markdown",
+          "description": "Exact MIT license text accompanying the pinned Lini source sample."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-commerce-entities.json",
+          "sha256": "6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090",
+          "outputPath": "showcase/lini-gallery-commerce-entities/original-visual-1.3.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF Visual 1.3.0 definition bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-commerce-entities-reviewed.json",
+          "sha256": "18ed2114baec8108e6c231738fb0869630473b49d6c70d738ed281fe388f8317",
+          "outputPath": "showcase/lini-gallery-commerce-entities/reviewed-visual-1.3.json",
+          "mediaType": "application/json",
+          "description": "Reviewed Visual 1.3.0 definition retaining the source-declared east-side endpoint port."
         }
       ]
     }

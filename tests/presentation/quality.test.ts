@@ -2,8 +2,9 @@
 import {afterAll,beforeAll,describe,expect,it} from 'bun:test';
 import {chromium,type Browser} from 'playwright';
 import {resolve} from 'node:path';
+import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-import {createVisualDocument,type Visual} from '../../src/extensions/visual';
+import {createVisualDocument,getVisual,readVisualDocument,type Visual} from '../../src/extensions/visual';
 import {compilePresentation,type PresentationPlan} from '../../src/presentation';
 import {verifyPresentationQuality} from '../../scripts/presentation/quality';
 
@@ -35,6 +36,37 @@ async function check(d:ReturnType<typeof doc>,backend:'graphviz'|'mermaid'='grap
 const result=(checks:Awaited<ReturnType<typeof verifyPresentationQuality>>,name:string)=>checks.find(x=>x.check===name)?.result;
 
 describe('presentation native quality verifier',()=>{
+ it('binds Graphviz named entity-wall ports to exact reference IDs, AST ports and SVG endpoints',async()=>{
+  const root=resolve(import.meta.dir,'../..'),document=readVisualDocument(readFileSync(resolve(root,'fixtures/showcase/definitions/lini-gallery-commerce-entities-reviewed.json'),'utf8'),'json'),good=await check(document);
+  try{
+   const checkName='graphviz-edge-endpoints-and-paths';if(result(good.checks,checkName)!=='pass')throw new Error(JSON.stringify(good.checks.find(item=>item.check===checkName)));expect(result(good.checks,checkName)).toBe('pass');
+   const baselineAst=JSON.parse(await dot(good.plan,'json')) as any,baselineChecks=async()=>verifyPresentationQuality(good.page,{svg:good.svg,document,plan:good.plan,nativeAst:baselineAst});
+   const verifyFresh=async(svg=good.svg,ast=baselineAst,plan=good.plan)=>{expect(result(await baselineChecks(),checkName)).toBe('pass');return verifyPresentationQuality(good.page,{svg,document,plan,nativeAst:ast});};
+   const mapped=good.plan.elementMap.find(item=>item.kind==='reference'&&item.sourcePath==='/extensions/umf.visual/structure/references/2');expect(mapped?.nativeId).toBe('r3');
+   const wrongPort=structuredClone(baselineAst);wrongPort.edges.find((edge:any)=>edge.id==='r3').headport='p1:w';
+   expect(result(await verifyFresh(good.svg,wrongPort),checkName)).toBe('fail');
+   const wrongOwner={...good.plan,elementMap:good.plan.elementMap.map(item=>item.kind==='port'&&item.sourcePath==='/extensions/umf.visual/nodes/2/ports/0'?{...item,nativeId:'n2.p1'}:item)};
+   expect(result(await verifyFresh(good.svg,baselineAst,wrongOwner),checkName)).toBe('fail');
+   const wrongReference={...good.plan,elementMap:good.plan.elementMap.map(item=>item.kind==='reference'&&item.sourcePath==='/extensions/umf.visual/structure/references/2'?{...item,nativeId:'reference-3'}:item)};
+   expect(result(await verifyFresh(good.svg,baselineAst,wrongReference),checkName)).toBe('fail');
+   const duplicateAst=structuredClone(baselineAst);duplicateAst.edges.push(structuredClone(duplicateAst.edges.find((edge:any)=>edge.id==='r3')));
+   expect(result(await verifyFresh(good.svg,duplicateAst),checkName)).toBe('fail');
+   const duplicateSvg=good.svg.replace('</svg>','<g class="edge" id="r3"><title>n2-&gt;n3:e</title></g></svg>');
+   expect(duplicateSvg).not.toBe(good.svg);expect(result(await verifyFresh(duplicateSvg),checkName)).toBe('fail');
+   const wrongTitle=good.svg.replace('<title>n2&#45;&gt;n3:e</title>','<title>n2&#45;&gt;n3:w</title>');
+   expect(wrongTitle).not.toBe(good.svg);expect(result(await verifyFresh(wrongTitle),checkName)).toBe('fail');
+   const detached=good.svg.replace(/(<g id="r3" class="edge">[\s\S]*?<path[^>]* d=")([^"]+)/u,(_match:string,prefix:string,d:string)=>prefix+d.replace(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/gu,(_pair:string,x:string,y:string)=>`${Number(x)+90},${Number(y)+90}`));
+   expect(detached).not.toBe(good.svg);expect(result(await verifyFresh(detached),checkName)).toBe('fail');
+   const hiddenPath=good.svg.replace('<g id="r3" class="edge">','<g id="r3" class="edge" opacity="0">');
+   expect(hiddenPath).not.toBe(good.svg);expect(result(await verifyFresh(hiddenPath),checkName)).toBe('fail');
+   const transparentPath=good.svg.replace(/(<g id="r3" class="edge">[\s\S]*?<path[^>]*?)stroke="#617984"/u,'$1stroke="none"');
+   expect(transparentPath).not.toBe(good.svg);expect(result(await verifyFresh(transparentPath),checkName)).toBe('fail');
+  }finally{await good.page.close();}
+  const renamed=doc({id:'renamed-wall-port',kind:'structure',form:'entities',question:'Which entry has the declared wall anchor?',nodes:[{id:'origin-record',label:'Origin record'},{id:'named-target',label:'Named target',ports:[{id:'outer-right',side:'east'}]},{id:'audit-record',label:'Audit record'}],structure:{entities:[{node:'origin-record',fields:[{id:'origin-key',name:'key',type:'text',keys:['pk']}]},{node:'named-target',fields:[{id:'target-key',name:'key',type:'text',keys:['pk']}]},{node:'audit-record',fields:[{id:'audit-key',name:'key',type:'text',keys:['pk']}]}],references:[{id:'renamed-reference',from:{node:'origin-record',fieldId:'origin-key'},to:{node:'named-target',portId:'outer-right'},label:'targets',toCardinality:'zero-or-many'}]}});
+  const variant=await check(createVisualDocument(getVisual(renamed),'quality:'+renamed.id,'1.3.0'));try{if(result(variant.checks,'graphviz-edge-endpoints-and-paths')!=='pass')throw new Error(JSON.stringify(variant.checks.find(item=>item.check==='graphviz-edge-endpoints-and-paths')));expect(result(variant.checks,'graphviz-edge-endpoints-and-paths')).toBe('pass');}finally{await variant.page.close();}
+  const unspecifiedVisual=getVisual(renamed);unspecifiedVisual.nodes=unspecifiedVisual.nodes?.map(node=>node.id==='named-target'?{...node,ports:node.ports?.map(({id})=>({id}))}:node);
+  const unspecified=await check(createVisualDocument(unspecifiedVisual,'quality:'+renamed.id+'-unspecified','1.3.0'));try{expect(result(unspecified.checks,'graphviz-edge-endpoints-and-paths')).toBe('pass');}finally{await unspecified.page.close();}
+ },{timeout:60_000});
  it('proves owned Graphviz curves and records Mermaid collinear interpolation as a located fallback',async()=>{
   const d=createVisualDocument({id:'edge-routing-native',kind:'flow',form:'network',question:'How does the record move?',nodes:[{id:'source',label:'Source'},{id:'target',label:'Target'}],edges:[{id:'connection',from:'source',to:'target',label:'transfers',routing:{kind:'curved'}}]},'quality:edge-routing-native','1.4.0');
   const graphviz=await check(d,'graphviz');

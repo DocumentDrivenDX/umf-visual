@@ -621,6 +621,58 @@ describe('pinned Lini presentation quality',()=>{
   }finally{await page.close();}
  });
 
+ it('binds named entity-wall ports to the exact native row, body wall and reference glyph chain',async()=>{
+  const root=resolve(import.meta.dir,'../..'),document=readVisualDocument(readFileSync(resolve(root,'fixtures/showcase/definitions/lini-gallery-commerce-entities-reviewed.json'),'utf8'),'json'),plan=compilePresentation(document,{backend:'lini',theme:'presentation/1'});
+  expect(plan.ok).toBe(true);if(!plan.ok)throw Error(JSON.stringify(plan));
+  const native=await renderPresentationLini(plan.source),page=await browser.newPage({viewport:{width:1600,height:900}}),install=async(svg:string)=>page.locator('#frame').evaluate((frame,markup)=>{frame.innerHTML=markup;},svg);
+  try{
+   await page.setContent('<!doctype html><meta charset="utf-8"><style>html,body{margin:0;width:1600px;height:900px;overflow:hidden}#frame{width:1600px;height:900px}#frame svg{width:100%;height:100%}</style><div id="frame"></div>',{waitUntil:'domcontentloaded'});await install(native.svg);
+   const baseline=await recheck(page,document,plan,native.nativeAst);expectAll(baseline);expect(result(baseline,'lini-connection-endpoints')).toBe('pass');
+   const assertClean=async()=>{await install(native.svg);const checks=await recheck(page,document,plan,native.nativeAst);expect(result(checks,'lini-connection-endpoints')).toBe('pass');};
+   await assertClean();const wrongMap={...plan,elementMap:plan.elementMap.map(item=>item.kind==='port'&&item.sourcePath==='/extensions/umf.visual/nodes/2/ports/0'?{...item,nativeId:'n2.p1'}:item)};
+   expect(result(await recheck(page,document,wrongMap,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await assertClean();const astDeclaration=native.nativeAst.indexOf('|block#p1|');expect(astDeclaration).toBeGreaterThanOrEqual(0);
+   const astChanged=native.nativeAst.slice(0,astDeclaration)+native.nativeAst.slice(astDeclaration).replace('pin: right;','pin: left;');expect(astChanged).not.toBe(native.nativeAst);
+   expect(result(await recheck(page,document,plan,astChanged),'lini-native-ast')).toBe('fail');
+   await assertClean();const wrongSideVisual=getVisual(document),wrongSideDocument=doc({...wrongSideVisual,nodes:wrongSideVisual.nodes?.map(node=>node.id==='item'?{...node,ports:node.ports?.map(port=>({...port,side:'west' as const}))}:node)});
+   expect(result(await verifyLiniPresentationQuality(page,{document:wrongSideDocument,plan,nativeAst:native.nativeAst}),'lini-connection-endpoints')).toBe('fail');
+   await assertClean();const wrongOwner=native.svg.replace('data-to="visual.n3.p1"','data-to="visual.n2.p1"');expect(wrongOwner).not.toBe(native.svg);await install(wrongOwner);
+   expect(result(await recheck(page,document,plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await assertClean();const detached=await page.locator('g.lini-link.lini-style-r3 > path:not(.lini-marker)').evaluate(path=>{path.setAttribute('transform','translate(80,80)');return((path as SVGElement).ownerSVGElement as SVGSVGElement).outerHTML;});
+   expect(detached).not.toBe(native.svg);await install(detached);expect(result(await recheck(page,document,plan,native.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   const mutate=async(selector:string,attributes:Record<string,string>,text?:string,check='lini-connection-endpoints')=>{
+    await assertClean();const changed=await page.locator(selector).evaluate((element,args)=>{for(const [name,value] of Object.entries(args.attributes))element.setAttribute(name,value);if(args.text!==undefined)element.textContent=args.text;const svg=element instanceof SVGSVGElement?element:(element as SVGElement).ownerSVGElement;return svg?.outerHTML??'';},{attributes,text});
+    expect(changed).not.toBe(native.svg);await install(changed);expect(result(await recheck(page,document,plan,native.nativeAst),check)).toBe('fail');
+   };
+   await mutate('g.lini-node[data-id="p1"]',{'data-id':'p9'});
+   await mutate('g.lini-node[data-id="p1"] text.lini-text',{},'ghost-port','lini-native-carriers');
+   await mutate('g.lini-node[data-id="p1"]',{'transform':'translate(134.5535,25)'});
+   await mutate('g.lini-link.lini-style-r3 > path:nth-of-type(2)',{'transform':'translate(0,35)'});
+   await mutate('g.lini-link.lini-style-r3 > path:nth-of-type(3)',{'transform':'translate(35,0)'});
+   await mutate('g.lini-link.lini-style-r3 > path:nth-of-type(2)',{'transform':'translate(988,0) scale(-1,1)'});
+   await mutate('g.lini-link.lini-style-r3 > path:nth-of-type(2)',{'style':'opacity:0'});
+   await mutate('g.lini-link.lini-style-r3 > path:nth-of-type(3)',{'style':'fill:none;stroke:transparent'});
+   await mutate('g.lini-link.lini-style-r3 > path:not(.lini-marker)',{'style':'fill:none;stroke:transparent'});
+   await mutate('g.lini-node.lini-entity[data-id="n3"] > rect:not(.lini-gutter)',{'style':'fill:transparent;stroke:transparent'});
+   await mutate('svg.lini',{'style':'opacity:0'});
+   await mutate('svg.lini',{'preserveAspectRatio':'none'});
+  }finally{await page.close();}
+
+  const variant=await renderDocument(createVisualDocument({id:'renamed-entity-wall-anchor',kind:'structure',form:'entities',question:'Which records attach at their authored walls?',nodes:[{id:'source-record',label:'Source record',ports:[{id:'source-hook',side:'east'}]},{id:'target-record',label:'Target record',ports:[{id:'west-hook',side:'west'}]},{id:'audit-record',label:'Audit record'}],structure:{entities:[{node:'source-record',fields:[{id:'source-id',name:'id',type:'text',keys:['pk']}]},{node:'target-record',fields:[{id:'target-id',name:'id',type:'text',keys:['pk']}]},{node:'audit-record',fields:[{id:'audit-id',name:'id',type:'text',keys:['pk']}]}],references:[{id:'source-target',from:{node:'source-record',portId:'source-hook'},to:{node:'target-record',portId:'west-hook'},label:'uses',toCardinality:'zero-or-many'}]}},'lini-quality:renamed-entity-wall-anchor','1.3.0'));
+  try{expectAll(variant.checks);expect(result(variant.checks,'lini-connection-endpoints')).toBe('pass');}finally{await variant.page.close();}
+  const direct=await renderDocument(createVisualDocument({id:'unnumbered-entity-wall-ports',kind:'structure',form:'entities',question:'Which records connect directly at their named walls?',nodes:[{id:'left-record',label:'Left record',ports:[{id:'east-port',side:'east'}]},{id:'right-record',label:'Right record',ports:[{id:'west-port',side:'west'}]}],structure:{entities:[{node:'left-record',fields:[{id:'left-id',name:'id',type:'text',keys:['pk']}]},{node:'right-record',fields:[{id:'right-id',name:'id',type:'text',keys:['pk']}]}],references:[{id:'direct-wall',from:{node:'left-record',portId:'east-port'},to:{node:'right-record',portId:'west-port'},label:'direct link'}]}},'lini-quality:unnumbered-entity-wall-ports','1.3.0'));
+  try{
+   expectAll(direct.checks);expect(result(direct.checks,'lini-connection-endpoints')).toBe('pass');
+   const referenceMap=direct.plan.elementMap.find(item=>item.kind==='reference'&&item.logicalId==='direct-wall');expect(referenceMap).toBeDefined();
+   const lineSelector=`g.lini-link.lini-style-${referenceMap!.nativeId} > path:not(.lini-marker)`;
+   const offwall=await direct.page.locator(lineSelector).evaluate(path=>{path.setAttribute('transform','translate(35,30)');return((path as SVGElement).ownerSVGElement as SVGSVGElement).outerHTML;});
+   await direct.page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},offwall);expect(result(await recheck(direct.page,direct.document,direct.plan,direct.nativeAst),'lini-connection-endpoints')).toBe('fail');
+   await direct.page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},direct.svg);
+   const hidden=await direct.page.locator(lineSelector).evaluate(path=>{path.setAttribute('style','fill:none;stroke:transparent');return((path as SVGElement).ownerSVGElement as SVGSVGElement).outerHTML;});
+   await direct.page.locator('#frame').evaluate((frame,svg)=>{frame.innerHTML=svg;},hidden);expect(result(await recheck(direct.page,direct.document,direct.plan,direct.nativeAst),'lini-connection-endpoints')).toBe('fail');
+  }finally{await direct.page.close();}
+ },{timeout:90_000});
+
  it('replays all original showcase baselines through pinned Lini and Chromium',async()=>{
   const root=resolve(import.meta.dir,'../..'),manifest=JSON.parse(readFileSync(resolve(root,'fixtures/showcase/showcase-sources.json'),'utf8')) as {examples:Array<{id:string}>};
   for(const example of manifest.examples){

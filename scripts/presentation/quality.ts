@@ -74,6 +74,15 @@ const portFor=(plan:PresentationPlan,nodeId:string,field:string|undefined,visual
  const fieldIndex=entity.fields.findIndex(f=>f.id===field||f.name===field);if(fieldIndex<0)return undefined;
  return elementFor(plan,'field',`/extensions/umf.visual/structure/entities/${entityIndex}/fields/${fieldIndex}`)?.nativeId;
 };
+const namedPortFor=(plan:PresentationPlan,nodeId:string,portId:string|undefined,visual:Visual)=>{
+ if(!portId)return undefined;
+ const nodeIndex=(visual.nodes??[]).findIndex(node=>node.id===nodeId),node=visual.nodes?.[nodeIndex],portIndex=node?.ports?.findIndex(port=>port.id===portId)??-1;
+ if(nodeIndex<0||portIndex<0)return undefined;
+ const sourcePath=`/extensions/umf.visual/nodes/${nodeIndex}/ports/${portIndex}`,rows=plan.elementMap.filter(item=>item.kind==='port'&&item.sourcePath===sourcePath),element=rows[0];
+ const authoredSide=node!.ports![portIndex]!.side,side=authoredSide?({'north':'n',east:'e',south:'s',west:'w'} as const)[authoredSide]:undefined;
+ const owner=nativeIdForNode(plan,nodeId);
+ return rows.length===1&&element?.logicalId===portId&&!!owner&&element.nativeId===`${owner}.p${portIndex+1}`?{port:`p${portIndex+1}${side?`:${side}`:''}`,side}:undefined;
+};
 
 /**
  * Checks that source-bound records have native carriers and that rendered geometry
@@ -123,20 +132,22 @@ export async function verifyPresentationQuality(
   };
   const box=(el:Element)=>{const r=el.getBoundingClientRect();return{x:r.x-rootRect.x,y:r.y-rootRect.y,width:r.width,height:r.height};};
   const paintAlpha=(value:string)=>{const color=value.trim().toLowerCase();if(color==='none'||color==='transparent')return 0;if(/^#[\da-f]{3,8}$/u.test(color)||/^[a-z]+$/u.test(color))return 1;const match=/^([a-z-]+)\(([^)]*)\)$/iu.exec(color);if(!match)return 0;const fn=match[1]!.toLowerCase(),body=match[2]!,supportsAlpha=['rgb','rgba','hsl','hsla','hwb','lab','lch','oklab','oklch','color'].includes(fn);if(!supportsAlpha)return 0;const slash=body.split('/');let alpha='1';if(slash.length>1){if(slash.length!==2)return 0;alpha=slash[1]!.trim().split(/[\s,]+/u)[0]??'1';}else{const comma=body.includes(','),parts=comma?body.split(',').map(item=>item.trim()):body.trim().split(/\s+/u);if(comma&&parts.length>=4)alpha=parts.at(-1)!;else if(!comma&&parts.length>=4&&['rgb','rgba','hsl','hsla'].includes(fn))alpha=parts.at(-1)!;}if(alpha==='none')return 0;const number=parseFloat(alpha);return Number.isFinite(number)?alpha.endsWith('%')?number/100:number:0;};
+  const paintedGraphic=(element:Element)=>{let ancestor:Element|null=element,opacity=1;while(ancestor){const style=getComputedStyle(ancestor),alpha=Number(style.opacity);if(style.display==='none'||style.visibility==='hidden'||style.visibility==='collapse'||!Number.isFinite(alpha))return false;opacity*=alpha;ancestor=ancestor.parentElement;}const style=getComputedStyle(element);return opacity>0&&(paintAlpha(style.stroke)*Number(style.strokeOpacity)*Number.parseFloat(style.strokeWidth||'0')>0||paintAlpha(style.fill)*Number(style.fillOpacity)>0);};
   const paintedLeaves=(el:Element)=>{const walker=globalThis.document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const leaves:Array<{value:string;painted:boolean}>=[];while(walker.nextNode()){const node=walker.currentNode as Text,value=node.nodeValue??'';if(!value.trim())continue;let current=node.parentElement,opacity=1,visible=true;while(current){const style=getComputedStyle(current),alpha=Number(style.opacity);if(style.display==='none'||style.visibility==='hidden'||style.visibility==='collapse')visible=false;opacity*=Number.isFinite(alpha)?alpha:1;current=current.parentElement;}const style=getComputedStyle(node.parentElement!),svgText=node.parentElement!.namespaceURI==='http://www.w3.org/2000/svg',fill=paintAlpha(style.fill)*Number(style.fillOpacity),stroke=paintAlpha(style.stroke)*Number(style.strokeOpacity)*(Number.parseFloat(style.strokeWidth)||0),color=paintAlpha(style.color);leaves.push({value,painted:visible&&opacity>0&&(svgText?fill>0||stroke>0:color>0)});}return leaves;};
   const curveDeviation=(path:SVGPathElement)=>{const length=path.getTotalLength();if(length<=0)return 0;const point=(at:number)=>{const p=path.getPointAtLength(at),matrix=path.getScreenCTM();return matrix?new DOMPoint(p.x,p.y).matrixTransform(matrix):p;},a=point(0),b=point(length),dx=b.x-a.x,dy=b.y-a.y,span=Math.hypot(dx,dy)||1;let deviation=0;for(let index=1;index<12;index++){const p=point(length*index/12);deviation=Math.max(deviation,Math.abs(dy*p.x-dx*p.y+b.x*a.y-b.y*a.x)/span);}return deviation;};
   const titleOf=(g:Element)=>normalize(g.querySelector(':scope > title')?.textContent??'');
-  const carriers=[...s.querySelectorAll('g.node,g.cluster,g.edge,g.lini-node[data-id]')].map(g=>{const nativePolygons=[...g.querySelectorAll(':scope > polygon')].map(box),primaryPolygon=[...nativePolygons].sort((a,b)=>b.width*b.height-a.width*a.height)[0],shapeTags=[...g.querySelectorAll(':scope > rect,:scope > polygon,:scope > ellipse,:scope > path,:scope > circle')].map(shape=>({tag:shape.tagName.toLowerCase(),radius:Number(shape.getAttribute('rx')??0)}));return({
+  const ownedPolygonElements=[...s.querySelectorAll('g.node,g.cluster,g.edge,g.lini-node[data-id]')].map(g=>({g,elements:[...g.querySelectorAll('polygon')].filter(polygon=>polygon.closest('g.node,g.cluster,g.edge')===g)}));
+  const carriers=[...s.querySelectorAll('g.node,g.cluster,g.edge,g.lini-node[data-id]')].map(g=>{const elements=ownedPolygonElements.find(item=>item.g===g)?.elements??[],nativePolygons=elements.map(box),paintedPolygonFlags=elements.map(paintedGraphic),primaryPolygon=[...nativePolygons].sort((a,b)=>b.width*b.height-a.width*a.height)[0],shapeTags=[...g.querySelectorAll(':scope > rect,:scope > polygon,:scope > ellipse,:scope > path,:scope > circle')].map(shape=>({tag:shape.tagName.toLowerCase(),radius:Number(shape.getAttribute('rx')??0)}));return({
    cls:g.getAttribute('class')??'',title:titleOf(g),id:g.getAttribute('id')??g.getAttribute('data-id')??'',shapeTags,nativeAnnotationShape:g.classList.contains('lini-box')&&g.classList.contains('lini-block')&&!g.classList.contains('lini-group')||g.classList.contains('node')&&(g.querySelector('rect.text')!==null||shapeTags.length===0),polygonPoints:[...g.querySelectorAll(':scope > polygon')].map(polygon=>{const element=polygon as SVGPolygonElement,points=[...element.points].map(point=>{const screen=new DOMPoint(point.x,point.y).matrixTransform(element.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};});return points.length>1&&Math.hypot(points[0]!.x-points.at(-1)!.x,points[0]!.y-points.at(-1)!.y)<.5?points.slice(0,-1):points;}),
    ancestorClusters:(()=>{const ids:string[]=[];let p=g.parentElement;while(p&&p.tagName.toLowerCase()!=='svg'){if(p.matches('g.cluster'))ids.push(p.getAttribute('id')??'');p=p.parentElement;}return ids;})(),
    ownText:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge,g.lini-node[data-id]')===g).map(visibleText).filter(Boolean),
    ownTextDetails:[...g.querySelectorAll('text,foreignObject')].filter(el=>el.closest('g.node,g.cluster,g.edge,g.lini-node[data-id]')===g).map(el=>{const baseline=el instanceof SVGTextElement&&el.y.baseVal.length?new DOMPoint(0,el.y.baseVal.getItem(0).value).matrixTransform(el.getScreenCTM()!).y-rootRect.y:undefined,paintLeaves=paintedLeaves(el);return({value:visibleText(el),bounds:box(el),baseline,paintLeaves,painted:paintLeaves.length>0&&paintLeaves.every(leaf=>leaf.painted)});}).filter(x=>x.value),
    bounds:box(g),
    polygon:primaryPolygon??null,
-   polygons:nativePolygons,
+   polygons:nativePolygons,paintedPolygonFlags,
    paths:[...g.querySelectorAll(':scope path')].filter(path=>!g.classList.contains('edge')||path.closest('g.edge')===g).map(p=>{
     const path=p as SVGPathElement,point=(at:number)=>{try{const q=path.getPointAtLength(at),screen=new DOMPoint(q.x,q.y).matrixTransform(path.getScreenCTM()!);return{x:screen.x-rootRect.x,y:screen.y-rootRect.y};}catch{return null;}};
-    const length=path.getTotalLength(),matrix=path.getScreenCTM()!,lengthCss=length*Math.sqrt((matrix.a**2+matrix.b**2+matrix.c**2+matrix.d**2)/2);return{d:path.getAttribute('d')??'',length,lengthCss,dashArray:getComputedStyle(path).strokeDasharray,markerEnd:path.getAttribute('marker-end'),bounds:box(p),start:point(0),end:point(length),curveDeviation:curveDeviation(path)};
+    const length=path.getTotalLength(),matrix=path.getScreenCTM()!,lengthCss=length*Math.sqrt((matrix.a**2+matrix.b**2+matrix.c**2+matrix.d**2)/2);return{d:path.getAttribute('d')??'',length,lengthCss,scaleX:Math.hypot(matrix.a,matrix.b),scaleY:Math.hypot(matrix.c,matrix.d),dashArray:getComputedStyle(path).strokeDasharray,markerEnd:path.getAttribute('marker-end'),painted:paintedGraphic(path),bounds:box(p),start:point(0),end:point(length),curveDeviation:curveDeviation(path)};
    }),
    // Graphviz wraps an edge's path and arrow in a nested <a> when `tooltip`
    // is present. Keep ownership scoped to this nearest edge group while
@@ -315,7 +326,7 @@ export async function verifyPresentationQuality(
      if(mapped&&from&&to)expectedEdges.push({id:mapped.nativeId,from,to,fromPort:namedPort(e.from,e.fromPort)??(inferred?'e':undefined),toPort:namedPort(e.to,e.toPort)??(inferred?'s':undefined),fromAttachmentSide:inferred?'e':undefined,toAttachmentSide:inferred?'s':undefined,directed:e.directed!==false,sourcePath:mapped.sourcePath,routing,routeIntent:e.routing?.kind});
     });
    }else if(visual.form==='entities'){
-    visual.structure?.references?.forEach((r,i)=>{const from=nativeIdForNode(plan,r.from.node),to=nativeIdForNode(plan,r.to.node);if(from&&to)expectedEdges.push({id:`reference-${i+1}`,from,to,fromPort:portFor(plan,r.from.node,r.from.fieldId??r.from.field,visual),toPort:portFor(plan,r.to.node,r.to.fieldId??r.to.field,visual),directed:false,sourcePath:`/extensions/umf.visual/structure/references/${i}`});});
+     visual.structure?.references?.forEach((r,i)=>{const sourcePath=`/extensions/umf.visual/structure/references/${i}`,mappedRows=plan.elementMap.filter(item=>item.kind==='reference'&&item.sourcePath===sourcePath),mapped=mappedRows[0],from=nativeIdForNode(plan,r.from.node),to=nativeIdForNode(plan,r.to.node),fromNamed=r.from.portId?namedPortFor(plan,r.from.node,r.from.portId,visual):undefined,toNamed=r.to.portId?namedPortFor(plan,r.to.node,r.to.portId,visual):undefined;if(mappedRows.length!==1||mapped?.logicalId!==r.id||!from||!to||r.from.portId&&!fromNamed||r.to.portId&&!toNamed){endpointFailures.push(`${r.id} lacks its exact native reference/port source mapping`);return;}expectedEdges.push({id:mapped.nativeId,from,to,fromPort:fromNamed?.port??portFor(plan,r.from.node,r.from.fieldId??r.from.field,visual),toPort:toNamed?.port??portFor(plan,r.to.node,r.to.fieldId??r.to.field,visual),directed:false,sourcePath});});
    }
    const objectGvid=new Map(objects.map((o,i)=>[objectName(o),Number(o._gvid??i)]));
    const semanticEdges=edges.filter(e=>{
@@ -325,23 +336,23 @@ export async function verifyPresentationQuality(
    const usedAstEdges=new Set<Record<string,unknown>>();
    const routingObservations:string[]=[];
    for(const exp of expectedEdges){
-    let edge=edges.find(e=>!usedAstEdges.has(e)&&text(e.id)===exp.id);
-    if(!edge&&plan.nativeFormat==='dot'&&visual.form==='entities'){
-     const fromG=objectGvid.get(exp.from),toG=objectGvid.get(exp.to);
-     edge=edges.find(e=>!usedAstEdges.has(e)&&Number(e.tail)===fromG&&Number(e.head)===toG&&(!exp.fromPort||text(e.tailport)===exp.fromPort)&&(!exp.toPort||text(e.headport)===exp.toPort));
-    }
+    const astIdMatches=edges.filter(e=>text(e.id)===exp.id),edge=astIdMatches.length===1&&!usedAstEdges.has(astIdMatches[0]!)?astIdMatches[0]:undefined;
     if(edge)usedAstEdges.add(edge);
     const tail=objectGvid.get(exp.from),head=objectGvid.get(exp.to);
     if(!edge||Number(edge.tail)!==tail||Number(edge.head)!==head|| (exp.fromPort!==undefined&&text(edge.tailport)!==exp.fromPort)||(exp.toPort!==undefined&&text(edge.headport)!==exp.toPort))endpointFailures.push(`${exp.id} expected ${exp.from}${exp.fromPort?':'+exp.fromPort:''} → ${exp.to}${exp.toPort?':'+exp.toPort:''}`);
     const expectedTitle=`${exp.from}${exp.fromPort?':'+exp.fromPort:''}->${exp.to}${exp.toPort?':'+exp.toPort:''}`;
-    const svgEdge=dom.carriers.find(c=>c.cls.split(/\s+/).includes('edge')&&!usedSvgEdges.has(c.id||c.title)&&(c.id===exp.id||c.title===expectedTitle||(!exp.fromPort&&!exp.toPort&&c.title===`${exp.from}->${exp.to}`)));
+    const canonicalHtmlPort=(value:string|undefined)=>value?.replace(/^p\d+(?::([nesw]))?$/u,(_match,side:string|undefined)=>side??'');
+    const canonicalHtmlPortTitle=exp.fromPort?.startsWith('p')||exp.toPort?.startsWith('p')?`${exp.from}${canonicalHtmlPort(exp.fromPort)?':'+canonicalHtmlPort(exp.fromPort):''}->${exp.to}${canonicalHtmlPort(exp.toPort)?':'+canonicalHtmlPort(exp.toPort):''}`:undefined;
+    const svgIdMatches=dom.carriers.filter(c=>c.cls.split(/\s+/).includes('edge')&&c.id===exp.id),svgEdge=svgIdMatches.length===1&&!usedSvgEdges.has(svgIdMatches[0]!.id||svgIdMatches[0]!.title)?svgIdMatches[0]:undefined;
     if(svgEdge)usedSvgEdges.add(svgEdge.id||svgEdge.title);
+    if(svgEdge&&svgEdge.title!==expectedTitle&&svgEdge.title!==canonicalHtmlPortTitle&&!( !exp.fromPort&&!exp.toPort&&svgEdge.title===`${exp.from}->${exp.to}`))endpointFailures.push(`${exp.id} SVG edge title does not preserve its exact mapped endpoint identities and ports`);
     // Graphviz nests path + arrow inside <a> when an authored edge tooltip is
     // present. `paths` and `arrow` were collected only from descendants whose
     // closest edge owner is this exact mapped edge, so the wrapper is native
     // presentation detail rather than a different owner.
     const drawn=svgEdge?.paths.find(p=>p.d.trim()&&p.start&&p.end);
     if(!svgEdge||!drawn||(exp.directed&&!svgEdge.arrow))endpointFailures.push(`${exp.id} has no native SVG path${exp.directed?' and arrow':''}`);
+    if(visual.form==='entities'&&(exp.fromPort?.startsWith('p')||exp.toPort?.startsWith('p'))&&drawn&&!drawn.painted)endpointFailures.push(`${exp.id} named-port route has no painted native SVG path`);
     const sourceEdge=visual.kind==='flow'?visual.edges?.find(candidate=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===candidate.id):undefined;
     if(sourceEdge?.kind==='data'&&(!edge||text(edge.style)!=='dashed'||!drawn?.dashArray||drawn.dashArray==='none'))endpointFailures.push(`${exp.id} data connection is not carried by an owned dashed native edge`);
     if(exp.routeIntent&&drawn){const sourceIndex=visual.edges?.findIndex(candidate=>elementFor(plan,'edge',exp.sourcePath)?.logicalId===candidate.id)??-1,records=plan.approximations.filter(item=>item.sourcePath===`/extensions/umf.visual/edges/${sourceIndex}/routing`),record=records.length===1?records[0]:undefined;if(record?.code){const nativeCurve=/[CcQqSsAa]/u.test(drawn.d),geometryKind=drawn.curveDeviation<1.5?'collinear':nativeCurve&&drawn.curveDeviation>=2?'curved':'bent-polyline';routingObservations.push(`${exp.id} requested ${exp.routeIntent}; observed ${geometryKind} native path with ${drawn.curveDeviation.toFixed(1)}px chord deviation; admitted ${record.code}.`);}}
@@ -373,14 +384,21 @@ export async function verifyPresentationQuality(
       if(!port)return true;
       if(port.startsWith('p')&&point){
        const node=visual.nodes?.find(node=>nativeIdForNode(plan,node.id)===nodeId),named=node?.ports?.[Number(port.split(':')[0]!.slice(1))-1],owner=carrier('node',nodeId),row=fieldRowForPort(nodeId,port);
-       if(named?.side&&owner&&row){
+       if(visual.form==='entities'&&named&&owner&&row&&named.side){
+        const rowBorders=owner.polygons.map((bounds,index)=>({bounds,index})).filter(({bounds})=>row.bounds.x>=bounds.x-1&&row.bounds.y>=bounds.y-1&&row.bounds.x+row.bounds.width<=bounds.x+bounds.width+1&&row.bounds.y+row.bounds.height<=bounds.y+bounds.height+1).sort((a,b)=>a.bounds.width*a.bounds.height-b.bounds.width*b.bounds.height),portBorder=rowBorders[0];if(!portBorder||!owner.paintedPolygonFlags[portBorder.index])return false;
+        const border=portBorder.bounds;
+        const side=named.side,horizontal=side==='east'||side==='west',boundary=side==='north'?border.y:side==='south'?border.y+border.height:side==='west'?border.x:border.x+border.width,axis=horizontal?point.x:point.y,along=horizontal?point.y:point.x,axisScale=horizontal?drawn.scaleX:drawn.scaleY,nativeClip=axisScale+0.5;
+        return Math.abs(axis-boundary)<=nativeClip&&(horizontal?along>=border.y-1&&along<=border.y+border.height+1:along>=border.x-1&&along<=border.x+border.width+1);
+       }
+       if(named&&owner&&row){
         // Graphviz HTML row ports have their own border polygons. Selecting
         // the smallest one containing this row avoids confusing it with a
         // hexagon outline or another port's border.
-        const borders=owner.polygons.filter(b=>row.bounds.x>=b.x-1&&row.bounds.y>=b.y-1&&row.bounds.x+row.bounds.width<=b.x+b.width+1&&row.bounds.y+row.bounds.height<=b.y+b.height+1).sort((a,b)=>a.width*a.height-b.width*b.height);
-        const border=borders[0];if(!border)return false;
-        const horizontal=named.side==='east'||named.side==='west';
-        const boundary=named.side==='north'?border.y:named.side==='south'?border.y+border.height:named.side==='west'?border.x:border.x+border.width;
+        const borders=owner.polygons.map((bounds,index)=>({bounds,index})).filter(({bounds:b})=>row.bounds.x>=b.x-1&&row.bounds.y>=b.y-1&&row.bounds.x+row.bounds.width<=b.x+b.width+1&&row.bounds.y+row.bounds.height<=b.y+b.height+1).sort((a,b)=>a.bounds.width*a.bounds.height-b.bounds.width*b.bounds.height);
+        const borderEntry=borders[0];if(!borderEntry||!owner.paintedPolygonFlags[borderEntry.index])return false;const border=borderEntry.bounds;
+        const side=named.side,horizontal=side==='east'||side==='west';
+        if(!side){const pointOn=(axis:'x'|'y',boundary:number,along:'x'|'y',low:number,high:number)=>Math.abs(point![axis]-boundary)<=(target?8:6)&&point![along]>=low-4&&point![along]<=high+4;return pointOn('x',border.x,'y',border.y,border.y+border.height)||pointOn('x',border.x+border.width,'y',border.y,border.y+border.height)||pointOn('y',border.y,'x',border.x,border.x+border.width)||pointOn('y',border.y+border.height,'x',border.x,border.x+border.width);}
+        const boundary=side==='north'?border.y:side==='south'?border.y+border.height:side==='west'?border.x:border.x+border.width;
         // Graphviz's filled arrowhead tip stops a few CSS px before the HTML
         // row border; use a slightly wider bounded target tolerance than the
         // path-start tolerance while still binding the nearest native vertex.
