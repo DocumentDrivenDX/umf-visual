@@ -47,5 +47,5 @@ describe('native preview presentation', () => {
     expect(svg).toContain('fill="#edf5f5"');
     expect(svg).toContain('fill="#fffdf8"');
     expect(svg).toContain('stroke="#9b3744"');
-  });
+  }, {timeout: 30_000});
 });

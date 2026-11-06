@@ -1,0 +1,101 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:tpl-arch-components",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "tpl-arch-components",
+      "kind": "flow",
+      "form": "network",
+      "title": "Level 3: Component Diagram",
+      "question": "How is the API Service's import path built?",
+      "source": {
+        "path": "helix:workflows/activities/02-design/artifacts/architecture/example.md",
+        "view": "Level 3: Component Diagram",
+        "digest": "sha256:4c79ba17f9d9342592c062b9a51cef0232816004b59f110488f696e7a8e191b8"
+      },
+      "nodes": [
+        {
+          "id": "upload",
+          "label": "Upload Controller",
+          "detail": "Purpose: Receives bank and invoice CSV uploads for one client import session\n\nNotes: Rejects non-CSV files before parsing",
+          "group": "api-service"
+        },
+        {
+          "id": "mapping",
+          "label": "Mapping Service",
+          "detail": "Purpose: Saves and applies per-client column mappings\n\nNotes: Never imports rows with unresolved required mappings",
+          "group": "api-service"
+        },
+        {
+          "id": "validate",
+          "label": "CSV Validation Service",
+          "detail": "Purpose: Validates amounts, dates, identifiers, duplicates, and required columns\n\nNotes: Produces row-level rejection reasons",
+          "group": "api-service"
+        },
+        {
+          "id": "commit",
+          "label": "Import Commit Service",
+          "detail": "Purpose: Atomically records accepted source rows and traceability fields\n\nNotes: Transaction boundary for import confirmation",
+          "group": "api-service"
+        },
+        {
+          "id": "evidence",
+          "label": "Evidence Service",
+          "detail": "Purpose: Supplies source-row evidence to match review, exceptions, and exports\n\nNotes: Reads normalized fields and source metadata",
+          "group": "api-service"
+        },
+        {
+          "id": "db",
+          "label": "PostgreSQL",
+          "role": "store"
+        }
+      ],
+      "edges": [
+        {
+          "id": "upload--mapping",
+          "from": "upload",
+          "to": "mapping"
+        },
+        {
+          "id": "mapping--validate",
+          "from": "mapping",
+          "to": "validate"
+        },
+        {
+          "id": "validate--commit",
+          "from": "validate",
+          "to": "commit"
+        },
+        {
+          "id": "commit--evidence",
+          "from": "commit",
+          "to": "evidence"
+        },
+        {
+          "id": "commit--db",
+          "from": "commit",
+          "to": "db"
+        },
+        {
+          "id": "evidence--db",
+          "from": "evidence",
+          "to": "db"
+        }
+      ],
+      "groups": [
+        {
+          "id": "api-service",
+          "label": "API Service",
+          "role": "boundary"
+        }
+      ],
+      "takeaway": "The API Service needs component detail because CSV import, traceability, and matching are coupled at the boundary."
+    }
+  },
+  "modules": []
+}

@@ -2,7 +2,12 @@
 /** Lini's native tree/mindmap and sequence layouts. */
 import type {Visual,VisualNode} from '../extensions/visual';
 import {quoteLiniProfile} from '../interchange/lini/profile-syntax';
+import {liniShapeDefinition} from './lini-shapes';
 import type {PresentationApproximation,PresentationElement,PresentationFailure,PresentationOmission,PresentationPlan} from './index';
+import {compileLiniFlatSequence} from './lini-sequence-flat';
+import {liniNativeIcon} from './lini-native-icons';
+import {wrapLiniSequenceText,liniSequenceParticipantFieldText} from './lini-sequence-text';
+export {wrapLiniSequenceText,liniSequenceParticipantFieldText} from './lini-sequence-text';
 
 const base='/extensions/umf.visual';
 const path=(value:string)=>base+(value.startsWith('/')?value:'/'+value);
@@ -11,8 +16,7 @@ const fail=(code:string,sourcePath:string,message:string):PresentationFailure=>(
 const id=(prefix:string,index:number)=>prefix+(index+1);
 const orderBy=<T extends {id:string}>(rows:T[],order?:string[])=>order?rows.map((item,index)=>({item,index})).sort((a,b)=>(order.indexOf(a.item.id)<0?Number.MAX_SAFE_INTEGER:order.indexOf(a.item.id))-(order.indexOf(b.item.id)<0?Number.MAX_SAFE_INTEGER:order.indexOf(b.item.id))||a.index-b.index).map(row=>row.item):rows;
 const quoteText=(text:string,sourcePath:string)=>{try{return q(text);}catch(reason){throw Object.assign(new Error(reason instanceof Error?reason.message:'Text cannot be encoded by Lini.'),{sourcePath});}};
-const nativeIcons=new Set(['user','rocket','seal','presentation','heart','gear','cloud','house','database','folder-simple','cpu','bell','star','ghost','video-camera','wall','check','warning','globe','lock','key','lightning','magnifying-glass','arrow-right']);
-const iconToken=(value:string)=>nativeIcons.has(value)?value:undefined;
+const iconToken=liniNativeIcon;
 type Rich = {visual:Visual;direction:'LR'|'TB'};
 
 function plan(visual:Visual,source:string,elements:PresentationElement[],omissions:PresentationOmission[],approximations:PresentationApproximation[]):PresentationPlan {
@@ -23,12 +27,12 @@ function plan(visual:Visual,source:string,elements:PresentationElement[],omissio
 export function compileLiniTree(visual:Visual,direction:'LR'|'TB'):PresentationPlan|PresentationFailure {
  const nodes=visual.nodes??[],elements:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];
  const tree=visual.layout?.kind==='tree'?visual.layout:undefined;
- if(!tree)return fail('PRESENTATION_LINI_TREE',path('/structure/tree'),'A tree presentation requires its explicit structure.tree layout.');
+ if(visual.layout&&!tree)return fail('VISUAL_LAYOUT',path('/layout'),'Lini tree presentation cannot preserve this non-tree root layout. Use an explicit tree layout or leave layout unspecified for renderer-selected placement.');
  const roots=nodes.filter(node=>node.parent===undefined);
  if(roots.length!==1)return fail('PRESENTATION_LINI_TREE_ROOT',path('/nodes'),'Lini tree presentation requires exactly one declared root node.');
  const byParent=new Map<string|undefined,VisualNode[]>();for(const node of nodes){const list=byParent.get(node.parent)??[];list.push(node);byParent.set(node.parent,list);}
  const root=roots[0]!;
- const children=(parent:string|undefined)=>orderBy(byParent.get(parent)??[],parent===undefined?tree.order:undefined);
+ const children=(parent:string|undefined)=>orderBy(byParent.get(parent)??[],parent===undefined?tree?.order:undefined);
  const nodeMap=new Map(nodes.map((node,index)=>[node.id,id('n',index)]));
  const branchColors=['--rose','--orange','--lime','--teal','--sky','--purple'];
  const add=(logicalId:string,sourcePath:string,nativeId:string,kind:PresentationElement['kind'])=>elements.push({logicalId,sourcePath,nativeId,kind});
@@ -52,9 +56,15 @@ export function compileLiniTree(visual:Visual,direction:'LR'|'TB'):PresentationP
   const decl=`|${type}#${nativeId}| ${label} ${nodePaint}${content.length?' [\n'+content.map(item=>indent(item,depth+1)).join('\n')+'\n'+'  '.repeat(depth)+']':''}`;
   return decl;
  };
- const treeDirection=tree.direction??direction;
+ // With no authored tree layout, use source sibling order and the caller's
+ // renderer direction. Parent references still own the hierarchy; no source
+ // layout or edge semantics are inferred.
+ const treeDirection=tree?.direction??direction;
  const directionValue=treeDirection==='bilateral'?'bilateral':treeDirection==='TB'?'column':'row';
- const source=[`{ layout: tree; direction: ${directionValue}; font-family: Arial; --lini-font-family: Arial;\n  .lini-block { font-family: Arial; }\n  .lini-text { font-family: Arial; }\n}`,emit(root,nodes.indexOf(root),0,true)].join('\n')+'\n';
+ // Renderer-owned spacing budgets open route channels around sibling branches.
+ // The native geometry gate remains the authority for each compiled tree.
+ const treeGap=treeDirection==='TB'?120:80;
+ const source=[`{ layout: tree; direction: ${directionValue}; gap: ${treeGap}; font-family: Arial; --lini-font-family: Arial;\n  .lini-block { font-family: Arial; }\n  .lini-text { font-family: Arial; }\n}`,emit(root,nodes.indexOf(root),0,true)].join('\n')+'\n';
  add(visual.id,path('/id'),nodeMap.get(root.id)!,'visual');
  for(const node of nodes){const index=nodes.indexOf(node);for(const field of ['detail','evidence','role','status','emphasis','group','layer','ports'] as const)if(node[field]!==undefined&&!['detail','role'].includes(field))omissions.push({sourcePath:path('/nodes/'+index+'/'+field),reason:'This tree profile renders hierarchy, labels, and supported icons; this field is retained in UMF but is not drawn.'});if(node.role)approximations.push({sourcePath:path('/nodes/'+index+'/role'),requested:'Node role '+node.role,representation:'Lini topics use a generic branch palette; node role does not change the native topic silhouette.'});if(node.icon&&iconToken(node.icon))approximations.push({sourcePath:path('/nodes/'+index+'/icon'),requested:'Icon '+node.icon,representation:'Native Lini Phosphor symbol with the generic branch palette applied to its stroke.'});}
  for(const key of ['takeaway','source','audience','steps','groups','edges','omissions'] as const)if(visual[key]!==undefined)omissions.push({sourcePath:path('/'+key),reason:'Retained in UMF; not part of the native Lini tree layout.'});
@@ -65,6 +75,10 @@ export function compileLiniTree(visual:Visual,direction:'LR'|'TB'):PresentationP
 
 /** Compile ordered lifelines, message operators, interval frames, and anchored notes. */
 export function compileLiniSequence(visual:Visual):PresentationPlan|PresentationFailure {
+ if(visual.layout!==undefined)return fail('PRESENTATION_LINI_SEQUENCE_LAYOUT',path('/layout'),'This Lini sequence profile does not preserve authored root layout. Remove the layout declaration or choose a renderer profile with native layout support.');
+ const groupWithLayout=(visual.groups??[]).find(group=>group.layout!==undefined);
+ if(groupWithLayout)return fail('PRESENTATION_LINI_SEQUENCE_LAYOUT',path('/groups/'+visual.groups!.indexOf(groupWithLayout)+'/layout'),'This Lini sequence profile does not preserve authored loop-group layout. Remove the group layout declaration or choose a renderer profile with native layout support.');
+ const flat=compileLiniFlatSequence(visual);if(flat)return flat;
  const sequence=visual.sequence;if(!sequence)return fail('PRESENTATION_LINI_SEQUENCE',path('/sequence'),'Sequence content is required.');
  const elements:PresentationElement[]=[],omissions:PresentationOmission[]=[],approximations:PresentationApproximation[]=[];
  const add=(logicalId:string,sourcePath:string,nativeId:string,kind:PresentationElement['kind'])=>elements.push({logicalId,sourcePath,nativeId,kind});
@@ -74,18 +88,28 @@ export function compileLiniSequence(visual:Visual):PresentationPlan|Presentation
  const participantIds=new Map(participants.map((participant,index)=>[participant.id,'p'+(index+1)]));
  const messageIds=new Map(messages.map((message,index)=>[message.id,'m'+(index+1)]));
  const noteIds=new Map(notes.map((note,index)=>[note.id,'n'+(index+1)]));
+ const participantFieldLine=(participant:typeof participants[number],index:number,nativeId:string,field:'detail'|'role'|'status',value:string)=>{
+  const fieldId=nativeId+'-'+field,fieldPath=path('/sequence/participants/'+index+'/'+field),text=liniSequenceParticipantFieldText(field,value);
+  add(participant.id,fieldPath,fieldId,'participant-field');
+  return `|cell#${fieldId}| ${quoteText(text,fieldPath)} { font-size: ${field==='detail'?12:10}; color: --gray-deep; padding: 0; fill: none; stroke: none; stroke-width: 0; }`;
+ };
  const participantLines=participants.map((participant,index)=>{
   const nativeId=participantIds.get(participant.id)!;add(participant.id,path('/sequence/participants/'+index+'/id'),nativeId,'participant');
-  const shape=participant.shape==='parallelogram'?'slant':participant.shape==='cylinder'?'cyl':participant.shape==='ellipse'?'oval':participant.shape==='hexagon'?'hex':participant.shape==='diamond'?'diamond':participant.shape==='folded-corner'?'note':participant.shape==='rounded-rectangle'?'box':participant.shape==='rectangle'?'box':'box';
+  const shape=liniShapeDefinition(participant.shape,'sequence');
   const requestedIcon=participant.icon??(participant.role==='actor'?'user':undefined),icon=requestedIcon?iconToken(requestedIcon):undefined;
+  if(shape?.approximation)approximations.push({sourcePath:path('/sequence/participants/'+index+'/shape'),requested:'Participant shape '+participant.shape,representation:shape.approximation});
   if(requestedIcon&&!icon)approximations.push({sourcePath:path('/sequence/participants/'+index+'/icon'),requested:'Icon '+requestedIcon,representation:'The icon name is retained visibly as a text caption because it is outside the pinned Lini Phosphor symbol subset.'});
+  if(participant.role==='process')approximations.push({sourcePath:path('/sequence/participants/'+index+'/role'),requested:'Participant role process',representation:'The visible “Process” caption denotes a depicted process/activity, not an operating-system process or executable; the authored participant shape is preserved.'});
   const props:string[]=[];
   if(icon)props.push('symbol: '+icon+';');
-  const style=participant.role==='actor'?'--rose-deep':participant.role==='own'?'--teal-deep':participant.role==='platform'?'--sky-deep':participant.role==='external'?'--gray-deep':participant.role==='store'?'--blue-deep':participant.role==='document'?'--purple-deep':'--blue-deep';
+  if(shape)props.push(...shape.properties);
+  const style=participant.role==='actor'?'--rose-deep':participant.role==='own'?'--teal-deep':participant.role==='platform'?'--sky-deep':participant.role==='external'?'--gray-deep':participant.role==='store'?'--blue-deep':participant.role==='document'?'--purple-deep':participant.role==='process'?'--rose-deep':'--blue-deep';
   props.push('stroke: '+style+';');
-  const iconChild=icon?` [ |icon| { symbol: ${icon}; width: 18; height: 18; fill: none; stroke: ${style}; } ]`:'';
-  const line=`|${shape}#${nativeId}| ${quoteText(participant.label+(requestedIcon&&!icon?' (icon: '+requestedIcon+')':''),path('/sequence/participants/'+index+'/label'))} { ${props.filter(value=>!value.startsWith('symbol:')).join(' ')} }${iconChild}`;
-  for(const field of ['detail','evidence','status','emphasis'] as const)if(participant[field]!==undefined)omissions.push({sourcePath:path('/sequence/participants/'+index+'/'+field),reason:'Retained in UMF; this Lini sequence profile does not render the participant field.'});
+  const fields:Array<string|undefined>=[participant.detail===undefined?undefined:participantFieldLine(participant,index,nativeId,'detail',participant.detail),participant.role===undefined?undefined:participantFieldLine(participant,index,nativeId,'role',participant.role),participant.status===undefined?undefined:participantFieldLine(participant,index,nativeId,'status',participant.status)];
+  const children=[shape?.caption?`|cell#shape| ${quoteText(shape.caption,path('/sequence/participants/'+index+'/shape'))}`:undefined,...fields,icon?`|icon| { symbol: ${icon}; width: 18; height: 18; fill: none; stroke: ${style}; }`:undefined].filter((item):item is string=>!!item);
+  const childSource=children.length?' [\n    '+children.join('\n    ')+'\n  ]':'';
+  const line=`|${shape?.type??'box'}#${nativeId}| ${quoteText(participant.label+(requestedIcon&&!icon?' (icon: '+requestedIcon+')':''),path('/sequence/participants/'+index+'/label'))} { ${props.filter(value=>!value.startsWith('symbol:')).join(' ')} }${childSource}`;
+  for(const field of ['evidence','emphasis'] as const)if(participant[field]!==undefined)omissions.push({sourcePath:path('/sequence/participants/'+index+'/'+field),reason:'Retained in UMF; this bounded Lini sequence profile does not render participant evidence or emphasis.'});
   return line;
  });
  const indexByMessage=new Map(messages.map((message,index)=>[message.id,index]));
@@ -128,10 +152,11 @@ export function compileLiniSequence(visual:Visual):PresentationPlan|Presentation
   body.push(messageLine(row,groupOpen.has(row)?groupOpen.get(row)!.length:loops.size&&messages[row]!.group?nestedDepth(groupById.get(messages[row]!.group!)!)+1:0));
   for(const line of groupClose.get(row)??[])body.push(line);
  }
- const title=visual.title??visual.question,titleLine=`|caption#visual-title| ${quoteText(title,path(visual.title?'/title':'/question'))} { pin: top left; font-size: 18; font-weight: bold; color: --blue-deep; }`;
- const source=[`{ layout: sequence; font-family: Arial; --lini-font-family: Arial;\n  .lini-block { font-family: Arial; }\n  .lini-text { font-family: Arial; }\n  .lini-slant { font-family: Arial; }\n  .lini-sequence-message { font-family: Arial; }\n  .lini-sequence-guard { font-family: Arial; }\n  .lini-sequence-tab { font-family: Arial; }${messageRules.length||frameRules.length?'\n  '+[...messageRules,...frameRules].join('\n  '):''}\n}`,titleLine,...participantLines,...body].join('\n')+'\n';
+ const title=visual.title??visual.question,titleLine=`  |block#visual-title| ${quoteText(title,path(visual.title?'/title':'/question'))} { width: 1280; font-size: 22; font-weight: bold; color: --blue-deep; fill: none; stroke: none; stroke-width: 0; }`;
+ const source=[`{ font-family: Arial; --lini-font-family: Arial;\n  .lini-block { font-family: Arial; }\n  .lini-text { font-family: Arial; }\n  .lini-slant { font-family: Arial; }\n  .lini-sequence-message { font-family: Arial; }\n  .lini-sequence-guard { font-family: Arial; }\n  .lini-sequence-tab { font-family: Arial; }${messageRules.length||frameRules.length?'\n  '+[...messageRules,...frameRules].join('\n  '):''}\n}`,`|column#sequence-stage| { width: 1280; gap: 20; align: center; padding: 20; fill: none; stroke: none; stroke-width: 0; } [`,titleLine,`  |sequence#sequence-body| { activation: none; gap: 48 80; } [`,...participantLines,...body,'  ]',']'].join('\n')+'\n';
  add(visual.id,path('/id'),'visual-title','visual');
+ if(visual.form==='ladder')approximations.push({sourcePath:path('/form'),requested:'Sequence ladder form',representation:'Pinned Lini presents the unchanged participants across the top and messages down a native lifeline sequence. This is a disclosed lifelines adaptation, not a narrow-screen ladder layout.'});
  if(visual.title&&visual.title!==visual.question)omissions.push({sourcePath:path('/question'),reason:'The concise title is visible in the native sequence caption; the reader question remains in UMF.'});
- for(const field of ['takeaway','source','audience','steps','edges','nodes','structure','omissions'] as const)if(visual[field]!==undefined)omissions.push({sourcePath:path('/'+field),reason:'Retained in UMF; not part of this native Lini sequence.'});
+ for(const field of ['takeaway','source','audience','steps','edges','nodes','structure','omissions'] as const)if(visual[field]!==undefined)omissions.push({sourcePath:path('/'+field),reason:field==='steps'?'Ordered walkthrough titles and focus IDs remain in UMF and the review authored-context panel; the static sequence SVG does not duplicate or animate them.':'Retained in UMF; not part of this native Lini sequence.'});
  return plan(visual,source,elements,omissions,approximations);
 }

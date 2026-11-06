@@ -19,6 +19,64 @@ try{
    roundTrips++;
   }
  }
+ const reviewedDefinitions=await fetch('/reviews').then(r=>r.json()) as unknown[];
+ let reviewedRoundTrips=0,reviewedPresentationPlans=0;
+ const reviewedModelVersions=new Set<string>();
+ for(const input of reviewedDefinitions){
+  const review=readVisualDocument(JSON.stringify(input),'json');
+  const checked=inspectVisual(review);if(!checked.valid||!checked.complete)throw Error('Reviewed definition is not complete in the browser consumer.');
+  const payload=getVisual(review);
+  const reviewBefore=JSON.stringify(review);
+  const modelVersion=review.vocabularies['umf.visual']?.version;if(modelVersion)reviewedModelVersions.add(modelVersion);
+  for(const format of ['json','yaml'] as const){const back=readVisualDocument(writeVisualDocument(review,format),format);if(JSON.stringify(back)!==JSON.stringify(review))throw Error(`Reviewed definition ${format} round trip differs.`);reviewedRoundTrips++;}
+  let compiledBackends=0;
+  for(const backend of ['graphviz','mermaid','lini'] as const){
+   const plan=compilePresentation(review,{backend,theme:'presentation/1'});
+   if(!plan.ok){if(!plan.diagnostics.length)throw Error(`Reviewed visual refusal is not explicit for ${backend}.`);continue;}
+   if(!plan.source?.trim()||!plan.elementMap.length)throw Error(`Reviewed visual presentation is incomplete for ${backend}.`);
+   compiledBackends++;
+   reviewedPresentationPlans++;
+   if(payload.id==='helix-adr-options'&&backend==='lini'){
+    const items=payload.comparison?.items??[],criteria=payload.comparison?.criteria??[],values=payload.comparison?.values??[];
+    const itemMaps=plan.elementMap.filter(element=>element.kind==='comparison-item'&&element.sourcePath.endsWith('/label'));
+    const criterionMaps=plan.elementMap.filter(element=>element.kind==='comparison-criterion'&&element.sourcePath.endsWith('/label'));
+    const valueMaps=plan.elementMap.filter(element=>element.kind==='comparison-value'&&/\/comparison\/values\/\d+\/(text|support|rating)$/u.test(element.sourcePath));
+    const choices=plan.elementMap.filter(element=>element.kind==='comparison-choice');
+    if(items.length!==3||criteria.length!==3||values.length!==9||itemMaps.length!==3||criterionMaps.length!==3||valueMaps.length!==9||choices.length!==2||!plan.source.includes('|table#comparison-table|')||!plan.source.includes('Selected:'))throw Error('Public browser matrix consumer lost authored items, criteria, cells, or chosen reason.');
+    if(JSON.stringify(itemMaps.map(element=>element.logicalId))!==JSON.stringify(items.map(item=>item.id))||JSON.stringify(criterionMaps.map(element=>element.logicalId))!==JSON.stringify(criteria.map(item=>item.id)))throw Error('Public browser matrix consumer changed source item/criterion order.');
+    if(JSON.stringify(review)!==reviewBefore)throw Error('Public browser matrix compile mutated the source definition.');
+   }
+   for(const[index,node]of (payload.nodes??[]).entries()){
+    const nodePointer=`/extensions/umf.visual/nodes/${index}`;
+    const validPointers=[nodePointer,nodePointer+'/id'];
+    for(const[entityIndex,entity]of (payload.structure?.entities??[]).entries())if(entity.node===node.id){const entityPointer=`/extensions/umf.visual/structure/entities/${entityIndex}`;validPointers.push(entityPointer,entityPointer+'/node');}
+    if(!plan.elementMap.some(element=>(element.kind==='node'||element.kind==='entity')&&element.logicalId===node.id&&validPointers.includes(element.sourcePath)))throw Error(`Reviewed visual node/entity mapping is missing for ${backend}: ${node.id}.`);
+   }
+   for(const[index,annotation]of (payload.annotations??[]).entries()){
+    const pointer=`/extensions/umf.visual/annotations/${index}/id`;
+    if(!plan.elementMap.some(element=>element.kind==='annotation'&&element.logicalId===annotation.id&&element.sourcePath===pointer&&typeof element.nativeId==='string'&&element.nativeId.length>0))throw Error(`Reviewed visual annotation carrier mapping is missing for ${backend}: ${annotation.id}.`);
+   }
+  }
+  if(compiledBackends===0)throw Error('No reviewed backend qualified for the shared browser compiler.');
+ }
+ const lifecycleInput=fixtures.find(input=>(input as any)?.extensions?.['umf.visual']?.id==='beacon-ticket-lifecycle');
+ if(!lifecycleInput)throw Error('Public lifecycle consumer fixture is missing.');
+ const lifecycleDocument=readVisualDocument(JSON.stringify(lifecycleInput),'json'),lifecycleBefore=JSON.stringify(lifecycleDocument),lifecycleVisual=getVisual(lifecycleDocument);
+ if(lifecycleVisual.form!=='lifecycle'||!lifecycleVisual.state)throw Error('Public lifecycle consumer fixture lost its lifecycle source.');
+ for(const backend of ['graphviz','mermaid','lini'] as const){
+  const plan=compilePresentation(lifecycleDocument,{backend,theme:'presentation/1'});
+  if(!plan.ok)throw Error(`Public lifecycle compiler refused ${backend}: ${JSON.stringify(plan.diagnostics)}`);
+  const transitions=plan.elementMap.filter(item=>item.kind==='transition'),paths=plan.elementMap.filter(item=>item.kind==='state-path-caption');
+  if(transitions.length!==6||paths.length!==6||JSON.stringify(transitions.map(item=>item.logicalId))!==JSON.stringify(lifecycleVisual.state.transitions.map(item=>item.id)))throw Error(`Public lifecycle transition/path map counts differ for ${backend}.`);
+  for(const[index,transition]of lifecycleVisual.state.transitions.entries()){
+   const path=paths[index];
+   if(path?.logicalId!==transition.id||path.sourcePath!==`/extensions/umf.visual/state/transitions/${index}/path`||path.nativeId!==transitions[index]?.nativeId||!plan.source.includes(`Path:`))throw Error(`Public lifecycle path carrier mapping is missing for ${backend}/${transition.id}.`);
+   const nativeEvent=backend==='mermaid'?transition.event.replaceAll(' ','#32;'):transition.event;
+   if(!plan.source.includes(nativeEvent))throw Error(`Public lifecycle event text is missing for ${backend}/${transition.id}.`);
+  }
+  if(!plan.source.includes('Path:')||JSON.stringify(lifecycleDocument)!==lifecycleBefore)throw Error(`Public lifecycle compile omitted path text or mutated source for ${backend}.`);
+  reviewedPresentationPlans++;
+ }
  const doc=readVisualDocument(JSON.stringify(fixtures[0]),'json');
  const before=JSON.stringify(doc);
  const edited=editVisual(doc,v=>({...v,takeaway:'Browser consumer edit'}));
@@ -43,6 +101,41 @@ try{
  const presentationFlow=createVisualDocument({id:'presentation-browser',kind:'flow',form:'network',question:'Which tool draws?',nodes:[{id:'schema',label:'Schema <π>'},{id:'renderer',label:'Renderer & output'}],edges:[{id:'draw',from:'schema',to:'renderer',label:'author → draw'}]});
  const presentationPlans=[compilePresentation(presentationFlow,{backend:'graphviz'}),compilePresentation(presentationFlow,{backend:'mermaid'}),compilePresentation(entity,{backend:'graphviz'}),compilePresentation(presentationFlow,{backend:'lini'}),compilePresentation(v12,{backend:'lini'}),compilePresentation(tree13,{backend:'lini'}),compilePresentation(sequence13,{backend:'lini'})];
  for(const plan of presentationPlans)if(!plan.ok||plan.profileId!=='umf.visual.presentation/1'||!plan.source||!plan.elementMap.length)throw Error('Browser presentation compiler failed');
+ const sequence14Payload={id:'browser-sequence-flat-native-primitives',kind:'sequence' as const,form:'lifelines' as const,question:'What happens to the reply?',sequence:{
+  participants:[{id:'author',label:'Author',detail:'Keep the authored context\nthrough the full handoff'},{id:'editor',label:'Editor'},{id:'reviewer',label:'Reviewer'},{id:'release',label:'Release coordinator'}],
+  messages:[{id:'draft',from:'author',to:'release',label:'Send the reviewed reply draft\nwith complete author context',kind:'call' as const},{id:'edit',from:'release',to:'editor',label:'Ask for wording edits',kind:'call' as const},{id:'approve',from:'editor',to:'reviewer',label:'Confirm the final language',kind:'call' as const},{id:'return',from:'reviewer',to:'author',label:'Return approval to the author',kind:'return' as const}],
+ },steps:[{id:'prepare',title:'Prepare',focus:['author']},{id:'edit-step',title:'Edit',focus:['editor']},{id:'review-step',title:'Review',focus:['reviewer']},{id:'release-step',title:'Release',focus:['release']}]};
+ const sequence14=createVisualDocument(sequence14Payload,'visual:browser-sequence-flat-native-primitives','1.4.0'),sequence14Before=JSON.stringify(sequence14),sequence14Plan=compilePresentation(sequence14,{backend:'lini',theme:'presentation/1'});
+ if(!sequence14Plan.ok||!sequence14Plan.source||!inspectVisual(sequence14).complete)throw Error('Public 1.4.0 sequence presentation failed in the browser consumer.');
+ const sequence14Visual=getVisual(sequence14),sequence14Messages=sequence14Visual.sequence!.messages,sequence14Participants=sequence14Visual.sequence!.participants,sequence14ParticipantMaps=sequence14Plan.elementMap.filter(item=>item.kind==='participant'),sequence14LifelineMaps=sequence14Plan.elementMap.filter(item=>item.kind==='participant-lifeline'),sequence14MessageMaps=sequence14Plan.elementMap.filter(item=>item.kind==='message'),sequence14CaptionMaps=sequence14Plan.elementMap.filter(item=>item.kind==='message-caption');
+ if(sequence14ParticipantMaps.length!==4||sequence14LifelineMaps.length!==4||sequence14MessageMaps.length!==sequence14Messages.length||sequence14CaptionMaps.length!==sequence14Messages.length)throw Error('Public sequence participant/lifeline/message/caption maps have incorrect counts.');
+ for(const[index,participant]of sequence14Participants.entries()){
+  const participantPointer=`/extensions/umf.visual/sequence/participants/${index}/id`,participantMap=sequence14Plan.elementMap.find(item=>item.kind==='participant'&&item.logicalId===participant.id&&item.sourcePath===participantPointer),lifeline=sequence14Plan.elementMap.find(item=>item.kind==='participant-lifeline'&&item.logicalId===participant.id&&item.sourcePath===participantPointer);
+  if(!participantMap||!lifeline||lifeline.nativeId!==participantMap.nativeId+'-lifeline')throw Error(`Public participant ${participant.id} does not have a unique mapped lifeline helper.`);
+ }
+ if(!sequence14Participants[0]?.detail?.includes('\n')||!sequence14Messages[0]?.label.includes('\n'))throw Error('Public sequence browser fixture lost its explicit multiline authored text.');
+ for(const[index,message]of sequence14Messages.entries()){
+  const pointer=`/extensions/umf.visual/sequence/messages/${index}`,arrow=sequence14Plan.elementMap.find(item=>item.kind==='message'&&item.logicalId===message.id&&item.sourcePath===pointer+'/id'),caption=sequence14Plan.elementMap.find(item=>item.kind==='message-caption'&&item.logicalId===message.id&&item.sourcePath===pointer+'/label');
+  if(!arrow||!caption||arrow.nativeId===caption.nativeId)throw Error(`Public sequence message ${message.id} does not have distinct arrow and owned caption carriers.`);
+ }
+ if(sequence14Messages[0]?.kind!=='call'||sequence14Messages.at(-1)?.kind!=='return'||JSON.stringify(sequence14CaptionMaps.map(item=>item.logicalId))!==JSON.stringify(sequence14Messages.map(message=>message.id)))throw Error('Public sequence maps do not preserve source-ordered call/return messages.');
+ const normalizedSequenceSource=sequence14Plan.source.split(String.fromCharCode(92)+'n').join(' ').replace(/\s+/gu,' '),messageTextOrder=['Send the reviewed','Ask for wording edits','Confirm the final','Return approval'].map(label=>normalizedSequenceSource.indexOf(label));
+ if(messageTextOrder.some((offset,index)=>offset<0||index>0&&offset<=messageTextOrder[index-1]!))throw Error('Public sequence native labels do not remain in authored message order.');
+ if(new Set(sequence14CaptionMaps.map(item=>item.nativeId)).size!==sequence14CaptionMaps.length||sequence14CaptionMaps.some(item=>sequence14MessageMaps.some(message=>message.nativeId===item.nativeId)))throw Error('Public sequence caption carrier IDs are not distinct from message arrows.');
+ const sequenceDisclosure=sequence14Plan.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/sequence/messages');
+ if(!sequenceDisclosure||!sequenceDisclosure.representation.includes('rows follow authored sequence order')||!sequenceDisclosure.representation.includes('no elapsed-time, duration, or concurrency meaning'))throw Error('Public sequence native drawing adaptation is not disclosed as renderer-only spacing.');
+ if(!normalizedSequenceSource.includes('Keep the authored context')||!normalizedSequenceSource.includes('complete author context')||sequence14Participants.length!==4||JSON.stringify(sequence14)!==sequence14Before)throw Error('Public sequence compile lost source text/order or mutated its UMF document.');
+ const annotatedEntitiesPayload={id:'browser-annotated-entities',kind:'structure' as const,form:'entities' as const,question:'Which records connect?',nodes:[{id:'workspace',label:'Workspace'},{id:'member',label:'Member'}],structure:{entities:[{node:'workspace',fields:[{id:'workspace-key',name:'id',type:'uuid',keys:['pk' as const],nullable:false}]},{node:'member',fields:[{id:'member-key',name:'id',type:'uuid',keys:['pk' as const],nullable:false},{id:'member-workspace',name:'workspace_id',type:'uuid',keys:['fk' as const],nullable:false}]}],references:[{id:'membership',from:{node:'workspace',fieldId:'workspace-key'},to:{node:'member',fieldId:'member-workspace'},fromCardinality:'exactly-one' as const,toCardinality:'zero-or-many' as const}]},annotations:[{id:'domain-rule',text:'Workspace ownership is explicit.'},{id:'retention-rule',text:'Retain member history.'}]};
+ const annotatedEntities=createVisualDocument(annotatedEntitiesPayload,'visual:browser-annotated-entities','1.4.0'),annotatedEntitiesBefore=JSON.stringify(annotatedEntities);
+ for(const backend of ['graphviz','mermaid','lini'] as const){
+  const plan=compilePresentation(annotatedEntities,{backend,theme:'presentation/1'});if(!plan.ok)throw Error(`Public annotated entity compiler refused ${backend}: ${JSON.stringify(plan.diagnostics)}`);if(!plan.source?.trim())throw Error(`Public annotated entity compiler returned empty source for ${backend}.`);
+  const visual=getVisual(annotatedEntities),entities=visual.structure?.entities??[],references=visual.structure?.references??[],entityMaps=plan.elementMap.filter(item=>item.kind==='entity'),fieldMaps=plan.elementMap.filter(item=>item.kind==='field'),referenceMaps=plan.elementMap.filter(item=>item.kind==='reference'),annotationMaps=plan.elementMap.filter(item=>item.kind==='annotation');
+  if(entityMaps.length!==2||fieldMaps.length!==3||referenceMaps.length!==1||annotationMaps.length!==2)throw Error(`Public annotated entity source map counts differ for ${backend}.`);
+  for(const[index,annotation]of (visual.annotations??[]).entries())if(!annotationMaps.some(item=>item.logicalId===annotation.id&&item.sourcePath===`/extensions/umf.visual/annotations/${index}/id`&&typeof item.nativeId==='string'&&item.nativeId.length>0))throw Error(`Public annotated entity carrier map missing for ${backend}/${annotation.id}.`);
+  if(JSON.stringify(entityMaps.map(item=>item.logicalId))!==JSON.stringify(entities.map(item=>item.node))||JSON.stringify(referenceMaps.map(item=>item.logicalId))!==JSON.stringify(references.map(item=>item.id)))throw Error(`Public annotated entity maps changed entity/reference ownership for ${backend}.`);
+  for(const annotation of visual.annotations??[]){const nativeText=backend==='mermaid'?annotation.text.replaceAll(' ','#32;'):annotation.text;if(!plan.source.includes(nativeText))throw Error(`Public annotated entity native source lost encoded annotation text for ${backend}/${annotation.id}.`);}
+ }
+ if(!inspectVisual(annotatedEntities).complete||JSON.stringify(annotatedEntities)!==annotatedEntitiesBefore)throw Error('Public annotated entity compilation changed or invalidated its source document.');
  entity.vocabularies['umf.visual']!.version='1.0.0';
  if(inspectVisual(entity).complete)throw Error('Legacy validator interpreted new fields');
  const wave2=[];
@@ -65,5 +158,5 @@ try{
  }
  if(wave2.length!==16)throw Error('Expected 11 grouped flows and 5 sequences in browser');
  const interchange=await runInterchangeBrowserChecks();
- window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true,model12:true,model13:true},presentationPlans:presentationPlans.length,wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),full:runFullBrowserChecks(fixtures),miro:await exerciseMiroBrowser(),portableAdapters:await runPortableAdaptersBrowserChecks()};
+ window.visualResult={ok:true,fixtures:fixtures.length,roundTrips,reviewedDefinitions:reviewedDefinitions.length,reviewedRoundTrips,reviewedPresentationPlans,reviewedModelVersions:[...reviewedModelVersions],atomicEdit:true,versioning:{legacyFrozen:true,explicitUpgrade:true,modernSize:true,earlyDate:true,modernEntities:true,model12:true,model13:true},presentationPlans:presentationPlans.length,wave2,interchange,annotated:await runAnnotatedBrowserChecks(fixtures),full:runFullBrowserChecks(fixtures),miro:await exerciseMiroBrowser(),portableAdapters:await runPortableAdaptersBrowserChecks()};
 }catch(error){window.visualResult={ok:false,error:String(error)};}

@@ -4,6 +4,7 @@ import {createVisualDocument,type Visual} from '../../src/extensions/visual';
 import {compilePresentation,type PresentationOptions} from '../../src/presentation';
 
 const document=(v:Visual)=>createVisualDocument(v,'test:'+v.id,'1.1.0');
+const document14=(v:Visual)=>createVisualDocument(v,'test:'+v.id,'1.4.0');
 
 describe('presentation compiler',()=>{
  it('projects architecture flow with groups, labels, endpoints and identity maps without mutating input',()=>{
@@ -13,6 +14,56 @@ describe('presentation compiler',()=>{
   expect(plan.source).toContain('digraph UMFPresentation');expect(plan.source).toContain('Portable TypeScript library');expect(plan.source).toContain('cluster_g1');expect(plan.source).toContain('cluster_g2');expect(plan.source).toContain('n1 -> n2');expect(plan.source).toContain('tooltip="Application execution stays outside the portable core."');
   expect(plan.elementMap.map(x=>x.logicalId)).toEqual(['architecture','core','axon','native','host','uses']);
   expect(JSON.stringify(d)).toBe(before);
+ });
+
+ it('raises Graphviz edge-caption typography only for ungrouped TB decision flows',()=>{
+  const decision=document14({id:'generic-decision',kind:'flow',form:'network',question:'Which route applies?',layout:{kind:'flow',direction:'TB',order:['entry','choice','left','right']},nodes:[{id:'entry',label:'Entry',shape:'rectangle'},{id:'choice',label:'Choose',shape:'diamond'},{id:'left',label:'Left outcome',shape:'rectangle'},{id:'right',label:'Right outcome',shape:'rectangle'}],edges:[{id:'start',from:'entry',to:'choice'},{id:'yes',from:'choice',to:'left',label:'Yes'},{id:'no',from:'choice',to:'right',label:'No'}]});
+  const plan=compilePresentation(decision,{backend:'graphviz'});expect(plan.ok).toBe(true);if(plan.ok){expect(plan.source).toContain('rankdir="TB"');expect(plan.source).toContain('ranksep="0.22"');expect(plan.source).toContain('edge [fontname="Arial", fontsize=18,');expect(plan.source).toContain('label="Yes"');expect(plan.source).toContain('label="No"');}
+
+  const renamed=document14({id:'different-decision',kind:'flow',form:'pipeline',question:'Where next?',layout:{kind:'flow',direction:'TB',order:['start','gate','retry','finish','archive']},nodes:[{id:'start',label:'Begin',shape:'rectangle'},{id:'gate',label:'Gate',shape:'diamond'},{id:'retry',label:'Retry',shape:'rectangle'},{id:'finish',label:'Finish',shape:'rectangle'},{id:'archive',label:'Archive',shape:'diamond'}],edges:[{id:'a',from:'start',to:'gate',label:'Ready'},{id:'b',from:'gate',to:'retry',label:'Wait'},{id:'c',from:'gate',to:'finish',label:'Proceed'},{id:'d',from:'finish',to:'archive'}]});
+  const renamedPlan=compilePresentation(renamed,{backend:'graphviz'});expect(renamedPlan.ok).toBe(true);if(renamedPlan.ok){expect(renamedPlan.source).toContain('ranksep="0.22"');expect(renamedPlan.source).toContain('edge [fontname="Arial", fontsize=18,');}
+
+  const grouped=document14({id:'grouped-decision',kind:'flow',form:'network',question:'Grouped?',groups:[{id:'boundary',label:'Boundary',role:'zone'}],nodes:[{id:'gate',label:'Gate',shape:'diamond',group:'boundary'},{id:'done',label:'Done',group:'boundary'}],edges:[{id:'go',from:'gate',to:'done',label:'Go'}]});
+  const groupPlan=compilePresentation(grouped,{backend:'graphviz'});expect(groupPlan.ok).toBe(true);if(groupPlan.ok){expect(groupPlan.source).toContain('ranksep="0.62"');expect(groupPlan.source).toContain('edge [fontname="Arial", fontsize=12,');}
+  const horizontal=document14({id:'horizontal-decision',kind:'flow',form:'network',question:'Horizontal?',nodes:[{id:'start',label:'Start'},{id:'gate',label:'Gate',shape:'diamond'},{id:'end',label:'End'}],edges:[{id:'a',from:'start',to:'gate',label:'Continue'},{id:'b',from:'gate',to:'end',label:'Finish'}]});
+  const horizontalPlan=compilePresentation(horizontal,{backend:'graphviz',direction:'LR'});expect(horizontalPlan.ok).toBe(true);if(horizontalPlan.ok){expect(horizontalPlan.source).toContain('rankdir="LR"');expect(horizontalPlan.source).toContain('ranksep="0.62"');expect(horizontalPlan.source).toContain('edge [fontname="Arial", fontsize=12,');}
+  const authoredLr=document14({id:'authored-lr',kind:'flow',form:'network',question:'Authored LR?',layout:{kind:'flow',direction:'LR'},nodes:[{id:'gate',label:'Gate',shape:'diamond'},{id:'done',label:'Done'}],edges:[{id:'go',from:'gate',to:'done',label:'Go'}]});
+  const authoredLrPlan=compilePresentation(authoredLr,{backend:'graphviz',direction:'TB'});expect(authoredLrPlan.ok).toBe(true);if(authoredLrPlan.ok){expect(authoredLrPlan.source).toContain('rankdir="LR"');expect(authoredLrPlan.source).toContain('ranksep="0.62"');expect(authoredLrPlan.source).toContain('edge [fontname="Arial", fontsize=12,');}
+  const nondecision=document14({id:'plain-network',kind:'flow',form:'network',question:'Plain flow?',nodes:[{id:'from',label:'From'},{id:'to',label:'To'}],edges:[{id:'link',from:'from',to:'to',label:'Link'}]});
+  const plainPlan=compilePresentation(nondecision,{backend:'graphviz'});expect(plainPlan.ok).toBe(true);if(plainPlan.ok){expect(plainPlan.source).toContain('ranksep="0.62"');expect(plainPlan.source).toContain('edge [fontname="Arial", fontsize=12,');}
+  const state=document({id:'state-font-profile',kind:'state',form:'machine',question:'State?',nodes:[{id:'ready',label:'Ready'},{id:'done',label:'Done'}],state:{initial:'ready',transitions:[{id:'finish',from:'ready',to:'done',event:'finish'}]}});
+  const statePlan=compilePresentation(state,{backend:'graphviz'});expect(statePlan.ok).toBe(true);if(statePlan.ok)expect(statePlan.source).toContain('edge [fontname="Arial", fontsize=13,');
+  const entity=document({id:'entity-font-profile',kind:'structure',form:'entities',question:'Entities?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{name:'id',keys:['pk']}]},{node:'b',fields:[{name:'id',keys:['pk']}]}],references:[{id:'ref',from:{node:'b',field:'id'},to:{node:'a',field:'id'},label:'belongs to'}]}});
+  const entityPlan=compilePresentation(entity,{backend:'graphviz'});expect(entityPlan.ok).toBe(true);if(entityPlan.ok)expect(entityPlan.source).toContain('edge [fontname="Arial", fontsize=12,');
+ });
+
+ it('keeps free-text annotations as separately mapped native text carriers',()=>{
+  const d=createVisualDocument({id:'annotated',kind:'flow',form:'network',question:'Where do notes belong?',title:'Annotated network',layout:{kind:'flow',direction:'LR',order:['region-a','region-b']},groups:[{id:'region-a',label:'A',role:'region',layout:{kind:'flow',direction:'LR',order:['api','worker']}},{id:'region-b',label:'B',role:'region',layout:{kind:'flow',direction:'LR',order:['queue','database']}}],nodes:[{id:'api',label:'API',group:'region-a'},{id:'worker',label:'Worker',group:'region-a'},{id:'queue',label:'Queue',group:'region-b'},{id:'database',label:'Database',group:'region-b'}],edges:[{id:'e1',from:'api',to:'worker'},{id:'e2',from:'worker',to:'queue'},{id:'e3',from:'queue',to:'database'}],annotations:[{id:'heading',text:'Inbound path'},{id:'note',text:'Retry behavior is outside this sketch.'}]},'test:annotated','1.4.0');
+  for(const backend of ['graphviz','mermaid','lini'] as const){
+   const plan=compilePresentation(d,{backend,theme:'presentation/1'});expect(plan.ok).toBe(true);if(!plan.ok)continue;
+   expect(plan.elementMap.filter(item=>item.kind==='annotation')).toEqual([
+    {logicalId:'heading',sourcePath:'/extensions/umf.visual/annotations/0/id',nativeId:'a1',kind:'annotation'},
+    {logicalId:'note',sourcePath:'/extensions/umf.visual/annotations/1/id',nativeId:'a2',kind:'annotation'}
+   ]);
+   expect(plan.elementMap.filter(item=>item.kind==='edge')).toHaveLength(3);
+   expect(plan.source).toContain(backend==='mermaid'?'Inbound#32;path':'Inbound path');expect(plan.source).toContain(backend==='mermaid'?'Retry#32;behavior#32;is#32;outside#32;this#32;sketch.':'Retry behavior is outside this sketch.');
+   expect(plan.approximations.filter(item=>item.sourcePath.startsWith('/extensions/umf.visual/annotations/'))).toHaveLength(2);
+  }
+ });
+
+ it('refuses annotated non-network forms with a located diagnostic',()=>{
+  const d=createVisualDocument({id:'annotated-stack',kind:'structure',form:'stack',question:'Where do notes belong?',nodes:[{id:'n',label:'Node',layer:'l'}],structure:{layers:[{id:'l',label:'Layer'}]},annotations:[{id:'note',text:'Free text'}]},'test:annotated-stack','1.4.0');
+  for(const backend of ['graphviz','mermaid','lini'] as const)expect(compilePresentation(d,{backend})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_ANNOTATION_SCOPE',path:'/extensions/umf.visual/annotations'}]});
+ });
+
+ it('preserves source-owned notes on lane diagrams without changing their lane or edge maps',()=>{
+  const d=createVisualDocument({id:'lane-notes',kind:'flow',form:'lanes',question:'How do these lanes relate?',title:'Lane note scope',groups:[{id:'people',label:'People',role:'lane'},{id:'system',label:'System',role:'lane'}],nodes:[{id:'requester',label:'Requester',group:'people'},{id:'runtime',label:'Runtime',group:'system'}],edges:[{id:'request',from:'requester',to:'runtime',label:'asks'}],annotations:[{id:'scope',text:'This note is outside the event sequence.'}]},'test:lane-notes','1.4.0');
+  for(const backend of ['graphviz','mermaid','lini'] as const){const plan=compilePresentation(d,{backend});expect(plan.ok).toBe(true);if(!plan.ok)continue;expect(plan.elementMap.filter(item=>item.kind==='group')).toHaveLength(2);expect(plan.elementMap.filter(item=>item.kind==='node')).toHaveLength(2);expect(plan.elementMap.filter(item=>item.kind==='edge')).toHaveLength(1);expect(plan.elementMap.filter(item=>item.kind==='annotation')).toEqual([{logicalId:'scope',sourcePath:'/extensions/umf.visual/annotations/0/id',nativeId:'a1',kind:'annotation'}]);expect(plan.source).toContain(backend==='mermaid'?'This#32;note#32;is#32;outside#32;the#32;event#32;sequence.':'This note is outside the event sequence.');}
+ });
+
+ it('refuses circular layout plus unanchored annotations before backend dispatch',()=>{
+  const d=createVisualDocument({id:'circular-annotations',kind:'flow',form:'network',question:'How are these arranged?',layout:{kind:'circular',order:['a','b']},nodes:[{id:'a',label:'A',shape:'rectangle'},{id:'b',label:'B',shape:'rectangle'}],edges:[{id:'link',from:'a',to:'b',routing:{kind:'straight'}}],annotations:[{id:'note',text:'Detached text'}]},'test:circular-annotations','1.4.0');
+  for(const backend of ['graphviz','mermaid','lini'] as const)expect(compilePresentation(d,{backend})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_ANNOTATION_CIRCULAR',path:'/extensions/umf.visual/annotations'}]});
  });
 
  it('renders an ordered stack as containment with no authored arrows',()=>{
@@ -30,16 +81,33 @@ describe('presentation compiler',()=>{
   expect(plan.elementMap.some(x=>x.kind==='field'&&x.logicalId==='owner-id'&&x.nativeId==='n2_f2')).toBe(true);
  });
 
- it('refuses Mermaid ER relationships when identifying semantics are undeclared',()=>{
-  const d=document({id:'er-mermaid',kind:'structure',form:'entities',question:'How are entities related?',nodes:[{id:'person',label:'Person'},{id:'team',label:'Team'}],structure:{entities:[{node:'person',fields:[{name:'id',type:'Id',keys:['pk']},{name:'teamId',type:'Id',keys:['fk']}]},{node:'team',fields:[{name:'id',type:'Id',keys:['pk']}]}],references:[{id:'membership',from:{node:'person',field:'teamId'},to:{node:'team',field:'id'},label:'member of',fromCardinality:'zero-or-many',toCardinality:'exactly-one'}]}});
-  expect(compilePresentation(d,{backend:'mermaid'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_MERMAID_RELATIONSHIP',message:'These references leave identification unspecified; Mermaid requires an explicit identifying or non-identifying choice. Graphviz preserves the relationship without inventing it.'}]});
+ it('preserves entity annotations as independently mapped Graphviz and Mermaid text carriers',()=>{
+  const annotated=document14({id:'entity-rules',kind:'structure',form:'entities',question:'Which rules constrain the domain?',nodes:[{id:'account',label:'Account'},{id:'entry',label:'Ledger Entry'}],structure:{entities:[{node:'account',fields:[{name:'id',type:'AccountId',keys:['pk']}]},{node:'entry',fields:[{name:'accountId',type:'AccountId',keys:['fk']}]}],references:[{id:'owns-entry',from:{node:'account',field:'id'},to:{node:'entry',field:'accountId'},label:'owns',fromCardinality:'exactly-one',toCardinality:'zero-or-many'}]},annotations:[{id:'rule-a',text:'Accepted entries retain their original row number and account identity.'},{id:'rule-b',text:'A draft remains editable until confirmation.'},{id:'rule-literals',text:'Literal &lt; and &#32; remain authored text.'}]});
+  const graphviz=compilePresentation(annotated,{backend:'graphviz'});expect(graphviz.ok).toBe(true);if(graphviz.ok){expect(graphviz.source).toContain('rankdir="TB"');expect(graphviz.source).toContain('shape=plaintext');expect(graphviz.source).toContain('style=invis, weight=100, constraint=true');expect(graphviz.source).toContain('Accepted entries retain their original row number and account identity.');expect(graphviz.source).toContain('label="Literal &amp;lt; and &amp;#32; remain authored text."');expect(graphviz.elementMap.filter(item=>item.kind==='annotation')).toEqual([{logicalId:'rule-a',sourcePath:'/extensions/umf.visual/annotations/0/id',nativeId:'a1',kind:'annotation'},{logicalId:'rule-b',sourcePath:'/extensions/umf.visual/annotations/1/id',nativeId:'a2',kind:'annotation'},{logicalId:'rule-literals',sourcePath:'/extensions/umf.visual/annotations/2/id',nativeId:'a3',kind:'annotation'}]);expect(graphviz.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/annotations'&&item.requested==='Default Graphviz direction TB for unlayouted entity annotations')).toBe(true);}
+  const mermaid=compilePresentation(annotated,{backend:'mermaid'});expect(mermaid.ok).toBe(true);if(mermaid.ok){expect(mermaid.source).toContain('flowchart TB');expect(mermaid.source).toContain('a1@{ shape: text, label: "Accepted#32;entries');expect(mermaid.source).toContain('Literal#32;#38;lt#59;#32;and#32;#38;#35;32#59;');expect(mermaid.source).toContain('accountId');expect(mermaid.elementMap.filter(item=>item.kind==='annotation')).toEqual([{logicalId:'rule-a',sourcePath:'/extensions/umf.visual/annotations/0/id',nativeId:'a1',kind:'annotation'},{logicalId:'rule-b',sourcePath:'/extensions/umf.visual/annotations/1/id',nativeId:'a2',kind:'annotation'},{logicalId:'rule-literals',sourcePath:'/extensions/umf.visual/annotations/2/id',nativeId:'a3',kind:'annotation'}]);expect(mermaid.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/annotations'&&item.requested==='Default Mermaid direction TB for unlayouted entity annotations')).toBe(true);}
+  const authoredLr=document14({id:'entity-rules-lr',kind:'structure',form:'entities',question:'LR?',layout:{kind:'flow',direction:'LR'},nodes:[{id:'account',label:'Account'}],structure:{entities:[{node:'account',fields:[]} ]},annotations:[{id:'rule',text:'Keep source identity.'}]});
+  const explicit=compilePresentation(authoredLr,{backend:'graphviz',direction:'TB'});expect(explicit.ok).toBe(true);if(explicit.ok)expect(explicit.source).toContain('rankdir="LR"');
+  const caller=compilePresentation(annotated,{backend:'graphviz',direction:'LR'});expect(caller.ok).toBe(true);if(caller.ok)expect(caller.source).toContain('rankdir="LR"');
+  const mermaidExplicit=compilePresentation(authoredLr,{backend:'mermaid',direction:'TB'});expect(mermaidExplicit.ok).toBe(true);if(mermaidExplicit.ok)expect(mermaidExplicit.source).toContain('flowchart LR');
+  const mermaidCaller=compilePresentation(annotated,{backend:'mermaid',direction:'LR'});expect(mermaidCaller.ok).toBe(true);if(mermaidCaller.ok)expect(mermaidCaller.source).toContain('flowchart LR');
+  const lini=compilePresentation(annotated,{backend:'lini'});expect(lini.ok).toBe(true);if(lini.ok){expect(lini.source).toContain('|group#annotation-footer|');expect(lini.elementMap.filter(item=>item.kind==='annotation')).toHaveLength(3);}
  });
 
- it('refuses unsupported forms and unrepresentable Mermaid field identifiers',()=>{
+ it('uses neutral Mermaid cards and unarrowed links when relationship semantics are undeclared',()=>{
+  const d=document({id:'er-mermaid',kind:'structure',form:'entities',question:'How are entities related?',nodes:[{id:'person',label:'Person'},{id:'team',label:'Team'}],structure:{entities:[{node:'person',fields:[{name:'id',type:'Id',keys:['pk']},{name:'teamId',type:'Id',keys:['fk']}]},{node:'team',fields:[{name:'id',type:'Id',keys:['pk']}]}],references:[{id:'membership',from:{node:'person',field:'teamId'},to:{node:'team',field:'id'},label:'member of',fromCardinality:'zero-or-many',toCardinality:'exactly-one'}]}});
+  const plan=compilePresentation(d,{backend:'mermaid'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+  expect(plan.source).toContain('flowchart LR');expect(plan.source).toContain('n1["Person<br/>PK#32;·#32;id:#32;Id<br/>FK#32;·#32;teamId:#32;Id"]');
+  expect(plan.source).toContain('n1 r1@---|member#32;of#32;·#32;from#32;field:#32;teamId#32;·#32;to#32;field:#32;id#32;·#32;0..*#32;→#32;1| n2');
+  expect(plan.source).not.toContain('Identifying');expect(plan.source).not.toContain('Non-identifying');
+  expect(plan.elementMap).toContainEqual({logicalId:'membership',sourcePath:'/extensions/umf.visual/structure/references/0',nativeId:'r1',kind:'reference'});
+  expect(plan.elementMap.filter(item=>item.kind==='field').every(item=>item.nativeId==='n1'||item.nativeId==='n2')).toBe(true);
+ });
+
+ it('admits state/machine and preserves un-tokenizable Mermaid field identifiers in cards',()=>{
   const unsupported=document({id:'machine',kind:'state',form:'machine',question:'How does it work?',nodes:[{id:'ready',label:'Ready'}],state:{initial:'ready',transitions:[{id:'t',from:'ready',to:'ready',event:'again'}]}});
-  expect(compilePresentation(unsupported,{backend:'graphviz'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_FORM'}]});
+  expect(compilePresentation(unsupported,{backend:'graphviz'})).toMatchObject({ok:true});
   const er=document({id:'er-odd-field',kind:'structure',form:'entities',question:'Question?',nodes:[{id:'user',label:'User'}],structure:{entities:[{node:'user',fields:[{name:'display name',type:'String'}]}]}});
-  expect(compilePresentation(er,{backend:'mermaid'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_MERMAID_FIELD'}]});
+  const plan=compilePresentation(er,{backend:'mermaid'});expect(plan.ok).toBe(true);if(plan.ok){expect(plan.source).toContain('display#32;name:#32;String');expect(plan.elementMap.find(item=>item.kind==='field')?.nativeId).toBe('n1');}
  });
 
  it('fails closed for malformed, cyclic, and incomplete documents',()=>{
@@ -76,9 +144,36 @@ describe('presentation compiler',()=>{
   expect(plan.source).toContain('string id "NULL"');expect(plan.source).toContain('rawType required "NOT NULL"');expect(plan.source).not.toContain('string? id');
  });
 
- it('refuses Mermaid ER relationships with unspecified endpoint cardinality',()=>{
+ it('does not invent missing Mermaid relationship cardinalities',()=>{
   const d=document({id:'mermaid-unknown-cardinality',kind:'structure',form:'entities',question:'Unknown cardinality',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[]},{node:'b',fields:[]}],references:[{id:'r',from:{node:'a'},to:{node:'b'},fromCardinality:'exactly-one'}]}});
-  expect(compilePresentation(d,{backend:'mermaid'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_MERMAID_RELATIONSHIP'}]});
+  const plan=compilePresentation(d,{backend:'mermaid'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+  expect(plan.source).toContain('n1 r1@---|1#32;→#32;unspecified| n2');expect(plan.source).not.toContain('0..*');
+ });
+
+ it('keeps neutral entity fallback disclosures consistent with the card it emits',()=>{
+  const d=createVisualDocument({id:'mermaid-neutral-doc-shape',kind:'structure',form:'entities',question:'What is retained?',nodes:[{id:'record',label:'Record',shape:'folded-corner'}],structure:{entities:[{node:'record',fields:[{name:'display name',type:'raw type'}] }]} },'test:mermaid-neutral-doc-shape','1.4.0');
+  const plan=compilePresentation(d,{backend:'mermaid'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+  expect(plan.source).toContain('Shape:#32;folded-corner');
+  expect(plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/nodes/0/shape'&&item.representation.includes('card outline is renderer policy'))).toBe(true);
+  expect(plan.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/nodes/0/shape'&&item.representation.includes('wavy footer'))).toBe(false);
+ });
+
+ it('derives bounded native Mermaid card wrapping from authored rows',()=>{
+  const compile=(name:string)=>{
+   const d=createVisualDocument({id:'mermaid-neutral-width',kind:'structure',form:'entities',question:'Which row width is used?',nodes:[{id:'record',label:'Record'}],structure:{entities:[{node:'record',fields:[{name,type:'raw type'}]}]}},'test:mermaid-neutral-width','1.4.0');
+   const plan=compilePresentation(d,{backend:'mermaid'});expect(plan.ok).toBe(true);if(!plan.ok)return 0;
+   return Number(plan.source.match(/wrappingWidth: (\d+)/)?.[1]??0);
+  };
+  const short=compile('short'),long=compile('long-authored-field-name-which-needs-more-horizontal-room'),veryLong=compile('a-'.repeat(80));
+  expect(short).toBeGreaterThanOrEqual(200);expect(short).toBeLessThan(long);expect(long).toBeLessThanOrEqual(420);expect(veryLong).toBe(420);
+ });
+
+ it('budgets Mermaid card wrapping across the combined card and relation layout',()=>{
+  const nodes=Array.from({length:5},(_,index)=>({id:'record-'+(index+1),label:'Record '+(index+1)}));
+  const d=createVisualDocument({id:'mermaid-neutral-layout-budget',kind:'structure',form:'entities',question:'Which records link?',nodes,structure:{entities:nodes.map(node=>({node:node.id,fields:[{name:'id',type:'uuid'}]})),references:nodes.slice(0,-1).map((node,index)=>({id:'link-'+(index+1),from:{node:node.id},to:{node:nodes[index+1]!.id},label:'links '+(index+1),fromCardinality:'exactly-one' as const,toCardinality:'zero-or-many' as const}))}},'test:mermaid-neutral-layout-budget','1.4.0');
+  const plan=compilePresentation(d,{backend:'mermaid'});expect(plan.ok).toBe(true);if(!plan.ok)return;
+  const width=Number(plan.source.match(/wrappingWidth: (\d+)/)?.[1]??0);
+  expect(width).toBeGreaterThanOrEqual(200);expect(width).toBeLessThanOrEqual(220);
  });
 
  it('rejects unsafe option access and accounts for standalone E/R nodes',()=>{

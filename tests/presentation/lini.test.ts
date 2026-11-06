@@ -1,15 +1,77 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {describe,expect,it} from 'bun:test';
+import {createHash} from 'node:crypto';
 import {createVisualDocument,type Visual} from '../../src/extensions/visual';
 import {compilePresentation} from '../../src/presentation';
+import {compileLiniPresentation} from '../../src/presentation/lini';
 
 const document=(visual:Visual)=>createVisualDocument(visual,'test:'+visual.id,'1.2.0');
 
 describe('Lini presentation compiler',()=>{
+ it('renders flat sequence self-calls as one native U-shaped return to the same lifeline',()=>{
+  const source=document({id:'flat-self-call',kind:'sequence',form:'lifelines',question:'How does the request finish?',sequence:{participants:[{id:'caller',label:'Caller'},{id:'worker',label:'Worker'},{id:'observer',label:'Observer'}],messages:[{id:'invoke',from:'caller',to:'worker',label:'invoke'},{id:'inspect',from:'worker',to:'worker',label:'inspect(input, options)',kind:'call'},{id:'reply',from:'worker',to:'caller',label:'result',kind:'return'}]}});
+  const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
+  expect(result.source).toContain('|line#message2| "" { pin: none; translate: 0 ');
+  expect(result.source).toContain('points: 0 0, 80 0, 80 36, 0 36; marker-end: arrow;');
+  expect(result.source).toContain('|rect#message-caption2| "inspect(input,\\noptions)"');
+  expect(result.elementMap).toContainEqual({logicalId:'inspect',sourcePath:'/extensions/umf.visual/sequence/messages/1/id',nativeId:'message2',kind:'message'});
+  expect(result.elementMap).toContainEqual({logicalId:'inspect',sourcePath:'/extensions/umf.visual/sequence/messages/1/label',nativeId:'message-caption2',kind:'message-caption'});
+  expect(result.source.indexOf('|line#message2|')).toBeLessThan(result.source.indexOf('|line#message3|'));
+  const last=document({id:'last-self-call',kind:'sequence',form:'lifelines',question:'How does the last participant inspect?',sequence:{participants:[{id:'first',label:'First'},{id:'last',label:'Last'}],messages:[{id:'inspect',from:'last',to:'last',label:'inspect'}]}});
+  const mirrored=compilePresentation(last,{backend:'lini'});expect(mirrored.ok).toBe(true);if(!mirrored.ok)return;
+  expect(mirrored.source).toContain('points: 0 0, -80 0, -80 36, 0 36; marker-end: arrow;');
+  expect(mirrored.source).toContain('|rect#message-caption1| "inspect"');
+ });
+
+ it('uses compact implicit rank spacing only when no edge caption needs a routing corridor',()=>{
+  const graph={id:'renamed-unlabelled-flow',kind:'flow' as const,form:'pipeline' as const,question:'Where does work go?',nodes:[{id:'seed',label:'Seed'},{id:'shape',label:'Shape'},{id:'verify',label:'Verify'},{id:'publish',label:'Publish'}],edges:[{id:'seed-shape',from:'seed',to:'shape'},{id:'shape-verify',from:'shape',to:'verify'},{id:'verify-publish',from:'verify',to:'publish'}]};
+  const source=document(graph);
+  const horizontal=compilePresentation(source,{backend:'lini',direction:'LR'});expect(horizontal.ok).toBe(true);if(!horizontal.ok)return;
+  expect(horizontal.source).toContain('direction: row;');expect(horizontal.source).toContain('width: 1272;');
+  expect(horizontal.source).toContain('|box#n1| "Seed" { pin: center; translate: -480 0;');expect(horizontal.source).toContain('|box#n4| "Publish" { pin: center; translate: 480 0;');
+  expect(horizontal.elementMap.filter(item=>item.kind==='edge').map(item=>item.logicalId)).toEqual(graph.edges.map(edge=>edge.id));
+  const vertical=compilePresentation(source,{backend:'lini',direction:'TB'});expect(vertical.ok).toBe(true);if(!vertical.ok)return;
+  expect(vertical.source).toContain('direction: column;');expect(vertical.source).toContain('height: 648;');expect(vertical.source).not.toContain('width: 1272;');
+  expect(vertical.source.indexOf('|box#n1|')).toBeLessThan(vertical.source.indexOf('|box#n2|'));
+  const labelled=compilePresentation(document({...graph,edges:[{...graph.edges[0]!,label:'prepares'},...graph.edges.slice(1)]}),{backend:'lini'});expect(labelled.ok).toBe(true);if(!labelled.ok)return;
+  expect(labelled.source).toContain('width: 1560;');expect(labelled.source).toContain('"prepares"');
+  const explicit=compilePresentation(document({...graph,layout:{kind:'flow',direction:'LR',order:['publish','verify','shape','seed']}}),{backend:'lini'});expect(explicit.ok).toBe(true);if(!explicit.ok)return;
+  expect(explicit.source).toContain('direction: row;');expect(explicit.source).not.toContain('width: 1272;');expect(explicit.source.indexOf('|box#n4|')).toBeLessThan(explicit.source.indexOf('|box#n1|'));
+ });
+
+ it('budgets implicit DAG rank rows from authored multiline node content',()=>{
+  const graph={id:'renamed-content-sized-network',kind:'flow' as const,form:'network' as const,question:'Which components exchange data?',nodes:[
+   {id:'catalogue',label:'Catalogue',detail:'Type: Service\n\nPurpose: Resolve source records\n\nProtocol: HTTPS'},
+   {id:'ledger',label:'Ledger',detail:'Type: Store\n\nProtocol: SQL'},
+   {id:'console',label:'Console',detail:'Type: User'}
+  ],edges:[{id:'catalogue-console',from:'catalogue',to:'console',label:'resolves records'},{id:'ledger-console',from:'ledger',to:'console',label:'reads entries'}]};
+  const source=compilePresentation(document(graph),{backend:'lini'});expect(source.ok).toBe(true);if(!source.ok)return;
+  expect(source.source).toContain('"resolves records" { translate:');expect(source.source).toContain('font-size: 14;');
+  const centerY=(nativeId:string)=>{
+   const declaration=source.source.split('\n').find(line=>line.includes(`|box#${nativeId}|`));
+   const match=declaration?.match(/translate: -?\d+ (-?\d+);/u);expect(match).toBeDefined();return Number(match?.[1]);
+  };
+  const firstY=centerY('n1'),secondY=centerY('n2');
+  // The longest card has five authored detail lines (including paragraph
+  // breaks); the second has three. Their card centers must include both
+  // content-derived heights and the existing 40-unit rank-row clearance.
+  expect(Math.abs(secondY-firstY)).toBeGreaterThanOrEqual((172+136)/2+40);
+
+  const compact=compilePresentation(document({...graph,id:'renamed-single-line-network',nodes:graph.nodes.map(node=>({...node,detail:'Short detail'}))}),{backend:'lini'});
+  expect(compact.ok).toBe(true);if(!compact.ok)return;
+  const compactFirst=compact.source.split('\n').find(line=>line.includes('|box#n1|'))?.match(/translate: -?\d+ (-?\d+);/u);
+  const compactSecond=compact.source.split('\n').find(line=>line.includes('|box#n2|'))?.match(/translate: -?\d+ (-?\d+);/u);
+  expect(Math.abs(Number(compactSecond?.[1])-Number(compactFirst?.[1]))).toBe(140);
+  expect(compact.source).not.toContain('font-size: 14;');
+
+  const authored=compilePresentation(document({...graph,id:'authored-layout-network',layout:{kind:'flow',direction:'LR'},nodes:graph.nodes.map(node=>({...node,detail:'A\n\nlong\n\nmultiline\n\ndetail'}))}),{backend:'lini'});
+  expect(authored.ok).toBe(true);if(authored.ok){expect(authored.source).not.toMatch(/\|box#n[12]\|[^\n]*translate:/u);expect(authored.source).not.toContain('font-size: 14;');}
+ });
+
  it('emits native nested groups, safe labels, node details and scoped connections',()=>{
   const source=document({id:'nested',kind:'flow',form:'network',question:'Which group contains the service?',title:'Service topology',groups:[{id:'services',label:'Services',detail:'Owned boundary',role:'zone'},{id:'workers',label:'Workers',parent:'services',role:'lane'}],nodes:[{id:'api',label:'API "front"',detail:'Public endpoint',role:'actor',group:'services'},{id:'worker',label:'Worker',role:'own',group:'workers'},{id:'db',label:'Database',role:'store'}],edges:[{id:'read',from:'worker',to:'db',label:'reads',kind:'data'}]});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
-  expect(result.nativeFormat).toBe('lini');expect(result.source).toContain('.lini-block { font-family: Arial; }');expect(result.source).toContain('|group#visual| "Service topology"');expect(result.source).toContain('|group#g1| "Services"');expect(result.source).toContain('|cell#detail| "Owned boundary"');expect(result.source).toContain('|group#g2| "Workers"');expect(result.source).toContain('|oval#n1| "API \\"front\\""');expect(result.source).toContain('|cell#detail| "Public endpoint"');expect(result.source).toContain('g1.g2.n2 -> n3 "reads" .e1');expect(result.source).toContain('.e1 { stroke-style: dashed; }');
+  expect(result.nativeFormat).toBe('lini');expect(result.source).toContain('.lini-block { font-family: Arial; }');expect(result.source).toContain('|group#visual| "Service topology"');expect(result.source).toContain('|group#g1| "Services"');expect(result.source).toContain('|cell#detail| "Owned boundary"');expect(result.source).toContain('|group#g2| "Workers"');expect(result.source).toContain('|oval#n1| "API \\"front\\""');expect(result.source).toContain('|cell#detail| "Public endpoint"');expect(result.source).toContain('g1.g2.n2 -> n3 .e1 { along: 0.9; } [ "reads" { translate:');expect(result.source).toContain('.e1 { stroke-style: dashed; }');
   expect(result.elementMap).toContainEqual({logicalId:'services',sourcePath:'/extensions/umf.visual/groups/0',nativeId:'g1',kind:'group'});expect(result.elementMap).toContainEqual({logicalId:'api',sourcePath:'/extensions/umf.visual/nodes/0/id',nativeId:'n1',kind:'node'});expect(result.elementMap).toContainEqual({logicalId:'read',sourcePath:'/extensions/umf.visual/edges/0',nativeId:'e1',kind:'edge'});
   expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/nodes/0/detail'&&item.representation.includes('persistent secondary native cell'))).toBe(true);
  });
@@ -38,24 +100,166 @@ describe('Lini presentation compiler',()=>{
   const roleApproximation=entityResult.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/nodes/0/role');expect(roleApproximation?.representation).toContain('fixed table silhouette');expect(roleApproximation?.representation).toContain('role-derived node glyphs do not apply');
  });
 
- it('renders authored stack layers as ordered one-column groups without connections',()=>{
+ it('renders authored stack layers as ordered bands with source-ordered horizontal members and no connections',()=>{
   const source=document({id:'layers',kind:'structure',form:'stack',question:'Which layers appear?',nodes:[{id:'api',label:'API',layer:'interface'},{id:'compiler',label:'Compiler',layer:'engine'},{id:'package',label:'Package',layer:'engine'}],structure:{layers:[{id:'interface',label:'Public interface'},{id:'engine',label:'Compiler engine'}]}});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
-  expect(result.source).toContain('|group#visual| "Which layers appear?" { layout: grid; columns: repeat(1); gap: 44;');expect(result.source).toContain('|group#l1| "Public interface"');expect(result.source).toContain('|group#l2| "Compiler engine"');expect(result.source.indexOf('|group#l1|')).toBeLessThan(result.source.indexOf('|group#l2|'));expect(result.source).not.toContain(' -> ');
+  expect(result.source).toContain('|group#visual| "Which layers appear?" { layout: grid; columns: repeat(1); gap: 44;');expect(result.source).toContain('|group#l1| "Public interface" { layout: flow; direction: row; gap: 24;');expect(result.source).toContain('|group#l2| "Compiler engine" { layout: flow; direction: row; gap: 24;');expect(result.source.indexOf('|group#l1|')).toBeLessThan(result.source.indexOf('|group#l2|'));expect(result.source.indexOf('|box#n2|')).toBeLessThan(result.source.indexOf('|box#n3|'));expect(result.source).not.toContain(' -> ');
   expect(result.elementMap).toContainEqual({logicalId:'engine',sourcePath:'/extensions/umf.visual/structure/layers/1',nativeId:'l2',kind:'layer'});expect(result.omissions.some(item=>item.sourcePath==='/extensions/umf.visual/edges')).toBe(false);
+  expect(result.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/structure/layers')?.representation).toContain('each band’s members in source order from left to right');
+ });
+
+ it('keeps implicit row members generic for renamed layers with different member counts',()=>{
+  const source=document({id:'renamed-stack-members',kind:'structure',form:'stack',question:'Where do the parts go?',nodes:[
+   {id:'new-client',label:'New client',layer:'customers'},
+   {id:'contract',label:'Contract',layer:'portable'},
+   {id:'schema',label:'Schema',layer:'portable'},
+   {id:'validator',label:'Validator',layer:'portable'},
+   {id:'native-adapter',label:'Native adapter',layer:'runtime'},
+  ],structure:{layers:[{id:'customers',label:'Consumers'},{id:'portable',label:'Portable core'},{id:'runtime',label:'Runtime'}]}});
+  const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
+  for(const id of ['l1','l2','l3'])expect(result.source).toContain(`|group#${id}| "${id==='l1'?'Consumers':id==='l2'?'Portable core':'Runtime'}" { layout: flow; direction: row; gap: 24;`);
+  expect(result.source.indexOf('|box#n2|')).toBeLessThan(result.source.indexOf('|box#n3|'));expect(result.source.indexOf('|box#n3|')).toBeLessThan(result.source.indexOf('|box#n4|'));
+  expect(result.elementMap.filter(item=>item.kind==='layer')).toHaveLength(3);expect(result.elementMap.filter(item=>item.kind==='node')).toHaveLength(5);
+  const vertical=compilePresentation(source,{backend:'lini',direction:'TB'});expect(vertical.ok).toBe(true);if(!vertical.ok)return;expect(vertical.source).toContain('|group#l2| "Portable core" { layout: grid; columns: repeat(1); gap: 24;');
  });
 
  it('keeps entity field IDs and types, shows key/null badges and native field endpoints',()=>{
   const source=document({id:'entities',kind:'structure',form:'entities',question:'How are tables connected?',title:'Workspace records',nodes:[{id:'workspace',label:'Workspaces'},{id:'member',label:'Members'}],structure:{entities:[{node:'workspace',fields:[{id:'workspace-id',name:'id',type:'uuid',keys:['pk'],nullable:false},{name:'name',type:'text',nullable:false}]},{node:'member',fields:[{id:'member-id',name:'id',type:'uuid',keys:['pk'],nullable:false},{id:'workspace-fk',name:'workspace_id',type:'uuid',keys:['fk'],nullable:false}]}],references:[{id:'membership',from:{node:'workspace',fieldId:'workspace-id'},to:{node:'member',fieldId:'workspace-fk'},label:'contains',fromCardinality:'exactly-one',toCardinality:'zero-or-many'}]}});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
-  expect(result.source).toContain('|entity#n1| "Workspaces"');expect(result.source).toContain('|cell#f1| "id · PK · NOT NULL"; "uuid"');expect(result.source).toContain('n1.f1:right ++-o< n2.f2:left "contains" .r1');
+  expect(result.source).toContain('|entity#n1| "Workspaces"');expect(result.source).toContain('|cell#f1| "id · PK · NOT NULL"; "uuid"');expect(result.source).toContain('n1.f1:right ++-o< n2.f2:left .r1 { along: 0.5; } [ "contains" { translate: 0 -24; font-size: 14; } ]');
   expect(result.elementMap).toContainEqual({logicalId:'workspace-id',sourcePath:'/extensions/umf.visual/structure/entities/0/fields/0',nativeId:'n1.f1',kind:'field'});expect(result.elementMap).toContainEqual({logicalId:'membership',sourcePath:'/extensions/umf.visual/structure/references/0',nativeId:'r1',kind:'reference'});expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/entities/0/fields/0/keys')).toBe(true);expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/entities/0/fields/0/nullable')).toBe(true);
+ });
+
+ it('keeps entity metadata in the full-width heading so name/type field pairs stay aligned',()=>{
+  const visual:Visual={id:'renamed-entity-metadata',kind:'structure',form:'entities',question:'Which records are described?',nodes:[
+   {id:'workspace-record',label:'Workspace',detail:'A workspace owns projects and their membership.\n\nThe second authored paragraph remains distinct.',shape:'diamond',icon:'database'},
+   {id:'project-record',label:'Project',detail:'A project belongs to one workspace.',icon:'cloud'}
+  ],structure:{entities:[
+   {node:'workspace-record',fields:[{id:'workspace-id',name:'id',type:'link<id>',keys:['pk'],nullable:false},{id:'workspace-label',name:'display_name',type:'string'},{id:'workspace-owner',name:'owner',type:'link<User>'}]},
+   {node:'project-record',fields:[{id:'project-id',name:'id',type:'link<id>'},{id:'project-parent',name:'workspace',type:'link<Workspace>'}]}
+  ],references:[{id:'project-workspace',from:{node:'project-record',fieldId:'project-parent'},to:{node:'workspace-record'},fromCardinality:'zero-or-many',toCardinality:'exactly-one'}]}};
+  const source=createVisualDocument(visual,'test:'+visual.id,'1.4.0');
+  const result=compilePresentation(source,{backend:'lini'});expect(result.ok,JSON.stringify(result)).toBe(true);if(!result.ok)return;
+  expect(result.source).toContain('|entity#n1| "Workspace\\n\\nA workspace owns projects and their membership.\\n\\nThe second authored paragraph remains distinct."');
+  expect(result.source).not.toContain('|cell#detail|');
+  const workspaceHeader=result.source.indexOf('|entity#n1|'),workspaceFirstField=result.source.indexOf('|cell#f1|'),workspaceLastField=result.source.indexOf('|cell#f3|');
+  expect(workspaceHeader).toBeLessThan(workspaceFirstField);expect(workspaceFirstField).toBeLessThan(workspaceLastField);
+  expect(workspaceLastField).toBeLessThan(result.source.indexOf('|cell#shape|'));
+  expect(result.source).toContain('|entity#n2| "Project\\n\\nA project belongs to one workspace."');
+  expect(workspaceLastField).toBeLessThan(result.source.indexOf('|icon| { symbol: database;'));
+  expect(result.source.indexOf('|cell#f2| "workspace"; "link<Workspace>"')).toBeLessThan(result.source.indexOf('|icon| { symbol: cloud;'));
+  expect(result.elementMap).toContainEqual({logicalId:'workspace-id',sourcePath:'/extensions/umf.visual/structure/entities/0/fields/0',nativeId:'n1.f1',kind:'field'});
+  expect(result.elementMap).toContainEqual({logicalId:'project-workspace',sourcePath:'/extensions/umf.visual/structure/references/0',nativeId:'r1',kind:'reference'});
+  expect(result.source).toContain('n2.f2:left >o-++ n1');
+ });
+
+ it('renders entity annotations in a separate native footer without changing field or relationship rows',()=>{
+  const visual:Visual={id:'renamed-entity-annotations',kind:'structure',form:'entities',question:'How do records connect?',title:'Ledger entities',structure:{entities:[
+   {node:'account-record',fields:[{id:'account-key',name:'account_id',type:'uuid',keys:['pk'],nullable:false},{id:'account-name',name:'display_name',type:'text',nullable:false}]},
+   {node:'transfer-record',fields:[{id:'transfer-key',name:'transfer_id',type:'uuid',keys:['pk'],nullable:false},{id:'transfer-account',name:'account_ref',type:'uuid',keys:['fk'],nullable:false}]},
+   {node:'audit-record',fields:[{id:'audit-key',name:'audit_id',type:'uuid',keys:['pk'],nullable:false},{id:'audit-transfer',name:'transfer_ref',type:'uuid',keys:['fk'],nullable:false}]}
+  ],references:[
+   {id:'account-transfers',from:{node:'account-record',fieldId:'account-key'},to:{node:'transfer-record',fieldId:'transfer-account'},label:'owns transfers',fromCardinality:'exactly-one',toCardinality:'zero-or-many'},
+   {id:'transfer-audit',from:{node:'transfer-record',fieldId:'transfer-key'},to:{node:'audit-record',fieldId:'audit-transfer'},label:'records changes',fromCardinality:'exactly-one',toCardinality:'zero-or-many'}
+  ]},annotations:[
+   {id:'rule-original',text:'Original records remain immutable after ingest.'},
+   {id:'rule-retry',text:'Retries retain the same idempotency key.'}
+  ],nodes:[
+   {id:'account-record',label:'Accounts'}, {id:'transfer-record',label:'Transfers'}, {id:'audit-record',label:'Audit entries'}
+  ]};
+  const source=createVisualDocument(visual,'test:'+visual.id,'1.4.0');
+  const result=compileLiniPresentation(visual);expect(result.ok).toBe(true);if(!result.ok)return;
+  const withoutAnnotations={...visual};delete withoutAnnotations.annotations;
+  const baseline=compileLiniPresentation(withoutAnnotations);expect(baseline.ok).toBe(true);if(!baseline.ok)return;
+  expect(result.elementMap.filter(item=>item.kind==='annotation')).toEqual([
+   {logicalId:'rule-original',sourcePath:'/extensions/umf.visual/annotations/0/id',nativeId:'a1',kind:'annotation'},
+   {logicalId:'rule-retry',sourcePath:'/extensions/umf.visual/annotations/1/id',nativeId:'a2',kind:'annotation'}
+  ]);
+  expect(result.source).toContain('|group#annotation-footer|');
+  expect(result.source).toContain('|box#a1| "Original records remain immutable after ingest."');
+  expect(result.source).toContain('|box#a2| "Retries retain the same idempotency key."');
+  expect(result.source.indexOf('|entity#n1|')).toBeLessThan(result.source.indexOf('|group#annotation-footer|'));
+  expect(result.source.indexOf('|group#annotation-footer|')).toBeLessThan(result.source.indexOf('|box#a1|'));
+  expect((result.source.match(/\|entity#n\d+\|/gu)??[])).toHaveLength(3);
+  expect((result.source.match(/\|box#a\d+\|/gu)??[])).toHaveLength(2);
+  const rows=(text:string)=>text.split('\n').map(line=>line.trim()).filter(line=>line.startsWith('|entity#')||line.startsWith('|cell#f')||/^n\d+(?:\.f\d+)?:\w+ .*\.r\d+ \{ along:/u.test(line));
+  expect(rows(result.source)).toEqual(rows(baseline.source));
+  expect(result.source).toContain('|cell#f1| "account_id · PK · NOT NULL"; "uuid"');
+  expect(result.source).toContain('|cell#f2| "account_ref · FK · NOT NULL"; "uuid"');
+  expect(result.source).toContain('n1.f1:right ++-o< n2.f2:left .r1 { along: 0.5; } [ "owns transfers"');
+  expect(result.source).toContain('n2.f1:left ++-o< n3.f2:right .r2 { along: 0.5; } [ "records changes"');
+  expect(result.approximations.filter(item=>item.sourcePath.startsWith('/extensions/umf.visual/annotations/')).map(item=>item.sourcePath)).toEqual([
+   '/extensions/umf.visual/annotations/0/text','/extensions/umf.visual/annotations/1/text'
+  ]);
+  expect(source.vocabularies?.['umf.visual']?.version).toBe('1.4.0');
+ });
+
+ it('faces implicit two-column field endpoints by emitted component position while preserving node and port endpoints',()=>{
+  const source=document({id:'implicit-field-sides',kind:'structure',form:'entities',question:'Which rows connect?',nodes:[
+   {id:'origin',label:'Origin',ports:[{id:'north-port',side:'north'}]},
+   {id:'standalone',label:'Standalone node'},
+   {id:'same-column',label:'Same column'},
+   {id:'other-column',label:'Other column'},
+   {id:'last-same-column',label:'Last same column'},
+  ],structure:{entities:[
+   {node:'origin',fields:[{id:'origin-id',name:'id',type:'Id'}]},
+   {node:'same-column',fields:[{id:'same-id',name:'id',type:'Id'}]},
+   {node:'other-column',fields:[{id:'other-id',name:'id',type:'Id'}]},
+   {node:'last-same-column',fields:[{id:'last-id',name:'id',type:'Id'}]},
+  ],references:[
+   {id:'same-column-link',from:{node:'origin',fieldId:'origin-id'},to:{node:'same-column',fieldId:'same-id'}},
+   {id:'cross-column-link',from:{node:'origin',fieldId:'origin-id'},to:{node:'other-column',fieldId:'other-id'}},
+   {id:'same-column-later-link',from:{node:'origin',fieldId:'origin-id'},to:{node:'last-same-column',fieldId:'last-id'}},
+   {id:'named-port-link',from:{node:'origin',portId:'north-port'},to:{node:'other-column',fieldId:'other-id'}},
+   {id:'node-level-link',from:{node:'origin'},to:{node:'other-column'}},
+  ]}});
+  const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
+  expect(result.source).toContain('columns: repeat(2);');
+  expect(result.source).toContain('n1.f1:left - n3.f1:left .r1 { along: 0.5; }');
+  expect(result.source).toContain('n1.f1:right - n4.f1:left .r2 { along: 0.5; }');
+  expect(result.source).toContain('n1.f1:left - n5.f1:left .r3 { along: 0.5; }');
+  expect(result.source).toContain('n1.p1:top - n4.f1:left .r4 { along: 0.5; }');
+  expect(result.source).toContain('n1 - n4 .r5 { along: 0.5; }');
+  expect(result.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/structure/references/0/from')?.representation).toContain('on its left side, selected from the implicit two-column component placement');
+ });
+
+ it('keeps implicit grid side selection generic across renamed entities and changed relationship degree',()=>{
+  const source=document({id:'renamed-degree-three',kind:'structure',form:'entities',question:'Which records relate?',nodes:[
+   {id:'workspace_catalog',label:'Catalog'},
+   {id:'person',label:'Person'},
+   {id:'settings',label:'Settings'},
+   {id:'job',label:'Job'},
+  ],structure:{entities:[
+   {node:'workspace_catalog',fields:[{name:'id',type:'Id'}]},
+   {node:'person',fields:[{name:'workspace_id',type:'Id'}]},
+   {node:'settings',fields:[{name:'workspace_id',type:'Id'}]},
+   {node:'job',fields:[{name:'workspace_id',type:'Id'}]},
+  ],references:[
+   {id:'catalog-person',from:{node:'workspace_catalog',field:'id'},to:{node:'person',field:'workspace_id'}},
+   {id:'catalog-settings',from:{node:'workspace_catalog',field:'id'},to:{node:'settings',field:'workspace_id'}},
+   {id:'catalog-job',from:{node:'workspace_catalog',field:'id'},to:{node:'job',field:'workspace_id'}},
+  ]}});
+  const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
+  expect(result.source).toContain('n1.f1:right - n2.f1:left .r1 { along: 0.5; }');
+  expect(result.source).toContain('n1.f1:left - n3.f1:left .r2 { along: 0.5; }');
+  expect(result.source).toContain('n1.f1:right - n4.f1:left .r3 { along: 0.5; }');
+  expect(result.elementMap.filter(item=>item.kind==='reference')).toHaveLength(3);
+ });
+
+ it('preserves explicit entity layouts and single-column direction side conventions',()=>{
+  const explicit=document({id:'explicit-field-sides',kind:'structure',form:'entities',question:'Which rows connect?',layout:{kind:'grid',columns:2,order:['b','a']},nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{name:'id',type:'Id'}]},{node:'b',fields:[{name:'a_id',type:'Id'}]}],references:[{id:'ab',from:{node:'a',field:'id'},to:{node:'b',field:'a_id'}}]}});
+  const explicitResult=compilePresentation(explicit,{backend:'lini'});expect(explicitResult.ok).toBe(true);if(!explicitResult.ok)return;
+  expect(explicitResult.source).toContain('n1.f1:right - n2.f1:left .r1 { along: 0.5; }');
+  expect(explicitResult.source.indexOf('|entity#n2|')).toBeLessThan(explicitResult.source.indexOf('|entity#n1|'));
+  expect(createHash('sha256').update(explicitResult.source).digest('hex')).toBe('34e423905f308585f642c4b3533c80786eb836dda86ef82502dfaadecd15becc');
+  const vertical=compilePresentation(document({id:'vertical-field-sides',kind:'structure',form:'entities',question:'Which rows connect?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{name:'id',type:'Id'}]},{node:'b',fields:[{name:'a_id',type:'Id'}]}],references:[{id:'ab',from:{node:'a',field:'id'},to:{node:'b',field:'a_id'}}]}}),{backend:'lini',direction:'TB'});
+  expect(vertical.ok).toBe(true);if(!vertical.ok)return;expect(vertical.source).toContain('columns: repeat(1);');expect(vertical.source).toContain('n1.f1:right - n2.f1:left .r1 { along: 0.5; }');
  });
 
  it('shows exact nonstandard ranges without assigning a conventional marker',()=>{
   const source=document({id:'ranges',kind:'structure',form:'entities',question:'Which exact ranges?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{name:'id',type:'Id'}]},{node:'b',fields:[{name:'aId',type:'Id'}]}],references:[{id:'r',from:{node:'a',field:'id'},to:{node:'b',field:'aId'},fromMultiplicity:{min:0,max:8,text:'0..8'},toMultiplicity:{min:2,max:4}}]}});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
-  expect(result.source).toContain('n1.f1:right - n2.f1:left "[from 0..8; to 2..4]" .r1');expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/references/0'&&item.representation.includes('exact text'))).toBe(true);
+  expect(result.source).toContain('n1.f1:right - n2.f1:left .r1 { along: 0.5; } [ "[from 0..8; to 2..4]" { translate: 0 -24; font-size: 14; } ]');expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/references/0'&&item.representation.includes('exact text'))).toBe(true);
  });
 
  it('refuses text Lini 1.1 cannot encode and rejects unsafe options before dispatch',()=>{
@@ -76,13 +280,21 @@ describe('Lini presentation compiler',()=>{
   const mermaid=compilePresentation(source,{backend:'mermaid'});expect(mermaid.ok).toBe(true);if(!mermaid.ok)return;
   expect(mermaid.source).toContain('flowchart TB');expect(mermaid.source).toContain('shape: rounded');expect(mermaid.source).toContain('shape: hex');expect(mermaid.source).toContain('shape: cyl');expect(mermaid.source).toContain('request#32;body');expect(mermaid.source).not.toContain('from#32;request#32;body');expect(mermaid.elementMap).toContainEqual({logicalId:'out',sourcePath:'/extensions/umf.visual/nodes/0/ports/0',nativeId:'n1',kind:'port'});expect(mermaid.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/nodes/0/ports/0'&&item.representation.includes('including for ports without linked edges'))).toBe(true);expect(mermaid.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/edges/0/fromPort'&&item.representation.includes('no distinct named port carrier'))).toBe(true);expect(mermaid.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/groups/0/layout'&&item.representation.includes('fixed grid column'))).toBe(true);
   const lini=compilePresentation(source,{backend:'lini'});expect(lini.ok).toBe(true);if(!lini.ok)return;
-  expect(lini.source).toContain('layout: flow; direction: column;');expect(lini.source).toContain('columns: repeat(2);');expect(lini.source).toContain('|hex#n2| "Compiler"');expect(lini.source).toContain('|cell#p1| "request body · out" { pin: bottom; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }');expect(lini.source).toContain('n1.p1:bottom -> g1.n2.p1:left "compile" .e1 { along: 0.35; }');expect(lini.elementMap).toContainEqual({logicalId:'out',sourcePath:'/extensions/umf.visual/nodes/0/ports/0',nativeId:'n1.p1',kind:'port'});
+  expect(lini.source).toContain('layout: flow; direction: column;');expect(lini.source).toContain('columns: repeat(2);');expect(lini.source).toContain('|hex#n2| "Compiler"');expect(lini.source).toContain('|cell#p1| "request body · out" { pin: bottom; font-size: 11; font-weight: 400; color: --gray-deep; padding: 2; }');expect(lini.source).toContain('n1.p1:bottom -> g1.n2.p1:left .e1 { along: 0.1; } [ "compile" { translate: 30 0; } ]');expect(lini.elementMap).toContainEqual({logicalId:'out',sourcePath:'/extensions/umf.visual/nodes/0/ports/0',nativeId:'n1.p1',kind:'port'});
+ });
+
+ it('renders each native port ID once when no separate label is authored',()=>{
+  const source=createVisualDocument({id:'port-labels',kind:'flow',form:'network',question:'Which anchors are named?',nodes:[{id:'source',label:'Source',ports:[{id:'east-port',side:'east'},{id:'output',label:'Output',side:'west'}]}]},'test:port-labels','1.4.0');
+  const graphviz=compilePresentation(source,{backend:'graphviz'});expect(graphviz.ok).toBe(true);if(!graphviz.ok)return;
+  expect(graphviz.source).toContain('east-port · east');expect(graphviz.source).not.toContain('east-port · east-port');expect(graphviz.source).toContain('Output · output · west');
+  const mermaid=compilePresentation(source,{backend:'mermaid'});expect(mermaid.ok).toBe(true);if(mermaid.ok){expect(mermaid.source).toContain('Port#32;east-port#32;·#32;east');expect(mermaid.source).toContain('Port#32;Output#32;·#32;output#32;·#32;west');}
  });
 
  it('preserves stack direction and explicit root component ordering',()=>{
   const source=document({id:'stack-layout',kind:'structure',form:'stack',question:'Which layer order?',layout:{kind:'stack',direction:'LR',order:['client-b','client-a','database']},nodes:[{id:'client-a',label:'Client A',layer:'interface'},{id:'database',label:'Database',layer:'storage'},{id:'client-b',label:'Client B',layer:'interface'}],structure:{layers:[{id:'interface',label:'Interface'},{id:'storage',label:'Storage'}]}});
   const result=compilePresentation(source,{backend:'lini'});expect(result.ok).toBe(true);if(!result.ok)return;
   expect(result.source).toContain('layout: flow; direction: row;');
+  expect(result.source).toContain('|group#l1| "Interface" { layout: grid; columns: repeat(1); gap: 24;');
   expect(result.source.indexOf('|box#n3|')).toBeLessThan(result.source.indexOf('|box#n1|'));
   expect(result.source.indexOf('|group#l1|')).toBeLessThan(result.source.indexOf('|group#l2|'));
   expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/layout/order'&&item.representation.includes('requested declaration order'))).toBe(true);
@@ -145,8 +357,31 @@ describe('Lini presentation compiler',()=>{
   const lini=compilePresentation(source,{backend:'lini'});expect(lini.ok).toBe(true);if(!lini.ok)return;expect(lini.source).toContain('n1.p1:right ++-o< n2.p1:left');expect(lini.source).toContain('Identifying owns');expect(lini.source).toContain('Non-identifying belongs to');expect(lini.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/references/0/identification'&&item.representation.includes('no intrinsic'))).toBe(true);
  });
 
- it('refuses Mermaid ER when identification semantics are still undeclared',()=>{
+ it('applies mixed routing intent per backend scope and leaves authored port sides untouched',()=>{
+  const edges=[{id:'curved',from:'a',to:'b',routing:{kind:'curved' as const}},{id:'straight',from:'a',to:'c',routing:{kind:'straight' as const}}];
+  for(const routeEdges of [edges,[...edges].reverse()]){
+   const source=createVisualDocument({id:'mixed-route-scope',kind:'flow',form:'network',question:'Which routes are declared?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'},{id:'c',label:'C'}],edges:routeEdges},'test:mixed-route-scope','1.4.0');
+   const lini=compilePresentation(source,{backend:'lini'});expect(lini.ok).toBe(true);if(!lini.ok)continue;
+   expect(lini.source.match(/routing:\s*(?:natural|straight);/g)).toBeNull();
+   expect(lini.approximations.filter(item=>item.sourcePath.endsWith('/routing')).map(item=>item.code)).toEqual(routeEdges.map(()=> 'ROUTING_SCOPE_CONFLICT'));
+   const graphviz=compilePresentation(source,{backend:'graphviz'});expect(graphviz.ok).toBe(true);if(graphviz.ok){expect(graphviz.source).toContain('splines=true');expect(graphviz.approximations.filter(item=>item.sourcePath.endsWith('/routing')).map(item=>item.code)).toEqual(routeEdges.map(()=> 'ROUTING_SCOPE_CONFLICT'));}
+   const mermaid=compilePresentation(source,{backend:'mermaid'});expect(mermaid.ok).toBe(true);if(mermaid.ok){for(const[index,edge]of routeEdges.entries())expect(mermaid.source).toContain(`e${index+1}@{ curve: ${edge.routing.kind==='curved'?'natural':'linear'} }`);expect(mermaid.approximations.some(item=>item.code==='ROUTING_SCOPE_CONFLICT')).toBe(false);}
+  }
+  const namedPorts=createVisualDocument({id:'route-named-port',kind:'flow',form:'network',question:'Which authored sides are retained?',nodes:[{id:'a',label:'A',ports:[{id:'out',side:'east'}]},{id:'b',label:'B',ports:[{id:'in',side:'west'}]}],edges:[{id:'routed',from:'a',to:'b',fromPort:'out',toPort:'in',routing:{kind:'curved'}}]},'test:route-named-port','1.4.0');
+  for(const backend of ['graphviz','lini'] as const){const plan=compilePresentation(namedPorts,{backend});expect(plan.ok).toBe(true);if(!plan.ok)continue;if(backend==='graphviz'){expect(plan.source).toContain('n1:p1:e -> n2:p1:w');expect(plan.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/edges/0/routing')?.code).toBeUndefined();}else{expect(plan.source).toContain('n1.p1:right -> n2.p1:left');expect(plan.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/edges/0/routing')?.code).toBe('ROUTING_NATIVE_INTERPOLATION');}}
+ });
+
+ it('assigns route-aware order only when no order is authored and preserves an authored order',()=>{
+  const network={id:'route-order',kind:'flow' as const,form:'network' as const,question:'Which node comes first?',nodes:[{id:'sink',label:'Sink'},{id:'source',label:'Source'}],edges:[{id:'flow',from:'source',to:'sink',routing:{kind:'curved' as const}}]};
+  const inferred=compilePresentation(createVisualDocument(network,'test:route-order','1.4.0'),{backend:'lini'});expect(inferred.ok).toBe(true);if(inferred.ok)expect(inferred.source.indexOf('|box#n2|')).toBeLessThan(inferred.source.indexOf('|box#n1|'));
+  const authored=compilePresentation(createVisualDocument({...network,layout:{kind:'flow',direction:'LR',order:['sink','source']}},'test:route-order-authored','1.4.0'),{backend:'lini'});expect(authored.ok).toBe(true);if(authored.ok){expect(authored.source.indexOf('|box#n1|')).toBeLessThan(authored.source.indexOf('|box#n2|'));expect(authored.source).toContain('n2:bottom -> n1:right');expect(authored.approximations.find(item=>item.sourcePath==='/extensions/umf.visual/edges/0/routing')?.code).toBeUndefined();}
+ });
+
+ it('uses neutral Mermaid entity cards when identification semantics are undeclared',()=>{
   const source=document({id:'ambiguous-identification',kind:'structure',form:'entities',question:'How are entities related?',nodes:[{id:'a',label:'A'},{id:'b',label:'B'}],structure:{entities:[{node:'a',fields:[{name:'id',type:'uuid'}]},{node:'b',fields:[{name:'a_id',type:'uuid'}]}],references:[{id:'r',from:{node:'a'},to:{node:'b'},fromCardinality:'exactly-one',toCardinality:'zero-or-many'}]}});
-  expect(compilePresentation(source,{backend:'mermaid'})).toMatchObject({ok:false,diagnostics:[{code:'PRESENTATION_MERMAID_RELATIONSHIP'}]});
+  const result=compilePresentation(source,{backend:'mermaid'});expect(result.ok).toBe(true);if(!result.ok)return;
+  expect(result.source).toContain('flowchart LR');expect(result.source).toContain('n1 r1@---|1#32;→#32;0..*| n2');expect(result.source).not.toContain('erDiagram');expect(result.source).not.toContain('Identifying');expect(result.source).not.toContain('Non-identifying');expect(result.source).not.toContain('||--o{');
+  expect(result.elementMap).toContainEqual({logicalId:'r',sourcePath:'/extensions/umf.visual/structure/references/0',nativeId:'r1',kind:'reference'});
+  expect(result.approximations.some(item=>item.sourcePath==='/extensions/umf.visual/structure/references'&&item.representation.includes('unarrowed flowchart associations'))).toBe(true);
  });
 });

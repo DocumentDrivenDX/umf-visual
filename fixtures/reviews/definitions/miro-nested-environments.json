@@ -1,0 +1,72 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:miro-nested-environments",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.4.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "miro-nested-environments",
+      "kind": "flow",
+      "form": "network",
+      "title": "Nested environments",
+      "question": "Which process connects to the data store?",
+      "nodes": [
+        {
+          "id": "process-outside",
+          "label": "Process outside A",
+          "role": "process",
+          "detail": "Process",
+          "shape": "rectangle"
+        },
+        {
+          "id": "store-in-b",
+          "label": "Data store",
+          "role": "store",
+          "shape": "cylinder",
+          "group": "env-b"
+        }
+      ],
+      "edges": [
+        {
+          "id": "connects-to-store",
+          "from": "process-outside",
+          "to": "store-in-b",
+          "kind": "data",
+          "label": "connects to",
+          "routing": {
+            "kind": "curved"
+          }
+        }
+      ],
+      "groups": [
+        {
+          "id": "env-a",
+          "label": "Environment A",
+          "role": "boundary"
+        },
+        {
+          "id": "env-b",
+          "label": "Environment B",
+          "role": "boundary",
+          "parent": "env-a"
+        }
+      ],
+      "takeaway": "The authored topology places a data store inside nested environment boundaries and connects an outside process to it.",
+      "audience": "developer",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/nested-environments.json",
+        "view": "Source-derived review of the synthetic nested-environments witness; native evidence and rendered output are listed in omissions.",
+        "digest": "sha256:bb6d48b9bcbc7012c8bcda30d0508815c37760648e52ba879436625b6c364e34"
+      },
+      "omissions": [
+        "Synthetic corpus only: the source is not a private original Miro capture, serialized board, or evidence of deployed environment semantics.",
+        "The native containment notes leave semantic grouping, deployment placement, and presentation unresolved; the shared parent relation preserves nesting without choosing among them.",
+        "Native coordinates and dimensions, shape-boundary endpoint attachments, and exact control points remain native-only evidence. The captured JPEG is output from the qualified synthetic document, not a semantic source."
+      ]
+    }
+  },
+  "modules": []
+}

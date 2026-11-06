@@ -32,12 +32,19 @@ describe('visual interchange catalogue data', () => {
     });
     const schemaDefinition = JSON.parse(await readFile('spec/extensions/visual/schema.json', 'utf8')) as any;
     expect(catalog.language.schema.schema).toEqual(schemaDefinition);
-    expect(Object.keys(schemaDefinition.$defs)).toHaveLength(22);
-    expect(schemaDefinition.$id).toBe('urn:umf:visual:1.3.0');
+    expect(Object.keys(schemaDefinition.$defs)).toHaveLength(23);
+    expect(schemaDefinition.$id).toBe('urn:umf:visual:1.4.0');
     expect(schemaDefinition.$defs.multiplicity).toBeDefined();
     expect(schemaDefinition.$defs.layout).toBeDefined();
+    expect(schemaDefinition.$defs.annotation).toBeDefined();
+    expect(schemaDefinition.properties.annotations).toMatchObject({type:'array',minItems:1});
+    expect(schemaDefinition.$defs.layout.oneOf.some((layout: any) => layout.properties?.kind?.const === 'circular')).toBe(true);
     expect(schemaDefinition.$defs.port).toBeDefined();
     expect(schemaDefinition.$defs.node.properties.shape).toBeDefined();
+    expect(schemaDefinition.$defs.node.properties.shape.enum).toContain('document');
+    expect(schemaDefinition.$defs.node.properties.shape.enum).toContain('multiple-documents');
+    expect(schemaDefinition.$defs.participant.properties.shape.enum).toContain('document');
+    expect(schemaDefinition.$defs.participant.properties.shape.enum).toContain('multiple-documents');
     for (const source of [catalog.language.schema, catalog.language.forms]) {
       const bytes = await readFile(source.sourcePath);
       expect(source.sourceSha256).toBe(createHash('sha256').update(bytes).digest('hex'));

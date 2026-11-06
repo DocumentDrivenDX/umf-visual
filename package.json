@@ -1,6 +1,6 @@
 {
   "name": "@documentdrivendx/umf-visual",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "UMF visual vocabulary and format interchange library",
   "license": "MIT OR Apache-2.0",
@@ -50,8 +50,10 @@
       "types": "./dist/adapters/reconciliation/index.d.ts",
       "import": "./dist/reconciliation.js"
     },
-    "./schema/1.3.0": "./spec/extensions/visual/schema.json",
-    "./manifest/1.3.0": "./spec/extensions/visual/package.json"
+    "./schema/1.3.0": "./spec/extensions/visual/1.3.0/schema.json",
+    "./manifest/1.3.0": "./spec/extensions/visual/1.3.0/package.json",
+    "./schema/1.4.0": "./spec/extensions/visual/schema.json",
+    "./manifest/1.4.0": "./spec/extensions/visual/package.json"
   },
   "files": [
     "dist",
@@ -87,7 +89,10 @@
     "report:loss:ledger": "bun scripts/catalog/loss-ledger-report.ts",
     "test:release:catalog": "bun scripts/catalog/verify.ts --release",
     "test:site:profiles": "bun scripts/catalog-profile-ui-browser.ts",
-    "test:native:layout": "bun scripts/native-lini-visual-layout.ts"
+    "test:native:layout": "bun scripts/native-lini-visual-layout.ts",
+    "build:reviews": "bun scripts/reviews/build.ts",
+    "test:reviews": "bun scripts/reviews/verify.ts",
+    "test:site:reviews": "bun scripts/reviews/ui-browser.ts"
   },
   "dependencies": {
     "@umf/core": "https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz",

@@ -156,3 +156,13 @@ visual meaning. Native engine receipts establish observed render acceptance.
 Vocabulary/model generation, production telemetry, user-content execution and
 support claims beyond observed subsets. New qualified forms are governed by
 FEAT-035 and CONTRACT-087; the catalog consumes their actual results and evidence.
+
+
+## Sequential example review views
+
+A secondary generic review view compares original evidence with source-derived
+portable presentations, exact YAML and downloads. Each review binds every source
+hash and preserves historical target qualifications. Unchanged host captures and
+new model presentations remain distinct; explicit unresolved losses remain
+visible. Use shared renderers and one reusable viewer rather than case-specific
+renderers or expanding the curated homepage with every reviewed example.

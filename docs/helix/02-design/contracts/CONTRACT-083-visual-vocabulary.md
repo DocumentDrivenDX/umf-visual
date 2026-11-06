@@ -17,7 +17,7 @@ ddx:
 
 # CONTRACT-083: Visual vocabulary
 
-**Profiles:** frozen `umf.visual` 1.0.0/1.1.0/1.2.0, plus additive 1.3.0 below. **Native representation:** UMF
+**Profiles:** frozen `umf.visual` 1.0.0/1.1.0/1.2.0/1.3.0, plus additive 1.4.0 below. **Native representation:** UMF
 JSON/YAML with the visual package registered. No renderer, layout or Mermaid output is claimed.
 
 ## Purpose
@@ -253,9 +253,9 @@ Native adapter subset limits and loss policies are independent of vocabulary siz
 |---|---|
 | `visualRegistry()` | Registry with structural and semantic validation |
 | `inspectVisual(document)` | `{valid, complete, diagnostics, advice}` |
-| `readVisualDocument(text, format)` | Requires declared vocabulary 1.0.0, 1.1.0, 1.2.0 or 1.3.0 and a payload (`VISUAL_PROFILE`); rejects invalid visuals (`VISUAL_DOCUMENT`) |
+| `readVisualDocument(text, format)` | Requires declared vocabulary 1.0.0, 1.1.0, 1.2.0, 1.3.0 or 1.4.0 and a payload (`VISUAL_PROFILE`); rejects invalid visuals (`VISUAL_DOCUMENT`) |
 | `writeVisualDocument(document, format)` | Same checks, then serializes |
-| `createVisualDocument(visual, id?, version?)` | Wraps a payload in a document (`id` defaults to `visual:<visual id>`); version defaults to frozen 1.0.0, with explicit 1.1.0/1.2.0/1.3.0 opt-in; rejects an invalid result |
+| `createVisualDocument(visual, id?, version?)` | Wraps a payload in a document (`id` defaults to `visual:<visual id>`); version defaults to frozen 1.0.0, with explicit 1.1.0/1.2.0/1.3.0/1.4.0 opt-in; rejects an invalid result |
 | `getVisual(document)` | A copy of the payload |
 | `editVisual(document, update)` | Requires complete interpretation before and after (`UNSAFE_EDIT`, `INVALID_EDIT`); input unchanged |
 | `visualForms` | The kind-to-forms table |
@@ -300,9 +300,9 @@ approximation, or refuse the affected mapping. A metadata appendix or retained
 source alone MUST NOT qualify it as interpreted. Released interchange profiles
 retain their declared model-version scope until their mappings are qualified.
 
-The authored latest schema and generated shapes describe 1.3.0. Explicit
-1.0.0, 1.1.0 and 1.2.0 schema/manifest exports point to frozen snapshots;
-1.3.0 has its own exports. Default authoring and unversioned schema/manifest
+The authored latest schema and generated shapes describe 1.4.0. Explicit
+1.0.0, 1.1.0, 1.2.0 and 1.3.0 schema/manifest exports point to frozen snapshots;
+1.4.0 has its own exports. Default authoring and unversioned schema/manifest
 exports remain 1.0.0. `upgradeVisualDocument(document)` still selects 1.1.0;
 `upgradeVisualDocument(document, '1.2.0')` explicitly selects the new model.
 Downgrading through that operation MUST refuse.
@@ -332,6 +332,92 @@ Version 1.2.0 keeps its exact unknown-content behavior for these new fields.
 An undirected edge retains its endpoint identifiers for stable authoring, but
 MUST NOT acquire a causal direction or native arrowhead from their `from`/`to`
 field names. Parallel edges and self-edges retain separate identities.
+
+### Additive visual 1.4.0 process role and routing intent
+
+Explicit 1.4.0, released in v0.6.0, adds `process` to the shared `node.role` and
+sequence `participant.role` enum: an authored diagram process or
+activity, independent of geometric shape. It MUST NOT imply an operating-system
+process, executable behavior, deployment placement or ownership. A rectangle or
+label alone MUST NOT cause inference of this role. Source adapters may map an
+explicit process stencil identity with a source-bound qualification.
+
+The inspected 1.3.0 node-role enum lacks process identity; reuse the existing
+role property with this bounded addition instead of encoding typed meaning only
+in `detail`. Earlier profiles retain their prior known/unknown-field behavior.
+Default authoring and no-argument upgrading remain unchanged; selecting 1.4.0 is
+explicit. Interpreters MUST render a declared process convention, report a located
+approximation, or refuse. Metadata retention alone is not interpretation.
+
+Optional `edge.routing` is `{kind: 'curved' | 'straight'}`. It expresses authored
+visual route intent for that edge, independently of relation kind, direction,
+endpoint identity and attachment. Absence leaves routing unspecified; it MUST NOT
+mean straight. Curved requests visibly curved, non-collinear geometry; straight requests
+a direct line between endpoint attachments. Neither requests exact native control
+points, source coordinates, bend count or original placement. This bounded enum
+is grounded in the synthetic curved cross-boundary and straight network witnesses;
+no orthogonal mode is asserted. Existing 1.3.0 handling remains frozen.
+
+An interpreter MUST realize each declared route, report a located approximation,
+or refuse. A backend-wide switch MUST NOT silently override another edge's
+contradictory intent. Native path evidence MUST distinguish an actual curve from
+a nominal curve command whose points are collinear. Exact native geometry remains
+preserved separately; shared intent does not qualify pixel-identical reproduction.
+
+### Visual 1.4.0 document stencil shapes
+
+The shared `node.shape` and sequence `participant.shape` enums add `document` and
+`multiple-documents`. These identify a single-document notation and a visible
+stack-of-document-sheets notation respectively. They express authored visual
+stencil intent, independently of `role`, business type, ownership and geometric
+coordinates. `multiple-documents` MUST NOT imply an exact document count,
+business cardinality or numeric minimum; decorative sheet count is an interpreter
+choice, not source data. Neither shape causes inference of a document role.
+
+The existing `folded-corner` remains its distinct geometric shape; interpreters
+MUST NOT silently redefine it as either new notation. Map explicit native stencil
+identity only with source-bound evidence. Unknown extensions and exact native
+geometry remain preserved under the existing rules. Released 1.4.0 is frozen;
+this addition does not mutate frozen 1.3.0 or older interpretation/defaults.
+
+### Visual 1.4.0 circular composition
+
+`layout` and `group.layout` MAY declare `{kind: 'circular', order?: Id[]}` wherever
+the existing flow/grid composition scopes are admitted: root node-based flow,
+structure and state views, and groups in flow/structure views. It requests direct
+children arranged around one circular perimeter. A supplied order MUST be an
+exact permutation of that container's direct nodes and subgroups, traversed
+clockwise. Absence leaves angular order unspecified. Starting angle, rotation,
+radius, spacing and exact coordinates remain interpreter choices. Decorative
+placement MUST NOT create edges, hierarchy, execution order or temporal meaning.
+Existing state top-level membership and stack layer-order consistency rules
+remain in force; this addition does not widen sequence or quantitative layout.
+
+Native support scope belongs to each interpreter. An admitted circular scope
+MUST be realized, explicitly approximated at its source layout path, or refused;
+a backend's initial root-network subset MUST NOT narrow this shared definition.
+Earlier model versions retain their exact interpretation and unknown-content
+behavior. Released 1.4.0 is frozen with these additions.
+
+### Visual 1.4.0 plain-text annotations
+
+Optional root `annotations` is a nonempty array of `{id: Id, text: string}` with
+nonempty plain text. It is admitted across all seven diagram kinds. Annotation
+IDs share the existing declaration namespace (`VISUAL_ID` on collision) and may
+be referenced by walkthrough focus wherever walkthroughs are already admitted.
+They MUST NOT become node/group identities, graph edge endpoints or container
+layout/order members; incompatible references remain `VISUAL_REFERENCE` or
+`VISUAL_LAYOUT`. Existing sequence notes retain their participant/message
+anchoring semantics and are not migrated or aliased to these annotations.
+
+Each record supplies independent text, including authored line breaks, without
+heading level, business role, node/frame ownership or spatial anchor. Neither
+content, identifier spelling nor nearby coordinates may infer those meanings.
+Array order is retained as authored data and does not imply execution or temporal
+order. Native source coordinates and item-kind semantics remain separate from
+this unanchored shared text concept. Unknown annotation content follows the
+existing retain/report-incomplete/edit-refusal rules; frozen earlier versions
+retain their own interpretation.
 
 ## Non-Normative Notes
 

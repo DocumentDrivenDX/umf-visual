@@ -1,0 +1,133 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:miro-frames-headings-annotations",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.4.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "miro-frames-headings-annotations",
+      "kind": "flow",
+      "form": "network",
+      "title": "Two system regions",
+      "question": "How do the components connect?",
+      "nodes": [
+        {
+          "id": "api",
+          "label": "API",
+          "shape": "rectangle",
+          "group": "syn-frame-a"
+        },
+        {
+          "id": "worker",
+          "label": "Worker",
+          "shape": "rectangle",
+          "group": "syn-frame-a"
+        },
+        {
+          "id": "queue",
+          "label": "Queue",
+          "shape": "cylinder",
+          "group": "syn-frame-b"
+        },
+        {
+          "id": "database",
+          "label": "Database",
+          "shape": "cylinder",
+          "group": "syn-frame-b"
+        }
+      ],
+      "edges": [
+        {
+          "id": "api-worker",
+          "from": "api",
+          "to": "worker",
+          "kind": "data",
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "worker-queue",
+          "from": "worker",
+          "to": "queue",
+          "kind": "data",
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "queue-database",
+          "from": "queue",
+          "to": "database",
+          "kind": "data",
+          "routing": {
+            "kind": "straight"
+          }
+        }
+      ],
+      "groups": [
+        {
+          "id": "syn-frame-a",
+          "label": "Request handling",
+          "role": "region",
+          "layout": {
+            "kind": "flow",
+            "direction": "LR",
+            "order": [
+              "api",
+              "worker"
+            ]
+          }
+        },
+        {
+          "id": "syn-frame-b",
+          "label": "Persistence",
+          "role": "region",
+          "layout": {
+            "kind": "flow",
+            "direction": "LR",
+            "order": [
+              "queue",
+              "database"
+            ]
+          }
+        }
+      ],
+      "annotations": [
+        {
+          "id": "syn-heading-a",
+          "text": "Inbound path"
+        },
+        {
+          "id": "syn-note",
+          "text": "Retry behavior is outside this sketch."
+        }
+      ],
+      "layout": {
+        "kind": "flow",
+        "direction": "LR",
+        "order": [
+          "syn-frame-a",
+          "syn-frame-b"
+        ]
+      },
+      "takeaway": "The review preserves the source topology, makes the witnessed frame membership explicit, and retains both free-text items without assigning heading or anchoring semantics.",
+      "audience": "developer",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/frames-headings-annotations.json",
+        "view": "Common topology and copy are source-derived. Node shapes, frame titles and memberships, free-text content, straight routes, and relative left-to-right arrangement follow the synthetic native witness; those presentation choices are distinct from the historical host previews.",
+        "digest": "sha256:55b08c69a87621081ae7bacfaac63c0dc0e9883d7a97ae280667cbdbda4ba1aa"
+      },
+      "omissions": [
+        "The common and native inputs are synthetic witnesses; they do not establish deployed system semantics or represent a private original Miro board.",
+        "Native frame membership is explicit; this review interprets it as region-group membership. Native frame item kind/identity semantics and exact bounds remain in the companion witness; shared region groups do not assert frame/group equivalence. The reviewed left-to-right layout is placement intent, not coordinate reproduction.",
+        "Both witnessed free-text items are represented as plain annotations. The syn-heading-a identifier does not assert a heading level, and no association between either annotation and a frame or node is asserted.",
+        "The historical Miro, Google Slides, and PowerPoint/LibreOffice outputs are Visual 1.0 previews of the common topology. They do not show the synthetic witness frame titles or free-text items and do not qualify these Visual 1.4 additions."
+      ]
+    }
+  },
+  "modules": []
+}

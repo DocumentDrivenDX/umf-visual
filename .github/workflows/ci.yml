@@ -19,11 +19,13 @@ jobs:
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run check:source
       - run: bun run typecheck
-      - run: sudo apt-get update && sudo apt-get install -y graphviz
+      - run: sudo apt-get update && sudo apt-get install -y graphviz libgvplugin-neato-layout8 && neato -V
       - run: bun run fetch:lini
       - run: bunx playwright install --with-deps chromium
       - run: bun run build:showcase
       - run: bun run test:showcase
+      - run: bun run build:reviews
+      - run: bun run test:reviews
       - run: bun test
       - run: bun run build
       - run: bun run test:package
@@ -58,6 +60,7 @@ jobs:
       - run: bun run build:site
       - run: bun run test:site
       - run: bun run test:site:showcase
+      - run: bun run test:site:reviews
       - run: bun run test:site:profiles
       - uses: actions/upload-artifact@v4
         if: ${{ always() && !cancelled() }}
@@ -91,6 +94,10 @@ jobs:
             .cache/presentation/**
             .cache/showcase-ui*.json
             .cache/showcase-*.png
+            dist-site/reviews.json
+            dist-site/reviews/**
+            .cache/reviews-ui*.json
+            .cache/reviews-ui*.png
             dist-site/showcase.json
             dist-site/showcase/**
             fixtures/renderers/powerpoint/preview-receipt.json

@@ -51,6 +51,8 @@ test('the public Lini renderer uses pinned browser assets, preserves rich cases,
      mappedEdges:render.elementMap.filter((item:any)=>item.kind==='edge').map((item:any)=>({logicalId:item.logicalId,nativeId:item.nativeId,sourcePath:item.sourcePath})),
      participantCount:render.elementMap.filter((item:any)=>item.kind==='participant').length,
      messageCount:render.elementMap.filter((item:any)=>item.kind==='message').length,
+     sequenceMessages:render.elementMap.filter((item:any)=>item.kind==='message').map((item:any)=>({logicalId:item.logicalId,nativeId:item.nativeId,sourcePath:item.sourcePath})),
+     sequenceCaptions:render.elementMap.filter((item:any)=>item.kind==='message-caption').map((item:any)=>({logicalId:item.logicalId,nativeId:item.nativeId,sourcePath:item.sourcePath})),
      omissions:render.omissions,
     }:render),
      custom:value.custom.ok?{ok:true,nativeVersion:value.custom.nativeVersion}:value.custom,
@@ -62,7 +64,23 @@ test('the public Lini renderer uses pinned browser assets, preserves rich cases,
   for(const render of result.renders){expect(render.ok).toBe(true);expect(render.nativeVersion).toBe('1.1.0');expect(render.nativeFormat).toBe('lini');}
   expect(result.renders[0]).toMatchObject({entityCount:100,fieldCount:100,referenceCount:99});
   expect(result.renders[1]).toMatchObject({participantCount:2,messageCount:3});
-  expect(result.renders[1].source).toContain('p2 -> p2');
+  expect(result.renders[1].sequenceMessages).toEqual([
+   {logicalId:'self-work',nativeId:'message1',sourcePath:'/extensions/umf.visual/sequence/messages/0/id'},
+   {logicalId:'parallel-a',nativeId:'message2',sourcePath:'/extensions/umf.visual/sequence/messages/1/id'},
+   {logicalId:'parallel-b',nativeId:'message3',sourcePath:'/extensions/umf.visual/sequence/messages/2/id'},
+  ]);
+  expect(result.renders[1].sequenceCaptions).toEqual([
+   {logicalId:'self-work',nativeId:'message-caption1',sourcePath:'/extensions/umf.visual/sequence/messages/0/label'},
+   {logicalId:'parallel-a',nativeId:'message-caption2',sourcePath:'/extensions/umf.visual/sequence/messages/1/label'},
+   {logicalId:'parallel-b',nativeId:'message-caption3',sourcePath:'/extensions/umf.visual/sequence/messages/2/label'},
+  ]);
+  const sequenceSource=result.renders[1].source as string;
+  expect(sequenceSource).toContain('|line#message1| "" { pin: none; translate: 110 ');
+  expect(sequenceSource).toContain('points: 0 0, -80 0, -80 36, 0 36; marker-end: arrow;');
+  for(const id of ['message2','message3']){
+   const nativeLine=sequenceSource.split('\n').find((line:string)=>line.includes(`|line#${id}|`))??'';
+   expect(nativeLine).toContain('marker-end: arrow;');expect(nativeLine).toContain('16.923076923076923 -3');expect(nativeLine).toContain('220 0;');
+  }
   expect(result.renders[1].source).toContain('parallel A');expect(result.renders[1].source).toContain('parallel B');
   expect(result.renders[2]).toMatchObject({entityCount:2,referenceCount:1});
   const nativeStructure=await page.evaluate(({records,flow})=>{

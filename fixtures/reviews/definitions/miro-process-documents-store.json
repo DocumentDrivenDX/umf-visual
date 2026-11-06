@@ -1,0 +1,94 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:miro-process-documents-store",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.4.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "miro-process-documents-store",
+      "kind": "flow",
+      "form": "network",
+      "title": "Document flow",
+      "question": "How does the process connect the document symbols to storage?",
+      "nodes": [
+        {
+          "id": "process",
+          "label": "Process",
+          "role": "process",
+          "shape": "rectangle"
+        },
+        {
+          "id": "document-one",
+          "label": "Document",
+          "role": "document",
+          "shape": "document"
+        },
+        {
+          "id": "documents-many",
+          "label": "Multiple documents",
+          "shape": "multiple-documents"
+        },
+        {
+          "id": "store",
+          "label": "Data store",
+          "role": "store",
+          "shape": "cylinder"
+        }
+      ],
+      "edges": [
+        {
+          "id": "process-document",
+          "from": "process",
+          "to": "document-one",
+          "kind": "data",
+          "label": "produces",
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "document-multiple",
+          "from": "document-one",
+          "to": "documents-many",
+          "kind": "data",
+          "label": "expands to",
+          "routing": {
+            "kind": "straight"
+          }
+        },
+        {
+          "id": "multiple-store",
+          "from": "documents-many",
+          "to": "store",
+          "kind": "data",
+          "label": "writes to",
+          "routing": {
+            "kind": "straight"
+          }
+        }
+      ],
+      "layout": {
+        "kind": "flow",
+        "direction": "LR",
+        "order": ["process", "document-one", "documents-many", "store"]
+      },
+      "takeaway": "The diagram links a process to document notation and a data store.",
+      "audience": "developer",
+      "source": {
+        "path": "fixtures/integrations/complex-miro/common/process-documents-store.json",
+        "view": "Source-derived review of a synthetic process and document-stencil witness; native witness and host outputs are listed in omissions.",
+        "digest": "sha256:5912a60b5beafbf10bd1b3f243ac7658022b7cac7ef93afa961312e4d1ef6520"
+      },
+      "omissions": [
+        "The common and native sources are synthetic witnesses, not a private original Miro board or evidence of deployed process, storage, or document semantics.",
+        "The native multiple-documents stencil identity is preserved as a shape; it does not establish quantity, cardinality, or a minimum count.",
+        "The left-to-right flow layout preserves the native reading arrangement; it does not add business ordering or causal meaning.",
+        "Native coordinates, connector attachments and exact control points remain native-only facts. The captured host output is evidence of its qualified synthetic document, not a semantic source."
+      ]
+    }
+  },
+  "modules": []
+}

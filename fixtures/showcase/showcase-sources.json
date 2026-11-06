@@ -4,11 +4,11 @@
     {
       "id": "umf-engine-target-architecture",
       "title": "UMF access across engine boundaries",
-      "description": "The documented UMF access design connects clients to Truss protected paths and Ashlar resolver-pinned reads. This is an ownership view, not a deployment or uniform capability claim.",
+      "description": "The source-derived UMF access design connects clients to Truss protected paths and Ashlar resolver-pinned reads. The reviewed view preserves the explicit ownership and capability limits; it is not a deployment or uniform capability claim.",
       "kind": "flow",
       "form": "network",
-      "definitionPath": "fixtures/showcase/definitions/umf-engine-target-architecture.json",
-      "definitionSha256": "6d36dad240aa9b88904ba05a74de02adc5ec78b7f8fd427ea63423debe30247f",
+      "definitionPath": "fixtures/showcase/definitions/umf-engine-target-architecture-reviewed.json",
+      "definitionSha256": "136e8d390f019d42c11c611c945ef05a228be4e1ef9d9c1d2e294b7ab919ff37",
       "sources": [
         {
           "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
@@ -16,57 +16,129 @@
           "originRepository": "DocumentDrivenDX/umf",
           "originPath": "docs/helix/02-design/solution-designs/SD-031-engine-target-adapters.md",
           "originSha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
-          "pointer": "Domain Model; Solution Approaches; Scope",
-          "description": "Exact source snapshot of the documented engine-adapter design; the five connections match its domain model."
+          "pointer": "Scope; Solution Approaches; Domain Model",
+          "description": "Exact pinned source snapshot. The selected scope, protected-path approach, resolver-pinned Ashlar reads and Ashlar write-capability limitation support the added context."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-engine-target-architecture.json",
+          "sha256": "6d36dad240aa9b88904ba05a74de02adc5ec78b7f8fd427ea63423debe30247f",
+          "originPath": "fixtures/showcase/definitions/umf-engine-target-architecture.json",
+          "originSha256": "6d36dad240aa9b88904ba05a74de02adc5ec78b7f8fd427ea63423debe30247f",
+          "pointer": "Original Visual 1.1.0 definition",
+          "description": "The prior curated definition is preserved byte-for-byte as the baseline for the separate reviewed definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
+          "sha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
+          "outputPath": "showcase/umf-engine-target-architecture/engine-target-adapters.md",
+          "mediaType": "text/markdown",
+          "description": "Exact pinned source Markdown bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-engine-target-architecture.json",
+          "sha256": "6d36dad240aa9b88904ba05a74de02adc5ec78b7f8fd427ea63423debe30247f",
+          "outputPath": "showcase/umf-engine-target-architecture/original-visual-1.1.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.1.0 curated definition bytes, preserved separately from the reviewed definition."
         }
       ]
     },
     {
       "id": "umf-native-interchange-architecture",
       "title": "From native sources to native targets",
-      "description": "The documented UMF container diagram: native input, importer, shared model, explicit projection, exporter and fidelity evidence.",
+      "description": "The documented native interchange architecture with its selected Level 2 responsibilities and boundaries. The reviewed view preserves the container flows, source direction, and separation between evidence generation and support declarations.",
       "kind": "flow",
       "form": "network",
-      "definitionPath": "fixtures/showcase/definitions/umf-native-interchange-architecture.json",
-      "definitionSha256": "bdab026d978f400b0bbebbf3debed991ff2e710a7eed6b559387c4eeeb5992b0",
+      "definitionPath": "fixtures/showcase/definitions/umf-native-interchange-architecture-reviewed.json",
+      "definitionSha256": "aa23c8a37e19e44a458eb4b49fc872979a642a8ba856c70b06591f82883303fb",
       "sources": [
         {
           "path": "fixtures/showcase/sources/umf/architecture.md",
           "sha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
           "originPath": "docs/helix/02-design/architecture.md",
           "originSha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
-          "pointer": "Level 2: Container Diagram",
-          "description": "Exact public architecture document snapshot; the nodes and connections follow its container diagram."
+          "pointer": "Level 2: Container Diagram, introduction and unit table",
+          "description": "Exact architecture document snapshot. The selected Level 2 text gives the no-service context and the four unit technology/responsibility/boundary rows; its Mermaid diagram supplies ten nodes, ten directed links and LR flow."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-native-interchange-architecture.json",
+          "sha256": "bdab026d978f400b0bbebbf3debed991ff2e710a7eed6b559387c4eeeb5992b0",
+          "originPath": "fixtures/showcase/definitions/umf-native-interchange-architecture.json",
+          "originSha256": "bdab026d978f400b0bbebbf3debed991ff2e710a7eed6b559387c4eeeb5992b0",
+          "pointer": "Original Visual 1.0.0 definition",
+          "description": "The prior curated definition is preserved byte-for-byte as the baseline for the separate reviewed definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/umf/architecture.md",
+          "sha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
+          "outputPath": "showcase/umf-native-interchange-architecture/architecture.md",
+          "mediaType": "text/markdown",
+          "description": "Exact pinned architecture source bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-native-interchange-architecture.json",
+          "sha256": "bdab026d978f400b0bbebbf3debed991ff2e710a7eed6b559387c4eeeb5992b0",
+          "outputPath": "showcase/umf-native-interchange-architecture/original-visual-1.0.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.0.0 curated definition bytes, preserved separately from the reviewed definition."
         }
       ]
     },
     {
       "id": "umf-architecture-stack",
       "title": "Layers around the UMF model",
-      "description": "A reading-order stack of the documented authoring, adapter, library, vocabulary and native-tool components; no directed dependencies are added.",
+      "description": "A source-bound reading-order stack of architecture components. The reviewed definition preserves the five bands and adds selected library, vocabulary and adapter boundaries without asserting dependencies or execution order.",
       "kind": "structure",
       "form": "stack",
-      "definitionPath": "fixtures/showcase/definitions/umf-architecture-stack.json",
-      "definitionSha256": "c2b689e760568953d82e3fbb37b3fd8a182875a88f470bdcb788aee7893730c5",
+      "definitionPath": "fixtures/showcase/definitions/umf-architecture-stack-reviewed.json",
+      "definitionSha256": "a0444dd8adfb395732da4b0a9ce6a7612134b56a1ec08f676d7790202e730d41",
       "sources": [
         {
           "path": "fixtures/showcase/sources/umf/architecture.md",
           "sha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
           "originPath": "docs/helix/02-design/architecture.md",
           "originSha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
-          "pointer": "Level 2: Container Diagram; Level 3: Component Diagram",
-          "description": "The documented units and their named responsibilities. The vertical arrangement is authored for presentation and does not assert execution order."
+          "pointer": "Level 2: Container Diagram table; Level 3: Component Diagram, Adapter pair row",
+          "description": "Exact architecture document snapshot. Selected unit boundaries add browser-compatible library dependencies with host I/O outside, package metadata as non-authorizing data, and native-specific adapter semantics/validation."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-architecture-stack.json",
+          "sha256": "c2b689e760568953d82e3fbb37b3fd8a182875a88f470bdcb788aee7893730c5",
+          "originPath": "fixtures/showcase/definitions/umf-architecture-stack.json",
+          "originSha256": "c2b689e760568953d82e3fbb37b3fd8a182875a88f470bdcb788aee7893730c5",
+          "pointer": "Original Visual 1.0.0 definition",
+          "description": "The previous five-band reading-order definition is preserved byte-for-byte as the baseline for the reviewed definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/umf/architecture.md",
+          "sha256": "b46437fbd1cdf9657adb12f78e2b4385c90581b2bab8ef0f1445f0d1495e34db",
+          "outputPath": "showcase/umf-architecture-stack/architecture.md",
+          "mediaType": "text/markdown",
+          "description": "Exact pinned architecture source bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-architecture-stack.json",
+          "sha256": "c2b689e760568953d82e3fbb37b3fd8a182875a88f470bdcb788aee7893730c5",
+          "outputPath": "showcase/umf-architecture-stack/original-visual-1.0.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.0.0 curated definition bytes, preserved separately from the reviewed definition."
         }
       ]
     },
     {
       "id": "umf-logical-metamodel",
       "title": "The logical UMF metamodel",
-      "description": "Document, Module, Element and Relationship records with selected authored fields from the public UMF metamodel source.",
+      "description": "Selected Document, Module, Element and Relationship records with authored field shapes and logical record-target links. The view preserves source descriptions and explicitly excludes unshown members and source presence/shape constraints; it makes no SQL key or nullability claims.",
       "kind": "structure",
       "form": "entities",
-      "definitionPath": "fixtures/showcase/definitions/umf-logical-metamodel.json",
-      "definitionSha256": "7bb3b9096f1af8206e301a1880e454bc515f2ed58302567c321ef970047a2990",
+      "definitionPath": "fixtures/showcase/definitions/umf-logical-metamodel-reviewed.json",
+      "definitionSha256": "40d510bda34020bbd340a07099a09214164c37837d4762e0106b61cb38fa3c75",
       "sources": [
         {
           "path": "fixtures/showcase/sources/umf/metamodel.yaml",
@@ -74,15 +146,39 @@
           "originRepository": "DocumentDrivenDX/umf",
           "originPath": "spec/metamodel/umf.yaml",
           "originSha256": "1e406ee49b0c4c08b8eb996bb1fcb6e96fa8d6f4673f0877aa1800986b2dbbce",
-          "pointer": "modules[id=umf].elements[id in document, module, element, relationship]",
-          "description": "Exact public metamodel YAML snapshot. Only declared logical records and fields are shown; SQL key and nullability concepts are not inferred."
+          "pointer": "modules[id=umf].elements[id=document,module,element,relationship], selected fields, record-member lists and link targets",
+          "description": "Exact public metamodel YAML snapshot. Selected records and fields supply source descriptions, logical shapes and links. Link fields target record types rather than id fields; unshown members and presence/shape refinements remain inspectable in the source."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-logical-metamodel.json",
+          "sha256": "7bb3b9096f1af8206e301a1880e454bc515f2ed58302567c321ef970047a2990",
+          "originPath": "fixtures/showcase/definitions/umf-logical-metamodel.json",
+          "originSha256": "7bb3b9096f1af8206e301a1880e454bc515f2ed58302567c321ef970047a2990",
+          "pointer": "Original Visual 1.1.0 definition",
+          "description": "The original four-record selected-fields projection is preserved byte-for-byte as the baseline for the reviewed definition."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/umf/metamodel.yaml",
+          "sha256": "1e406ee49b0c4c08b8eb996bb1fcb6e96fa8d6f4673f0877aa1800986b2dbbce",
+          "outputPath": "showcase/umf-logical-metamodel/metamodel.yaml",
+          "mediaType": "application/yaml",
+          "description": "Exact pinned public metamodel YAML bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-logical-metamodel.json",
+          "sha256": "7bb3b9096f1af8206e301a1880e454bc515f2ed58302567c321ef970047a2990",
+          "outputPath": "showcase/umf-logical-metamodel/original-visual-1.1.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.1.0 curated definition bytes, preserved separately from the reviewed definition."
         }
       ]
     },
     {
       "id": "beacon-relational-core",
       "title": "Beacon's relational core",
-      "description": "Five related tables from the Beacon workspace and ticket migrations, including only SQL-declared keys, foreign keys and nullability.",
+      "description": "A selected five-table relational slice from the Beacon workspace and ticket migrations. Displayed keys, foreign keys and nullability come only from SQL declarations; other tables in those migrations are outside this view.",
       "kind": "structure",
       "form": "entities",
       "definitionPath": "fixtures/showcase/definitions/beacon-relational-core.json",
@@ -104,16 +200,39 @@
           "pointer": "CREATE TABLE customers, tickets, messages, attachments",
           "description": "Selected relational tables and foreign-key constraints, copied unchanged from the Beacon source migration."
         }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0001_workspace.sql",
+          "sha256": "a73f69ed5ae7d99fdd29d1a9bb77ec8b2c0efd10eb79f2d12450b5a3bcc10c93",
+          "outputPath": "showcase/beacon-relational-core/migrations/0001_workspace.sql",
+          "mediaType": "text/plain",
+          "description": "Exact pinned workspace migration bytes."
+        },
+        {
+          "path": "fixtures/visual/sources/beacon/migrations/0002_tickets.sql",
+          "sha256": "943490e5efff5a5747290ada99d131a0ecacf8ec25aff95023dc9b366b6ee7a7",
+          "outputPath": "showcase/beacon-relational-core/migrations/0002_tickets.sql",
+          "mediaType": "text/plain",
+          "description": "Exact pinned ticket migration bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/beacon-relational-core.json",
+          "sha256": "ec5d648e2ef6db90831fa8a41fc83f9e998017c2fd22919be52188d733b98556",
+          "outputPath": "showcase/beacon-relational-core/original-visual-1.1.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.1.0 definition bytes."
+        }
       ]
     },
     {
       "id": "umf-logical-interface-architecture",
       "title": "Named interfaces, shared composition",
-      "description": "The documented catalog-to-Ashlar path, authored with explicit shapes, container layout and named logical connection ports in umf.visual 1.2.0. Glyphs and anchors express visual intent; they do not assert extra runtime capabilities.",
+      "description": "The selected catalog-to-Ashlar path and its resolver-pinning rationale, with publication-bound continuation identity. Authored shapes, container layout and named logical connection ports remain visual intent, not deployment or network claims.",
       "kind": "flow",
       "form": "network",
-      "definitionPath": "fixtures/showcase/definitions/umf-logical-interface-architecture.json",
-      "definitionSha256": "f47d185a7e1c900cb9bea7da5f12d75489e521e737a432c6b47fc263b5d8ef00",
+      "definitionPath": "fixtures/showcase/definitions/umf-logical-interface-architecture-reviewed.json",
+      "definitionSha256": "453bfb4f1f08b8e06598082fc35db77617d74fd6cab9161fe025657fe321727d",
       "sources": [
         {
           "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
@@ -122,14 +241,30 @@
           "originPath": "docs/helix/02-design/solution-designs/SD-031-engine-target-adapters.md",
           "originSha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
           "pointer": "Domain Model; Solution Approaches; Scope",
-          "description": "The exact documented Q → AR → AP connection subset; geometric shapes, composition order and logical anchor names are additional authored visual intent."
+          "description": "Exact pinned source snapshot. The selected Domain Model flow and the rejected latest-table-read rationale plus continuation identity are preserved; diagram layout, shapes and named anchors are authored visual intent."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/umf/engine-target-adapters.md",
+          "sha256": "f6b8f1642cc3db729db1ac3364b50e7797b5ee05cf81f8225b8c05ff21c45021",
+          "outputPath": "showcase/umf-logical-interface-architecture/engine-target-adapters.md",
+          "mediaType": "text/markdown",
+          "description": "Exact pinned SD-031 source snapshot."
+        },
+        {
+          "path": "fixtures/showcase/definitions/umf-logical-interface-architecture.json",
+          "sha256": "f47d185a7e1c900cb9bea7da5f12d75489e521e737a432c6b47fc263b5d8ef00",
+          "outputPath": "showcase/umf-logical-interface-architecture/original-visual-1.2.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.2.0 definition, preserved separately from the reviewed 1.4.0 definition."
         }
       ]
     },
     {
       "id": "lini-gallery-checkout-sequence",
       "title": "A checkout, from order to tracking",
-      "description": "The pinned Lini sequence example becomes a renderer-neutral lifeline model. Its source declares four participants, eight ordered messages, a repeated stock reservation pair, one self-call, one async tracking request, and a note before checkout begins. Native colors and exact positions remain presentation choices.",
+      "description": "The pinned Lini sequence sample becomes a renderer-neutral lifeline model with four participants, eight ordered messages, a stock loop, self-call, three returns, async tracking request and note before checkout. Source call/loop annotations are diagram conventions; the sample does not author elapsed activation durations. Native colors and exact positions remain presentation choices.",
       "kind": "sequence",
       "form": "lifelines",
       "definitionPath": "fixtures/showcase/definitions/lini-gallery-checkout-sequence.json",
@@ -158,6 +293,37 @@
           "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
           "pointer": "MIT License",
           "description": "Exact upstream MIT license text accompanying the pinned Lini v1.1.0 source samples."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-checkout-sequence.json",
+          "sha256": "66896c5cf431d0f5931437e43da4eba7f161ebb853efe75fd310d137e4fbcb1f",
+          "originPath": "fixtures/showcase/definitions/lini-gallery-checkout-sequence.json",
+          "originSha256": "66896c5cf431d0f5931437e43da4eba7f161ebb853efe75fd310d137e4fbcb1f",
+          "pointer": "Original Visual 1.3.0 curated definition",
+          "description": "The exact original Visual definition is retained byte-for-byte as the baseline for its source-derived sequence view."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/lini/sequence.lini",
+          "sha256": "8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c",
+          "outputPath": "showcase/lini-gallery-checkout-sequence/sequence.lini",
+          "mediaType": "text/plain",
+          "description": "Exact pinned Lini v1.1.0 gallery sample bytes."
+        },
+        {
+          "path": "fixtures/showcase/sources/lini/LICENSE",
+          "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "outputPath": "showcase/lini-gallery-checkout-sequence/LICENSE.md",
+          "mediaType": "text/markdown",
+          "description": "Exact MIT license text accompanying the pinned Lini source sample."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-checkout-sequence.json",
+          "sha256": "66896c5cf431d0f5931437e43da4eba7f161ebb853efe75fd310d137e4fbcb1f",
+          "outputPath": "showcase/lini-gallery-checkout-sequence/original-visual-1.3.json",
+          "mediaType": "application/json",
+          "description": "Exact original Visual 1.3.0 definition bytes."
         }
       ]
     },
@@ -193,17 +359,48 @@
           "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
           "pointer": "MIT License",
           "description": "Exact upstream MIT license text accompanying the pinned Lini v1.1.0 source samples."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-product-mindmap.json",
+          "sha256": "1635b9fc5556daa96f7a70eb0aa1810d86b503da4e3e04d53a52bf8a6152c8b4",
+          "originPath": "fixtures/showcase/definitions/lini-gallery-product-mindmap.json",
+          "originSha256": "1635b9fc5556daa96f7a70eb0aa1810d86b503da4e3e04d53a52bf8a6152c8b4",
+          "pointer": "Original UMF Visual 1.3.0 definition",
+          "description": "Exact original UMF definition retained byte-for-byte as the semantic projection of the pinned Lini mindmap sample."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/lini/mindmap.lini",
+          "sha256": "fd4b2c771b78d49b65b0674bcdd335859b4ffbdd8a90a478c0c0ccdd26ce03b7",
+          "outputPath": "showcase/lini-gallery-product-mindmap/mindmap.lini",
+          "mediaType": "text/plain",
+          "description": "Exact pinned Lini v1.1.0 mindmap sample bytes."
+        },
+        {
+          "path": "fixtures/showcase/sources/lini/LICENSE",
+          "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "outputPath": "showcase/lini-gallery-product-mindmap/LICENSE.md",
+          "mediaType": "text/markdown",
+          "description": "Exact MIT license text accompanying the pinned Lini source sample."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-product-mindmap.json",
+          "sha256": "1635b9fc5556daa96f7a70eb0aa1810d86b503da4e3e04d53a52bf8a6152c8b4",
+          "outputPath": "showcase/lini-gallery-product-mindmap/original-visual-1.3.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF Visual 1.3.0 definition bytes."
         }
       ]
     },
     {
       "id": "lini-gallery-commerce-entities",
       "title": "A small commerce schema",
-      "description": "Six entities and five relationships from the pinned Lini entity sample. Field names, type labels, and declared PK/FK markers are retained. Relationship cardinality is authored only where the source places its marker: at each target end. The source's order-to-LineItem `:right` marker is a native routing hint, not an order_id field relationship; UMF records the entity-level reference and target cardinality and documents the unavailable wall-side anchor. Native positions and palette are styling; the authored UMF layout uses a three-column grid.",
+      "description": "Six entities and five relationships from the pinned Lini entity sample. Field names, type labels, literal PK/FK markers, and target-end cardinalities are retained; no nullability or parent-side cardinality is inferred. The reviewed definition represents the source's order-to-LineItem `:right` as an east-side entity port, not an order_id field relationship. The field-bound user.pk-to-order.user_fk `:left` hint remains source-only because a field endpoint cannot also declare a port. Native positions and palette are styling; the authored UMF layout uses a three-column grid.",
       "kind": "structure",
       "form": "entities",
-      "definitionPath": "fixtures/showcase/definitions/lini-gallery-commerce-entities.json",
-      "definitionSha256": "6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090",
+      "definitionPath": "fixtures/showcase/definitions/lini-gallery-commerce-entities-reviewed.json",
+      "definitionSha256": "18ed2114baec8108e6c231738fb0869630473b49d6c70d738ed281fe388f8317",
       "sources": [
         {
           "path": "fixtures/showcase/sources/lini/entity_hero.lini",
@@ -215,7 +412,7 @@
           "originTag": "v1.1.0",
           "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
           "pointer": "Complete entity sample",
-          "description": "Exact upstream sample bytes from monfa-red/lini v1.1.0 at 0502d381dbd779d72b2ac4329a19b64201422a21."
+          "description": "Exact upstream sample bytes from monfa-red/lini v1.1.0 at 0502d381dbd779d72b2ac4329a19b64201422a21; its entity rows and target-end markers ground the field, key, and cardinality facts."
         },
         {
           "path": "fixtures/showcase/sources/lini/LICENSE",
@@ -228,6 +425,44 @@
           "originTagObject": "54872af4a4186fc0a621864f7ba8faa087e55b1e",
           "pointer": "MIT License",
           "description": "Exact upstream MIT license text accompanying the pinned Lini v1.1.0 source samples."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-commerce-entities.json",
+          "sha256": "6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090",
+          "originPath": "fixtures/showcase/definitions/lini-gallery-commerce-entities.json",
+          "originSha256": "6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090",
+          "pointer": "Original UMF Visual 1.3.0 definition",
+          "description": "The original definition is retained byte-for-byte as the baseline for a separate reviewed definition that adds the source-declared east-side endpoint port."
+        }
+      ],
+      "publishedAssets": [
+        {
+          "path": "fixtures/showcase/sources/lini/entity_hero.lini",
+          "sha256": "74d843915dda51be10a31294007d5a78f0491780375df55b1c056f507bd244e6",
+          "outputPath": "showcase/lini-gallery-commerce-entities/entity_hero.lini",
+          "mediaType": "text/plain",
+          "description": "Exact pinned Lini v1.1.0 entity sample bytes."
+        },
+        {
+          "path": "fixtures/showcase/sources/lini/LICENSE",
+          "sha256": "271c78d507725e309182c4fa3b8af42c1d3bf2822b227dce268bf71cc2f0c6a5",
+          "outputPath": "showcase/lini-gallery-commerce-entities/LICENSE.md",
+          "mediaType": "text/markdown",
+          "description": "Exact MIT license text accompanying the pinned Lini source sample."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-commerce-entities.json",
+          "sha256": "6f1f5a5faa2ac681b80c656a367b9549e21c1bab12d350f3aec55e48d939c090",
+          "outputPath": "showcase/lini-gallery-commerce-entities/original-visual-1.3.json",
+          "mediaType": "application/json",
+          "description": "Exact original UMF Visual 1.3.0 definition bytes."
+        },
+        {
+          "path": "fixtures/showcase/definitions/lini-gallery-commerce-entities-reviewed.json",
+          "sha256": "18ed2114baec8108e6c231738fb0869630473b49d6c70d738ed281fe388f8317",
+          "outputPath": "showcase/lini-gallery-commerce-entities/reviewed-visual-1.3.json",
+          "mediaType": "application/json",
+          "description": "Reviewed Visual 1.3.0 definition retaining the source-declared east-side endpoint port."
         }
       ]
     }

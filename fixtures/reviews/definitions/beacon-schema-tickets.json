@@ -1,0 +1,496 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:beacon-schema-tickets",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.0.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "beacon-schema-tickets",
+      "kind": "structure",
+      "form": "entities",
+      "title": "What Beacon keeps for a ticket",
+      "question": "What does the database keep for each ticket?",
+      "audience": "developer",
+      "source": {
+        "path": "umf:fixtures/visual/sources/beacon/migrations",
+        "digest": "sha256:8a3e9b961a37bcce32cad3187344203535e63994b6a1d46e02f8bb99e6649c90"
+      },
+      "nodes": [
+        {
+          "id": "customers",
+          "label": "customers",
+          "role": "store"
+        },
+        {
+          "id": "tickets",
+          "label": "tickets",
+          "role": "store"
+        },
+        {
+          "id": "messages",
+          "label": "messages",
+          "role": "store"
+        },
+        {
+          "id": "attachments",
+          "label": "attachments",
+          "role": "store"
+        },
+        {
+          "id": "tags",
+          "label": "tags",
+          "role": "store"
+        },
+        {
+          "id": "ticket_tags",
+          "label": "ticket_tags",
+          "role": "store"
+        },
+        {
+          "id": "kb_articles",
+          "label": "kb_articles",
+          "role": "store"
+        },
+        {
+          "id": "drafts",
+          "label": "drafts",
+          "role": "store"
+        },
+        {
+          "id": "draft_sources",
+          "label": "draft_sources",
+          "role": "store"
+        },
+        {
+          "id": "reviews",
+          "label": "reviews",
+          "role": "store"
+        }
+      ],
+      "structure": {
+        "entities": [
+          {
+            "node": "customers",
+            "fields": [
+              {
+                "name": "id",
+                "type": "uuid",
+                "keys": [
+                  "pk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "workspace_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "external_ref",
+                "type": "text",
+                "nullable": false
+              }
+            ]
+          },
+          {
+            "node": "tickets",
+            "fields": [
+              {
+                "name": "id",
+                "type": "uuid",
+                "keys": [
+                  "pk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "customer_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "workspace_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "phase",
+                "type": "text",
+                "nullable": false
+              },
+              {
+                "name": "opened_at",
+                "type": "timestamptz",
+                "nullable": false
+              }
+            ]
+          },
+          {
+            "node": "messages",
+            "fields": [
+              {
+                "name": "id",
+                "type": "uuid",
+                "keys": [
+                  "pk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "ticket_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "author",
+                "type": "text",
+                "nullable": false
+              },
+              {
+                "name": "sent_at",
+                "type": "timestamptz",
+                "nullable": false
+              }
+            ]
+          },
+          {
+            "node": "attachments",
+            "fields": [
+              {
+                "name": "id",
+                "type": "uuid",
+                "keys": [
+                  "pk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "message_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "object_key",
+                "type": "text",
+                "nullable": false
+              },
+              {
+                "name": "bytes",
+                "type": "bigint",
+                "nullable": true
+              }
+            ]
+          },
+          {
+            "node": "tags",
+            "fields": [
+              {
+                "name": "id",
+                "type": "uuid",
+                "keys": [
+                  "pk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "label",
+                "type": "text",
+                "nullable": false
+              }
+            ]
+          },
+          {
+            "node": "ticket_tags",
+            "fields": [
+              {
+                "name": "ticket_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "tag_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              }
+            ]
+          },
+          {
+            "node": "kb_articles",
+            "fields": [
+              {
+                "name": "id",
+                "type": "uuid",
+                "keys": [
+                  "pk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "external_ref",
+                "type": "text",
+                "nullable": false
+              },
+              {
+                "name": "title",
+                "type": "text",
+                "nullable": false
+              }
+            ]
+          },
+          {
+            "node": "drafts",
+            "fields": [
+              {
+                "name": "id",
+                "type": "uuid",
+                "keys": [
+                  "pk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "ticket_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "agent_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "model_purpose",
+                "type": "text",
+                "nullable": false
+              },
+              {
+                "name": "created_at",
+                "type": "timestamptz",
+                "nullable": false
+              },
+              {
+                "name": "tone",
+                "type": "text",
+                "nullable": true
+              }
+            ]
+          },
+          {
+            "node": "draft_sources",
+            "fields": [
+              {
+                "name": "draft_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "article_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              }
+            ]
+          },
+          {
+            "node": "reviews",
+            "fields": [
+              {
+                "name": "id",
+                "type": "uuid",
+                "keys": [
+                  "pk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "draft_id",
+                "type": "uuid",
+                "keys": [
+                  "fk"
+                ],
+                "nullable": false
+              },
+              {
+                "name": "outcome",
+                "type": "text",
+                "nullable": false
+              },
+              {
+                "name": "reviewed_at",
+                "type": "timestamptz",
+                "nullable": false
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "id": "customers--tickets--customer-id",
+            "from": {
+              "node": "customers",
+              "field": "id"
+            },
+            "to": {
+              "node": "tickets",
+              "field": "customer_id"
+            },
+            "label": "customer_id",
+            "fromCardinality": "exactly-one",
+            "toCardinality": "zero-or-many"
+          },
+          {
+            "id": "tickets--messages--ticket-id",
+            "from": {
+              "node": "tickets",
+              "field": "id"
+            },
+            "to": {
+              "node": "messages",
+              "field": "ticket_id"
+            },
+            "label": "ticket_id",
+            "fromCardinality": "exactly-one",
+            "toCardinality": "zero-or-many"
+          },
+          {
+            "id": "messages--attachments--message-id",
+            "from": {
+              "node": "messages",
+              "field": "id"
+            },
+            "to": {
+              "node": "attachments",
+              "field": "message_id"
+            },
+            "label": "message_id",
+            "fromCardinality": "exactly-one",
+            "toCardinality": "zero-or-many"
+          },
+          {
+            "id": "tickets--ticket_tags--ticket-id",
+            "from": {
+              "node": "tickets",
+              "field": "id"
+            },
+            "to": {
+              "node": "ticket_tags",
+              "field": "ticket_id"
+            },
+            "label": "ticket_id",
+            "fromCardinality": "exactly-one",
+            "toCardinality": "zero-or-many"
+          },
+          {
+            "id": "tags--ticket_tags--tag-id",
+            "from": {
+              "node": "tags",
+              "field": "id"
+            },
+            "to": {
+              "node": "ticket_tags",
+              "field": "tag_id"
+            },
+            "label": "tag_id",
+            "fromCardinality": "exactly-one",
+            "toCardinality": "zero-or-many"
+          },
+          {
+            "id": "tickets--drafts--ticket-id",
+            "from": {
+              "node": "tickets",
+              "field": "id"
+            },
+            "to": {
+              "node": "drafts",
+              "field": "ticket_id"
+            },
+            "label": "ticket_id",
+            "fromCardinality": "exactly-one",
+            "toCardinality": "zero-or-many"
+          },
+          {
+            "id": "drafts--draft_sources--draft-id",
+            "from": {
+              "node": "drafts",
+              "field": "id"
+            },
+            "to": {
+              "node": "draft_sources",
+              "field": "draft_id"
+            },
+            "label": "draft_id",
+            "fromCardinality": "exactly-one",
+            "toCardinality": "zero-or-many"
+          },
+          {
+            "id": "kb_articles--draft_sources--article-id",
+            "from": {
+              "node": "kb_articles",
+              "field": "id"
+            },
+            "to": {
+              "node": "draft_sources",
+              "field": "article_id"
+            },
+            "label": "article_id",
+            "fromCardinality": "exactly-one",
+            "toCardinality": "zero-or-many"
+          },
+          {
+            "id": "drafts--reviews--draft-id",
+            "from": {
+              "node": "drafts",
+              "field": "id"
+            },
+            "to": {
+              "node": "reviews",
+              "field": "draft_id"
+            },
+            "label": "draft_id",
+            "fromCardinality": "exactly-one",
+            "toCardinality": "zero-or-many"
+          }
+        ]
+      },
+      "omissions": [
+        "3 references to tables in the other half: customers.workspace_id → workspaces, drafts.agent_id → agents, tickets.workspace_id → workspaces."
+      ]
+    }
+  },
+  "modules": []
+}

@@ -1,0 +1,248 @@
+{
+  "umf": "0.10.0",
+  "id": "showcase:lini-gallery-commerce-entities",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.3.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "title": "A small commerce schema",
+      "kind": "structure",
+      "form": "entities",
+      "question": "Which commerce records and target cardinalities does the source declare?",
+      "takeaway": "The model retains six entities and five references, with only the source-declared target cardinalities.",
+      "omissions": [
+        "The native order-to-LineItem :right marker is represented as an east-side endpoint port. For user.pk -o< order.user_fk:left, UMF preserves both field anchors but cannot combine the target field with an explicit side port; that wall-side hint remains source-only."
+      ],
+      "source": {
+        "path": "fixtures/showcase/sources/lini/entity_hero.lini",
+        "view": "Complete entity sample",
+        "digest": "sha256:74d843915dda51be10a31294007d5a78f0491780375df55b1c056f507bd244e6"
+      },
+      "layout": {
+        "kind": "grid",
+        "columns": 3,
+        "order": [
+          "user",
+          "order",
+          "item",
+          "product",
+          "cart",
+          "category"
+        ]
+      },
+      "nodes": [
+        {
+          "id": "user",
+          "label": "User"
+        },
+        {
+          "id": "order",
+          "label": "Order"
+        },
+        {
+          "id": "item",
+          "label": "LineItem",
+          "ports": [
+            {
+              "id": "right-wall",
+              "side": "east"
+            }
+          ]
+        },
+        {
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "id": "cart",
+          "label": "Cart"
+        },
+        {
+          "id": "category",
+          "label": "Category"
+        }
+      ],
+      "structure": {
+        "entities": [
+          {
+            "node": "user",
+            "fields": [
+              {
+                "name": "id",
+                "type": "int",
+                "keys": [
+                  "pk"
+                ]
+              },
+              {
+                "name": "name",
+                "type": "varchar"
+              },
+              {
+                "name": "email",
+                "type": "varchar"
+              }
+            ]
+          },
+          {
+            "node": "order",
+            "fields": [
+              {
+                "name": "id",
+                "type": "int",
+                "keys": [
+                  "pk"
+                ]
+              },
+              {
+                "name": "user_id",
+                "type": "int",
+                "keys": [
+                  "fk"
+                ]
+              },
+              {
+                "name": "total",
+                "type": "decimal"
+              }
+            ]
+          },
+          {
+            "node": "item",
+            "fields": [
+              {
+                "name": "id",
+                "type": "int",
+                "keys": [
+                  "pk"
+                ]
+              },
+              {
+                "name": "order_id",
+                "type": "int",
+                "keys": [
+                  "fk"
+                ]
+              },
+              {
+                "name": "product_id",
+                "type": "int",
+                "keys": [
+                  "fk"
+                ]
+              }
+            ]
+          },
+          {
+            "node": "product",
+            "fields": [
+              {
+                "name": "id",
+                "type": "int",
+                "keys": [
+                  "pk"
+                ]
+              },
+              {
+                "name": "name",
+                "type": "varchar"
+              },
+              {
+                "name": "price",
+                "type": "decimal"
+              }
+            ]
+          },
+          {
+            "node": "cart",
+            "fields": [
+              {
+                "name": "items",
+                "type": "int"
+              },
+              {
+                "name": "updated",
+                "type": "timestamp"
+              }
+            ]
+          },
+          {
+            "node": "category",
+            "fields": [
+              {
+                "name": "name",
+                "type": "varchar"
+              },
+              {
+                "name": "slug",
+                "type": "varchar"
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "id": "user-orders",
+            "from": {
+              "node": "user",
+              "field": "id"
+            },
+            "to": {
+              "node": "order",
+              "field": "user_id"
+            },
+            "toCardinality": "zero-or-many"
+          },
+          {
+            "id": "user-cart",
+            "from": {
+              "node": "user"
+            },
+            "to": {
+              "node": "cart"
+            },
+            "toCardinality": "zero-or-one"
+          },
+          {
+            "id": "order-items",
+            "from": {
+              "node": "order"
+            },
+            "to": {
+              "node": "item",
+              "portId": "right-wall"
+            },
+            "toCardinality": "one-or-many"
+          },
+          {
+            "id": "product-items",
+            "from": {
+              "node": "product",
+              "field": "id"
+            },
+            "to": {
+              "node": "item",
+              "field": "product_id"
+            },
+            "toCardinality": "zero-or-many"
+          },
+          {
+            "id": "category-products",
+            "from": {
+              "node": "category"
+            },
+            "to": {
+              "node": "product"
+            },
+            "toCardinality": "zero-or-many"
+          }
+        ]
+      },
+      "id": "lini-gallery-commerce-entities"
+    }
+  },
+  "modules": []
+}

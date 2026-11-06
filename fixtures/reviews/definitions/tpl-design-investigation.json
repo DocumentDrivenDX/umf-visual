@@ -1,0 +1,170 @@
+{
+  "umf": "0.10.0",
+  "id": "visual:tpl-design-investigation",
+  "vocabularies": {
+    "umf.visual": {
+      "version": "1.4.0"
+    }
+  },
+  "extensions": {
+    "umf.visual": {
+      "id": "tpl-design-investigation",
+      "kind": "flow",
+      "form": "pipeline",
+      "title": "Investigation-Informed Design Process",
+      "question": "When does design need an investigation first?",
+      "source": {
+        "path": "helix:workflows/activities/02-design/README.md",
+        "view": "Investigation-Informed Design Process",
+        "digest": "sha256:17c6265784c4f8724d6950727a4cdbbbfe37cf42b184c22cabce1aa0198c3736"
+      },
+      "nodes": [
+        {
+          "id": "a",
+          "label": "Frame Requirements Available",
+          "shape": "rectangle"
+        },
+        {
+          "id": "b",
+          "label": "Technical Uncertainty Exists?",
+          "shape": "diamond"
+        },
+        {
+          "id": "c",
+          "label": "Identify Technical Questions",
+          "shape": "rectangle"
+        },
+        {
+          "id": "d",
+          "label": "Standard Design Artifacts",
+          "shape": "rectangle"
+        },
+        {
+          "id": "e",
+          "label": "Scope of Investigation",
+          "shape": "diamond"
+        },
+        {
+          "id": "f",
+          "label": "Technical Spike",
+          "shape": "rectangle"
+        },
+        {
+          "id": "g",
+          "label": "Proof of Concept",
+          "shape": "rectangle"
+        },
+        {
+          "id": "h",
+          "label": "Spike Findings",
+          "shape": "rectangle"
+        },
+        {
+          "id": "i",
+          "label": "PoC Results",
+          "shape": "rectangle"
+        },
+        {
+          "id": "j",
+          "label": "Sufficient Confidence?",
+          "shape": "diamond"
+        },
+        {
+          "id": "k",
+          "label": "Additional Investigation",
+          "shape": "rectangle"
+        },
+        {
+          "id": "l",
+          "label": "Solution Design & Architecture",
+          "shape": "rectangle"
+        }
+      ],
+      "edges": [
+        {
+          "id": "a--b",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "id": "b--c",
+          "from": "b",
+          "to": "c",
+          "label": "Yes"
+        },
+        {
+          "id": "b--d",
+          "from": "b",
+          "to": "d",
+          "label": "No"
+        },
+        {
+          "id": "c--e",
+          "from": "c",
+          "to": "e"
+        },
+        {
+          "id": "e--f",
+          "from": "e",
+          "to": "f",
+          "label": "Quick Questions"
+        },
+        {
+          "id": "e--g",
+          "from": "e",
+          "to": "g",
+          "label": "Complex Validation"
+        },
+        {
+          "id": "f--h",
+          "from": "f",
+          "to": "h"
+        },
+        {
+          "id": "g--i",
+          "from": "g",
+          "to": "i"
+        },
+        {
+          "id": "h--j",
+          "from": "h",
+          "to": "j"
+        },
+        {
+          "id": "i--j",
+          "from": "i",
+          "to": "j"
+        },
+        {
+          "id": "j--k",
+          "from": "j",
+          "to": "k",
+          "label": "No"
+        },
+        {
+          "id": "j--d",
+          "from": "j",
+          "to": "d",
+          "label": "Yes",
+          "kind": "return"
+        },
+        {
+          "id": "k--e",
+          "from": "k",
+          "to": "e",
+          "kind": "return"
+        },
+        {
+          "id": "d--l",
+          "from": "d",
+          "to": "l"
+        }
+      ],
+      "layout": {
+        "kind": "flow",
+        "direction": "TB"
+      }
+    }
+  },
+  "modules": []
+}

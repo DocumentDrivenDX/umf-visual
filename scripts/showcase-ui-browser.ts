@@ -3,26 +3,156 @@ import {createHash} from 'node:crypto';
 import {mkdir} from 'node:fs/promises';
 import {extname,join,resolve,sep} from 'node:path';
 import {readJsonValue} from '@umf/core';
+import {authoredComparisonView,authoredFocusTargets,authoredMetricView,authoredStepListPolicy} from '../microsite/authored-context.js';
 
 const siteRoot=resolve('dist-site');
 const showcase=await Bun.file(join(siteRoot,'showcase.json')).json() as {schemaVersion:number;examples:Array<any>};
 if(showcase.schemaVersion!==1||showcase.examples.length===0)throw new Error('Build the curated authored showcase examples before running the homepage browser gate.');
 const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.dot':'text/vnd.graphviz;charset=utf-8','.mmd':'text/plain;charset=utf-8','.lini':'text/plain;charset=utf-8'};
 const browser=await chromium.launch({headless:true});
-const errors:string[]=[];const checks:string[]=[];
+const errors:string[]=[];const checks:string[]=[];let corruptSourceAssetPath:string|undefined;
+async function assertAuthoredContext(page:import('playwright').Page,example:any):Promise<void>{
+  const details=page.locator('#authored-context'),summary=details.locator(':scope > summary'),visual=example.definition?.extensions?.['umf.visual'];
+  if(!visual||typeof visual!=='object'){if(await details.isVisible())throw new Error(`${example.id} shows authored context without a Visual payload.`);return;}
+  if(await details.evaluate(element=>(element as HTMLDetailsElement).open))throw new Error(`${example.id} inherited an open authored-context panel from a previous selection.`);
+  await summary.focus();await page.keyboard.press('Enter');
+  if(!(await details.evaluate(element=>(element as HTMLDetailsElement).open)))throw new Error(`${example.id} authored context does not open from the keyboard.`);
+  const content=page.locator('#authored-context-content'),text=await content.innerText();
+  for(const key of ['title','question','takeaway','audience'])if(typeof visual[key]==='string'&&(!text.includes(visual[key])||!(await content.locator('code').allTextContents()).includes(`/extensions/umf.visual/${key}`)))throw new Error(`${example.id} authored ${key} is missing or lacks its full source pointer.`);
+  if(visual.source&&typeof visual.source==='object')for(const key of ['path','view','digest'])if(typeof visual.source[key]==='string'&&(!text.includes(visual.source[key])||!(await content.locator('code').allTextContents()).includes(`/extensions/umf.visual/source/${key}`)))throw new Error(`${example.id} authored source ${key} is missing or lacks its full source pointer.`);
+  const comparison=authoredComparisonView(visual),pointers=await content.locator('code').allTextContents();
+  if(comparison){
+    if(!text.includes('Authored comparison'))throw new Error(`${example.id} comparison context is not labeled as authored source content.`);
+    for(const axis of comparison.axes)if(!pointers.includes(axis.sourcePath)||!text.includes(String(axis.value)))throw new Error(`${example.id} comparison axis ${axis.key} is missing or unlocated.`);
+    for(const collection of [comparison.items,comparison.criteria])for(const row of collection){
+      if(!pointers.includes(row.sourcePath)||!text.includes(String(row.id))||!text.includes(String(row.label)))throw new Error(`${example.id} comparison row ${row.id} is missing or unlocated.`);
+      for(const field of row.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw new Error(`${example.id} comparison field ${field.key} is missing or unlocated.`);
+    }
+    for(const value of comparison.values){
+      if(!pointers.includes(value.sourcePath)||!text.includes(String(value.item))||!text.includes(String(value.criterion)))throw new Error(`${example.id} comparison value references are missing or unlocated.`);
+      for(const field of value.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw new Error(`${example.id} comparison value ${field.key} is missing or unlocated.`);
+    }
+    if(comparison.chosen&&(!text.includes('Authored choice')||!text.includes(String(comparison.chosen.item))||!text.includes(String(comparison.chosen.reason))||!pointers.includes(comparison.chosen.itemSourcePath)||!pointers.includes(comparison.chosen.reasonSourcePath)))throw new Error(`${example.id} authored choice is missing or unlocated.`);
+  }
+  const metric=authoredMetricView(visual);
+  if(metric){
+    if(!text.includes('Authored metric fields')||!text.includes('does not calculate progress, percentages, or recommendations'))throw new Error(`${example.id} metric context is not labeled as authored or avoids derived progress.`);
+    for(const field of metric.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw new Error(`${example.id} metric field ${field.key} is missing or unlocated.`);
+    for(const series of metric.series){
+      if(!pointers.includes(series.sourcePath)||!text.includes(String(series.id))||!text.includes(String(series.label)))throw new Error(`${example.id} metric series ${series.id} is missing or unlocated.`);
+      if(!pointers.includes(series.idSourcePath)||!pointers.includes(series.labelSourcePath))throw new Error(`${example.id} metric series identity fields lack exact pointers.`);
+      for(const field of series.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw new Error(`${example.id} metric series field ${field.key} is missing or unlocated.`);
+      for(const point of series.points){
+        if(!pointers.includes(point.sourcePath))throw new Error(`${example.id} metric point index is missing or unlocated.`);
+        for(const field of point.fields)if(!pointers.includes(field.sourcePath)||!text.includes(typeof field.value==='string'?field.value:JSON.stringify(field.value)??String(field.value)))throw new Error(`${example.id} metric point field ${field.key} is missing or unlocated.`);
+      }
+    }
+  }
+  const omissions=Array.isArray(visual.omissions)?visual.omissions:[];
+  for(let index=0;index<omissions.length;index++)if(!text.includes(String(omissions[index]))||!pointers.includes(`/extensions/umf.visual/omissions/${index}`))throw new Error(`${example.id} authored caveat ${index} is missing or unlocated.`);
+  const steps=Array.isArray(visual.steps)?visual.steps:[],items=content.locator('.authored-step-list > li'),policy=authoredStepListPolicy(steps),targets=authoredFocusTargets(visual);
+  if(await items.count()!==steps.length)throw new Error(`${example.id} authored step list differs from its Visual payload.`);
+  for(let i=0;i<steps.length;i++){
+    const step=steps[i],item=items.nth(i),unordered=await item.evaluate(element=>(element as HTMLElement).classList.contains('authored-step-unordered'));
+    if(await item.getAttribute('data-step-id')!==step.id||unordered===policy[i]?.numbered)throw new Error(`${example.id} authored step identity, order, or numbering changed.`);
+    for(const field of ['title','caption','when','tag'] as const)if(typeof step[field]==='string'&&!(await item.innerText()).includes(step[field]))throw new Error(`${example.id} step ${step.id} omits authored ${field}.`);
+    const focus=Array.isArray(step.focus)?step.focus:[],focusItems=item.locator('.authored-focus-list > li');
+    if(!focus.length){if(await focusItems.count()!==1||!(await focusItems.first().innerText()).includes('No focus IDs authored.'))throw new Error(`${example.id} step ${step.id} empty focus state is not explicit.`);continue;}
+    if(await focusItems.count()!==focus.length)throw new Error(`${example.id} step ${step.id} focus IDs changed.`);
+    for(let j=0;j<focus.length;j++){
+      const id=focus[j],focusItem=focusItems.nth(j),matches=targets.get(id)||[];
+      if(await focusItem.getAttribute('data-focus-id')!==id||!(await focusItem.innerText()).includes(`/extensions/umf.visual/steps/${i}/focus/${j}`))throw new Error(`${example.id} step ${step.id} focus path/identity changed.`);
+      if(!matches.length){if(!(await focusItem.innerText()).includes('Unresolved focus ID'))throw new Error(`${example.id} unresolved focus ${id} was guessed or hidden.`);}
+      else for(const target of matches){const rows=await focusItem.locator('.authored-focus-targets > li').allInnerTexts();if(!rows.some(row=>row.includes(target.kind)&&row.includes(target.label)&&row.includes(target.sourcePath)))throw new Error(`${example.id} focus ${id} target ${target.kind} was not shown.`);}
+    }
+  }
+  await summary.focus();await page.keyboard.press('Enter');
+  if(await details.evaluate(element=>(element as HTMLDetailsElement).open))throw new Error(`${example.id} authored context does not close from the keyboard.`);
+}
+async function exerciseViewerZoom(page:import('playwright').Page,expectedSvgSha256:string,selectionChanges:Array<()=>Promise<void>>):Promise<void>{
+  const viewer=page.locator('#diagram-viewer'),frame=page.locator('#viewer-image-frame'),image=page.locator('#viewer-image'),level=page.locator('#viewer-zoom-level');
+  await page.locator('#enlarge-diagram').click();
+  if(!(await viewer.isVisible()))throw new Error('The diagram viewer did not open.');
+  await image.evaluate(async element=>{await (element as HTMLImageElement).decode();});
+  const fitLabel=(await level.innerText()).trim(),fitPercent=Number(/Fit · (\d+)%/u.exec(fitLabel)?.[1]);
+  if(!fitLabel.startsWith('Fit')||!Number.isFinite(fitPercent))throw new Error('Opening the diagram viewer did not expose its effective Fit percentage.');
+  const fit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
+  if(fit.width>fit.frameWidth+1||fit.height>fit.frameHeight+1)throw new Error('Fit mode exceeds the available diagram viewport.');
+  await page.locator('#viewer-zoom-in').focus();await page.keyboard.press('Enter');
+  if((await level.innerText()).trim()!==`${Math.min(400,fitPercent+25)}%`)throw new Error(`Zoom in did not advance Fit's ${fitPercent}% effective scale by 25 points.`);
+  await page.locator('#viewer-actual-size').click();
+  if((await level.innerText()).trim()!=='100%')throw new Error('Actual size did not select 100%.');
+  const actual=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight,scrollWidth:f.scrollWidth,scrollHeight:f.scrollHeight,clientWidth:f.clientWidth,clientHeight:f.clientHeight,tabIndex:f.tabIndex};});
+  if(Math.abs(actual.width-actual.naturalWidth)>2||Math.abs(actual.height-actual.naturalHeight)>2)throw new Error('100% mode does not display the SVG at its intrinsic pixel dimensions.');
+  if(actual.tabIndex<0)throw new Error('The diagram viewport is not keyboard focusable.');
+  await page.locator('#viewer-zoom-in').click();
+  if((await level.innerText()).trim()!=='125%')throw new Error('Zoom in did not advance by one 25% step.');
+  for(let index=0;index<20&&await page.locator('#viewer-zoom-in').isEnabled();index++)await page.locator('#viewer-zoom-in').click();
+  if((await level.innerText()).trim()!=='400%')throw new Error('Zoom in did not clamp at 400%.');
+  for(let index=0;index<20&&await page.locator('#viewer-zoom-out').isEnabled();index++)await page.locator('#viewer-zoom-out').click();
+  if((await level.innerText()).trim()!=='25%')throw new Error('Zoom out did not clamp at 25%.');
+  await page.locator('#viewer-fit').click();
+  if(!(await level.innerText()).trim().startsWith('Fit'))throw new Error('Fit control did not restore Fit mode.');
+  await page.setViewportSize({width:375,height:812});
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  const pageOverflow=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,offenders:[...document.querySelectorAll('body *')].map(element=>({element,rect:element.getBoundingClientRect()})).filter(item=>item.rect.right>innerWidth+1).slice(0,8).map(item=>({id:(item.element as HTMLElement).id,className:(item.element as HTMLElement).className,right:item.rect.right,width:item.rect.width}))}));
+  if(pageOverflow.scrollWidth>pageOverflow.width)throw new Error(`The open diagram viewer causes page-level horizontal overflow on mobile: ${JSON.stringify(pageOverflow)}.`);
+  const mobileFit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
+  if(mobileFit.width>mobileFit.frameWidth+1||mobileFit.height>mobileFit.frameHeight+1)throw new Error('Mobile Fit mode exceeds the available diagram viewport.');
+  if(!(await page.locator('#viewer-actual-size').isEnabled()))throw new Error('Mobile Fit mode unexpectedly disables Actual size.');
+  await page.locator('#viewer-actual-size').click();
+  if((await level.innerText()).trim()!=='100%')throw new Error('Mobile actual-size control did not select 100%.');
+  const mobileNative=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight,scrollWidth:f.scrollWidth,scrollHeight:f.scrollHeight,clientWidth:f.clientWidth,clientHeight:f.clientHeight};});
+  if(Math.abs(mobileNative.width-mobileNative.naturalWidth)>2||Math.abs(mobileNative.height-mobileNative.naturalHeight)>2||(mobileNative.scrollWidth<=mobileNative.clientWidth&&mobileNative.scrollHeight<=mobileNative.clientHeight))throw new Error('Mobile 100% mode does not preserve a scrollable intrinsic-size diagram.');
+  await frame.evaluate(element=>{const f=element as HTMLElement;f.scrollTo(f.scrollWidth>f.clientWidth?120:0,f.scrollHeight>f.clientHeight?120:0);});
+  if(await frame.evaluate(element=>{const f=element as HTMLElement;return f.scrollLeft+f.scrollTop;})<=0)throw new Error('Native overflow scrolling did not pan the mobile diagram viewport.');
+  await frame.focus();if(await page.evaluate(()=>document.activeElement?.id)!=='viewer-image-frame')throw new Error('The diagram viewport did not accept keyboard focus.');
+  await page.setViewportSize({width:390,height:844});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  const fixedAfterResize=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight};});
+  if((await level.innerText()).trim()!=='100%'||Math.abs(fixedAfterResize.width-fixedAfterResize.naturalWidth)>2||Math.abs(fixedAfterResize.height-fixedAfterResize.naturalHeight)>2)throw new Error('Manual 100% zoom changed size when the viewport resized.');
+  await page.locator('#viewer-fit').click();
+  const refit=await frame.evaluate(element=>{const f=element as HTMLElement,i=document.querySelector('#viewer-image') as HTMLImageElement,r=i.getBoundingClientRect();return{width:r.width,height:r.height,frameWidth:f.clientWidth,frameHeight:f.clientHeight};});
+  if(!(await level.innerText()).trim().startsWith('Fit')||refit.width>refit.frameWidth+1||refit.height>refit.frameHeight+1)throw new Error('Fit mode did not recompute after a viewport resize.');
+  const before=await page.evaluate(async()=>{const link=document.querySelector('#viewer-svg-download') as HTMLAnchorElement;const response=await fetch(link.href);const bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');});
+  if(before!==expectedSvgSha256)throw new Error('Zooming changed the hash-verified SVG download.');
+  await page.keyboard.press('Escape');
+  if(await viewer.isVisible()||await page.evaluate(()=>document.activeElement?.id)!=='enlarge-diagram')throw new Error('Escape did not close the viewer and restore focus.');
+  for(const changeSelection of selectionChanges){
+    await changeSelection();await page.locator('#enlarge-diagram').click();
+    if(!(await level.innerText()).trim().startsWith('Fit'))throw new Error('Changing the selected scene or backend did not reset the viewer to Fit.');
+    await page.keyboard.press('Escape');
+  }
+}
 await mkdir('.cache',{recursive:true});
 try{
   const page=await browser.newPage({viewport:{width:1440,height:1050},acceptDownloads:true});
   page.on('pageerror',error=>errors.push(String(error)));
+  let contextModuleLoaded=false;page.on('response',response=>{if(new URL(response.url()).pathname.endsWith('/authored-context.js'))contextModuleLoaded=response.ok();});
   await page.route('https://umf.local/**',async route=>{
     let pathname:string;
     try{pathname=decodeURIComponent(new URL(route.request().url()).pathname);}catch{await route.fulfill({status:400,body:'Invalid path'});return;}
     const filePath=resolve(siteRoot,`.${pathname==='/'?'/index.html':pathname}`);
     if(filePath===siteRoot||!filePath.startsWith(siteRoot+sep)){await route.fulfill({status:404,body:'Not found'});return;}
-    const file=Bun.file(filePath);if(!(await file.exists())){await route.fulfill({status:404,body:'Not found'});return;}
-    await route.fulfill({status:200,body:Buffer.from(await file.arrayBuffer()),contentType:mime[extname(filePath)]||'application/octet-stream',headers:{'cache-control':'no-store'}});
+    const testManifest=pathname==='/showcase.json'?structuredClone(showcase):undefined;
+    if(testManifest){
+      const sequence=testManifest.examples.find((example:any)=>example.id==='lini-gallery-checkout-sequence');
+      if(sequence){
+        for(const [path,outputPath] of [
+          ['fixtures/showcase/sources/lini/rejected-extension.lini','showcase/lini-gallery-checkout-sequence/rejected.exe'],
+          ['fixtures/showcase/sources/lini/rejected-traversal.lini','showcase/../outside.lini']
+        ]){
+          sequence.sources.push({path,sha256:'8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c'});
+          sequence.publishedAssets.push({path,sha256:'8a526834b8d3d512aabbe7d71440eaea02fcc1c13b66a90847c7ca1832d40b4c',outputPath,mediaType:'text/plain'});
+        }
+      }
+    }
+    const file=Bun.file(filePath);if(!testManifest&&!(await file.exists())){await route.fulfill({status:404,body:'Not found'});return;}
+    const body=testManifest?Buffer.from(JSON.stringify(testManifest)):Buffer.from(await file.arrayBuffer());
+    if(corruptSourceAssetPath===pathname.replace(/^\//u,'')){if(body.length)body[0]^=1;}
+    await route.fulfill({status:200,body,contentType:mime[extname(filePath)]||'application/octet-stream',headers:{'cache-control':'no-store'}});
   });
   await page.goto('https://umf.local/',{waitUntil:'networkidle'});
+  if(!contextModuleLoaded)throw new Error('The homepage did not load its packaged authored-context ES module.');
   await page.locator('#scenario-list .scenario-button').first().waitFor();
   if(await page.locator('#scenario-list .scenario-button').count()!==showcase.examples.length)throw new Error('The homepage scenario list differs from the curated source manifest.');
   await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false);
@@ -53,7 +183,7 @@ try{
     const qualified=(example.renders||[]).filter((render:any)=>render?.status==='qualified');
     if(!qualified.length)throw new Error(`No qualified native render is available for curated example ${example.id}.`);
     qualifiedByExample.set(example.id,qualified.map((render:any)=>render.backend));
-    for(const render of qualified){
+    for(const render of (example.renders||[]).filter((item:any)=>item?.status==='qualified'||item?.status==='unqualified')){
       for(const [key,extension,hash] of [['svgPath','.svg','svgSha256'],['pngPath','.png','pngSha256'],['nativeSourcePath',render.backend==='mermaid'?'.mmd':render.backend==='lini'?'.lini':'.dot','nativeSourceSha256']] as const){
         const assetPath=render[key];if(typeof assetPath!=='string'||!assetPath.startsWith('showcase/')||assetPath.includes('..')||!assetPath.endsWith(extension))throw new Error(`${example.id}/${render.backend} has an unsafe or unexpected ${key}.`);
         const bytes=await Bun.file(join(siteRoot,assetPath)).arrayBuffer();
@@ -61,7 +191,7 @@ try{
       }
     }
   }
-  const allPreviews=showcase.examples.flatMap(example=>example.renders.filter((render:any)=>render.status==='qualified').flatMap((render:any)=>[render.svgPath,render.pngPath]));
+  const allPreviews=showcase.examples.flatMap(example=>example.renders.filter((render:any)=>render.status==='qualified'||render.status==='unqualified').flatMap((render:any)=>[render.svgPath,render.pngPath]));
   const decoded=await page.evaluate(async paths=>Promise.all(paths.map(path=>new Promise<{path:string;width:number;height:number}>(resolve=>{
     const image=new Image();image.onload=()=>resolve({path,width:image.naturalWidth,height:image.naturalHeight});image.onerror=()=>resolve({path,width:0,height:0});image.src='./'+path;
   }))),allPreviews);
@@ -71,6 +201,8 @@ try{
   checks.push('all qualified SVG, PNG, and native-source downloads match their content hashes');
 
   const selected=page.locator('#scenario-list .scenario-button');
+  const contextResetIndex=showcase.examples.findIndex((example:any)=>(example.renders||[]).filter((render:any)=>render.status==='qualified').length>1);
+  if(contextResetIndex<0)throw new Error('The curated showcase has no example with multiple qualified backends for context-reset coverage.');
   for(let index=0;index<showcase.examples.length;index++){
     await selected.nth(index).click();
     const example=showcase.examples[index];
@@ -79,6 +211,17 @@ try{
     if(visibleYaml!==example.visualPayloadYaml||JSON.stringify(visiblePayload)!==JSON.stringify(example.definition.extensions?.['umf.visual']))throw new Error(`Scenario ${example.id} YAML does not parse to its exact umf.visual payload.`);
     await page.locator('#copy-payload').click();
     if(await page.evaluate(()=>navigator.clipboard.readText())!==visibleYaml)throw new Error(`Scenario ${example.id} does not copy its exact YAML payload.`);
+    await assertAuthoredContext(page,example);
+    if(index===contextResetIndex){
+      const context=page.locator('#authored-context'),summary=context.locator(':scope > summary');
+      await summary.focus();await page.keyboard.press('Enter');
+      const currentBackend=await page.locator('#backend-options [aria-pressed="true"]').getAttribute('data-backend');
+      const resetBackend=example.renders.find((render:any)=>render.status==='qualified'&&render.backend!==currentBackend)?.backend;
+      if(!resetBackend)throw new Error(`The multi-qualified context-reset scenario ${example.id} has no alternate backend.`);
+      await page.locator(`[data-backend="${resetBackend}"]`).click();
+      if(await page.locator(`[data-backend="${resetBackend}"]`).getAttribute('aria-pressed')!=='true')throw new Error('The context reset probe did not switch to an alternate backend.');
+      if(await context.evaluate(element=>(element as HTMLDetailsElement).open))throw new Error('Changing backend did not collapse the authored-context panel.');
+    }
     if(await page.locator('#visual-version').innerText()!==String(example.definition.vocabularies?.['umf.visual']?.version))throw new Error(`Scenario ${example.id} shows the wrong umf.visual version.`);
     for(const backend of ['lini','graphviz','mermaid']){
       const button=page.locator(`[data-backend="${backend}"]`);
@@ -86,7 +229,7 @@ try{
       const apiExample=await page.locator('#programmatic-code').innerText();
       const modelVersion=example.definition.vocabularies?.['umf.visual']?.version;
       if(!apiExample.includes('editAndCompile(payload: Visual)')||!apiExample.includes('Start with the umf.visual value shown above as a Visual object.')||!apiExample.includes('createVisualDocument(payload, undefined, modelVersion)')||!apiExample.includes(`const modelVersion: VisualVersion = '${modelVersion}';`)||!apiExample.includes("getVisual, editVisual")||!apiExample.includes('compilePresentation')||!apiExample.includes(`backend: '${backend}'`))throw new Error(`The public API example does not carry the selected ${modelVersion} payload through to the selected ${backend} renderer.`);
-      const expectedRender=example.renders.find((render:any)=>render.backend===backend&&render.status==='qualified');
+      const expectedRender=example.renders.find((render:any)=>render.backend===backend&&(render.status==='qualified'||render.status==='unqualified'));
       const versionNote=await page.locator('#compile-target-note').innerText();
       if(expectedRender&&!versionNote.toLowerCase().includes(`${expectedRender.engine} ${expectedRender.nativeVersion}`.toLowerCase()))throw new Error(`${example.id}/${backend} API example omits its native renderer version.`);
       if(!expectedRender){
@@ -97,6 +240,14 @@ try{
       await page.waitForFunction(({title,filename,backend})=>document.querySelector('#diagram-title')?.textContent===title&&document.querySelector('#download-svg')?.getAttribute('download')===filename&&document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false&&document.querySelector(`#backend-options [data-backend="${backend}"]`)?.getAttribute('aria-pressed')==='true',{title:example.title,filename:expectedRender.svgPath.split('/').pop(),backend});
       await page.locator('#diagram-image').evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0||image.naturalHeight<=0)throw new Error('Scenario image did not decode.');});
       if(!(await page.locator('#engine-caption').innerText()).toLowerCase().includes(backend))throw new Error(`${example.id}/${backend} preview did not identify its actual renderer and version.`);
+      if(expectedRender.status==='unqualified'){
+        const caption=await page.locator('#quality-caption').innerText(),limitation=await page.locator('#render-caveat').innerText();
+        if(!caption.includes('NATIVE QUALITY NOT QUALIFIED')||await page.locator('#diagram-status').isVisible()||limitation.toLowerCase().includes('unsupported'))throw new Error(`${example.id}/${backend} unqualified native preview is mislabeled or hidden as a semantic refusal.`);
+        const failedIds=expectedRender.quality?.failedChecks??[],evidence=new Map<string,any>((expectedRender.quality?.evidence??[]).map((item:any)=>[item.check,item]));
+        if(!failedIds.length||failedIds.some((id:string)=>!limitation.includes(id)||evidence.get(id)?.result!=='fail'||evidence.get(id)?.sourceSha256!==expectedRender.nativeSourceSha256))throw new Error(`${example.id}/${backend} quality limitation omits source-bound failed check IDs.`);
+        const previewHash=await page.locator('#diagram-image').evaluate(async element=>{const response=await fetch((element as HTMLImageElement).src),bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');});
+        if(previewHash!==expectedRender.svgSha256)throw new Error(`${example.id}/${backend} preview differs from its source-bound SVG hash.`);
+      }else if(await page.locator('#quality-caption').innerText()!=='Native SVG')throw new Error(`${example.id}/${backend} qualified preview is mislabeled.`);
       const hasNotes=(expectedRender.omissions?.length||0)+(expectedRender.approximations?.length||0)>0;
       if(await page.locator('#rendering-notes').evaluate(element=>(element as HTMLElement).hidden)===hasNotes)throw new Error(`Scenario ${example.id}/${backend} hides or fabricates rendering notes relative to its receipt.`);
       if(await page.locator('#download-png').getAttribute('aria-disabled')!=='false'||await page.locator('#download-native-source').getAttribute('aria-disabled')!=='false')throw new Error(`Scenario ${example.id}/${backend} did not expose the actual qualified render downloads.`);
@@ -113,16 +264,71 @@ try{
         const actualHash=await page.evaluate(async url=>{const response=await fetch(url);const bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');},href);
         if(actualHash!==hash)throw new Error(`${example.id}/${backend} ${label} download link bytes differ from its verified receipt.`);
       }
+      if(expectedRender.status==='unqualified'){
+        const qualifiedRender=example.renders.find((render:any)=>render.backend==='graphviz'&&render.status==='qualified')||example.renders.find((render:any)=>render.status==='qualified');
+        if(!qualifiedRender)throw new Error(`${example.id}/${backend} has no qualified render for limitation-reset coverage.`);
+        await page.locator(`[data-backend="${qualifiedRender.backend}"]`).click();
+        await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false);
+        const currentCaveat=await page.locator('#render-caveat').innerText();
+        if(await page.locator('#quality-caption').innerText()!=='Native SVG'||(expectedRender.quality.failedChecks as string[]).some((id:string)=>currentCaveat.includes(id)))throw new Error(`${example.id}/${backend} unqualified limitation remained after selecting a qualified backend.`);
+        for(const [selector,path,hash] of [['#download-svg',qualifiedRender.svgPath,qualifiedRender.svgSha256],['#download-png',qualifiedRender.pngPath,qualifiedRender.pngSha256],['#download-native-source',qualifiedRender.nativeSourcePath,qualifiedRender.nativeSourceSha256]] as const){
+          const link=page.locator(selector),href=await link.getAttribute('href');
+          if(!href||await link.getAttribute('download')!==path.split('/').pop()||await link.getAttribute('aria-disabled')!=='false')throw new Error(`${example.id}/${qualifiedRender.backend} did not replace the unqualified ${backend} ${selector} artifact.`);
+          const actualHash=await page.evaluate(async url=>{const response=await fetch(url),bytes=await response.arrayBuffer();return [...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(value=>value.toString(16).padStart(2,'0')).join('');},href);
+          if(actualHash!==hash)throw new Error(`${example.id}/${qualifiedRender.backend} retained stale unqualified ${backend} bytes after switching back.`);
+        }
+      }
+    }
+    if(index===0&&showcase.examples.length>1){
+      const context=page.locator('#authored-context'),summary=context.locator(':scope > summary');
+      await summary.focus();await page.keyboard.press('Enter');
+      await selected.nth(1).click();
+      const next=showcase.examples[1];
+      if(await context.evaluate(element=>(element as HTMLDetailsElement).open))throw new Error('Changing scenario did not collapse the authored-context panel.');
+      const nextVisual=next.definition?.extensions?.['umf.visual'],contextText=await page.locator('#authored-context-content').textContent()??'';
+      if(typeof nextVisual?.question==='string'&&!contextText.includes(nextVisual.question))throw new Error('Changing scenario left stale authored context instead of the new question.');
+      await selected.nth(0).click();
     }
   }
   checks.push('all available native renderers are selected per scenario; unavailable choices clear stale previews and downloads');
   checks.push('every qualified renderer exposes hash-matching SVG, PNG, and native-source downloads');
 
+  const sequenceIndex=showcase.examples.findIndex((example:any)=>example.id==='lini-gallery-checkout-sequence');
+  if(sequenceIndex<0)throw new Error('The pinned Lini checkout sequence is missing from the authored showcase.');
+  const sequenceExample=showcase.examples[sequenceIndex],sequenceAssets=(sequenceExample.sources||[]).map((source:any)=>({source,asset:(sequenceExample.publishedAssets||[]).find((asset:any)=>asset.path===source.path&&asset.sha256===source.sha256)}));
+  if(sequenceAssets.length!==3||sequenceAssets.some((item:any)=>!item.asset))throw new Error('The checkout sample, license and original definition are not all published as exact source assets.');
+  await selected.nth(sequenceIndex).click();
+  for(const {source,asset} of sequenceAssets){
+    const selector=`.source-asset-download[data-output-path="${asset.outputPath}"]`;
+    await page.waitForFunction(path=>{const link=document.querySelector(`.source-asset-download[data-output-path="${path}"]`) as HTMLAnchorElement|null;return link?.getAttribute('aria-disabled')==='false';},asset.outputPath);
+    const [download]=await Promise.all([page.waitForEvent('download'),page.locator(selector).click()]);
+    const downloadedPath=`.cache/showcase-c66-${String(source.path).split('/').pop()}`;await download.saveAs(downloadedPath);
+    const downloaded=Buffer.from(await Bun.file(downloadedPath).arrayBuffer()),expectedBytes=Buffer.from(await Bun.file(resolve(siteRoot,asset.outputPath)).arrayBuffer());
+    if(download.suggestedFilename()!==String(source.path).split('/').pop()||createHash('sha256').update(downloaded).digest('hex')!==source.sha256||!downloaded.equals(expectedBytes))throw new Error(`C66 ${source.path} download differs from its exact manifest bytes.`);
+  }
+  checks.push('C66 Lini sample, license and original definition download as exact manifest-hash-matching bytes');
+  for(const {asset} of sequenceAssets){
+    corruptSourceAssetPath=asset.outputPath;
+    await selected.nth(sequenceIndex===0?1:0).click();await selected.nth(sequenceIndex).click();
+    const selector=`.source-asset-download[data-output-path="${asset.outputPath}"]`;
+    await page.waitForFunction(path=>{const link=document.querySelector(`.source-asset-download[data-output-path="${path}"]`) as HTMLAnchorElement|null;return link?.getAttribute('aria-disabled')==='true'&&link.title.toLowerCase().includes('hash does not match');},asset.outputPath);
+    corruptSourceAssetPath=undefined;
+    await selected.nth(sequenceIndex===0?1:0).click();await selected.nth(sequenceIndex).click();
+    await page.waitForFunction(path=>document.querySelector(`.source-asset-download[data-output-path="${path}"]`)?.getAttribute('aria-disabled')==='false',asset.outputPath);
+  }
+  checks.push('C66 Lini, license and original-definition downloads refuse corrupted bytes and recover on reselection');
+  await selected.nth(sequenceIndex).click();
+  for(const outputPath of ['showcase/lini-gallery-checkout-sequence/rejected.exe','showcase/../outside.lini']){
+    await page.waitForFunction(path=>{const link=document.querySelector(`.source-asset-download[data-output-path="${path}"]`) as HTMLAnchorElement|null;return link?.getAttribute('aria-disabled')==='true'&&link.title.includes('outside the configured presentation namespace');},outputPath);
+  }
+  checks.push('C66 exact-source asset controls continue to refuse unsupported extensions and traversal paths');
+  await selected.nth(0).click();
+
   for(let index=0;index<showcase.examples.length;index++){
     const example=showcase.examples[index];
     for(const render of example.renders.filter((entry:any)=>entry.status==='unsupported')){
       await selected.nth(index).click();await page.locator(`[data-backend="${render.backend}"]`).click();
-      await page.waitForFunction(()=>document.querySelector('#diagram-status')?.textContent?.includes('No qualified'));
+      await page.waitForFunction(()=>document.querySelector('#diagram-status')?.textContent?.includes('No usable'));
       if(await page.locator('#diagram-image').isVisible())throw new Error(`${example.id}/${render.backend} displays a stale qualified preview after refusal.`);
       for(const id of ['download-svg','download-png','download-native-source'])if(await page.locator(`#${id}`).getAttribute('aria-disabled')!=='true')throw new Error(`${example.id}/${render.backend} exposes a download after refusal.`);
       for(const diagnostic of render.diagnostics||[])if(diagnostic.message&&!(await page.locator('#diagram-status').innerText()).includes(diagnostic.message))throw new Error(`${example.id}/${render.backend} hides its specific refusal reason.`);
@@ -147,13 +353,13 @@ try{
   await selected.nth(0).click();
   for(const backend of ['lini','graphviz','mermaid']){
     const button=page.locator(`[data-backend="${backend}"]`);await button.click();
-    const available=qualifiedByExample.get(showcase.examples[0].id)?.includes(backend);
+    const available=showcase.examples[0].renders.some((render:any)=>render.backend===backend&&(render.status==='qualified'||render.status==='unqualified'));
     if(available){
-      const expected=showcase.examples[0].renders.find((render:any)=>render.backend===backend&&render.status==='qualified');
+      const expected=showcase.examples[0].renders.find((render:any)=>render.backend===backend&&(render.status==='qualified'||render.status==='unqualified'));
       await page.waitForFunction(filename=>document.querySelector('#download-svg')?.getAttribute('download')===filename&&document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false'&&(document.querySelector('#diagram-image') as HTMLImageElement|null)?.hidden===false,expected.svgPath.split('/').pop());
       await page.locator('#diagram-image').evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();if(image.naturalWidth<=0)throw new Error('Selected backend image failed to decode.');});
       if(!(await page.locator('#engine-caption').innerText()).toLowerCase().includes(backend))throw new Error(`The ${backend} toggle did not identify the actual rendering engine.`);
-    }else if(!(await page.locator('#diagram-status').innerText()).toLowerCase().includes('qualified')||await page.locator('#diagram-image').isVisible())throw new Error(`The unavailable ${backend} path was not explicitly described or hid the prior render.`);
+    }else if(!(await page.locator('#diagram-status').innerText()).toLowerCase().includes('usable')||await page.locator('#diagram-image').isVisible())throw new Error(`The unavailable ${backend} path was not explicitly described or hid the prior render.`);
   }
   checks.push('backend selection shows qualified renders or an explicit unavailable state');
 
@@ -167,6 +373,9 @@ try{
   if(!(await page.locator('#native-source').innerText()).trim())throw new Error('The exact emitted native source is not available for inspection.');
   const selectedReceipt=showcase.examples[0].renders.find((render:any)=>render.backend===sourceBackend&&render.status==='qualified');
   if((selectedReceipt.omissions||[]).length+(selectedReceipt.approximations||[]).length)await page.locator('#rendering-notes > summary').click();
+  for(const disclosure of await page.locator('#rendering-notes-list details').all()){
+    if(!(await disclosure.evaluate(element=>(element as HTMLDetailsElement).open)))await disclosure.locator(':scope > summary').click();
+  }
   const notesText=await page.locator('#rendering-notes-list').innerText();
   for(const note of [...(selectedReceipt.omissions||[]),...(selectedReceipt.approximations||[])])if(!notesText.includes(note.sourcePath))throw new Error(`Rendering note for ${note.sourcePath} is not visible in the source inspection disclosure.`);
   const [definitionDownload]=await Promise.all([page.waitForEvent('download'),page.locator('#download-full-umf').click()]);
@@ -182,7 +391,19 @@ try{
   await page.keyboard.press('Escape');
   if(await page.locator('#diagram-viewer').isVisible())throw new Error('Escape did not close the enlarged diagram viewer.');
   if(await page.evaluate(()=>document.activeElement?.id)!=='enlarge-diagram')throw new Error('Closing the image viewer did not restore focus to its opener.');
-  checks.push('enlarged diagram viewer opens and closes with keyboard Escape and restores focus');
+  const alternateBackend=firstQualified.find(backend=>backend!==sourceBackend);
+  const resetSelections:Array<()=>Promise<void>>=[];
+  if(alternateBackend)resetSelections.push(async()=>{await page.locator(`[data-backend="${alternateBackend}"]`).click();await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');});
+  if(showcase.examples.length>1)resetSelections.push(async()=>{await selected.nth(1).click();await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');});
+  await page.setViewportSize({width:375,height:812});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  await page.locator('#source-details').evaluate(element=>{(element as HTMLDetailsElement).open=true;});
+  await page.locator('#authored-context').evaluate(element=>{(element as HTMLDetailsElement).open=true;});
+  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw new Error('Expanded source inspection causes horizontal page overflow at 375px.');
+  await page.locator('#source-details').evaluate(element=>{(element as HTMLDetailsElement).open=false;});
+  for(const selector of ['#source-details','#authored-context','#rendering-notes']){const disclosure=page.locator(selector);if(await disclosure.count()&&await disclosure.evaluate(element=>(element as HTMLDetailsElement).open))await disclosure.evaluate(element=>{(element as HTMLDetailsElement).open=false;});}
+  await page.setViewportSize({width:1440,height:1050});
+  await exerciseViewerZoom(page,selectedReceipt.svgSha256,resetSelections);
+  checks.push('enlarged diagram supports Fit/100%, bounded 25% zoom, keyboard controls, a focusable scroll viewport, reset after scene/backend changes, and preserves the SVG hash');
 
   await page.setViewportSize({width:390,height:844});await page.goto('https://umf.local/',{waitUntil:'networkidle'});
   await page.waitForFunction(()=>document.querySelector('#download-svg')?.getAttribute('aria-disabled')==='false');
