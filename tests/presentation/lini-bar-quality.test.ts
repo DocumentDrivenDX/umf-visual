@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {afterAll,beforeAll,expect,test} from 'bun:test';
-import {readFileSync} from 'node:fs';
+import {mkdirSync,readFileSync} from 'node:fs';
 import {chromium,type Browser, type Page} from 'playwright';
 import type {Document} from '@umf/core';
 import {getVisual,readVisualDocument,type Visual} from '../../src/extensions/visual';
@@ -32,7 +32,7 @@ test('pinned Lini chart owns categories by declared slot and preserves each raw 
   expect(checks.every(item=>item.result==='pass')).toBe(true);
   expect(checks.at(-1)?.details).toContain('zero category owns a visible exact zero label without a painted fill');
   expect(await built.page.locator('#frame svg [data-id="metric-bar-chart"]').count()).toBe(1);
-  await built.page.screenshot({path:'/private/tmp/cycle16-lini-bar-final.png'});
+  mkdirSync('.cache/cycle16',{recursive:true});await built.page.screenshot({path:'.cache/cycle16/lini-bar-final.png'});
  }finally{await built.page.close();}
 });
 

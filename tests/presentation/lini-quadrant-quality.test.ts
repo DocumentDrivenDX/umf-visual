@@ -11,9 +11,9 @@ import {verifyPresentationQuality} from '../../scripts/presentation/quality';
 import {requiredPresentationChecks} from '../../scripts/presentation/verify';
 
 const document=readVisualDocument(await Bun.file('fixtures/visual/forms/layout-engines.json').text(),'json');
-const screenshotPath=resolve('/private/tmp/cycle13-lini-quadrant.png');
+const screenshotPath=resolve('.cache/cycle13/lini-quadrant.png');
 let browser:Browser;
-beforeAll(async()=>{browser=await chromium.launch({headless:true});await mkdir('/private/tmp',{recursive:true});},{timeout:30_000});
+beforeAll(async()=>{browser=await chromium.launch({headless:true});await mkdir('.cache/cycle13',{recursive:true});},{timeout:30_000});
 afterAll(async()=>{await browser?.close();},{timeout:30_000});
 
 async function prepare(page:Page,svg:string){
