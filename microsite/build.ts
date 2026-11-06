@@ -31,7 +31,8 @@ const versionedReviewsHtml=reviewsHtml
   .replace('./reviews.css','./reviews.css?v='+digest(reviewsCss))
   .replace('./showcase.js','./showcase.js?v='+digest(versionedShowcaseApp));
 const writeHtml=async(name:string,html:string)=>{const temporary=resolve(destination,`.${name}.${randomUUID()}.tmp`);await writeFile(temporary,html);await rename(temporary,resolve(destination,name));};
-await Promise.all([writeFile(resolve(destination,'styles.css'),css),writeFile(resolve(destination,'integrations.css'),integrationCss),
+await Promise.all([writeFile(resolve(destination,'social-card.png'),await readFile(new URL('./social-card.png',import.meta.url))),
+  writeFile(resolve(destination,'styles.css'),css),writeFile(resolve(destination,'integrations.css'),integrationCss),
   writeFile(resolve(destination,'integrations.js'),integrationJs),writeFile(resolve(destination,'app.js'),versionedApp),
   writeFile(resolve(destination,'showcase.css'),showcaseCss),writeFile(resolve(destination,'reviews.css'),reviewsCss),writeFile(resolve(destination,'showcase.js'),versionedShowcaseApp),writeFile(resolve(destination,'authored-context.js'),authoredContext),
   writeHtml('index.html',versionedShowcaseHtml),writeHtml('evidence.html',versionedEvidenceHtml),writeHtml('reviews.html',versionedReviewsHtml)]);
