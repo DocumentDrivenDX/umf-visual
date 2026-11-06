@@ -335,7 +335,7 @@ field names. Parallel edges and self-edges retain separate identities.
 
 ### Additive visual 1.4.0 process role and routing intent
 
-Draft, unreleased explicit 1.4.0 adds `process` to the shared `node.role` and
+Explicit 1.4.0, released in v0.6.0, adds `process` to the shared `node.role` and
 sequence `participant.role` enum: an authored diagram process or
 activity, independent of geometric shape. It MUST NOT imply an operating-system
 process, executable behavior, deployment placement or ownership. A rectangle or
@@ -364,7 +364,7 @@ contradictory intent. Native path evidence MUST distinguish an actual curve from
 a nominal curve command whose points are collinear. Exact native geometry remains
 preserved separately; shared intent does not qualify pixel-identical reproduction.
 
-### Draft 1.4.0 document stencil shapes
+### Visual 1.4.0 document stencil shapes
 
 The shared `node.shape` and sequence `participant.shape` enums add `document` and
 `multiple-documents`. These identify a single-document notation and a visible
@@ -377,10 +377,10 @@ choice, not source data. Neither shape causes inference of a document role.
 The existing `folded-corner` remains its distinct geometric shape; interpreters
 MUST NOT silently redefine it as either new notation. Map explicit native stencil
 identity only with source-bound evidence. Unknown extensions and exact native
-geometry remain preserved under the existing rules. Version 1.4.0 is unreleased;
+geometry remain preserved under the existing rules. Released 1.4.0 is frozen;
 this addition does not mutate frozen 1.3.0 or older interpretation/defaults.
 
-### Draft 1.4.0 circular composition
+### Visual 1.4.0 circular composition
 
 `layout` and `group.layout` MAY declare `{kind: 'circular', order?: Id[]}` wherever
 the existing flow/grid composition scopes are admitted: root node-based flow,
@@ -397,9 +397,9 @@ Native support scope belongs to each interpreter. An admitted circular scope
 MUST be realized, explicitly approximated at its source layout path, or refused;
 a backend's initial root-network subset MUST NOT narrow this shared definition.
 Earlier model versions retain their exact interpretation and unknown-content
-behavior. Draft 1.4.0 remains unreleased.
+behavior. Released 1.4.0 is frozen with these additions.
 
-### Draft 1.4.0 plain-text annotations
+### Visual 1.4.0 plain-text annotations
 
 Optional root `annotations` is a nonempty array of `{id: Id, text: string}` with
 nonempty plain text. It is admitted across all seven diagram kinds. Annotation

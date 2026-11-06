@@ -164,14 +164,14 @@ visuals from models and checking evidence (documentor); deciding when a visual e
 
 ## Explicit process identity
 
-Draft, unreleased visual 1.4.0 adds a typed diagram process/activity role
+Released visual 1.4.0 adds a typed diagram process/activity role
 for nodes and sequence participants for sources that explicitly
 declare that identity. Shape and explanatory text remain independent. Earlier
 versions, including released 1.3.0, remain frozen; opt-in does not broaden older
 adapter qualifications. Unresolved containment purpose remains unspecified.
 
 
-Explicit draft 1.4.0 also carries per-edge curved/straight routing intent, grounded
+Explicit 1.4.0 also carries per-edge curved/straight routing intent, grounded
 in authored native witness routes. Unspecified routing stays unspecified. Exact
 native coordinates and control points remain preservation content; interpreters
 must realize, explicitly approximate or refuse authored intent rather than
@@ -180,7 +180,7 @@ silently selecting one global route policy for mixed requests.
 
 ## Explicit document stencil identity
 
-Draft 1.4.0 adds `document` and `multiple-documents` shape notations for explicitly
+Visual 1.4.0 adds `document` and `multiple-documents` shape notations for explicitly
 authored native stencil identity. They remain independent of semantic document
 role and numeric cardinality. A sheet-stack glyph does not establish an exact
 count or business minimum, and neither addition reinterprets folded-corner.
@@ -189,7 +189,7 @@ Interpreters expose actual shape realization or a located approximation/refusal.
 
 ## Circular container composition
 
-Draft 1.4.0 adds generic circular composition alongside existing container layout
+Visual 1.4.0 adds generic circular composition alongside existing container layout
 intent. Clockwise direct-child order is independent of edge topology, hierarchy
 and temporal meaning. The shared model reuses existing composition scopes;
 interpreter limitations require explicit approximation/refusal, not narrowing
@@ -199,7 +199,7 @@ presentation choices retain separate provenance.
 
 ## Independent diagram annotations
 
-Draft 1.4.0 adds stable, plain-text annotations across diagram kinds. They remain
+Visual 1.4.0 adds stable, plain-text annotations across diagram kinds. They remain
 independent of graph nodes, container membership and participant-anchored sequence
 notes. Producers preserve text and identity without inferring heading level,
 business role or spatial ownership. Interpreters expose actual text carriers,

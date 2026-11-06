@@ -38,7 +38,7 @@ test('1.3 rendering features do not expand released editable interchange profile
  }
 });
 
-test('draft 1.4 process and routing meaning cannot inherit released interchange qualification',async()=>{
+test('1.4 process and routing meaning cannot inherit earlier interchange qualification',async()=>{
  const source=createVisualDocument({id:'routing-boundary',kind:'flow',form:'network',question:'Where does the activity send data?',nodes:[{id:'activity',label:'Activity',role:'process'},{id:'store',label:'Store',role:'store'}],edges:[{id:'send',from:'activity',to:'store',routing:{kind:'curved'}}]},undefined,'1.4.0');
  const before=JSON.stringify(source);
  for(const format of ['dot','mermaid','lini'] as const)for(const profile of [undefined,`umf.visual.${format}.annotated/1`,`umf.visual.${format}.full/1`]){

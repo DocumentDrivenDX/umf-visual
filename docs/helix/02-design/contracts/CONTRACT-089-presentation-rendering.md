@@ -236,7 +236,7 @@ and identity checks remain mandatory in every case.
 
 ## Document stencil presentation qualification
 
-Draft 1.4.0 `document` and `multiple-documents` are independent authored shapes.
+Visual 1.4.0 `document` and `multiple-documents` are independent authored shapes.
 Interpreters MUST realize their distinct notations, report located approximations,
 or refuse. A view qualifying multiple-document stencil realization MUST display an actual
 legible multi-sheet glyph or composition owned by that node; concentric borders

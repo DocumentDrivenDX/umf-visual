@@ -21,18 +21,19 @@ read/write/inspect/create/edit APIs were extracted from
 [UMF #62](https://github.com/DocumentDrivenDX/umf/pull/62), commit
 `351c4802caf34eb7f4174e7b730f86f4befcf909`; see [provenance](UPSTREAM.json).
 
-Version 0.5.0 is packaged as `@documentdrivendx/umf-visual`, distributed through a
-[GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.5.0).
+Version 0.6.0 is packaged as `@documentdrivendx/umf-visual`, distributed through a
+[GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.6.0).
 The release publication receipt records the actual archive and deployment checks.
 It is not published to npm.
 
 Browse the [umf.visuals catalog](https://documentdrivendx.github.io/umf-visual/).
 Default authoring remains `umf.visual` 1.0.0 and the core envelope 0.10.0. The
-0.5.0 release adds explicit models 1.2.0/1.3.0, Graphviz/Mermaid/Lini presentation
-compilers, and a separate browser Lini runtime with distributable assets. Earlier
+0.6.0 release freezes explicit model 1.4.0 and qualifies native presentation for
+the complete example catalog; 0.5.0 added models 1.2.0/1.3.0, the presentation
+compilers and a separate browser Lini runtime with distributable assets. Earlier
 editable interchange profiles retain their qualified model versions.
 Core comes from the pinned released SDK `umf-v0.5.7`; only its public APIs are used.
-The authored latest schema generates the draft, unreleased 1.4.0 manifest and
+The authored latest schema generates the released 1.4.0 manifest and
 TypeScript shapes, adding a typed diagram process/activity role for nodes and
 sequence participants plus optional `edge.routing: {kind: "curved" | "straight"}`
 visual intent. Absence leaves routing unspecified; exact native control points
@@ -111,7 +112,7 @@ symbolic icons, parallelograms, tree composition, positioned sequence notes and
 explicit `edge.directed: false` associations. Colors and pixel positions remain
 theme/layout decisions. A node's parent and ordered message records remain data,
 not native Lini snippets. `upgradeVisualDocument(document, '1.3.0')` explicitly selects the
-released 1.3.0 model; target `'1.4.0'` selects the draft process-role and routing additions.
+released 1.3.0 model; target `'1.4.0'` selects the latest model with process roles, routing and the other 1.4.0 additions.
 Omitting the target still selects 1.1.0.
 
 ```ts

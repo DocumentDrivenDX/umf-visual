@@ -267,7 +267,7 @@ For explicit 1.4.0, verify typed node/participant process role and independent s
 schema/manifest behavior, explicit upgrading and unchanged authoring defaults.
 
 
-Draft 1.4.0 routing checks cover optional curved/straight edge intent, unspecified
+Visual 1.4.0 routing checks cover optional curved/straight edge intent, unspecified
 absence, frozen 1.3.0 behavior and JSON/YAML persistence. Native checks bind each
 route to its own connector and endpoints, distinguish non-collinear curves from
 straight paths, and reject straightened-curve mutations. Include mixed-intent
@@ -277,7 +277,7 @@ Exact control points are preserved native evidence, not common-model equality.
 
 ## Second-cycle document stencil checks
 
-Verify explicit draft 1.4.0 single-document and multiple-document shapes, role/count
+Verify explicit 1.4.0 single-document and multiple-document shapes, role/count
 independence, unknown-content preservation, exact JSON/YAML editing and frozen
 1.3.0 behavior. Qualified native output must own distinct readable stencil
 geometry, labels and attached connectors. Negative controls remove the multi-sheet
