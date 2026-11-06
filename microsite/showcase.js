@@ -868,7 +868,7 @@ async function initialize() {
 
 window.addEventListener('popstate',()=>{const requested=new URL(location.href).searchParams.get(pageConfig.selectionParam);const id=state.examples.some(example=>example.id===requested)?requested:state.examples[0]?.id;if(id)selectExample(id,false);});
 
-ui.enlarge.addEventListener('click', () => { if (state.currentVariant) {ui.viewer.showModal();resetViewerZoom();requestAnimationFrame(resetViewerZoom);} });
+ui.enlarge.addEventListener('click', () => { if (state.currentVariant) {ui.viewer.showModal();resetViewerZoom();requestAnimationFrame(()=>{if(state.viewerMode==='fit')applyViewerZoom(true);});} });
 $('viewer-fit').addEventListener('click',()=>setViewerZoom('fit'));
 $('viewer-actual-size').addEventListener('click',()=>setViewerZoom('actual',1));
 $('viewer-zoom-out').addEventListener('click',()=>setViewerZoom('scale',state.viewerScale-.25));
