@@ -1,21 +1,3 @@
----
-ddx:
-  id: CONTRACT-089
-  type: contract
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: FEAT-036
-      kind: informed_by
-    - id: CONTRACT-083
-      kind: references
-    - id: CONTRACT-085
-      kind: references
-    - id: CONTRACT-086
-      kind: references
----
-
 # CONTRACT-089: Presentation rendering and diagram showcase
 
 **Type:** library projection and static showcase. **Version:** 1.1.0.

@@ -202,6 +202,6 @@ disagreeing captures must stop reconciliation. On interrupted native writes,
 retain the receipt and inspect current host state before any further write.
 Never delete native content or retry automatically as recovery.
 
-The shared contract is [CONTRACT-088](helix/02-design/contracts/CONTRACT-088-editable-host-bindings.md).
+The shared contract is [CONTRACT-088](contracts/CONTRACT-088-editable-host-bindings.md).
 Its model-version, field-ownership, revision-fence and interruption rules apply
 to all three adapters; host-specific behavior remains scoped to each profile.

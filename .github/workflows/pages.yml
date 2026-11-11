@@ -24,6 +24,11 @@ jobs:
       - run: bun run build:showcase
       - run: bun run build:reviews
       - run: bun run build:catalog
+      - name: Stamp the microsite with the released version
+        if: github.event_name == 'release'
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: echo "UMF_VISUAL_VERSION=${TAG#v}" >> "$GITHUB_ENV"
       - run: bun run build:site
       - run: bun run test:site
       - uses: actions/upload-pages-artifact@v3

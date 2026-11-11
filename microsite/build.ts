@@ -3,6 +3,9 @@ import {resolve} from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 
 const destination=resolve('dist-site');
+const packageVersion=(JSON.parse(await readFile(new URL('../package.json',import.meta.url),'utf8')) as {version:string}).version;
+const siteVersion=process.env.UMF_VISUAL_VERSION||packageVersion;
+const stamp=(html:string)=>html.replaceAll('{{version}}',siteVersion);
 await mkdir(destination,{recursive:true});
 const digest=(bytes:Uint8Array)=>createHash('sha256').update(bytes).digest('hex').slice(0,16);
 const [showcaseHtml,evidenceHtml,reviewsHtml,showcaseCss,reviewsCss,showcaseApp,authoredContext,css,app]=await Promise.all([
@@ -19,14 +22,14 @@ const reviews=JSON.parse(await readFile(resolve(destination,'reviews.json'),'utf
 if(reviews.schemaVersion!==1||!Array.isArray(reviews.examples)||reviews.examples.length===0)throw new Error('Build the source-derived reviews first; dist-site/reviews.json is missing or invalid.');
 const versionedApp=Buffer.from(app.toString().replaceAll("'./integrations.js'", `'./integrations.js?v=${digest(integrationJs)}'`));
 const versionedShowcaseApp=Buffer.from(showcaseApp.toString().replaceAll("'./authored-context.js'", `'./authored-context.js?v=${digest(authoredContext)}'`));
-const versionedEvidenceHtml=evidenceHtml
+const versionedEvidenceHtml=stamp(evidenceHtml)
   .replace('./styles.css','./styles.css?v='+digest(css))
   .replace('./integrations.css','./integrations.css?v='+digest(integrationCss))
   .replace('./app.js','./app.js?v='+digest(versionedApp));
-const versionedShowcaseHtml=showcaseHtml
+const versionedShowcaseHtml=stamp(showcaseHtml)
   .replace('./showcase.css','./showcase.css?v='+digest(showcaseCss))
   .replace('./showcase.js','./showcase.js?v='+digest(versionedShowcaseApp));
-const versionedReviewsHtml=reviewsHtml
+const versionedReviewsHtml=stamp(reviewsHtml)
   .replace('./showcase.css','./showcase.css?v='+digest(showcaseCss))
   .replace('./reviews.css','./reviews.css?v='+digest(reviewsCss))
   .replace('./showcase.js','./showcase.js?v='+digest(versionedShowcaseApp));

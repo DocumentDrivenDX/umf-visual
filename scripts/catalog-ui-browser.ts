@@ -37,6 +37,10 @@ try{
     await route.fulfill({status:200,body:Buffer.from(await file.arrayBuffer()),contentType:mime[extname(path)]||'application/octet-stream',headers:{'cache-control':'no-store'}});
   });
   await page.goto(baseUrl,{waitUntil:'networkidle'});
+  const expectedVersion=process.env.UMF_VISUAL_VERSION||(await Bun.file('package.json').json()).version;
+  const stamped=await page.locator('.site-version').textContent();
+  if(!stamped?.includes(expectedVersion))throw new Error(`Site footer shows "${stamped}", expected version ${expectedVersion}`);
+  exercised.push('footer shows the release version');
   await page.waitForFunction(()=>((document.querySelector('#definition-list')?.children.length??0)>0));
   const baselineRenderAssets=catalog.items.flatMap(item=>TARGETS.flatMap(target=>{
     const render=item.targets[target]?.render;

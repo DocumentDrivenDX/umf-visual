@@ -1,20 +1,3 @@
----
-ddx:
-  id: TD-093
-  type: technical-design
-  activity: design
-  status: draft
-  authoring:
-    home: repo
-  links:
-    - id: umf.architecture
-      kind: informed_by
-    - id: CONTRACT-083
-      kind: informed_by
-    - id: US-093
-      kind: informed_by
----
-
 # TD-093: Visual vocabulary extension
 
 ## Scope

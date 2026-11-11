@@ -1,25 +1,3 @@
----
-ddx:
-  id: CONTRACT-084
-  type: contract
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: SPIKE-011
-      kind: informed_by
-    - id: CONTRACT-083
-      kind: informed_by
-    - id: visual.architecture
-      kind: informed_by
-  schemas:
-    - id: umf.visual
-      version: "1.0.0"
-      title: Visual vocabulary
-      path: spec/extensions/visual/schema.json
-      schemaFormat: json-schema
----
-
 # CONTRACT-084: Miro network round trip
 
 ## Purpose

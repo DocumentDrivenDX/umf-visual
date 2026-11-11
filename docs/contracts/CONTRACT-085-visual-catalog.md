@@ -1,32 +1,3 @@
----
-ddx:
-  id: CONTRACT-085
-  type: contract
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: FEAT-036
-      kind: informed_by
-    - id: CONTRACT-086
-      kind: informed_by
-    - id: CONTRACT-083
-      kind: informed_by
-    - id: CONTRACT-087
-      kind: references
-  schemas:
-    - id: umf.visual
-      version: "1.1.0"
-      title: Latest explicitly versioned visual vocabulary
-      path: spec/extensions/visual/schema.json
-      schemaFormat: json-schema
-    - id: umf.visual
-      version: "1.0.0"
-      title: Frozen released visual vocabulary and current example model
-      path: spec/extensions/visual/1.0.0/schema.json
-      schemaFormat: json-schema
----
-
 # CONTRACT-085: Static visual catalog data
 
 **Type:** build/browser data interface. **Version:** 1.4.0.

@@ -1,19 +1,3 @@
----
-ddx:
-  id: SD-095
-  type: solution-design
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: FEAT-036
-      kind: informed_by
-    - id: visual.architecture
-      kind: references
-    - id: CONTRACT-085
-      kind: references
----
-
 # SD-095-visual-catalog: Reproducible native comparison
 
 **Feature:** FEAT-036. Architecture governs the static publication boundary;

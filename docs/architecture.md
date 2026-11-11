@@ -1,17 +1,3 @@
----
-ddx:
-  id: visual.architecture
-  type: architecture
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: visual.vision
-      kind: informed_by
-    - id: CONTRACT-083
-      kind: references
----
-
 # Visual library architecture
 
 ## Scope
@@ -173,7 +159,7 @@ model changes; no completed common-model or producer-generator claim is implied.
 
 ## Common Model, View Profiles and Application Annotations
 
-The [source inventory](../00-discover/current-state-inventory-visual-language.md)
+The source inventory (in git history under `docs/helix/00-discover/`)
 finds that current 1.0.0 mixes reusable elements with architectural-communication
 choices: required question, built/placeholder/decided statuses, own/platform/
 external roles and a hard 15-node validity cap. Its seven mutually exclusive

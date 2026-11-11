@@ -1,19 +1,3 @@
----
-ddx:
-  id: SD-094
-  type: solution-design
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: FEAT-035
-      kind: informed_by
-    - id: visual.architecture
-      kind: references
-    - id: CONTRACT-086
-      kind: references
----
-
 # SD-094-native-interchange: Preserved source with bounded projection
 
 **Feature:** FEAT-035. Architecture governs portable module boundaries;
