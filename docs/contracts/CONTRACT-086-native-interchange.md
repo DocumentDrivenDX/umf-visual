@@ -1,25 +1,3 @@
----
-ddx:
-  id: CONTRACT-086
-  type: contract
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: FEAT-035
-      kind: informed_by
-    - id: visual.architecture
-      kind: informed_by
-    - id: CONTRACT-083
-      kind: informed_by
-  schemas:
-    - id: umf.visual
-      version: "1.0.0"
-      title: Visual vocabulary
-      path: spec/extensions/visual/schema.json
-      schemaFormat: json-schema
----
-
 # CONTRACT-086: Source-preserving native visual interchange
 
 **Type:** library. **Version:** 1.2.0. Exact TypeScript shared fields are owned by

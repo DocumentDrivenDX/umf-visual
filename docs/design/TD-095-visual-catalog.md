@@ -1,24 +1,6 @@
----
-ddx:
-  id: TD-095
-  type: technical-design
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: US-095
-      kind: informed_by
-    - id: CONTRACT-085
-      kind: informed_by
-    - id: SD-095
-      kind: informed_by
-    - id: visual.architecture
-      kind: informed_by
----
-
 # TD-095: Visual catalog build and browser
 
-**User Story:** [[US-095-visual-catalog]]. **Solution Design:** [[SD-095-visual-catalog]].
+**User Story:** US-095-visual-catalog. **Solution Design:** SD-095-visual-catalog.
 
 ## Technical Approach
 

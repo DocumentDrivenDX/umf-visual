@@ -1,0 +1,94 @@
+# Tag-driven release: tests, build, fresh-install smoke, GitHub Release with SHA256SUMS + attestation.
+# workflow_dispatch builds and smoke-tests and never creates a release. The optional npm publish
+# step runs only on a dispatch with publish_npm=true against a tag ref (npm publication is an owner decision).
+name: release
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      publish_npm:
+        description: Publish the tagged package to npm (run on a tag ref; needs an owner-approved trusted publisher)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+  package:
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26.12.1
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+      - name: Tag must equal package.json version
+        if: github.ref_type == 'tag'
+        run: test "${GITHUB_REF_NAME#v}" = "$(node -p "require('./package.json').version")"
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: sudo apt-get update && sudo apt-get install -y graphviz
+      - run: bun run fetch:lini && mkdir -p .cache
+      - run: bun run build
+      - run: mkdir dist-release && npm pack --pack-destination dist-release
+      - name: Fresh install of the packed tarball, then the README quickstart
+        run: |
+          set -euo pipefail
+          mkdir "$RUNNER_TEMP/consumer" && cd "$RUNNER_TEMP/consumer"
+          npm init -y > /dev/null && npm pkg set type=module
+          npm install "$GITHUB_WORKSPACE"/dist-release/*.tgz
+          node "$GITHUB_WORKSPACE/.github/run_quickstart.mjs" "$GITHUB_WORKSPACE/README.md"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: dist-release/*.tgz
+  release:
+    if: github.ref_type == 'tag' && github.event_name == 'push'
+    needs: package
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: dist
+      - run: (cd dist && sha256sum *.tgz > SHA256SUMS)
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/*.tgz
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          awk -v v="$VERSION" '/^## /{p = ($2 == v)} p' CHANGELOG.md > notes.md
+          if [ -s notes.md ]; then notes=(--notes-file notes.md); else notes=(--generate-notes); fi
+          gh release create "$TAG" dist/* --title "$TAG" "${notes[@]}"
+  npm:
+    # Off by default: only a manual dispatch on a tag ref with publish_npm=true gets here.
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_npm && github.ref_type == 'tag'
+    needs: package
+    runs-on: ubuntu-24.04
+    environment: npm
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: dist
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26.12.1
+          registry-url: https://registry.npmjs.org
+      - run: npm publish dist/*.tgz --provenance --access public

@@ -1,25 +1,3 @@
----
-ddx:
-  id: CONTRACT-087
-  type: contract
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: FEAT-035
-      kind: informed_by
-    - id: FEAT-036
-      kind: informed_by
-    - id: CONTRACT-083
-      kind: informed_by
-    - id: CONTRACT-085
-      kind: informed_by
-    - id: CONTRACT-086
-      kind: informed_by
-    - id: visual.architecture
-      kind: informed_by
----
-
 # CONTRACT-087: Opt-in readable visual annotations
 
 ## Purpose

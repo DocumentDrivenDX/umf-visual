@@ -1,29 +1,3 @@
----
-ddx:
-  id: CONTRACT-088
-  type: contract
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: CONTRACT-083
-      kind: informed_by
-    - id: CONTRACT-084
-      kind: informed_by
-    - id: CONTRACT-085
-      kind: informed_by
-    - id: CONTRACT-087
-      kind: informed_by
-    - id: SPIKE-094
-      kind: informed_by
-    - id: SPIKE-001
-      kind: informed_by
-    - id: SPIKE-011
-      kind: informed_by
-    - id: visual.architecture
-      kind: informed_by
----
-
 # CONTRACT-088: Editable host bindings and reconciliation
 
 ## Purpose

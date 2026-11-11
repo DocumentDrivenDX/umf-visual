@@ -1,30 +1,6 @@
----
-ddx:
-  id: TD-094
-  type: technical-design
-  activity: design
-  authoring:
-    home: repo
-  links:
-    - id: US-094
-      kind: informed_by
-    - id: CONTRACT-086
-      kind: informed_by
-    - id: SD-094
-      kind: informed_by
-    - id: visual.architecture
-      kind: informed_by
-  schemas:
-    - id: umf.visual
-      version: "1.0.0"
-      title: Visual vocabulary
-      path: spec/extensions/visual/schema.json
-      schemaFormat: json-schema
----
-
 # TD-094: Bounded native visual interchange
 
-**User Story:** [[US-094-native-interchange]]. **Solution Design:** [[SD-094-native-interchange]].
+**User Story:** US-094-native-interchange. **Solution Design:** SD-094-native-interchange.
 
 ## Scope
 

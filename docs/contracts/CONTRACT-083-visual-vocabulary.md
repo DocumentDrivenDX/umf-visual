@@ -1,20 +1,3 @@
----
-ddx:
-  id: CONTRACT-083
-  type: contract
-  activity: design
-  status: draft
-  authoring:
-    home: repo
-  links:
-    - id: umf.architecture
-      kind: informed_by
-    - id: CONTRACT-001
-      kind: informed_by
-    - id: US-093
-      kind: informed_by
----
-
 # CONTRACT-083: Visual vocabulary
 
 **Profiles:** frozen `umf.visual` 1.0.0/1.1.0/1.2.0/1.3.0, plus additive 1.4.0 below. **Native representation:** UMF
