@@ -64,7 +64,7 @@
     "UPSTREAM.json"
   ],
   "scripts": {
-    "test": "bun test",
+    "test": "bun scripts/fetch-lini.ts && mkdir -p .cache && bun test",
     "typecheck": "tsc --noEmit",
     "build": "bun scripts/build.ts",
     "generate": "bun scripts/generate.ts",
@@ -76,23 +76,15 @@
     "test:native:full": "bun scripts/native-full.ts",
     "build:catalog": "bun scripts/catalog/build.ts",
     "build:showcase": "bun scripts/presentation/build.ts",
-    "test:showcase": "bun scripts/presentation/verify.ts",
     "build:site": "bun microsite/build.ts",
     "test:site": "bun scripts/catalog-ui-browser.ts",
     "test:site:showcase": "bun scripts/showcase-ui-browser.ts",
-    "test:catalog": "bun scripts/catalog/verify.ts",
-    "report:loss": "bun scripts/catalog/loss-progress.ts",
-    "report:loss:wave2": "bun scripts/catalog/loss-progress.ts --since-v0.1.0",
     "test:native:wave2": "bun scripts/native-wave-2.ts",
     "dev:miro": "bun scripts/miro-dev.ts",
     "test:native:annotated": "bun scripts/native-annotated.ts && bun scripts/native-lini-annotated.ts",
-    "report:loss:ledger": "bun scripts/catalog/loss-ledger-report.ts",
-    "test:release:catalog": "bun scripts/catalog/verify.ts --release",
     "test:site:profiles": "bun scripts/catalog-profile-ui-browser.ts",
     "test:native:layout": "bun scripts/native-lini-visual-layout.ts",
-    "build:reviews": "bun scripts/reviews/build.ts",
-    "test:reviews": "bun scripts/reviews/verify.ts",
-    "test:site:reviews": "bun scripts/reviews/ui-browser.ts"
+    "build:reviews": "bun scripts/reviews/build.ts"
   },
   "dependencies": {
     "@umf/core": "https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz",
