@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-/** Add deterministic native diagram renders and verified host preview receipts to integration cases. */
+/** Add deterministic native diagram renders (DOT, Mermaid, Lini) to integration cases. */
 import {createHash} from 'node:crypto';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {join, relative, resolve, sep} from 'node:path';
@@ -171,178 +171,6 @@ function projectionFor(document: Document, format: InterchangeFormat): Projectio
   return {status: emitted ? strict.ok ? 'supported' : 'reported-loss' : 'unsupported', state: emitted ? 'emitted' : 'refused', ...(emitted ? {source: result.text} : {}), diagnostics: result.diagnostics, losses: result.diagnostics.filter(item => item.loss)};
 }
 
-export function joinRendererReceiptRows(item: IntegrationCase, receipts: Map<string, any>): RendererTargetEvidence[] {
-  if (!item.commonDocument || !item.commonPath || !item.commonSha256) return [];
-  const rows: RendererTargetEvidence[] = [];
-  for (const [rendererId, receipt] of receipts) {
-    const entry = receipt.cases.find((candidate: any) => candidate.id === item.id);
-    if (!entry) continue;
-    if (!Array.isArray(entry.rendererTargets)) throw new Error(`${rendererId} preview receipt case ${item.id} has no rendererTargets array.`);
-    const matching = entry.rendererTargets.filter((row: any) => row?.rendererId === rendererId);
-    if (matching.length !== 1) throw new Error(`${rendererId} preview receipt case ${item.id} must contain exactly one matching target.`);
-    const target = structuredClone(matching[0]) as RendererTargetEvidence;
-    if (!target.profileId || !target.modelVersion || !target.mappingVersion || !target.projection || !Array.isArray(target.projection.losses) || !Array.isArray(target.projection.diagnostics)) {
-      throw new Error(`${rendererId} preview receipt case ${item.id} is malformed.`);
-    }
-    if (target.projection.state === 'emitted' && target.projection.diagnostics.some((diagnostic: any) => diagnostic?.severity === 'error')) {
-      throw new Error(`${rendererId} emitted preview receipt contains error-severity diagnostics for ${item.id}.`);
-    }
-    const targetKey = rendererId === 'google-slides' ? 'googleSlides' : rendererId;
-    const expected = item.targets[targetKey as keyof IntegrationCase['targets']];
-    if (!expected || target.profileId !== expected.profile) throw new Error(`${rendererId} preview profile differs from the current integration target for ${item.id}.`);
-    if(target.mappingVersion!=='1')throw new Error(`${rendererId} receipt mapping version differs from the current host profile implementation for ${item.id}.`);
-    if (target.preview && (target.preview.profileId !== target.profileId || target.preview.modelVersion !== target.modelVersion || target.preview.mappingVersion !== target.mappingVersion)) {
-      throw new Error(`${rendererId} preview identity differs from its renderer row for ${item.id}.`);
-    }
-    const expectedSourcePath = `fixtures/integrations/complex-miro/${item.commonPath}`;
-    if (!entry.source || typeof entry.source.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(entry.source.sha256) || entry.source.path !== expectedSourcePath) {
-      throw new Error(`${rendererId} matching receipt ${item.id} has malformed or mismatched source provenance.`);
-    }
-    if (target.preview && (typeof target.preview.sourceSha256 !== 'string' || !/^[a-f0-9]{64}$/.test(target.preview.sourceSha256))) {
-      throw new Error(`${rendererId} matching receipt ${item.id} has malformed preview source provenance.`);
-    }
-    const sourceMatches = verifyRendererPreviewSource(item.commonSha256, entry.source.sha256) && verifyRendererPreviewSource(item.commonSha256, target.preview?.sourceSha256);
-    if (target.modelVersion !== modelVersion(item.commonDocument)) throw new Error(`${rendererId} receipt model version differs from current source for ${item.id}.`);
-    if (!sourceMatches) {
-      const currentProjection = expected.status === 'refused'
-        ? {state: 'refused' as const, status: 'unsupported' as const}
-        : expected.status === 'planned'
-          ? {state: 'planned' as const, status: 'not-evaluated' as const}
-          : {state: 'emitted' as const, status: expected.losses.length ? 'reported-loss' as const : 'supported' as const};
-      target.projection = {...currentProjection, diagnostics: expected.diagnostics, losses: expected.losses};
-      target.preview = {state: 'unavailable', engine: target.preview?.engine ?? rendererId, nativeVersion: target.preview?.nativeVersion ?? 'unverified',
-        sourceSha256: item.commonSha256, profileId: target.profileId, modelVersion: target.modelVersion, mappingVersion: target.mappingVersion,
-        stage: 'export', error: 'Receipt source SHA-256 does not match the current common UMF bytes; the saved preview is not joined.'};
-      target.artifacts = [];
-      target.roundTrip={state:'unavailable',error:'Receipt source SHA-256 does not match the current source; its earlier round-trip does not qualify this pair.'};
-    }else{
-      const sourceLosses=(values:unknown[])=>values.filter(value=>!(value&&typeof value==='object'&&(value as {family?:unknown}).family==='native')).map(value=>canonical(value)).sort();
-      if(canonical(sourceLosses(target.projection.losses))!==canonical(sourceLosses(expected.losses)))throw new Error(`${rendererId} receipt semantic loss inventory differs from the current source projection for ${item.id}.`);
-      if(canonical(target.projection.diagnostics)!==canonical(expected.diagnostics))throw new Error(`${rendererId} receipt source diagnostics differ from the current source projection for ${item.id}.`);
-      if(target.projection.state==='emitted'&&sourceLosses(expected.losses).length&&target.projection.status!=='reported-loss')throw new Error(`${rendererId} receipt hides current semantic losses behind a supported status for ${item.id}.`);
-      if(target.projection.state==='planned'&&target.projection.status!=='not-evaluated')throw new Error(`${rendererId} planned output cannot claim native projection success for ${item.id}.`);
-      if(target.preview?.state==='rendered'){
-        const preview=target.preview,asset=preview.asset;
-        if(!asset||!Number.isFinite(asset.width)||!Number.isFinite(asset.height)||asset.width<=0||asset.height<=0||!/^[a-f0-9]{64}$/.test(asset.sha256)||!preview.engine||!preview.nativeVersion||!preview.stage)throw new Error(`${rendererId} rendered preview lacks valid image/runtime metadata for ${item.id}.`);
-        if(rendererId==='powerpoint'){
-          if(!/^[a-f0-9]{64}$/.test(preview.inputArtifactSha256??''))throw new Error(`PowerPoint preview lacks an exact input artifact digest for ${item.id}.`);
-        }else{
-          const fence=entry.captureFence;
-          const valid=(observation:any)=>observation&&typeof observation.revision==='string'&&observation.revision.trim().length>0&&/^[a-f0-9]{64}$/.test(observation.captureDigestSha256??'');
-          if(!valid(fence?.before)||!valid(fence?.after)||fence.before.revision!==fence.after.revision||fence.before.captureDigestSha256!==fence.after.captureDigestSha256||preview.revision!==fence.after.revision||preview.captureDigestSha256!==fence.after.captureDigestSha256)throw new Error(`${rendererId} preview lacks a matching revision/capture fence for ${item.id}.`);
-        }
-      }
-    }
-    rows.push(target);
-  }
-  return rows;
-}
-
-async function readDurableReceipts(): Promise<Map<string, any>> {
-  const result = new Map<string, any>();
-  for (const id of ['powerpoint', 'google-slides', 'miro'] as const) {
-    const path = join(root, 'fixtures/renderers', id, 'preview-receipt.json');
-    let bytes: Uint8Array;
-    try {bytes = await readFile(path);}
-    catch (error) {if ((error as NodeJS.ErrnoException).code === 'ENOENT') continue; throw error;}
-    let receipt: any;
-    try {receipt = JSON.parse(new TextDecoder().decode(bytes));} catch {throw new Error(`${id} preview receipt is malformed JSON.`);}
-    if (receipt?.schemaVersion !== 1 || !Array.isArray(receipt.cases)) throw new Error(`${id} preview receipt has an invalid envelope.`);
-    const ids = new Set<string>();
-    for (const entry of receipt.cases) {
-      if (!entry || typeof entry.id !== 'string' || ids.has(entry.id)) throw new Error(`${id} preview receipt has a missing or duplicate case ID.`);
-      ids.add(entry.id);
-    }
-    result.set(id, receipt);
-  }
-  return result;
-}
-
-async function copyDurablePreviewAsset(outputDir: string, item: IntegrationCase, rendererId: string, entry: any, target: RendererTargetEvidence): Promise<void> {
-  const preview = target.preview, asset = preview?.asset;
-  if (!preview || preview.state !== 'rendered' || !asset) return;
-  const sourcePath = entry.assetSourcePath;
-  if (typeof sourcePath !== 'string' || sourcePath.startsWith('/') || sourcePath.split(/[\\/]/).includes('..')) {
-    throw new Error(`${rendererId} preview ${item.id} lacks a safe durable assetSourcePath.`);
-  }
-  const source = join(root, sourcePath), bytes = await readFile(source);
-  if (sha256(bytes) !== asset.sha256) throw new Error(`${rendererId} preview asset hash mismatch for ${item.id}.`);
-  if (!asset.width || !asset.height || !asset.mediaType) throw new Error(`${rendererId} preview asset metadata is incomplete for ${item.id}.`);
-  const extension = asset.mediaType === 'image/png' ? 'png' : asset.mediaType === 'image/svg+xml' ? 'svg' : asset.mediaType === 'image/jpeg' ? 'jpg' : undefined;
-  if (!extension) throw new Error(`${rendererId} preview media type is not supported for static thumbnails: ${asset.mediaType}.`);
-  const destination = `integrations/previews/${rendererId}/${safe(item.id)}-${asset.sha256.slice(0, 16)}.${extension}`;
-  await writeArtifact(outputDir, destination, bytes);
-  asset.path = posix(destination);
-}
-
-async function validatePowerPointArchivedArtifact(outputDir: string, item: IntegrationCase, entry: any, target: RendererTargetEvidence): Promise<void> {
-  if (!target.preview || target.preview.state !== 'rendered') return;
-  const relativeArtifact = entry.artifactSourcePath ?? entry.artifact?.path;
-  if (!entry.artifact || typeof entry.artifact.sha256 !== 'string' || typeof relativeArtifact !== 'string' ||
-      target.preview.inputArtifactSha256 !== entry.artifact.sha256 || !Array.isArray(target.artifacts) || target.artifacts[0]?.sha256 !== entry.artifact.sha256) {
-    throw new Error(`PowerPoint renderer receipt artifact provenance is malformed for ${item.id}.`);
-  }
-  if (relativeArtifact.startsWith('/') || relativeArtifact.split(/[\\/]/).includes('..')) throw new Error(`PowerPoint archived artifact path is unsafe for ${item.id}.`);
-  const archivedBytes = await readFile(join(root, relativeArtifact));
-  if (sha256(archivedBytes) !== entry.artifact.sha256) throw new Error(`PowerPoint archived artifact hash mismatch for ${item.id}.`);
-  const fresh = await exportPowerPoint(item.commonDocument!, {mode: 'report'});
-  const readback = await importPowerPoint(archivedBytes, {mode: 'report', binding: fresh.binding, expectedBindingRevision: fresh.bindingRevision});
-  if (readback.changes.length !== 0 || canonical(readback.document) !== canonical(item.commonDocument)) {
-    throw new Error(`PowerPoint archived preview artifact no longer passes UMF source readback for ${item.id}.`);
-  }
-  if (canonical(fresh.losses) !== canonical(target.projection.losses)) throw new Error(`PowerPoint archived loss ledger differs from the current adapter projection for ${item.id}.`);
-  const destination = `integrations/downloads/powerpoint-preview/${safe(item.id)}-${entry.artifact.sha256.slice(0, 16)}.pptx`;
-  const copied = await writeArtifact(outputDir, destination, archivedBytes);
-  if (copied.sha256 !== entry.artifact.sha256 || target.preview.inputArtifactSha256 !== copied.sha256) throw new Error(`PowerPoint preview input artifact is not the verified archived PPTX for ${item.id}.`);
-  target.artifacts = [copied];
-}
-
-export async function joinPowerPointCycle(outputDir:string,item:IntegrationCase,target:RendererTargetEvidence):Promise<void>{
-  const path=join(root,'fixtures/renderers/powerpoint/native-cycle-receipt.json');
-  let bytes:Uint8Array;try{bytes=await readFile(path);}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return;throw error;}
-  const receipt=JSON.parse(new TextDecoder().decode(bytes)),matches=receipt?.cases?.filter((entry:any)=>entry.id===item.id);
-  if(receipt.schemaVersion!==1||!Array.isArray(matches)||matches.length!==1)throw new Error(`PowerPoint cycle receipt has no unique case ${item.id}.`);
-  const cycle=matches[0];
-  if(cycle.source?.sha256!==item.commonSha256){target.roundTrip={state:'unavailable',error:'PowerPoint cycle belongs to different source bytes.'};return;}
-  if(cycle.profileId!==target.profileId||cycle.modelVersion!==target.modelVersion||cycle.mappingVersion!==target.mappingVersion)throw new Error(`PowerPoint cycle profile/model/mapping differs from current source for ${item.id}.`);
-  if(cycle.roundTrip?.state!=='passed'){target.roundTrip={state:'unavailable',error:cycle.roundTrip?.error??'PowerPoint host readback remains pending.'};return;}
-  const sha=(value:unknown)=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);
-  const host=cycle.hostReadback,attestation=host?.operatorAttestation;
-  if(cycle.roundTrip.nativeHostReadback!==true||cycle.roundTrip.nativeEditValuesVerified!==true||cycle.roundTrip.umfQuestionUpdateVerifiedByParser!==true||!cycle.persistence?.sourceJson||!cycle.persistence?.sourceYaml||!cycle.persistence?.bindingJson||!sha(cycle.preservedArtifact?.sha256)||!sha(host?.artifactSha256)||host.inputArtifactSha256!==cycle.preservedArtifact.sha256||host.exactUpdatedDocument!==true||host.semanticChanges!==0||!attestation?.reopenObserved||!attestation.noRepairPrompt||!attestation.updatedQuestionVisible||!attestation.nativeBoldLabelVisible||!attestation.attachedEndpointsObserved||!attestation.host?.application||!attestation.host?.version)throw new Error(`PowerPoint cycle lacks complete native host/persistence evidence for ${item.id}.`);
-  const semantics=(losses:unknown[])=>losses.filter((loss:any)=>loss.family!=='native').map(canonical).sort();
-  if(!Array.isArray(host.losses)||canonical(semantics(host.losses))!==canonical(semantics(target.projection.losses)))throw new Error(`PowerPoint cycle source losses differ from the current projection for ${item.id}.`);
-  const copied=await writeArtifact(outputDir,`integrations/evidence/powerpoint-native-cycle-${sha256(bytes).slice(0,16)}.json`,bytes);
-  const changePaths=(cycle.imported.changes as any[]).map(change=>change.path as string);
-  const operator=host.operatorAttestation;
-  const endpointChanges=(cycle.imported.changes as any[]).filter(change=>/^\/extensions\/umf\.visual\/edges\/\d+\/(from|to)$/.test(change.path));
-  const sourceVisual=item.commonDocument!.extensions?.['umf.visual'] as any;
-  const endpointMatchesSource=endpointChanges.some(change=>{
-    const match=/^\/extensions\/umf\.visual\/edges\/(\d+)\/(from|to)$/.exec(change.path);
-    const edge=match&&sourceVisual?.edges?.[Number(match[1])];
-    const field=match?.[2];
-    return edge&&field&&change.before?.present===true&&change.before.value===edge[field]&&change.after?.present===true&&
-      typeof change.after.value==='string'&&change.after.value!==edge[field]&&sourceVisual.nodes.some((node:any)=>node.id===change.after.value);
-  });
-  const checks={
-    noop:cycle.nativeNoOp?.exactSourceReadback===true&&cycle.nativeNoOp?.semanticChanges===0,
-    label:changePaths.some(path=>/\/nodes\/\d+\/label$/.test(path))&&operator.nativeBoldLabelVisible===true,
-    reconnection:endpointChanges.length>0&&endpointMatchesSource&&operator.attachedEndpointsObserved===true,
-    movement:Array.isArray(cycle.nativePresentationChangesVsExport?.geometryAndStyleShapes)&&cycle.nativePresentationChangesVsExport.geometryAndStyleShapes.length>0&&cycle.preservingReadback?.nativeShapePropertiesPreserved===true,
-    style:Array.isArray(cycle.nativePresentationChangesVsExport?.textStyleShapes)&&cycle.nativePresentationChangesVsExport.textStyleShapes.length>0&&operator.nativeBoldLabelVisible===true,
-    jsonPersistence:cycle.persistence?.sourceJson===true,
-    yamlPersistence:cycle.persistence?.sourceYaml===true,
-    preservingUpdate:typeof cycle.preservingUpdate?.path==='string'&&cycle.preservingReadback?.exactAcceptedDocument===true&&cycle.preservingReadback?.nativeShapePropertiesPreserved===true,
-    readback:host.exactUpdatedDocument===true&&host.semanticChanges===0&&operator.reopenObserved===true&&operator.noRepairPrompt===true,
-  };
-  if(Object.values(checks).some(value=>value!==true))throw new Error(`PowerPoint host cycle lacks one or more required completion checks for ${item.id}.`);
-  target.roundTrip={state:'passed',receipt:copied,sourceSha256:item.commonSha256,profileId:target.profileId,modelVersion:target.modelVersion,mappingVersion:target.mappingVersion,
-    checks,attestation:{kind:'powerpoint-ui',nativeHostReadback:true,application:operator.host?.application,version:operator.host?.version,
-      observedOn:operator.observedOn,reopenObserved:operator.reopenObserved,noRepairPrompt:operator.noRepairPrompt,updatedQuestionVisible:operator.updatedQuestionVisible,
-      nativeBoldLabelVisible:operator.nativeBoldLabelVisible,attachedEndpointsObserved:operator.attachedEndpointsObserved},
-    nativeEditMethod:'PowerPoint editor UI and native Save As',host:attestation.host,inputArtifactSha256:cycle.preservedArtifact.sha256,outputArtifactSha256:host.artifactSha256,
-    semanticEditPaths:changePaths,preservingUpdatePath:cycle.preservingUpdate.path,nativeHostReadback:true};
-}
-
 async function writeNativeTargets(item: IntegrationCase, rawSource: Uint8Array, outputDir: string, page: Page, runtime: RuntimeSet): Promise<RendererTargetEvidence[]> {
   const document = item.commonDocument!;
   const version = modelVersion(document);
@@ -497,9 +325,6 @@ export async function buildRendererEvidence(cases: IntegrationCase[], outputDire
   if (commonCases.length !== 5) throw new Error(`Canonical full renderer evidence requires exactly five common integration documents; found ${commonCases.length}.`);
   const externalRequests: string[] = [];
   page.on('request', request => {if (!['about:', 'data:', 'file:'].includes(new URL(request.url()).protocol)) externalRequests.push(request.url());});
-  const receipts = await readDurableReceipts();
-  const entriesByReceipt = new Map<string, Map<string, any>>();
-  for (const [id, receipt] of receipts) entriesByReceipt.set(id, new Map(receipt.cases.map((entry: any) => [entry.id, entry])));
   try {
     for (const item of cases) {
       if (!item.commonDocument || !item.commonPath || !item.commonSha256) {item.rendererTargets = []; item.fullRendererTargets = []; continue;}
@@ -510,34 +335,9 @@ export async function buildRendererEvidence(cases: IntegrationCase[], outputDire
       if (canonical(parsed) !== canonical(item.commonDocument)) throw new Error(`IntegrationCase document differs from exact source bytes for ${item.id}.`);
       const nativeRows = await writeNativeTargets(item, sourceBytes, outputDir, page, runtime);
       const fullRows = await writeFullRendererTargets(item, sourceBytes, outputDir, page, runtime);
-      const hostRows = joinRendererReceiptRows(item, receipts);
-      for (const [rendererId, receiptById] of entriesByReceipt) {
-        const entry = receiptById.get(item.id);
-        const target = hostRows.find(row => row.rendererId === rendererId);
-        if (entry && target) {
-          await copyDurablePreviewAsset(outputDir, item, rendererId, entry, target);
-          if (target.roundTrip?.state === 'passed' && !(target.roundTrip as any).receipt && ['google-slides', 'miro'].includes(rendererId)) {
-            const bytes = await readFile(join(root, 'fixtures/renderers', rendererId, 'preview-receipt.json'));
-            const copied = await writeArtifact(outputDir, `integrations/evidence/${rendererId}-cohort-${sha256(bytes).slice(0, 16)}.json`, bytes);
-            (target.roundTrip as any).receipt = copied;
-          }
-          if (rendererId === 'powerpoint'){
-            if(target.preview?.state === 'rendered')await validatePowerPointArchivedArtifact(outputDir, item, entry, target);
-            await joinPowerPointCycle(outputDir,item,target);
-          }
-        }
-      }
-      item.rendererTargets = [...nativeRows, ...hostRows];
+      item.rendererTargets = nativeRows;
       item.fullRendererTargets = fullRows;
     }
     if (externalRequests.length) throw new Error(`Native Mermaid render attempted external requests: ${externalRequests.join(', ')}`);
   } finally {await page.close(); await runtime.chromium.close();}
 }
-
-/** Exposed for focused receipt tests; a malformed matching receipt is a build error. */
-export function verifyRendererPreviewSource(currentSha256: string, receiptSourceSha256: unknown): boolean {
-  if (!/^[a-f0-9]{64}$/.test(currentSha256)) throw new Error('Current source SHA-256 is malformed.');
-  if (receiptSourceSha256 !== undefined && (typeof receiptSourceSha256 !== 'string' || !/^[a-f0-9]{64}$/.test(receiptSourceSha256))) throw new Error('Renderer receipt source SHA-256 is malformed.');
-  return typeof receiptSourceSha256 === 'string' && /^[a-f0-9]{64}$/.test(receiptSourceSha256) && receiptSourceSha256 === currentSha256;
-}
-

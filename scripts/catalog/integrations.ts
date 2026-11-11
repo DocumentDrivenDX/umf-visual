@@ -47,16 +47,6 @@ export type IntegrationCase = {
   coverageReasons: string[];
   targets: {powerpoint: IntegrationTarget; googleSlides: IntegrationTarget; miro: IntegrationTarget};
 };
-export type HostConformance = {
-  id: string;
-  target: 'powerpoint' | 'google-slides' | 'miro';
-  matchedCaseId: string | null;
-  standalone: boolean;
-  profile: string;
-  source: {fixtureId: string | null; path: string | null; sha256: string};
-  receipt: {path: string; sha256: string; mediaType: 'application/json'; bytes: number};
-  scope: Record<string, unknown>;
-};
 export type IntegrationCatalog = {
   schemaVersion: 1;
   catalogProfile: 'umf.visual.integration-examples/1';
@@ -65,7 +55,6 @@ export type IntegrationCatalog = {
   completionReasons: string[];
   counts: {cases: number; commonProjections: number; opaqueWitnesses: number; formatReadbacks: number; plannedTargets: number; refusedTargets: number};
   cases: IntegrationCase[];
-  hostConformance: HostConformance[];
 };
 
 function readJson(path: string): Promise<{bytes: Uint8Array; value: any}> {
@@ -190,62 +179,6 @@ function coverageState(common: Document | null, projectionGaps: unknown[], targe
   return {coverageComplete: coverageReasons.length === 0, coverageReasons};
 }
 
-async function hostConformance(outputDir:string,cases:IntegrationCase[]):Promise<HostConformance[]> {
-  const proofRoot=join(root,'docs/helix/04-build/evidence');
-  const slidesPath=join(proofRoot,'google-slides-live-2026-10-30.json');
-  const powerpointPath=join(proofRoot,'powerpoint-native-conformance.json');
-  const miroPath=join(proofRoot,'miro-editable-live-2026-10-30.json');
-  const [slidesBytes,powerpointBytes,miroBytes]=await Promise.all([readFile(slidesPath),readFile(powerpointPath),readFile(miroPath)]);
-  const slides=JSON.parse(new TextDecoder().decode(slidesBytes)),powerpoint=JSON.parse(new TextDecoder().decode(powerpointBytes)),miro=JSON.parse(new TextDecoder().decode(miroBytes));
-  const findCase=(id:string)=>cases.find(item=>item.id===id);
-  const slideCase=findCase('process-documents-store'),networkCase=findCase('network-16x24');
-  if(!slideCase?.commonSha256||!networkCase?.commonSha256)throw new Error('Expected exact source cases for live host conformance receipts.');
-  const slidesProof=slides.source;
-  const powerpointProof=powerpoint.cases?.find((item:any)=>item.id==='network-16x24-native-edit');
-  const captionProof=powerpoint.cases?.find((item:any)=>item.id==='editable-edge-caption-native-edit');
-  if(miro.evidenceType!=='sanitized-live-host-conformance'||miro.profile!=='umf.visual.miro.editable-network/1'||miro.source?.synthetic!==true||miro.source?.fixtureId!==null||miro.source?.path!==null||miro.source.sha256!==miro.sourceSha256?.before){
-    throw new Error('Miro host receipt must remain a separate synthetic standalone source.');
-  }
-  if(slidesProof?.fixtureId!=='process-documents-store'||slidesProof.sha256!==slideCase.commonSha256||slides.profile!=='umf.visual.google-slides.network/1'){
-    throw new Error('Google Slides live receipt does not match the exact process-documents-store source hash.');
-  }
-  if(powerpointProof?.source?.sha256!==networkCase.commonSha256||powerpoint.profile!=='umf.visual.powerpoint.network/1'){
-    throw new Error('PowerPoint native receipt does not match the exact network-16x24 source hash.');
-  }
-  if(!captionProof?.source?.synthetic||captionProof.source.sha256===networkCase.commonSha256)throw new Error('Standalone caption host proof must remain distinct from corpus cases.');
-  const downloads='integrations/downloads';
-  await mkdir(join(outputDir,downloads),{recursive:true});
-  const receiptFiles=[
-    {name:'google-slides-live-2026-10-30.json',bytes:slidesBytes},
-    {name:'powerpoint-native-conformance.json',bytes:powerpointBytes},
-    {name:'miro-editable-live-2026-10-30.json',bytes:miroBytes},
-  ];
-  for(const file of receiptFiles)await writeFile(join(outputDir,downloads,file.name),file.bytes);
-  const receipt=(name:string,bytes:Uint8Array)=>({path:downloads+'/'+name,sha256:sha256(bytes),mediaType:'application/json' as const,bytes:bytes.byteLength});
-  const slidesReceipt=receipt(receiptFiles[0]!.name,slidesBytes),pptReceipt=receipt(receiptFiles[1]!.name,powerpointBytes);
-  return [
-    {id:'slides-process-documents-store-live',target:'google-slides',matchedCaseId:slideCase.id,standalone:false,profile:slides.profile,
-      source:{fixtureId:slidesProof.fixtureId,path:slidesProof.path,sha256:slidesProof.sha256},receipt:slidesReceipt,
-      scope:{nativeWritesObserved:slides.executionBoundary?.actualGoogleSlidesWritesObserved===true,traceReplayVerified:slides.executionBoundary?.apiWrapperTraceReplayVerified===true,
-        exportRequests:slides.capture?.exportBatchRequests,uiEditPaths:slides.nativeUiEdits?.importSemanticPaths,umfUpdateRequests:slides.umfUpdate?.requests,
-        finalBindingRevision:slides.umfUpdate?.finalBindingRevision,nativePreservation:slides.nativePreservation,limitations:slides.limits}},
-    {id:'powerpoint-network-16x24-native',target:'powerpoint',matchedCaseId:networkCase.id,standalone:false,profile:powerpoint.profile,
-      source:{fixtureId:networkCase.id,path:powerpointProof.source.path,sha256:powerpointProof.source.sha256},receipt:pptReceipt,
-      scope:{host:powerpoint.host,modelVersion:powerpointProof.source.modelVersion,nodeCount:powerpointProof.source.nodes,edgeCount:powerpointProof.source.edges,
-        semanticEditPaths:powerpointProof.adapterReadback.changePaths,nativePresentationEdits:powerpointProof.nativeActions.nativePresentationEdits,
-        reopenedAfterPreservingUpdate:powerpointProof.nativeActions.reopenAfterPreservingUpdate,qualification:powerpoint.qualification.verifiedSubset,limitations:powerpoint.qualification.notEstablished}},
-    {id:'powerpoint-caption-standalone',target:'powerpoint',matchedCaseId:null,standalone:true,profile:powerpoint.profile,
-      source:{fixtureId:null,path:null,sha256:captionProof.source.sha256},receipt:pptReceipt,
-      scope:{label:'Standalone editable edge-caption proof; not part of the six-case synthetic corpus.',sourceSynthetic:captionProof.source.synthetic===true,
-        nativeEditPath:captionProof.nativeActions.edit.path,nativeReadback:captionProof.adapterReadback.status,preservingUpdate:captionProof.adapterReadback.preservingUpdate,
-        reopenedAfterPreservingUpdate:captionProof.adapterReadback.nativeReopenAfterPreservingUpdate}},
-    {id:'miro-editable-live-standalone',target:'miro',matchedCaseId:null,standalone:true,profile:miro.profile,
-      source:{fixtureId:null,path:null,sha256:miro.source.sha256},receipt:receipt(receiptFiles[2]!.name,miroBytes),
-      scope:{host:miro.host,hostVersion:miro.hostVersion,modelVersion:miro.modelVersion,sourceCounts:miro.sourceCounts,edits:miro.edits,
-        preservation:miro.preservation,refusalEvidence:miro.refusalEvidence,qualification:miro.qualification}},
-  ];
-}
-
 /** Generates additive PPTX/XML, Google Slides planner and editable Miro evidence for six synthetic examples. */
 export async function buildIntegrationCatalog(outputDirectory: string, options: {rendererEvidence?: boolean} = {}): Promise<IntegrationCatalog> {
   const outputDir = resolve(outputDirectory), manifestPath = join(corpusRoot, 'manifest.json'), schemaPath = join(corpusRoot, 'native-witness.schema.json');
@@ -255,13 +188,12 @@ export async function buildIntegrationCatalog(outputDirectory: string, options: 
   for (const manifestCase of manifest.value.cases) cases.push(await loadCase(manifestCase, outputDir));
   if (options.rendererEvidence !== false) await buildRendererEvidence(cases,outputDir);
   const targets = cases.flatMap(item => Object.values(item.targets));
-  const hostProofs=await hostConformance(outputDir,cases);
   const catalog: IntegrationCatalog = {schemaVersion: 1, catalogProfile: 'umf.visual.integration-examples/1',
     corpus: {manifestPath: posix(relative(root, manifestPath)), manifestSha256: sha256(manifest.bytes), witnessSchemaPath: posix(relative(root, schemaPath))},
     complete: cases.every(item => item.coverageComplete), completionReasons: [...new Set(cases.flatMap(item => item.coverageReasons))],
     counts: {cases: cases.length, commonProjections: cases.filter(item => item.commonDocument).length, opaqueWitnesses: cases.filter(item => !item.commonDocument).length,
       formatReadbacks: targets.filter(target => target.status === 'format-readback').length, plannedTargets: targets.filter(target => target.status === 'planned').length,
-      refusedTargets: targets.filter(target => target.status === 'refused').length}, cases, hostConformance:hostProofs};
+      refusedTargets: targets.filter(target => target.status === 'refused').length}, cases};
   await mkdir(outputDir, {recursive: true});
   await writeFile(join(outputDir, 'integrations.json'), JSON.stringify(catalog, null, 2) + '\n');
   return catalog;

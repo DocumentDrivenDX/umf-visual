@@ -60,35 +60,13 @@ test('integration catalogue preserves six witnesses and labels evidence by what 
     expect(catalog.counts.formatReadbacks).toBe(5);
     expect(catalog.counts.plannedTargets).toBe(10);
     expect(catalog.counts.refusedTargets).toBe(3);
-    expect(catalog.hostConformance).toHaveLength(4);
-    const slideProof=catalog.hostConformance.find(proof=>proof.target==='google-slides')!;
     const slideCase=catalog.cases.find(item=>item.id==='process-documents-store')!;
-    expect(slideProof).toMatchObject({matchedCaseId:'process-documents-store',standalone:false,profile:'umf.visual.google-slides.network/1',source:{sha256:slideCase.commonSha256}});
-    expect(slideProof.scope).toMatchObject({nativeWritesObserved:true,exportRequests:37,umfUpdateRequests:3,finalBindingRevision:2});
     expect(slideCase.targets.googleSlides.status).toBe('planned');
     expect(slideCase.targets.googleSlides.nativeHostVerified).toBe(false);
     expect(slideCase.targets.googleSlides.losses.length).toBeGreaterThan(0);
-
-    const networkProof=catalog.hostConformance.find(proof=>proof.id==='powerpoint-network-16x24-native')!;
     const networkCase=catalog.cases.find(item=>item.id==='network-16x24')!;
-    if(!networkCase.commonSha256)throw new Error('Expected a hashed network common projection.');
-    expect(networkProof.source.sha256).toBe(networkCase.commonSha256);
-    expect(networkProof.scope).toMatchObject({modelVersion:'1.1.0',nodeCount:16,edgeCount:24,reopenedAfterPreservingUpdate:true});
     expect(networkCase.targets.powerpoint.status).toBe('format-readback');
     expect(networkCase.targets.powerpoint.nativeHostVerified).toBe(false);
-
-    const standalone=catalog.hostConformance.find(proof=>proof.id==='powerpoint-caption-standalone')!;
-    expect(standalone).toMatchObject({matchedCaseId:null,standalone:true,source:{fixtureId:null,path:null}});
-    expect(standalone.source.sha256).not.toBe(networkCase.commonSha256);
-    const miroProof=catalog.hostConformance.find(proof=>proof.target==='miro')!;
-    expect(miroProof).toMatchObject({id:'miro-editable-live-standalone',matchedCaseId:null,standalone:true,source:{fixtureId:null,path:null}});
-    expect(miroProof.scope).toMatchObject({modelVersion:'1.0.0',sourceCounts:{nodes:3,edges:2,mappedSlots:7,mappedShapes:5,unmappedNativeItems:82}});
-    for(const proof of catalog.hostConformance){
-      expect(proof.receipt.path.startsWith('integrations/downloads/')).toBe(true);
-      const bytes=await readFile(join(output,proof.receipt.path));
-      expect(createHash('sha256').update(bytes).digest('hex')).toBe(proof.receipt.sha256);
-      expect(bytes.byteLength).toBe(proof.receipt.bytes);
-    }
     const saved = JSON.parse(await readFile(join(output, 'integrations.json'), 'utf8'));
     expect(saved).toEqual(catalog);
   } finally {
