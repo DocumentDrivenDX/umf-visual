@@ -126,4 +126,4 @@ authoritative model generation and vocabulary redesign.
 The owner-authorized example-completion increment adds qualified render profiles
 for existing forms and readable metadata. It does not expand model semantics or
 turn native acceptance into a general fidelity claim. CONTRACT-087 and the
-[example completion plan](../../04-build/example-completion-plan.md) govern it.
+example completion plan govern it.

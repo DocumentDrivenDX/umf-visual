@@ -114,4 +114,4 @@ evidence are unchanged by this release. No whole-language or arbitrary-host
 losslessness is claimed.
 
 See the [public API examples](../../../README.md#complete-examples-through-explicit-profiles)
-and [execution evidence](../04-build/example-completion-plan.md).
+and execution evidence.

@@ -98,7 +98,7 @@ LibreOffice-generated preview images remain separately labelled conversion
 evidence. Slides cycles use actual native API calls through injected transport
 and archived page thumbnails, with no editor-UI claim. Miro cycles use the actual
 Web SDK and isolated synthetic captures; service versions remain unpinned.
-The [continuation evidence](../04-build/example-completion-evidence.md#p8-p14-continuation-review--2026-10-31)
+The continuation evidence
 records the fifteen locally verified pairs and remaining publication gates.
 
 Miro read-only recovery is separate from a failed immediate verification fence.
@@ -131,10 +131,10 @@ the immutable planning baseline 629/792/553. The remaining 1,951 raw incidences
 and 1,793 maximal groups are not repaired by selecting an annotation profile.
 
 No ordinary DOT reduction is claimed: 629 → 629. Its role/status/style probe
-completes the [amended bounded eligibility gate](../04-build/example-completion-plan.md#reviewed-p10-d-eligibility-amendment--2026-10-31)
+completes the amended bounded eligibility gate
 with a negative mapping result; the original reduction forecast remains
 unachieved. Typed entity/field-port mapping remains a separate open adapter opportunity.
-The [bounded probe/loss report](../04-build/evidence/renderer-coverage-loss-progress.json)
+The bounded probe/loss report
 pins all 53 unchanged source identities and separates these populations.
 
 The earlier v0.2.0 one-suitable-target gate remains 53 examples/22 forms. It
@@ -175,7 +175,7 @@ hold and rollback signals; these notes do not authorize bypassing its gates.
 ## References
 
 - [Publication checklist](deployment-checklist-v0.3.0.md)
-- [Execution plan](../04-build/example-completion-plan.md)
-- [Execution evidence and open gates](../04-build/example-completion-evidence.md)
+- Execution plan
+- Execution evidence and open gates
 - [Editable host bindings](../02-design/contracts/CONTRACT-088-editable-host-bindings.md)
 - [Publication workflow](../../../.github/workflows/ci.yml)

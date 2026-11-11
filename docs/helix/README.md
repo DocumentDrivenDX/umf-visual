@@ -18,10 +18,10 @@ compatibility, preservation and portable behavior are its outcomes.
   refer to that source cut; extraction packaging is governed locally below.
 - [Architecture](02-design/architecture.md) defines the public package boundary.
 - [Test plan](03-test/test-plan.md) defines verification and its limits.
-- [Extraction plan](04-build/implementation-plan.md) records bootstrap scope and
+- Extraction plan records bootstrap scope and
   the ordered work that remains after extraction.
-- [Verification](04-build/extraction-evidence.md) records observed results.
-- [Library workflow gap](04-build/library-workflow-gap.md) records the proposed
+- Verification records observed results.
+- Library workflow gap records the proposed
   upstream HELIX improvement without inventing a local methodology fork.
 
 The installed HELIX catalog supplies templates and workflow definitions. It is
@@ -46,40 +46,40 @@ The [visual-language source inventory](00-discover/current-state-inventory-visua
 distinguishes the current versioned language declarations from example instances and
 identifies application-profile constraints requiring explicit future model design.
 
-[Interchange and catalog execution evidence](04-build/interchange-catalog-evidence.md)
+Interchange and catalog execution evidence
 records native, packed-package, browser, catalog and reproducibility checks.
 
-[First loss-reduction wave](04-build/loss-reduction-wave-1.md) records measured
+First loss-reduction wave records measured
 title/description mappings, native character limits and the next worklist.
 
-[Second loss-reduction wave](04-build/loss-reduction-wave-2.md) records native
+Second loss-reduction wave records native
 cluster/sequence mappings, 13 additional renders and qualified remaining losses.
 
-[Miro integration spike](02-design/spikes/SPIKE-011-miro-integration.md) and
+Miro integration spike and
 [CONTRACT-084](02-design/contracts/CONTRACT-084-miro-network.md) govern the
 bounded network adapter and native preservation extension. The
-[implementation evidence](04-build/miro-integration.md) records actual Miro UI
+implementation evidence records actual Miro UI
 edit/adoption, a 72-item native reproduction and scoped fidelity limits.
 
-[Versioned review integration](04-build/visual-1-1-integration.md) qualifies the explicit 1.1.0 corrections and frozen released 1.0.0 defaults.
+Versioned review integration qualifies the explicit 1.1.0 corrections and frozen released 1.0.0 defaults.
 
-[PowerPoint integration spike](02-design/spikes/SPIKE-094-powerpoint-integration.md)
+PowerPoint integration spike
 records an actual PowerPoint 16.114.3 export/edit/save/import round trip.
 Bun and Chromium recover edited labels and a reconnected edge from embedded source;
 native layout is retained separately. Structural edits and broader forms remain
 unqualified.
 
-[PowerPoint native conformance](04-build/powerpoint-native-conformance.md) records
+PowerPoint native conformance records
 the 16-node/24-edge network edit and the independently edited/reopened edge
-caption, with sanitized package digests in its [evidence receipt](04-build/evidence/powerpoint-native-conformance.json).
+caption, with sanitized package digests in its evidence receipt.
 
-[Miro editable live conformance](04-build/miro-editable-live-2026-10-30.md)
+Miro editable live conformance
 records the bounded editable-network import, native-preserving update and
-sanitized revision/capture evidence. Its [receipt](04-build/evidence/miro-editable-live-2026-10-30.json)
+sanitized revision/capture evidence. Its receipt
 contains only counts, hashes and logical source paths; the live board bindings
 and screenshot remain private.
 
-[Google Slides integration spike](02-design/spikes/SPIKE-001-google-slides.md)
+Google Slides integration spike
 demonstrates export, actual Google Slides UI label/movement edits, validated
 import and a second native export for an adapter-owned flow/network diagram.
 Bun/Chromium replays cover preservation and refusal; arbitrary native import and
@@ -87,12 +87,12 @@ structural edit reconciliation remain unqualified. The prototype is outside the 
 
 [Readable annotation profiles](02-design/contracts/CONTRACT-087-readable-annotations.md)
 govern optional typed native legends, coverage/readback and unchanged native
-defaults. The [example completion plan](04-build/example-completion-plan.md)
+defaults. The example completion plan
 sequences the confirmed release gate: every current example has at least one
 suitable complete target and all 22 forms have faithful previews, followed by
 sanitized complex Miro examples and expanded edited integrations.
 
-[Example milestone evidence](04-build/example-completion-evidence.md) records
+Example milestone evidence records
 complete semantic/native readback and local preview approval, with Linux CI
 and publication still pending. [Prepared v0.2.0 notes](05-deploy/release-notes-v0.2.0.md)
 describe that candidate and its qualified scope.

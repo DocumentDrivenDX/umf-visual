@@ -23,7 +23,6 @@ read/write/inspect/create/edit APIs were extracted from
 
 Version 0.6.0 is packaged as `@documentdrivendx/umf-visual`, distributed through a
 [GitHub release archive](https://github.com/DocumentDrivenDX/umf-visual/releases/tag/v0.6.0).
-The release publication receipt records the actual archive and deployment checks.
 It is not published to npm.
 
 Browse the [umf.visuals catalog](https://documentdrivendx.github.io/umf-visual/).
@@ -41,29 +40,45 @@ remain separate evidence. Versions 1.0.0, 1.1.0, 1.2.0 and 1.3.0 assets and
 interpretation remain frozen. Unversioned
 schema/manifest and authoring defaults remain 1.0.0; new versions require opt-in.
 
+## Install and quickstart
+
+Download `documentdrivendx-umf-visual-<version>.tgz` from the
+[GitHub release](https://github.com/DocumentDrivenDX/umf-visual/releases) and
+install it together with the pinned UMF core SDK:
+
+```sh
+npm install ./documentdrivendx-umf-visual-0.6.0.tgz \
+  https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz
+```
+
+<!-- quickstart -->
+```js
+import {createVisualDocument} from '@documentdrivendx/umf-visual';
+import {compilePresentation} from '@documentdrivendx/umf-visual/presentation';
+const doc = createVisualDocument({id: 'hello', kind: 'flow', form: 'network', question: 'What calls what?',
+  nodes: [{id: 'client', label: 'Client'}, {id: 'api', label: 'API'}],
+  edges: [{id: 'call', from: 'client', to: 'api'}]});
+const plan = compilePresentation(doc, {backend: 'mermaid'});
+if (!plan.ok) throw new Error(JSON.stringify(plan.diagnostics));
+console.log(plan.source);
+```
+<!-- /quickstart -->
+
+## Develop and test
+
 ```sh
 bun install --frozen-lockfile --ignore-scripts
-bun run check:source
-bun run typecheck
-bun test
-bun run fetch:lini
-bun run build
-bun run test:package
 bunx playwright install chromium
-bun run test:native       # requires Graphviz dot and Python 3 on PATH
-bun run test:native:annotated
-bun run test:native:full
+bun run check:source && bun run typecheck
+bun run test              # fetches the pinned Lini runtime, then bun test
+bun run build && bun run test:package
+bun run test:native       # requires Graphviz dot on PATH
 bun run test:browser
-bun run build:catalog     # actual DOT, Mermaid and Lini native SVG generation
-bun run test:catalog     # validate exact source and SVG hashes
-bun run build:showcase    # themed native drawings from sourced DSL definitions
-bun run test:showcase     # source/image identities and scoped visual checks
-bun run build:site        # assemble dist-site/
-bun run test:site
-bun run test:site:showcase
-bun run test:release:catalog
-bun run test:site:profiles
 ```
+
+Slower renderer and microsite suites (`test:native:full`, `test:native:wave2`,
+`test:native:annotated`, `build:catalog`, `build:site`, `test:site*`) run in the
+nightly CI job. CI output under `.cache/` is uploaded as a workflow artifact.
 
 Serve `dist-site/` with any static HTTP server to browse the microsite. Source lives
 in `microsite/`; `scripts/catalog/` derives the data from every checked-in visual
@@ -254,7 +269,7 @@ four Mermaid). Those choices and its [publication receipt](https://github.com/Do
 remain independently recorded compatibility evidence. Native acceptance, exact
 text and semantic readback are checked separately from faithful geometry and
 readable previews.
-See [milestone evidence and release gates](docs/helix/04-build/example-completion-evidence.md).
+See milestone evidence and release gates.
 
 The catalog provides larger previews and an image viewer with fit, actual-size,
 zoom and full-screen controls. Versioned display styling preserves model semantics,
@@ -293,7 +308,7 @@ Google Slides and Miro. See the [editable host integration guide](docs/editable-
 for package imports, strict/report behavior, revision-fenced readback and update
 examples. Named native-host proofs qualify specific PowerPoint, Slides and Miro
 cases; the older Miro capture/clipboard evidence is a separate profile. The
-[current continuation evidence](docs/helix/04-build/example-completion-evidence.md#p8-p14-continuation-review--2026-10-31)
+current continuation evidence
 distinguishes the fifteen locally qualified host cycles from conversion
 previews and the still-pending release/CI gates. It does not claim whole-board
 or arbitrary-edit support.
@@ -315,7 +330,7 @@ native behavior and historical receipts unchanged.
 
 The first loss-reduction wave preserves Mermaid diagram titles and secondary node
 descriptions as DOT tooltips/Lini card hints. `bun run report:loss` compares actual
-results with the unchanged example baseline; [evidence and remaining work](docs/helix/04-build/loss-reduction-wave-1.md)
+results with the unchanged example baseline; evidence and remaining work
 record native text limits.
 
 The build produces browser-compatible ESM and declarations with core external.
@@ -359,7 +374,7 @@ a 72-item native UMF reproduction pass. `umf.visual.miro` preserves API-visible
 JSON and optional opaque native browser-copy content, with qualified fidelity
 and shared-model gaps recorded in the guide.
 
-See the [Miro integration guide](docs/helix/04-build/miro-integration.md) for the runnable app, versioned scope and native evidence.
+See the Miro integration guide for the runnable app, versioned scope and native evidence.
 
 ## Versioned review fixes
 

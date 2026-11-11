@@ -92,6 +92,6 @@ the library cut independently of later catalog deployments.
 ## References
 
 - [Architecture](../02-design/architecture.md)
-- [Native and catalog evidence](../04-build/interchange-catalog-evidence.md)
-- [First loss-reduction wave](../04-build/loss-reduction-wave-1.md)
+- Native and catalog evidence
+- First loss-reduction wave
 - [Publication workflow](../../../.github/workflows/ci.yml)
