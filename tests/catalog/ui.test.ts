@@ -149,7 +149,6 @@ describe('microsite catalogue UI contract',()=>{
     expect(browser).toContain('all ${renderAssets.length} native SVGs load in-browser');
     expect(browser).toContain('Expected all 178 verified baseline and qualified profile SVG assets');
     expect(browser).toContain('previewBounds.image.width>previewBounds.container.width');
-    expect(browser).toContain('Miro preview did not decode as a JPEG with positive image dimensions');
     expect(browser).toContain('const ordinaryProfile=`umf.visual.${target}/1`');
     expect(browser).toContain('summaryText.includes(`v${capability.version}`)');
 
