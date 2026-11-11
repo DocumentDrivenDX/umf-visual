@@ -75,7 +75,7 @@ const updated = await updatePowerPoint(imported, desired, {
 The current package is parsed under bounded ZIP/XML rules. `updatePowerPoint`
 does not accept arbitrary package edits as source updates; stale artifact
 digests, unsupported shape changes, and semantic changes outside the mapped
-fields refuse. See the [PowerPoint native conformance evidence](helix/04-build/powerpoint-native-conformance.md)
+fields refuse. See the PowerPoint native conformance evidence
 for the qualified native application scope and limits.
 
 ## Google Slides
@@ -122,7 +122,7 @@ revision. `planGoogleSlidesUpdate` requires the current source, desired source,
 current observation, and expected binding revision; `applyGoogleSlidesUpdate`
 rechecks the host revision before sending the update and validates a later
 readback. User-owned credentials and request retries remain the host caller's
-responsibility. See the [Google Slides integration spike](helix/02-design/spikes/SPIKE-001-google-slides.md)
+responsibility. See the Google Slides integration spike
 for the bounded profile's recorded application evidence and limits.
 
 ## Miro editable network
@@ -186,9 +186,9 @@ refused as `RICH_TEXT` rather than flattened. This evidence does not qualify
 other forms, rich-text editing, group behavior, or all Miro service releases;
 the Miro service release was not pinned. The tested source was synthetic and
 was not one of the six integration-corpus cases. See the
-[sanitized live Miro receipt](helix/04-build/miro-editable-live-2026-10-30.md)
-and [receipt data](helix/04-build/evidence/miro-editable-live-2026-10-30.json).
-The older [Miro integration evidence](helix/04-build/miro-integration.md)
+sanitized live Miro receipt
+and receipt data.
+The older Miro integration evidence
 concerns the separate `umf.visual.miro` capture/clipboard profile and does not
 qualify this editable binding API.
 

@@ -38,7 +38,7 @@ Merged-foundation qualification: this inventory records frozen 1.0.0. Explicit
 latest 1.1.0 now has 20 reusable definitions and 19 root properties, generated
 types/manifest, exact multiplicities and stable field IDs. Both versions register;
 default aliases and original examples remain 1.0.0. See
-[versioned integration](../04-build/visual-1-1-integration.md).
+versioned integration.
 
 ## Shared-model expansion — 2026-11-02
 

@@ -115,5 +115,5 @@ core library is not. SVG attachment and styling remain the host's responsibility
 - [Library usage](../../../README.md)
 - [Presentation contract](../02-design/contracts/CONTRACT-089-presentation-rendering.md)
 - [Visual model contract](../02-design/contracts/CONTRACT-083-visual-vocabulary.md)
-- [Execution and publication gates](../04-build/example-completion-plan.md)
+- Execution and publication gates
 - [Live microsite](https://documentdrivendx.github.io/umf-visual/)

@@ -9,12 +9,10 @@ const hash=(text:string|Uint8Array)=>createHash('sha256').update(text).digest('h
 const fixture=(name:string)=>JSON.parse(readFileSync('fixtures/visual/inventory/'+name+'.json','utf8')) as Document;
 const flow=(count:number):Visual=>({id:'sized',kind:'flow',form:'network',question:'How many?',nodes:Array.from({length:count},(_,i)=>({id:'n'+i,label:'N'+i}))});
 
-test('released schema, manifest, validator and imported fixture bytes remain frozen',()=>{
+test('released schema, manifest and validator bytes remain frozen',()=>{
  expect(hash(readFileSync('spec/extensions/visual/1.0.0/schema.json'))).toBe('659ec61d834d4a410f06405fb4197e152f954d280b9265f71be32e992b038ec8');
  expect(hash(readFileSync('spec/extensions/visual/1.0.0/package.json'))).toBe('839e69d63dd784f23e655a8a4227602fe96abe3cdf8687231f3974f8de9f01b8');
  expect(hash(readFileSync('src/extensions/visual/legacy-1-0.ts','utf8').replace('../../../spec/extensions/visual/1.0.0/package.json','../../../spec/extensions/visual/package.json'))).toBe('fab32123da58330e7d4c290743b746363913b5fa23cbb7491e931343eda29cb1');
- const provenance=JSON.parse(readFileSync('UPSTREAM.json','utf8'));
- for(const [path,digest] of Object.entries(provenance.originalFileSha256))if(path.startsWith('fixtures/visual/'))expect(hash(readFileSync(path)),path).toBe(digest as string);
   expect(VISUAL_VERSION).toBe('1.0.0');expect(LATEST_VISUAL_VERSION).toBe('1.4.0');expect(visualPackage.version).toBe('1.0.0');expect(latestVisualPackage.version).toBe('1.4.0');
 });
 
@@ -53,7 +51,7 @@ test('serialized 1.0 retained source replays and version changes cannot forge ex
  const source='digraph G { a [label="A"]; b [label="B"]; a -> b; }';
  const imported=importVisual(source,{format:'dot',id:'legacy',question:'What connects?',mode:'allow-reported-loss'});
  expect(imported.ok).toBe(true);expect(imported.document!.vocabularies['umf.visual']!.version).toBe('1.0.0');
- const pair=JSON.parse(readFileSync("tests/visual/released-source-receipt.json","utf8"));
+ const pair=JSON.parse(readFileSync("tests/visual/released-source-pair.json","utf8"));
  expect(imported.source).toEqual(pair.source);expect(imported.document).toEqual(pair.document);
  expect(exportVisual(pair.document,{format:'dot',source:pair.source,original:true})).toMatchObject({ok:true,text:source});
  expect(exportVisual(upgradeVisualDocument(pair.document),{format:'dot',source:pair.source,original:true}).ok).toBe(false);

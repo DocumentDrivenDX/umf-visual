@@ -24,12 +24,12 @@ Candidate GitHub archive release and conformance-gated static Pages publication.
 Final commit, release date, workflow run, archive digests and served hashes are
 not yet established. **Hold publication while any gate below is open.**
 The [candidate notes](release-notes-v0.3.0.md) describe scope; the
-[execution record](../04-build/example-completion-evidence.md#p8-p14-continuation-review--2026-10-31)
+execution record
 retains partial observations and the earlier published closure.
 
 ## Before Deploy
 
-- Review the final diff and the [P10-D acceptance amendment](../04-build/example-completion-plan.md#reviewed-p10-d-eligibility-amendment--2026-10-31). Its bounded negative eligibility package is complete; the original reduction forecast remains unachieved at 629 → 629. Keep the entity/field-port candidate open; do not label the probe a loss reduction.
+- Review the final diff and the P10-D acceptance amendment. Its bounded negative eligibility package is complete; the original reduction forecast remains unachieved at 629 → 629. Keep the entity/field-port candidate open; do not label the probe a loss reduction.
 - Review CONTRACT-085/087/088; retain frozen 1.0.0,
   the 53-source manifest, six integration witnesses and opaque-case refusal.
 - Complete host evidence before the catalog build; do not perform live host

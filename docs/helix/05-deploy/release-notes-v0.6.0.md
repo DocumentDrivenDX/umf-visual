@@ -99,5 +99,5 @@ byte-identical across every viewer. The v0.5.0 strict-CSP worker boundary is unc
 - [Library usage](../../../README.md)
 - [Presentation contract](../02-design/contracts/CONTRACT-089-presentation-rendering.md)
 - [Visual model contract](../02-design/contracts/CONTRACT-083-visual-vocabulary.md)
-- [Execution and publication gates](../04-build/example-completion-plan.md)
+- Execution and publication gates
 - [Live microsite](https://documentdrivendx.github.io/umf-visual/)

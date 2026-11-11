@@ -98,9 +98,9 @@ Receipt source/fixture hashes match current exports.
 Native rendering and exact text remain separate from geometry approval; the
 reviewed candidate has both.
 Durable local receipts are linked from the milestone evidence. Linux CI passes;
-the [release closure receipt](../04-build/evidence/example-completion-release-v0.2.0.json)
+the release closure receipt
 pins the published catalog and archive checksums.
-The [milestone evidence](../04-build/example-completion-evidence.md) records
+The milestone evidence records
 commands, measured results and remaining blockers.
 
 ## Known Issues and Support
@@ -127,8 +127,8 @@ relabel a changed document's old receipt.
 
 ## References
 
-- [Example completion plan](../04-build/example-completion-plan.md)
-- [Milestone evidence and release gates](../04-build/example-completion-evidence.md)
+- Example completion plan
+- Milestone evidence and release gates
 - [Annotation contract](../02-design/contracts/CONTRACT-087-readable-annotations.md)
-- [Versioned integration](../04-build/visual-1-1-integration.md)
+- Versioned integration
 - [Publication workflow](../../../.github/workflows/ci.yml)

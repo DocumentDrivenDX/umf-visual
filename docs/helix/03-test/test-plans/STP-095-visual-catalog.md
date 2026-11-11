@@ -204,7 +204,7 @@ native defaults and historical receipts; profile variants do not replace them.
 
 Tests MUST use actual current corpus enumeration. A nonempty SVG, source capture,
 or self-roundtrip alone cannot satisfy these gates. The
-[example completion plan](../../04-build/example-completion-plan.md) sequences
+example completion plan sequences
 the packages and preserves post-release integration work as a later milestone.
 
 ## Lini and expansive-model presentation qualification

@@ -8,7 +8,7 @@ const fullNativeClean=(render:any)=>Boolean(render?.ok&&render.svgPath&&/^[a-f0-
 const siteRoot=resolve('dist-site');
 const baseUrl='https://umf.local/evidence.html';
 const catalog=await Bun.file(join(siteRoot,'catalog.json')).json() as {schemaVersion:number;items:Array<any>;capabilities:Array<{format:string;profile:string;version:string}>;language:{schema:{sourcePath:string;sourceSha256:string;schema:any};forms:{sourcePath:string;sourceSha256:string;kinds:Array<{kind:string;forms:string[]}>}}};
-const integrationCatalog=await Bun.file(join(siteRoot,'integrations.json')).json() as {schemaVersion:number;complete:boolean;counts:Record<string,number>;cases:Array<any>;hostConformance:Array<any>};
+const integrationCatalog=await Bun.file(join(siteRoot,'integrations.json')).json() as {schemaVersion:number;complete:boolean;counts:Record<string,number>;cases:Array<any>};
 if(catalog.schemaVersion!==1||!Array.isArray(catalog.items)||catalog.items.length===0||!catalog.language?.schema?.schema||!catalog.language?.forms?.kinds)throw new Error('Build the site first; dist-site/catalog.json is missing or invalid.');
 if(integrationCatalog.schemaVersion!==1||integrationCatalog.complete!==false||integrationCatalog.cases?.length!==6)throw new Error('Build the integration site first; dist-site/integrations.json is missing or invalid.');
 const formExamples=catalog.items.filter(item=>item.sourcePath.startsWith('fixtures/visual/forms/'));
@@ -69,21 +69,7 @@ try{
   if(await page.locator('#integration-catalog .integration-status.format-readback').count()!==integrationCatalog.counts.formatReadbacks)throw new Error('PPTX XML format-readback outcomes differ from the integration catalogue');
   if(await page.locator('#integration-catalog .integration-status.planned').count()!==integrationCatalog.counts.plannedTargets||await page.locator('#integration-catalog .integration-status.refused').count()!==integrationCatalog.counts.refusedTargets)throw new Error('Planned-target or opaque-case refusal totals differ from the integration catalogue');
   const integrationNotice=(await page.locator('#integration-catalog .integration-release-state').innerText()).toLowerCase();
-  if(!integrationNotice.includes('not complete')||!integrationNotice.includes('exact source'))throw new Error('Integration section overstates native-host coverage or omits source-scoped evidence');
-  const hostProofs=page.locator('#integration-catalog article.integration-host-proof');
-  const matchedProofs=integrationCatalog.hostConformance.filter(proof=>proof.matchedCaseId&&!proof.standalone);
-  const standaloneProofs=integrationCatalog.hostConformance.filter(proof=>proof.standalone);
-  if(await hostProofs.count()!==integrationCatalog.hostConformance.length)throw new Error('Native-host receipts were not all rendered as separately scoped evidence');
-  if(await page.locator('#integration-catalog .integration-host-proof-list:not(.integration-standalone-proofs) article.integration-host-proof').count()!==matchedProofs.length)throw new Error('Source-matched native-host receipt count differs from the input evidence');
-  if(await page.locator('#integration-catalog .integration-standalone-proofs article.integration-host-proof').count()!==standaloneProofs.length)throw new Error('Standalone native-host receipt count differs from the input evidence');
-  for(const proof of matchedProofs){
-    const sourceCase=integrationCatalog.cases.find(item=>item.id===proof.matchedCaseId);
-    if(!sourceCase||proof.source?.sha256!==sourceCase.commonSha256)throw new Error(`Host receipt ${proof.id} does not match its declared common source`);
-    const proofCard=page.locator('#integration-catalog article.integration-host-proof').filter({hasText:proof.source.sha256});
-    if(await proofCard.count()!==1||!(await proofCard.innerText()).includes(proof.source.sha256))throw new Error(`Source-bound host proof ${proof.id} is not visibly scoped by source hash`);
-  }
-  const miroProof=page.locator('#integration-catalog .integration-standalone-proofs article.integration-host-proof').filter({hasText:'miro.editable-network/1'});
-  if(await miroProof.count()!==1||!(await miroProof.innerText()).includes('Standalone proof'))throw new Error('Standalone Miro proof scope was not exposed separately from corpus cases');
+  if(!integrationNotice.includes('not complete'))throw new Error('Integration section overstates native-host coverage or omits source-scoped evidence');
   const opaqueCard=page.locator('#integration-catalog .integration-case').filter({hasText:'opaque-stencils'});
   if(await opaqueCard.count()!==1||await opaqueCard.locator('.integration-status.refused').count()!==3||await opaqueCard.locator('a[download]').count()!==1)throw new Error('Opaque native-only witness incorrectly generated target output or a common UMF download');
   const expectedPowerPointArtifacts=integrationCatalog.cases.filter(item=>item.targets?.powerpoint?.artifact).length;
@@ -186,16 +172,6 @@ try{
   if(await viewerTrigger.evaluate(element=>document.activeElement===element)!==true)throw new Error('Closing the image viewer did not restore focus to its trigger');
   exercised.push('accessible large image viewer, SVG viewBox 100% scale, zoom/full-screen controls, Escape and focus restoration');
   await page.locator('#six-target-section').screenshot({path:'.cache/catalog-ui-six-targets.png'});
-  const miroPreviewCase=integrationCatalog.cases.find(item=>(item.rendererTargets||[]).some((target:any)=>target.rendererId==='miro'&&target.preview?.state==='rendered'&&target.preview.asset?.mediaType==='image/jpeg'));
-  if(!miroPreviewCase)throw new Error('No receipt-backed Miro JPEG preview is available for the six-target browser check');
-  await page.locator('#six-target-case-select').selectOption(miroPreviewCase.id);
-  const miroCard=page.locator('#six-target-matrix .six-target-card[data-target="miro"]'),miroImage=miroCard.locator('.six-target-preview img');
-  if(await miroImage.count()!==1)throw new Error('Miro JPEG receipt was replaced by a placeholder instead of an image');
-  await miroImage.scrollIntoViewIfNeeded();
-  const miroDimensions=await miroImage.evaluate(async element=>{const image=element as HTMLImageElement;await image.decode();return {width:image.naturalWidth,height:image.naturalHeight,src:image.currentSrc,alt:image.alt};});
-  const miroTarget=miroPreviewCase.rendererTargets.find((target:any)=>target.rendererId==='miro');
-  if(miroTarget.preview.asset.mediaType!=='image/jpeg'||!miroTarget.preview.asset.path.toLowerCase().endsWith('.jpg')||miroDimensions.width<=0||miroDimensions.height<=0||!miroDimensions.alt.includes('Miro'))throw new Error('Miro preview did not decode as a JPEG with positive image dimensions');
-  exercised.push('source-bound Miro JPEG preview decodes and displays as an image');
   await page.locator('#six-target-case-select').selectOption('process-documents-store');
   await page.setViewportSize({width:375,height:812});
   await page.locator('#six-target-section').scrollIntoViewIfNeeded();

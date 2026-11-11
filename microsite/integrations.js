@@ -34,7 +34,7 @@ function renderTarget(name, target, matchedProofs = []) {
   const head = make('div', 'integration-target-head');
   head.append(make('h4', '', targetLabel[name] || name), make('span', `integration-status ${target.status}`, statusLabel(target.status)));
   article.append(head, make('p', 'integration-profile', target.profile));
-  const note = target.nativeHostVerified ? 'Live native-host write and readback verified for this target row.' : `This target row is ${target.evidenceKind} evidence only; its status and loss inventory are unchanged by separately listed host receipts.`;
+  const note = target.nativeHostVerified ? 'Live native-host write and readback verified for this target row.' : `Experimental: no CI host test. This target row is ${target.evidenceKind} output only; its status and loss inventory come from the adapter plan.`;
   article.append(make('p', 'integration-evidence-note', note));
   if (matchedProofs.length) article.append(make('p', 'integration-evidence-note', `Separate live-host evidence exists for this exact source (${matchedProofs.length} receipt${matchedProofs.length === 1 ? '' : 's'}); it does not clear this target's losses or expand the tested subset.`));
   if (target.artifact?.path && target.artifact.path.startsWith('integrations/downloads/')) {
@@ -118,7 +118,7 @@ export function renderIntegrationCatalog(data, rootElement) {
   }
   top.append(heading, stats);
   rootElement.append(top);
-  const status = make('aside', 'integration-release-state', data.complete ? 'All catalogued meaning is covered by qualified live-host evidence.' : 'This evidence set is not complete native-tool coverage. Per-case Google Slides and Miro rows remain plans only, and PPTX format readback is not an application test. Separate native-host receipts apply only to their exact source hashes and tested subsets; they do not clear losses or cover other cases.');
+  const status = make('aside', 'integration-release-state', data.complete ? 'All catalogued meaning is covered by native-host tests.' : 'This evidence set is not complete native-tool coverage. Per-case Google Slides and Miro rows remain plans only, and PPTX format readback is not an application test. PowerPoint, Google Slides and Miro targets are experimental: they have no CI host test.');
   status.setAttribute('role', 'note'); rootElement.append(status);
   const list = make('div', 'integration-case-list');
   for (const item of data.cases) list.append(renderExample(item, data.hostConformance || []));
