@@ -5,7 +5,7 @@ sequences, state machines, timelines, metrics, entities), then compile it to nat
 source, or export/import it through bounded native interchange profiles. Seven kinds and 22 forms.
 Flow: `semantic producer -> umf.visual -> native targets`.
 
-The package is `@documentdrivendx/umf-visual` 0.6.0 (see [CHANGELOG](CHANGELOG.md)). It is distributed as a
+The package is `@documentdrivendx/umf-visual` 0.6.1 (see [CHANGELOG](CHANGELOG.md)). It is distributed as a
 [GitHub release tarball](https://github.com/DocumentDrivenDX/umf-visual/releases); it is not on npm yet.
 Browse the [microsite](https://documentdrivendx.github.io/umf-visual/): a catalog of examples with their `umf.visual`
 payload, native source and rendered output for each target.
@@ -26,7 +26,7 @@ retained native source is kept alongside the document. Core comes from the UMF S
 ## Install
 
 ```sh
-npm install ./documentdrivendx-umf-visual-0.6.0.tgz \
+npm install ./documentdrivendx-umf-visual-0.6.1.tgz \
   https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz
 ```
 
