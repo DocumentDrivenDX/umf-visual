@@ -3,10 +3,13 @@
 Releases are tagged `vX.Y.Z` and published as a GitHub Release (tarball + `SHA256SUMS`). The package is not on npm yet.
 
 ## Unreleased
-- Tag-driven `release.yml` (tests, build, fresh-install smoke, GitHub Release with SHA256SUMS and provenance attestation).
-  An npm publish step exists but is off by default.
+
+## 0.6.1 - 2026-11-11
+- Tag-driven `release.yml` (tests, build, fresh-install smoke of the packed tarball, GitHub Release with SHA256SUMS and provenance attestation).
+  An npm publish step exists but is off by default; the package is still `private` and distributed as a GitHub Release tarball.
+- The README quickstart is installed from the packed tarball and run in CI.
 - Microsite footer shows the released version.
-- Removed committed evidence, receipt gates and process docs; documentation lives in `docs/`, this changelog and `ROADMAP.md`.
+- Removed committed evidence, receipt gates and process docs; documentation lives in `docs/`, this changelog and `ROADMAP.md`. Small Linux-only CI.
 
 ## 0.6.0 - 2026-11-05
 - Explicit visual model 1.4.0 released and frozen (process/activity role, `edge.routing`).
