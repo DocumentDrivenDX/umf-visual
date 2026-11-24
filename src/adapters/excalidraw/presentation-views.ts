@@ -2,6 +2,7 @@
 import type {Visual} from '../../extensions/visual/index.js';
 import {utcCalendarDay} from '../../presentation/calendar.js';
 import {planMetricNumericScale} from '../../presentation/numeric-scale.js';
+import {planDateHistoryEvents} from '../../presentation/timeline-layout.js';
 import type {VisualApproximation} from '../../interchange/full/types.js';
 import {visualPath} from './profile.js';
 import {base, label, type Element} from './scene.js';
@@ -27,6 +28,46 @@ function line(id: string, points: XY[], color: string, options: {arrow?: boolean
 }
 
 const largestLine = (value: string) => Math.max(...value.split('\n').map(part => part.length));
+
+export function drawDateTimeline(visual: Visual, canvas: PresentationCanvas, top: number): VisualApproximation | undefined {
+  const timeline = visual.timeline;
+  if ((visual.form !== 'milestones' && visual.form !== 'history') || timeline?.scale.kind !== 'date' ||
+      timeline.lanes?.length || timeline.spans?.length || timeline.markers?.length ||
+      timeline.events?.some(event => event.lane || event.detail || event.status || event.emphasis)) return;
+  const plan = planDateHistoryEvents(timeline.events ?? []);
+  if (!plan?.ok) return;
+  const left = 56, axisY = top + 22, width = 880;
+  const x = (offset: number) => left + (plan.lastDay === plan.firstDay ? 0 : offset / (plan.lastDay - plan.firstDay) * width);
+  const tracks: number[] = [];
+  const ticked = new Set<number>();
+  const guides: Element[] = [];
+  const lineCount = Math.max(...plan.events.map(({event}) => event.label.split('\n').length));
+  if (plan.lastDay !== plan.firstDay) canvas.elements.push(line('timeline-axis', [[left, axisY], [left + width, axisY]], '#93a9ba'));
+  const guideStart = canvas.elements.length;
+  for (const {event, sourceIndex, dayOffset} of plan.events) {
+    const position = x(dayOffset);
+    const cardWidth = Math.max(largestLine(event.label), event.at.length) * 12 + 24;
+    let track = tracks.findIndex(end => position >= end + 16);
+    if (track < 0) track = tracks.length;
+    tracks[track] = position + cardWidth;
+    const y = axisY + 44 + track * (lineCount * 25 + 46);
+    const id = 'timeline-event-' + sourceIndex, path = visualPath + '/timeline/events/' + sourceIndex;
+    if (!ticked.has(dayOffset)) {
+      canvas.elements.push({...base('timeline-day-' + dayOffset, 'ellipse', position - 5, axisY - 5, 10, 10),
+        strokeColor: '#356377', backgroundColor: '#356377', roughness: 0});
+      ticked.add(dayOffset);
+    }
+    guides.push(line(id + '-guide', [[position, axisY + 5], [position, y]], '#93a9ba', {dashed: true}));
+    canvas.elements.push({...base(id, 'rectangle', position, y, cardWidth, event.label.split('\n').length * 25 + 43),
+      strokeColor: '#93a9ba', backgroundColor: '#edf5f5', roughness: 0});
+    text(canvas, id + '-label', event.label, position + 10, y + 8, path + '/label');
+    text(canvas, id + '-date', event.at, position + 10, y + 11 + event.label.split('\n').length * 25, path + '/at');
+  }
+  canvas.elements.splice(guideStart, 0, ...guides);
+  return {path: visualPath + '/timeline/events', requested: visual.form + ' timeline',
+    renderedAs: 'Dated event cards anchored to one calendar axis',
+    reason: 'Horizontal position uses elapsed calendar days. Vertical tracks keep event labels apart and carry no duration or dependency meaning.'};
+}
 
 export function drawSequence(visual: Visual, canvas: PresentationCanvas, top: number): VisualApproximation | undefined {
   const sequence = visual.sequence;
@@ -199,10 +240,21 @@ export function drawMetric(visual: Visual, canvas: PresentationCanvas, top: numb
   if (visual.kind !== 'metric' || !metric) return;
   const values = metric.series.flatMap(series => series.points.map(point => point.value));
   if (!values.length) return;
+  if (visual.form === 'meter' && (values.length !== 1 || metric.target === undefined)) return;
   const scale = planMetricNumericScale(metric.target === undefined ? values : [...values, metric.target]);
   if (!scale || !Number.isFinite(scale.max - scale.min) || scale.ticks.length > 40) return;
   text(canvas, 'metric-unit', metric.unit, 32, top, metricPath + '/unit');
-  const bars = visual.form === 'bar' || visual.form === 'meter' || values.length === 1;
+  if (visual.form === 'stat' && values.length === 1) {
+    const series = metric.series[0]!, point = series.points[0]!;
+    const path = metricPath + '/series/0';
+    text(canvas, 'stat-label', series.label, 32, top + 42, path + '/label');
+    canvas.elements.push({...label('stat-value', rawNumber(point.value), 32, top + 76, null), fontSize: 44, strokeColor: '#203746'});
+    canvas.bind(path + '/points/0/value', 'stat-value');
+    if (point.at !== undefined) text(canvas, 'stat-at', categoryLabel(metric, point.at)!, 32, top + 140, path + '/points/0/at');
+    metricReferences(metric, canvas, 32, top + 178, false);
+    return {path: metricPath, requested: 'Scalar statistic', renderedAs: 'Labelled numeric readout', reason: 'The source has a single observation.'};
+  }
+  const bars = visual.form === 'bar' || visual.form === 'meter';
   if (bars) drawBars(metric, canvas, top, scale);
   else drawTrend(metric, canvas, top, scale);
   return {path: metricPath, requested: visual.form + ' metric',

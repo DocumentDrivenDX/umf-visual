@@ -5,54 +5,36 @@ import {join} from 'node:path';
 import type {CatalogItem, CatalogTarget, NativeRender, VisualCatalog} from './build';
 import type {ExcalidrawDemo} from './excalidraw-demo';
 
-const renderSummary = (render?: NativeRender, preview = false) => render && {
-  ok: render.ok,
-  ...(preview && {svgPath: render.svgPath, svgSha256: render.svgSha256}),
-  nativeDiagnosticCount: render.nativeDiagnostics?.length ?? 0,
+const renderSummary = (render?: NativeRender) => render && {
+  ok: render.ok, nativeDiagnosticCount: render.nativeDiagnostics?.length ?? 0,
 };
 
-function targetSummary(target: CatalogTarget, preview = false) {
+function targetSummary(target: CatalogTarget) {
   return {
-    ok: target.ok,
-    status: target.status,
-    sourcePresent: typeof target.source === 'string',
+    ok: target.ok, status: target.status, sourcePresent: typeof target.source === 'string',
     lossCount: target.diagnostics.filter(diagnostic => diagnostic.loss).length,
     hasDiagnosticProblem: target.diagnostics.some(diagnostic => diagnostic.loss || diagnostic.severity === 'error'),
-    render: renderSummary(target.render, preview),
+    render: renderSummary(target.render),
   };
 }
 
 function exampleSummary(item: CatalogItem, evidence: {path: string; sha256: string}, featured: boolean) {
+  const {id, title, kind, form, question, origin, sourcePath, preferredRelease} = item;
+  const presentations = Object.fromEntries(Object.entries(item.presentations ?? {}).map(([format, {render}]) => [format, {
+    svgPath: render.svgPath, svgSha256: render.svgSha256, rawSvgPath: render.rawSvgPath, rawSvgSha256: render.rawSvgSha256,
+  }]));
+  const excalidraw = item.excalidraw?.formPresentation ? {
+    profile: item.excalidraw.profile, source: item.excalidraw.source, render: item.excalidraw.render,
+  } : undefined;
+  if (!Object.keys(presentations).length && !excalidraw) throw Error('No form presentation for ' + item.id);
+  const targets = Object.fromEntries(Object.entries(item.targets).map(([format, target]) => [format, targetSummary(target)]));
   const fullProfileVariants = item.fullProfileVariants?.map(variant => ({
-    format: variant.format,
-    profileId: variant.profileId,
-    result: targetSummary(variant.result),
-    diagramRender: renderSummary(variant.diagramRender, true),
-    approximationCount: variant.approximations?.length ?? 0,
+    format: variant.format, profileId: variant.profileId, result: targetSummary(variant.result),
+    diagramRender: renderSummary(variant.diagramRender), approximationCount: variant.approximations?.length ?? 0,
     tier: variant.representation?.tier,
   }));
-  const fullRenderers = new Set(fullProfileVariants?.filter(variant => {
-    const {result, diagramRender} = variant;
-    return result.ok && result.status === 'supported' && result.sourcePresent && result.render?.ok &&
-      !result.render.nativeDiagnosticCount && diagramRender?.ok && diagramRender.svgPath &&
-      !diagramRender.nativeDiagnosticCount && !result.hasDiagnosticProblem;
-  }).map(variant => variant.format));
-  const profileVariants = item.profileVariants?.filter(variant => !fullRenderers.has(variant.format) &&
-    variant.result.ok && variant.diagramRender?.ok && variant.diagramRender.svgPath).map(variant => ({
-    format: variant.format,
-    profileId: variant.profileId,
-    result: targetSummary(variant.result),
-    diagramRender: renderSummary(variant.diagramRender, true),
-  }));
-  const annotatedRenderers = new Set(profileVariants?.map(variant => variant.format));
-  const {id, title, kind, form, question, origin, sourcePath, preferredRelease} = item;
-  const excalidraw = item.excalidraw && {
-    profile: item.excalidraw.profile, source: item.excalidraw.source, render: item.excalidraw.render,
-  };
-  const targets = Object.fromEntries(Object.entries(item.targets).map(([format, target]) => [format,
-    targetSummary(target, !fullRenderers.has(format as keyof CatalogItem['targets']) && !annotatedRenderers.has(format as keyof CatalogItem['targets']))]));
-  return {id, title, kind, form, question, origin, sourcePath, featured, evidence, preferredRelease, targets,
-    profileVariants, fullProfileVariants, excalidraw};
+  return {id, title, kind, form, question, origin, sourcePath, featured, evidence, presentations, excalidraw,
+    preferredRelease, targets, fullProfileVariants};
 }
 
 export function featuredExamples(catalog: Pick<VisualCatalog, 'items' | 'language'>): Set<string> {
