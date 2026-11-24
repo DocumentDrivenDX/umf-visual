@@ -7,6 +7,7 @@ import {withHeadlessExcalidraw} from '../../examples/excalidraw/headless';
 import {compileExcalidrawPresentation, type ExcalidrawPresentation} from '../../src/adapters/excalidraw';
 import {normalizeSvgIntrinsicDimensions} from './native-preview-presentation';
 import type {CatalogItem} from './build';
+import {buildExcalidrawDemo, type ExcalidrawDemo} from './excalidraw-demo';
 
 export interface ExcalidrawCatalogExample {
   profile: ExcalidrawPresentation['profile'];
@@ -18,11 +19,11 @@ export interface ExcalidrawCatalogExample {
 
 const hash = (text: string) => createHash('sha256').update(text).digest('hex');
 
-export async function renderExcalidrawExamples(items: CatalogItem[], outputDir: string): Promise<void> {
+export async function renderExcalidrawExamples(items: CatalogItem[], outputDir: string): Promise<ExcalidrawDemo> {
   const {version: nativeVersion} = await Bun.file('node_modules/@excalidraw/excalidraw/package.json').json() as {version: string};
   await mkdir(join(outputDir, 'renders'), {recursive: true});
   await mkdir(join(outputDir, 'excalidraw'), {recursive: true});
-  await withHeadlessExcalidraw(async (page, chromium) => {
+  return withHeadlessExcalidraw(async (page, chromium) => {
     const errors: string[] = [];
     page.on('pageerror', error => errors.push(String(error)));
     for (const item of items) {
@@ -75,5 +76,6 @@ export async function renderExcalidrawExamples(items: CatalogItem[], outputDir: 
         throw Error(`Excalidraw catalog example ${item.id} failed: ${String(error)}`);
       }
     }
+    return buildExcalidrawDemo(page, outputDir, nativeVersion, chromium);
   });
 }

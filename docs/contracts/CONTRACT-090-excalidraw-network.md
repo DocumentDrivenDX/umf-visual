@@ -83,6 +83,16 @@ publishes the scene and SVG under content-addressed paths. This evidence covers
 the catalog fixtures and the pinned editor. Geometry and field coverage vary
 by form, and the compiler reports those differences.
 
+## Microsite edit demo
+
+The builder publishes the original scene, UMF document and binding along with
+the edited scene and its verified recovered UMF. The published example uses
+the same headless Excalidraw workflow as the conformance test. The microsite
+runs the portable importer on demand and verifies that the resulting document
+matches the recovery evidence before offering a download. The two adopted
+changes are a label rename and connector reattachment. The rectangle position
+and stroke color stay in the scene.
+
 ## Evidence
 
 `bun run test:excalidraw` starts Excalidraw 0.18.1 and headless Chromium

@@ -11,6 +11,7 @@ import type {ProjectionCoverage} from '../../src/interchange/annotations';
 import {focusedProfileSource} from './profile-views';
 import {buildIntegrationCatalog} from './integrations';
 import {renderExcalidrawExamples, type ExcalidrawCatalogExample} from './excalidraw';
+import {writeGallery} from './gallery';
 import {liniDirectory, verifyLiniRuntime} from '../interchange-runtime';
 import {nativePreviewPresentation, normalizeSvgIntrinsicDimensions, previewPresentationReceipt, type NativePreviewEngine} from './native-preview-presentation';
 import {buildFullProfileVariants, focusedFullProfilePreviewSource, type FullCatalogProfileVariant, type FullProfileTarget} from './full-profiles';
@@ -429,8 +430,9 @@ export async function buildCatalog(outputDirectory = 'dist-site'): Promise<Visua
   const catalog = await createCatalogData();
   await mkdir(outputDir, {recursive: true});
   await renderCatalog(catalog, outputDir);
-  await renderExcalidrawExamples(catalog.items, outputDir);
+  const demo = await renderExcalidrawExamples(catalog.items, outputDir);
   await buildIntegrationCatalog(outputDir);
+  await writeGallery(catalog, outputDir, demo);
   const catalogFile = join(outputDir, 'catalog.json');
   const temporaryFile = join(outputDir, `.catalog.json.${randomUUID()}.tmp`);
   try {

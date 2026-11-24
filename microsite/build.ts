@@ -20,9 +20,16 @@ const showcase=JSON.parse(await readFile(showcaseFile,'utf8')) as {schemaVersion
 if(showcase.schemaVersion!==1||!Array.isArray(showcase.examples)||showcase.examples.length<4)throw new Error('Build the presentation showcase first; dist-site/showcase.json is missing or invalid.');
 const reviews=JSON.parse(await readFile(resolve(destination,'reviews.json'),'utf8')) as {schemaVersion?:number;examples?:unknown[]};
 if(reviews.schemaVersion!==1||!Array.isArray(reviews.examples)||reviews.examples.length===0)throw new Error('Build the source-derived reviews first; dist-site/reviews.json is missing or invalid.');
+const gallery=JSON.parse(await readFile(resolve(destination,'gallery.json'),'utf8')) as {schemaVersion?:number;items?:unknown[];demo?:unknown};
+if(gallery.schemaVersion!==1||!gallery.items?.length||!gallery.demo)throw Error('Build the gallery and Excalidraw edit demo with build:catalog first.');
+const importer=await Bun.build({entrypoints:[resolve(import.meta.dir,'excalidraw-reconcile.ts')],format:'esm',target:'browser',minify:true});
+if(!importer.success)throw Error(importer.logs.join('\n'));
+const importerBytes=new Uint8Array(await importer.outputs[0]!.arrayBuffer());
+const importerFile='excalidraw-import-'+digest(importerBytes)+'.js';
+await writeFile(resolve(destination,importerFile),importerBytes);
 const versionedApp=Buffer.from(app.toString().replaceAll("'./integrations.js'", `'./integrations.js?v=${digest(integrationJs)}'`));
 const versionedShowcaseApp=Buffer.from(showcaseApp.toString().replaceAll("'./authored-context.js'", `'./authored-context.js?v=${digest(authoredContext)}'`));
-const versionedEvidenceHtml=stamp(evidenceHtml)
+const versionedEvidenceHtml=stamp(evidenceHtml).replace('{{excalidrawModule}}','./'+importerFile)
   .replace('./styles.css','./styles.css?v='+digest(css))
   .replace('./integrations.css','./integrations.css?v='+digest(integrationCss))
   .replace('./app.js','./app.js?v='+digest(versionedApp));

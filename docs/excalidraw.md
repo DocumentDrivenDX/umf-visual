@@ -13,7 +13,14 @@ build uses this compiler for all 53 catalog fixtures across 22 forms. Select
 **Excalidraw** on an example to preview and download the editable scene.
 Choose **View evidence** for the native SVG, layout approximations, and omitted
 fields. The builder opens, saves and renders each scene in Excalidraw 0.18.1
-under headless Chromium.
+under headless Chromium. Choose **Compare views** to place Excalidraw and
+another renderer side by side for the same example.
+
+The [edit-to-UMF demo](https://documentdrivendx.github.io/umf-visual/evidence.html#excalidraw-demo)
+shows the exported scene and the edited scene saved by Excalidraw. Select
+**Import edited scene** to run the adapter in your browser. The result shows
+the adopted node label and connector endpoint edits. The original UMF and
+binding, both scenes, and the recovered UMF are available as downloads.
 
 ## Adopt edits to a network
 

@@ -11,12 +11,25 @@ const catalog=await Bun.file(join(siteRoot,'catalog.json')).json() as {schemaVer
 const integrationCatalog=await Bun.file(join(siteRoot,'integrations.json')).json() as {schemaVersion:number;complete:boolean;counts:Record<string,number>;cases:Array<any>};
 if(catalog.schemaVersion!==1||!Array.isArray(catalog.items)||catalog.items.length===0||!catalog.language?.schema?.schema||!catalog.language?.forms?.kinds)throw new Error('Build the site first; dist-site/catalog.json is missing or invalid.');
 if(integrationCatalog.schemaVersion!==1||integrationCatalog.complete!==false||integrationCatalog.cases?.length!==6)throw new Error('Build the integration site first; dist-site/integrations.json is missing or invalid.');
+const galleryText=await Bun.file(join(siteRoot,'gallery.json')).text();
+const gallery=JSON.parse(galleryText) as {items:Array<{id:string;kind:string;form:string;featured:boolean;evidence:{path:string;sha256:string};document?:unknown}>};
+const featured=gallery.items.filter(item=>item.featured);
 const formExamples=catalog.items.filter(item=>item.sourcePath.startsWith('fixtures/visual/forms/'));
 const formCount=catalog.language.forms.kinds.reduce((count,kind)=>count+kind.forms.length,0);
-const secondaryCount=catalog.items.length-formExamples.length;
-const applicationCount=catalog.items.filter(item=>item.origin!=='canary'&&!item.sourcePath.startsWith('fixtures/visual/forms/')).length;
-const canaryCount=catalog.items.filter(item=>item.origin==='canary').length;
+const secondaryCount=catalog.items.length-featured.length;
 if(catalog.language.forms.kinds.length!==7||formCount!==22||catalog.items.length!==53)throw new Error('Expected independent totals of 7 kinds, 22 forms, and 53 sample instances.');
+if(gallery.items.length!==53||featured.length!==22||new Set(featured.map(item=>item.kind+'/'+item.form)).size!==22||
+    Buffer.byteLength(galleryText)>256*1024||gallery.items.some(item=>item.document!==undefined))throw new Error('Gallery index is missing coverage or includes full evidence payloads');
+for (const [index, example] of gallery.items.entries()) {
+  const asset = example.evidence;
+  if (!/^[a-z0-9][a-z0-9_-]*$/u.test(example.id) || !/^[a-f0-9]{64}$/u.test(asset.sha256) ||
+      asset.path !== `example-evidence/${example.id}-${asset.sha256}.json`) throw Error('Invalid example evidence link');
+  const expected = catalog.items[index];
+  const bytes = await Bun.file(join(siteRoot, asset.path)).text();
+  if (createHash('sha256').update(bytes).digest('hex') !== asset.sha256 || bytes !== JSON.stringify(expected)) {
+    throw Error('Gallery evidence differs from the complete catalog for ' + example.id);
+  }
+}
 const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg'};
 const browser=await chromium.launch({headless:true});
 const verifiedArtifact=async(artifact:any)=>{
@@ -29,6 +42,8 @@ const exercised:string[]=[];
 try{
   const page=await browser.newPage({viewport:{width:1440,height:1100}});
   page.on('pageerror',error=>errors.push(String(error)));
+  const requests: string[] = [];
+  page.on('request',request=>requests.push(new URL(request.url()).pathname));
   await page.route('https://umf.local/**',async route=>{
     const pathname=decodeURIComponent(new URL(route.request().url()).pathname);
     const path=resolve(siteRoot,`.${pathname==='/'?'/index.html':pathname}`);
@@ -42,6 +57,9 @@ try{
   if(!stamped?.includes(expectedVersion))throw new Error(`Site footer shows "${stamped}", expected version ${expectedVersion}`);
   exercised.push('footer shows the release version');
   await page.waitForFunction(()=>((document.querySelector('#definition-list')?.children.length??0)>0));
+  if (!requests.includes('/gallery.json') || requests.some(path=>path==='/catalog.json'||path.startsWith('/example-evidence/')||
+      path==='/integrations.json'||path.startsWith('/excalidraw-import-'))) throw Error('Gallery startup fetched heavy evidence, integrations, or import code');
+  exercised.push('compact index loads 22 forms without requesting example evidence, editor code, or integration data');
   const baselineRenderAssets=catalog.items.flatMap(item=>TARGETS.flatMap(target=>{
     const render=item.targets[target]?.render;
     return render?.ok&&render.svgPath?[{id:item.id,target,path:render.svgPath,sha256:render.svgSha256}]:[];
@@ -86,6 +104,7 @@ try{
   if(languageText.includes('beacon'))throw new Error('Application example leaked into language headings/reference');
   if(!(await page.locator('#language-provenance').innerText()).includes(catalog.language.schema.sourcePath))throw new Error('Schema provenance was not exposed');
   exercised.push('schema-backed language reference and separate kind/form counts');
+  await page.locator('#integrations').scrollIntoViewIfNeeded();
   await page.waitForFunction(()=>document.querySelectorAll('#integration-catalog .integration-case').length===6);
   if(await page.locator('#integration-catalog .integration-case').count()!==integrationCatalog.cases.length||integrationCatalog.cases.length!==6)throw new Error('Integration evidence section did not render all six independent witnesses');
   if(await page.locator('#integration-catalog .integration-target').count()!==integrationCatalog.cases.length*3)throw new Error('Integration evidence matrix does not show the three baseline targets per witness');
@@ -217,7 +236,9 @@ try{
   exercised.push('six-target mobile matrix, visible status labels, accessible case selector and overflow checks');
   await page.setViewportSize({width:1440,height:1100});
   const count=await page.locator('.definition-card').count();
-  if(count!==formExamples.length)throw new Error(`Expected ${formExamples.length} form example cards, saw ${count}`);
+  if(count!==featured.length)throw new Error(`Expected ${featured.length} featured form example cards, saw ${count}`);
+  const shown = await page.locator('.definition-card').evaluateAll(cards=>cards.map(card=>(card as HTMLElement).dataset.id));
+  if (!featured.every(item=>shown.includes(item.id))) throw Error('Default gallery does not show one example per form');
   if(await page.locator('#coverage-grid .coverage-card').count()!==3)throw new Error('Expected three released native compatibility-profile summaries');
   await page.locator('.baseline-coverage-details').evaluate((details:any)=>{details.open=true;});
   for(const [index,target]of TARGETS.entries()){
@@ -245,7 +266,8 @@ try{
   exercised.push('desktop catalogue screenshot');
   const openFirstCard=page.locator('.definition-main').first();await openFirstCard.focus();await page.keyboard.press('Enter');
   await page.locator('#detail-dialog').waitFor({state:'visible'});
-  if(await page.getByRole('button',{name:/View evidence for /}).count()!==formExamples.length)throw new Error('Each catalog example must expose its own keyboard-focusable details button');
+  if(await page.getByRole('button',{name:/View evidence for /}).count()!==featured.length)throw new Error('Each catalog example must expose its own keyboard-focusable details button');
+  if (requests.filter(path=>path.startsWith('/example-evidence/')).length!==1) throw Error('Opening the first example did not load exactly one evidence payload.');
   await page.locator('#close-detail').click();
   exercised.push('catalog cards provide a separate keyboard-accessible details button');
 
@@ -306,6 +328,7 @@ try{
   await page.locator('#close-detail').click();
   await page.locator('.definition-card').getByRole('button', {name: 'Excalidraw', exact: true}).click();
   await page.locator('.definition-main').click();
+  await page.locator('#detail-dialog').waitFor();
   if(new URL(page.url()).searchParams.get('target')!=='excalidraw')throw new Error('Example card did not open its Excalidraw preview');
   await page.reload();
   await page.locator('#detail-dialog').waitFor({state:'visible'});
@@ -379,16 +402,18 @@ try{
     throw new Error('Gallery renderer filter did not select the actual Mermaid previews');
   }
   await page.locator('#reset-filters').click();
-  if(await page.locator('.definition-card').count()!==formExamples.length)throw new Error('Reset button did not restore form examples');
-  await page.locator('#secondary-gallery-summary').click();
+  if(await page.locator('.definition-card').count()!==featured.length)throw new Error('Reset button did not restore one example per form');
+  const secondary = gallery.items.find(item=>!item.featured)!;
+  await page.locator('#search').fill(secondary.id);
+  if (await page.locator('.definition-card').count()!==1 ||
+      await page.locator('.definition-card').getAttribute('data-id')!==secondary.id) throw Error('Search did not find an example outside the featured set');
+  await page.locator('#search').fill('');
+  await page.locator('#example-scope').click();
   await page.waitForFunction(expected=>document.querySelectorAll('.definition-card').length===expected,catalog.items.length);
-  if(await page.locator('.definition-card').count()!==catalog.items.length)throw new Error('Secondary gallery did not include all sample instances');
-  const scopeNote=await page.locator('#sample-scope-note').innerText();
-  if(!scopeNote.includes(`${formExamples.length} form fixture examples`)||!scopeNote.includes(`${applicationCount} application samples`)||!scopeNote.includes(`${canaryCount} canary samples`)||applicationCount+canaryCount!==secondaryCount)throw new Error('Gallery did not clearly count form examples and secondary samples');
-  await page.locator('#secondary-gallery-summary').click();
-  await page.waitForFunction(expected=>document.querySelectorAll('.definition-card').length===expected,formExamples.length);
-  if(await page.locator('.definition-card').count()!==formExamples.length)throw new Error('Closing secondary gallery did not restore the primary example scope');
-  exercised.push('renderer and origin filters');
+  if(await page.locator('.definition-card').count()!==catalog.items.length)throw new Error('Expanded gallery did not include all sample instances');
+  await page.locator('#example-scope').click();
+  await page.waitForFunction(expected=>document.querySelectorAll('.definition-card').length===expected,featured.length);
+  exercised.push('renderer filter, 53-example search and one-per-form gallery');
 
   const ladder = catalog.items.find(item => item.id === 'visual-forms-helix-request-ladder');
   const ladderDot = ladder?.fullProfileVariants?.find((variant:any) => variant.format === 'dot');
@@ -408,6 +433,7 @@ try{
   await ladderPreview.evaluate(image => (image as HTMLImageElement).decode());
   await ladderCard.screenshot({path: '.cache/catalog-ladder-gallery.png'});
   await ladderCard.getByRole('button', {name: /View evidence for /}).click();
+  await page.locator('#detail-dialog').waitFor();
   if (new URL(page.url()).searchParams.get('profile') !== ladderDot.profileId) {
     throw Error('View evidence did not open the route shown in the card');
   }
@@ -426,6 +452,47 @@ try{
   await ladderCard.getByRole('link', {name: 'Download .excalidraw'}).click();
   if ((await sceneDownload).suggestedFilename() !== ladder.id + '.excalidraw') throw Error('The selected Excalidraw preview cannot be downloaded from the card');
   exercised.push('request ladder switches between the actual Excalidraw and full Graphviz renders while the narrower baseline remains inspectable');
+  const loadedEvidence = requests.filter(path=>path.startsWith('/example-evidence/')).length;
+  await ladderCard.getByRole('button', {name: /Compare views for /u}).click();
+  const comparison = page.locator('#compare-dialog');
+  await comparison.waitFor();
+  const left = comparison.getByLabel('Left renderer');
+  const right = comparison.getByLabel('Right renderer');
+  if(await left.inputValue()!=='excalidraw'||await right.inputValue()!=='dot')throw Error('Compare did not preserve the clicked renderer and an alternative');
+  await right.selectOption('mermaid');
+  await Promise.all((await comparison.getByRole('img').all()).map(image=>image.evaluate(node=>(node as HTMLImageElement).decode())));
+  const rightPath = await comparison.getByRole('img').nth(1).getAttribute('src');
+  const ladderMermaid = ladder.fullProfileVariants.find((variant:any)=>variant.format==='mermaid');
+  if(!rightPath?.includes(ladderMermaid.diagramRender.svgPath))throw Error('Comparison used the wrong renderer artifact');
+  if(!await left.locator('option[value="mermaid"]').evaluate(option=>(option as HTMLOptionElement).disabled)) {
+    throw Error('Comparison allowed both panels to select Mermaid');
+  }
+  const afterComparison = requests.filter(path=>path.startsWith('/example-evidence/')).length;
+  if(afterComparison!==loadedEvidence)throw Error(`Comparison loaded full evidence (${loadedEvidence} → ${afterComparison})`);
+  await comparison.screenshot({path:'.cache/gallery-compare-desktop.png'});
+  await comparison.getByRole('button',{name:'View evidence for Mermaid'}).click();
+  await page.locator('#detail-dialog').waitFor();
+  if(new URL(page.url()).searchParams.get('profile')!==ladderMermaid.profileId)throw Error('Comparison did not open evidence for its displayed route');
+  await page.locator('#close-detail').click();
+
+  const demo = page.locator('#excalidraw-demo');
+  await demo.scrollIntoViewIfNeeded();
+  await Promise.all((await demo.getByRole('img').all()).map(image=>image.evaluate(node=>(node as HTMLImageElement).decode())));
+  if(requests.some(path=>path.startsWith('/excalidraw-import-')))throw Error('Demo import code loaded before interaction');
+  await demo.getByRole('button',{name:'Import edited scene'}).click();
+  await demo.getByText('Recovered UMF changes',{exact:true}).waitFor();
+  if(await demo.locator('#demo-changes tr').count()!==2||
+     !await demo.getByRole('cell',{name:'Gateway',exact:true}).count()||
+     !await demo.getByRole('cell',{name:'client → queue',exact:true}).count()||
+     !requests.some(path=>path.startsWith('/excalidraw-import-')))throw Error('Browser did not adopt the saved Excalidraw edits');
+  await demo.screenshot({path:'.cache/gallery-excalidraw-demo.png'});
+  const recovered = page.waitForEvent('download');
+  await demo.getByRole('button',{name:'Download recovered UMF JSON'}).click();
+  if ((await recovered).suggestedFilename()!=='request-path-recovered.json') throw Error('Recovered UMF could not be downloaded');
+  exercised.push('two hash-bound renderer previews with independent selection and evidence; real browser Excalidraw import and UMF download');
+  await page.goto(baseUrl+'#excalidraw-demo');
+  await page.waitForFunction(()=>Math.abs(document.querySelector('#excalidraw-demo')!.getBoundingClientRect().top)<100);
+  await page.goto(baseUrl);
   await page.locator('#reset-filters').click();
 
   const loss=catalog.items.find(item=>Object.values(item.targets).some((target:any)=>target.status==='reported-loss'));
@@ -466,7 +533,7 @@ try{
   await page.locator('#search').fill('no-such-umf-definition-should-exist');
   if(!(await page.locator('#empty-state').isVisible()))throw new Error('Search empty state was not displayed');
   await page.locator('#empty-reset').click();
-  if(await page.locator('.definition-card').count()!==formExamples.length)throw new Error('Clear filters did not restore form examples');
+  if(await page.locator('.definition-card').count()!==featured.length)throw new Error('Clear filters did not restore form examples');
   exercised.push('empty state and clear filters');
   const sourceExample=catalog.items.find(item=>TARGETS.some(target=>typeof item.targets[target]?.source==='string'));
   if(sourceExample){
@@ -477,9 +544,9 @@ try{
     const downloadUmf=page.waitForEvent('download');await page.getByRole('button',{name:'Download',exact:true}).click();if(!(await downloadUmf).suggestedFilename().endsWith('.json'))throw new Error('UMF JSON download was unavailable');
     exercised.push('native source and UMF JSON downloads');
   }
-  await page.route('https://umf.local/catalog.json',route=>route.fulfill({status:404,body:'catalog missing'}));
+  await page.route('https://umf.local/gallery.json',route=>route.fulfill({status:404,body:'catalog missing'}));
   await page.goto(baseUrl);await page.locator('#load-error').waitFor({state:'visible'});
-  await page.unroute('https://umf.local/catalog.json');
+  await page.unroute('https://umf.local/gallery.json');
   exercised.push('catalog fetch failure state');
   await page.goto(baseUrl);
   await page.waitForFunction(()=>((document.querySelector('#definition-list')?.children.length??0)>0));
@@ -493,6 +560,12 @@ try{
   await mobileLadder.getByRole('img').evaluate(image => (image as HTMLImageElement).decode());
   await mobileLadder.screenshot({path:'.cache/catalog-ladder-gallery-mobile.png'});
   if (await mobileLadder.evaluate(card => card.scrollWidth > card.clientWidth)) throw Error('Example card overflows on mobile');
+  await mobileLadder.getByRole('button',{name:/Compare views for /u}).click();
+  const mobileComparison=page.locator('#compare-dialog');
+  await mobileComparison.waitFor();
+  const mobilePanes=await mobileComparison.locator('.comparison-view').evaluateAll(panes=>panes.map(pane=>pane.getBoundingClientRect().top));
+  if(mobilePanes.length!==2||mobilePanes[1]!<=mobilePanes[0]!)throw Error('Comparison panels did not stack on mobile');
+  await mobileComparison.getByRole('button',{name:'Close comparison'}).click();
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth);
   if(overflow)throw new Error('Mobile layout has horizontal page overflow');
   exercised.push('375px mobile layout');
@@ -504,7 +577,7 @@ try{
     const mockTarget={rendererId:'dot',profileId:'synthetic.dot/1',modelVersion:'1.0.0',mappingVersion:'synthetic-map/1',projection:{state:'emitted',status:'reported-loss',diagnostics:[{code:'SIX_TARGET_TEST',message:'Synthetic UI contract probe'}],losses:[{path:'/extensions/umf.visual/nodes/0/role',representation:'retained-only'}]},preview:{state:'rendered',engine:'Graphviz',nativeVersion:'test-engine',sourceSha256:mockCase.commonSha256,profileId:'synthetic.dot/1',modelVersion:'1.0.0',mappingVersion:'synthetic-map/1',inputArtifactSha256:'a'.repeat(64),stage:'native-render',asset:testAsset},roundTrip:{state:'planned',stage:'UI test only',reason:'Synthetic browser test receipt'},artifacts:[{label:'test source package',path:mockCase.downloads.commonDocument.path,sha256:mockCase.downloads.commonDocument.sha256},testAsset]};
     mockCase.rendererTargets=[mockTarget];
     await page.route('https://umf.local/integrations.json',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(mockData)}));
-    await page.goto(baseUrl,{waitUntil:'networkidle'});await page.waitForFunction(()=>document.querySelectorAll('#six-target-matrix .six-target-card').length===6);
+    await page.goto(baseUrl,{waitUntil:'networkidle'});await page.locator('#integrations').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelectorAll('#six-target-matrix .six-target-card').length===6);
     const dotCard=page.locator('#six-target-matrix .six-target-card[data-target="dot"]');
     const compatibility=dotCard.locator('.six-target-compatibility');await compatibility.locator(':scope > summary').click();
     if(await compatibility.locator('.six-target-preview img').count()!==1||!(await compatibility.innerText()).includes('Graphviz test-engine')||!(await compatibility.innerText()).includes('reported-loss')||!(await compatibility.getByRole('link',{name:'Download test source package'}).count())||!(await compatibility.getByRole('link',{name:'Download rendered preview (SVG)'}).count()))throw new Error('Compatibility renderer, actual loss, or distinct named artifacts were not shown together');
@@ -513,7 +586,7 @@ try{
     mockTarget.preview.sourceSha256='0'.repeat(64);
     await page.unroute('https://umf.local/integrations.json');
     await page.route('https://umf.local/integrations.json',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(mockData)}));
-    await page.goto(baseUrl,{waitUntil:'networkidle'});await page.waitForFunction(()=>document.querySelectorAll('#six-target-matrix .six-target-card').length===6);
+    await page.goto(baseUrl,{waitUntil:'networkidle'});await page.locator('#integrations').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelectorAll('#six-target-matrix .six-target-card').length===6);
     const mismatchCard=page.locator('#six-target-matrix .six-target-card[data-target="dot"]');
     const mismatchCompatibility=mismatchCard.locator('.six-target-compatibility');await mismatchCompatibility.locator(':scope > summary').click();
     if(await mismatchCompatibility.locator('.six-target-preview img').count()!==0||!(await mismatchCompatibility.getByText(/Render withheld: receipt does not match the exact source/).count()))throw new Error('A compatibility preview with a mismatched source hash was not withheld');

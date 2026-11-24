@@ -42,8 +42,8 @@ describe('microsite catalogue UI contract',()=>{
     expect(app).toContain('language.schema.schema');
     expect(app).toContain('language.forms.kinds');
     expect(app).toContain("startsWith('fixtures/visual/forms/')");
-    expect(app).toContain('sample instance');
-    expect(app).toContain("fetch('./catalog.json', {cache: 'no-store'})");
+    expect(app).toContain('examples · one per form');
+    expect(app).toContain("fetch('./gallery.json', {cache: 'no-store'})");
     expect(app).toContain('url.searchParams.set(\'v\', sha256)');
     expect(app).toContain('function findItemForUrl(id)');
     expect(app).toContain('return legacy.length === 1 ? legacy[0] : undefined');

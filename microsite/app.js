@@ -10,13 +10,17 @@ const SIX_TARGETS = [
   ['dot', 'DOT'], ['mermaid', 'Mermaid'], ['lini', 'Lini'],
   ['powerpoint', 'PowerPoint'], ['google-slides', 'Google Slides'], ['miro', 'Miro'],
 ];
-const state = {catalog: null, query: '', kind: new Set(), form: new Set(), renderer: 'any', cardRenderers: new Map(), sort: 'title', selected: null, target: 'dot', profileId: null, profileView: 'diagram', view: 'native', lastQualifiedByTarget: Object.create(null), showSecondary: false};
+const state = {catalog: null, query: '', kind: new Set(), form: new Set(), renderer: 'any', cardRenderers: new Map(), detailItem: null, detailRequest: 0, sort: 'title', selected: null, target: 'dot', profileId: null, profileView: 'diagram', view: 'native', lastQualifiedByTarget: Object.create(null), showAll: false};
 const $ = (id) => document.getElementById(id);
 const el = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = String(text); return node; };
 const safeJson = (value) => JSON.stringify(value, null, 2);
 const normalized = (value) => String(value ?? '').trim().toLowerCase();
 const allItems = () => state.catalog?.items ?? [];
-const galleryItems = () => allItems().filter(item => state.showSecondary || isFormFixture(item));
+const evidenceCache = new Map();
+const hasSearchOrFilters = () => Boolean(normalized(state.query) || state.kind.size || state.form.size);
+const galleryItems = () => allItems().filter(item => state.showAll || hasSearchOrFilters() || item.featured);
+const lossCount = result => result?.lossCount ?? result?.diagnostics?.filter(diagnostic => diagnostic.loss).length ?? 0;
+const nativeDiagnosticCount = render => render?.nativeDiagnosticCount ?? render?.nativeDiagnostics?.length ?? 0;
 const statusFor = (item, target) => item?.targets?.[target]?.status || 'unevaluated';
 const profileVariantsFor = item => [...(Array.isArray(item?.profileVariants) ? item.profileVariants : []), ...(Array.isArray(item?.fullProfileVariants) ? item.fullProfileVariants : [])];
 const isFullProfileVariant = variant => typeof variant?.profileId === 'string' && variant.profileId.endsWith('.full/1');
@@ -104,25 +108,13 @@ function renderLanguageReference() {
     const card = el('article', 'kind-reference-card'); card.append(el('h4', '', entry.kind));
     const forms = el('div', 'form-chip-list');
     for (const form of entry.forms) {
-      const sample = allItems().find(item => item.kind === entry.kind && item.form === form && isFormFixture(item)) || allItems().find(item => item.kind === entry.kind && item.form === form);
+      const sample = allItems().find(item => item.kind === entry.kind && item.form === form && item.featured);
       const chip = el(sample ? 'button' : 'span', 'form-chip', form);
       if (sample) { chip.type = 'button'; chip.setAttribute('aria-label', `Open ${sampleSetLabel(sample)} for ${entry.kind} / ${form}`); chip.title = `Open an example instance (${sampleSetLabel(sample)})`; chip.addEventListener('click', () => openDetail(sample.id, 'dot')); }
       forms.append(chip);
     }
     card.append(forms); formGrid.append(card);
   }
-}
-function sampleCounts() {
-  return {
-    forms: allItems().filter(isFormFixture).length,
-    application: allItems().filter(item => sampleSetFor(item) === 'application-example').length,
-    canary: allItems().filter(item => sampleSetFor(item) === 'canary').length,
-  };
-}
-function updateGalleryLabels() {
-  const counts = sampleCounts(); const additional = counts.application + counts.canary;
-  $('secondary-gallery-summary').textContent = state.showSecondary ? 'Hide application and canary gallery' : `Show application and canary examples · ${additional} additional sample instances`;
-  $('sample-scope-note').textContent = `${counts.forms} form fixture examples · ${counts.application} application samples · ${counts.canary} canary samples. Each row is a sample instance with its own source and measured profile outcomes.`;
 }
 function renderReleaseCoverage() {
   const kinds = state.catalog.language.forms.kinds || [];
@@ -146,14 +138,14 @@ function renderFullProfileCoverage() {
   grid.replaceChildren();
   for (const format of TARGETS) {
     const rows = allItems().map(item => ({item, variant: (item.fullProfileVariants || []).find(candidate => candidate.format === format)}));
-    const qualifies = row => row.variant?.result?.status === 'supported' && row.variant.result?.ok === true && row.variant.result?.render?.ok === true && row.variant.diagramRender?.ok === true && !(row.variant.result.render.nativeDiagnostics?.length) && !(row.variant.diagramRender.nativeDiagnostics?.length);
+    const qualifies = row => isFullyQualifiedFullProfile(row.variant);
     const qualified = rows.filter(qualifies);
     const emitted = rows.filter(row => row.variant?.result?.ok === true);
-    const nativeProfileRoutes = emitted.filter(row => row.variant?.representation?.tier === 'native-profile').length;
-    const primitiveFallbackRoutes = emitted.filter(row => row.variant?.representation?.tier === 'primitive-fallback').length;
-    const approximations = emitted.reduce((sum, row) => sum + (row.variant?.approximations || []).length, 0);
-    const actualLosses = rows.reduce((sum, row) => sum + (row.variant?.result?.diagnostics || []).filter(diagnostic => diagnostic.loss).length, 0);
-    const nativeDiagnostics = rows.reduce((sum, row) => sum + (row.variant?.result?.render?.nativeDiagnostics?.length || 0) + (row.variant?.diagramRender?.nativeDiagnostics?.length || 0), 0);
+    const nativeProfileRoutes = emitted.filter(row => row.variant?.tier === 'native-profile').length;
+    const primitiveFallbackRoutes = emitted.filter(row => row.variant?.tier === 'primitive-fallback').length;
+    const approximations = emitted.reduce((sum, row) => sum + (row.variant?.approximationCount ?? 0), 0);
+    const actualLosses = rows.reduce((sum, row) => sum + lossCount(row.variant?.result), 0);
+    const nativeDiagnostics = rows.reduce((sum, row) => sum + nativeDiagnosticCount(row.variant?.result?.render) + nativeDiagnosticCount(row.variant?.diagramRender), 0);
     const refused = rows.filter(row => row.variant?.result?.status === 'unsupported').length;
     const notEvaluated = rows.filter(row => !row.variant).length;
     const coveredForms = new Set(qualified.map(row => `${row.item.kind}/${row.item.form}`));
@@ -182,7 +174,7 @@ function renderCoverage() {
     card.append(top, bar, stats);
     const results = allItems().map(item => item.targets?.[target]).filter(Boolean);
     const rendered = results.filter(result => result.render?.ok).length;
-    const losses = results.filter(result => result.ok).reduce((sum, result) => sum + (result.diagnostics || []).filter(diagnostic => diagnostic.loss).length, 0);
+    const losses = results.filter(result => result.ok).reduce((sum, result) => sum + lossCount(result), 0);
     card.append(el('p', 'native-coverage', `${rendered} ordinary native renders · ${losses} reported losses in this narrower compatibility profile`));
     const ordinaryProfile = `umf.visual.${target}/1`;
     const capability = state.catalog.capabilities?.find(entry => entry.format === target && entry.profile === ordinaryProfile);
@@ -200,22 +192,13 @@ function setupFilters() {
     for (const option of options) {
       const label = el('label', 'filter-option'); const input = document.createElement('input'); input.type = 'checkbox'; input.value = option;
       input.dataset.filterKey = key; input.dataset.filterValue = option;
-      input.addEventListener('change', () => { input.checked ? state[key].add(option) : state[key].delete(option); updateList(); refreshFilterCounts(); });
-      const count = galleryItems().filter(item => item[key] === option).length;
+      input.addEventListener('change', () => { input.checked ? state[key].add(option) : state[key].delete(option); updateList(); });
+      const count = allItems().filter(item => item[key] === option).length;
       label.append(input, el('span', '', option), el('span', 'option-count', count)); box.append(label);
     }
   }
 }
-function refreshFilterCounts() {
-  document.querySelectorAll('.filter-option input').forEach(input => {
-    const key = input.dataset.filterKey; const value = input.dataset.filterValue;
-    if (!key || !value) return;
-    const count = galleryItems().filter(item => item[key] === value).length;
-    const output = input.parentElement?.querySelector('.option-count'); if (output) output.textContent = String(count);
-  });
-}
 function matches(item) {
-  if (!state.showSecondary && !isFormFixture(item)) return false;
   if (state.kind.size && !state.kind.has(item.kind)) return false;
   if (state.form.size && !state.form.has(item.form)) return false;
   if (state.renderer !== 'any' && !previewRoute(item, state.renderer)) return false;
@@ -225,16 +208,22 @@ function matches(item) {
 }
 function updateList() {
   const list = $('definition-list'); list.replaceChildren();
-  const items = allItems().filter(matches).sort((a, b) => {
+  const candidates = galleryItems();
+  const items = candidates.filter(matches).sort((a, b) => {
     const key = state.sort;
     const delta = String(a[key] ?? '').localeCompare(String(b[key] ?? ''), undefined, {sensitivity: 'base'});
     return delta || String(a.title).localeCompare(String(b.title));
   });
-  const scopeCount = state.showSecondary ? allItems().length : sampleCounts().forms;
-  $('result-count').textContent = `${items.length} ${state.showSecondary ? 'sample instances' : 'form examples'}${items.length !== scopeCount ? ` of ${scopeCount}` : ''}`;
+  const featuredOnly = !state.showAll && !hasSearchOrFilters();
+  $('result-count').textContent = featuredOnly && items.length === candidates.length
+    ? `${items.length} examples · one per form`
+    : `${items.length} of ${allItems().length} examples`;
+  const scope = $('example-scope');
+  scope.hidden = hasSearchOrFilters();
+  scope.setAttribute('aria-pressed', String(state.showAll));
+  scope.textContent = state.showAll ? 'Show one per form' : `Show all ${allItems().length} examples`;
   $('empty-state').hidden = items.length > 0;
   for (const item of items) list.append(makeCard(item));
-  setUrl();
 }
 function makeCard(item) {
   const card = el('article', 'definition-card');
@@ -262,7 +251,12 @@ function makeCard(item) {
   const inspect = el('button', 'icon-button definition-main', 'View evidence'); inspect.type = 'button';
   inspect.setAttribute('aria-label', `View evidence for ${item.title}`);
   inspect.addEventListener('click', () => openDetail(item.id, route?.target, route?.profileId));
-  footer.append(description, actions, inspect);
+  if (routes.size > 1) {
+    const compare = el('button', 'icon-button example-compare', 'Compare views'); compare.type = 'button';
+    compare.setAttribute('aria-label', `Compare views for ${item.title}`);
+    compare.addEventListener('click', () => openComparison(item, route, routes));
+    footer.append(description, actions, compare, inspect);
+  } else footer.append(description, actions, inspect);
 
   const buttons = new Map();
   const show = next => {
@@ -299,12 +293,66 @@ function makeCard(item) {
   card.append(preview, footer);
   return card;
 }
+function openComparison(item, selected, routes) {
+  const dialog = $('compare-dialog');
+  const panels = $('compare-panels');
+  $('compare-title').textContent = item.title;
+  panels.replaceChildren();
+  const left = selected.target;
+  const right = [...routes.keys()].find(key => key !== left);
+  const values = [left, right];
+
+  const sides = ['Left', 'Right'].map((position, index) => {
+    const section = el('section', 'comparison-view');
+    const field = el('label', 'comparison-picker', position + ' renderer');
+    const choice = document.createElement('select');
+    field.append(choice);
+    const body = el('div', 'comparison-body');
+    section.append(field, body);
+    panels.append(section);
+    choice.addEventListener('change', () => {
+      values[index] = choice.value;
+      render();
+    });
+    return {choice, body};
+  });
+  function render() {
+    for (const [index, {choice, body}] of sides.entries()) {
+      const route = routes.get(values[index]);
+      const name = PREVIEW_LABELS[route.target];
+      choice.replaceChildren();
+      for (const [key] of routes) {
+        const option = el('option', '', PREVIEW_LABELS[key]);
+        option.value = key;
+        option.disabled = key === values[1 - index];
+        choice.append(option);
+      }
+      choice.value = route.target;
+      body.replaceChildren();
+      const preview = el('div', 'comparison-preview');
+      const image = document.createElement('img'); image.src = route.url; image.alt = `${item.title} rendered in ${name}`;
+      image.addEventListener('error', () => preview.replaceChildren(el('p', 'render-error', 'The preview could not be loaded.')));
+      preview.append(image);
+      addImageViewerButton(preview, image, `${name} · ${item.title}`, route.rawUrl);
+      const actions = el('div', 'example-footer');
+      const inspect = el('button', 'icon-button', 'View evidence'); inspect.type = 'button';
+      inspect.setAttribute('aria-label', 'View evidence for ' + name);
+      inspect.addEventListener('click', () => { dialog.close(); void openDetail(item.id, route.target, route.profileId); });
+      actions.append(el('p', 'example-route', route.caption), inspect);
+      body.append(preview, actions);
+    }
+  }
+  render();
+  dialog.showModal();
+}
+
 function makeBadge(text, className = 'badge') { return el('span', className, text); }
 function isFullyQualifiedFullProfile(variant) {
   return isFullProfileVariant(variant) && variant.result?.status === 'supported' && variant.result?.ok === true &&
-    typeof variant.result?.source === 'string' && variant.result?.render?.ok === true && variant.diagramRender?.ok === true &&
-    !(variant.result.render.nativeDiagnostics?.length) && !(variant.diagramRender.nativeDiagnostics?.length) &&
-    !(variant.result.diagnostics || []).some(diagnostic => diagnostic.loss || diagnostic.severity === 'error');
+    (variant.result.sourcePresent ?? typeof variant.result.source === 'string') &&
+    variant.result.render?.ok === true && variant.diagramRender?.ok === true &&
+    !nativeDiagnosticCount(variant.result.render) && !nativeDiagnosticCount(variant.diagramRender) &&
+    !(variant.result.hasDiagnosticProblem ?? variant.result.diagnostics?.some(diagnostic => diagnostic.loss || diagnostic.severity === 'error'));
 }
 function preferredSelection(item) {
   const choice = item.preferredRelease;
@@ -335,14 +383,49 @@ function previewRoute(item, target) {
   const render = variant?.diagramRender ?? baseline?.render;
   const url = visible(render);
   if (!url) return null;
-  const caption = full ? 'Full profile, strict readback verified' :
+  const caption = full ? 'Full profile, strict readback verified' +
+    ((full.tier ?? full.representation?.tier) === 'primitive-fallback' ? ' · primitive layout' : '') :
     variant ? (variant.result.status === 'supported' ? 'Annotation profile' : 'Annotation profile, reported loss') :
       (baseline.status === 'reported-loss' ? 'Native baseline, reported loss' : 'Native baseline');
   return {target, profileId: variant?.profileId ?? null, url, caption,
     rawUrl: safeRenderPath(render.rawSvgPath, render.rawSvgSha256)};
 }
-function openDetail(id, target, profileId = null, requestedView = null) {
-  const item = allItems().find(candidate => candidate.id === id); if (!item) return;
+async function checkedArtifact(asset) {
+  const response = await fetch(new URL(asset.path, location.href));
+  if (!response.ok) throw Error('HTTP ' + response.status);
+  const bytes = await response.arrayBuffer();
+  const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)),
+    byte => byte.toString(16).padStart(2, '0')).join('');
+  if (hash !== asset.sha256) throw Error('Artifact integrity check failed');
+  return new TextDecoder().decode(bytes);
+}
+function loadExampleEvidence(summary) {
+  if (evidenceCache.has(summary.id)) return evidenceCache.get(summary.id);
+  const asset = summary.evidence;
+  const request = (async () => {
+    if (!/^[a-z0-9][a-z0-9_-]*$/u.test(summary.id) || !/^[a-f0-9]{64}$/u.test(asset?.sha256) ||
+        asset.path !== `example-evidence/${summary.id}-${asset.sha256}.json`) throw Error('Invalid evidence path');
+    const item = JSON.parse(await checkedArtifact(asset));
+    if (item.id !== summary.id || item.title !== summary.title) throw Error('Evidence belongs to another example');
+    return item;
+  })().catch(error => { evidenceCache.delete(summary.id); throw error; });
+  evidenceCache.set(summary.id, request);
+  return request;
+}
+async function openDetail(id, target, profileId = null, requestedView = null) {
+  const summary = allItems().find(candidate => candidate.id === id); if (!summary) return;
+  const ticket = ++state.detailRequest;
+  const status = $('example-request-status');
+  status.textContent = 'Loading example evidence…';
+  let item;
+  try { item = await loadExampleEvidence(summary); }
+  catch {
+    if (ticket === state.detailRequest) status.textContent = 'Could not load example evidence. Try View evidence again.';
+    return;
+  }
+  if (ticket !== state.detailRequest) return;
+  status.textContent = '';
+  state.detailItem = item;
   const requestedVariant = profileId && profileVariantFor(item, profileId);
   const defaultChoice = preferredSelection(item);
   const preferred = requestedVariant
@@ -769,6 +852,72 @@ function showExcalidraw(item) {
     panel.append(details);
   }
 }
+function renderEditDemo(demo) {
+  if (!demo) return;
+  const validPath = (asset, stem, ext) => /^[a-f0-9]{64}$/u.test(asset?.sha256) &&
+    asset.path === `excalidraw-demo/${stem}-${asset.sha256}.${ext}`;
+  if (!validPath(demo.before?.scene, 'before', 'excalidraw') || !validPath(demo.after?.scene, 'after', 'excalidraw') ||
+      !validPath(demo.before?.svg, 'before', 'svg') || !validPath(demo.after?.svg, 'after', 'svg') ||
+      !validPath(demo.before?.document, 'before', 'json') || !validPath(demo.after?.document, 'after', 'json') ||
+      !validPath(demo.before?.binding, 'binding', 'json')) return;
+  $('edit-demo-link').hidden = false;
+  const root = $('excalidraw-demo');
+  root.hidden = false;
+  if (location.hash === '#excalidraw-demo') requestAnimationFrame(() => root.scrollIntoView());
+  const figures = $('demo-scenes');
+  for (const [version, caption] of [['before', 'Before · UMF export'], ['after', 'After · Excalidraw edit']]) {
+    const figure = el('figure', 'demo-figure');
+    const preview = el('div', 'comparison-preview');
+    const image = document.createElement('img');
+    image.src = demo[version].svg.path;
+    image.alt = version === 'before' ? 'Client calls API, with Queue beside it' : 'API renamed Gateway, and Client calls Queue';
+    image.loading = 'lazy';
+    image.addEventListener('error', () => preview.replaceChildren(el('p', 'render-error', 'The preview could not be loaded.')));
+    preview.append(image);
+    addImageViewerButton(preview, image, caption);
+    const link = el('a', 'text-link', `Download ${version} scene`);
+    link.href = demo[version].scene.path; link.download = `request-path-${version}.excalidraw`;
+    figure.append(el('figcaption', '', caption), preview, link);
+    figures.append(figure);
+  }
+  const source = el('a', 'text-link', 'Original UMF JSON');
+  source.href = demo.before.document.path; source.download = 'request-path-before.json';
+  const binding = el('a', 'text-link', 'Excalidraw binding');
+  binding.href = demo.before.binding.path; binding.download = 'request-path-binding.json';
+  $('demo-downloads').append(source, binding);
+  $('demo-runtime').textContent = `Edited and saved in Excalidraw ${demo.nativeVersion} · headless Chromium ${demo.chromium}`;
+
+  const button = $('demo-import');
+  button.addEventListener('click', async () => {
+    const status = $('demo-status');
+    const result = $('demo-result');
+    button.disabled = true; status.textContent = 'Importing the edited scene…'; result.hidden = true;
+    try {
+      const modulePath = root.dataset.importModule;
+      if (!/^\.\/excalidraw-import-[a-f0-9]{16}\.js$/u.test(modulePath)) throw Error('Invalid import module');
+      const [adapter, edited, original, receipt, expected] = await Promise.all([
+        import(modulePath), checkedArtifact(demo.after.scene), checkedArtifact(demo.before.document),
+        checkedArtifact(demo.before.binding), checkedArtifact(demo.after.document),
+      ]);
+      const adopted = await adapter.importDemoEdit(edited, JSON.parse(original), JSON.parse(receipt), JSON.parse(expected));
+      const table = $('demo-changes');
+      table.replaceChildren();
+      for (const change of adopted.changes) {
+        const row = document.createElement('tr');
+        const name = el('th', '', change.field); name.scope = 'row';
+        row.append(name, el('td', '', change.before), el('td', '', change.after)); table.append(row);
+      }
+      $('demo-document').onclick = () => downloadText('request-path-recovered.json', safeJson(adopted.document));
+      status.textContent = `Imported ${adopted.changes.length} changes into UMF. The Queue position and color remain in the Excalidraw scene.`;
+      result.hidden = false;
+    } catch (error) {
+      console.error('Excalidraw demo import failed', error);
+      status.textContent = 'Could not verify the scene import. Try again.';
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
 function downloadText(filename, content) {
   const url = URL.createObjectURL(new Blob([content], {type: 'text/plain;charset=utf-8'})); const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
@@ -958,8 +1107,8 @@ function toast(message) { const node = $('toast'); node.textContent = message; n
 async function copyText(text, message) { try { await navigator.clipboard.writeText(text); toast(message); } catch { toast('Clipboard access is unavailable here'); } }
 function resetFilters() {
   state.query = ''; state.kind.clear(); state.form.clear(); state.cardRenderers.clear();
-  state.renderer = 'any'; $('search').value = ''; $('preview-renderer').value = 'any';
-  document.querySelectorAll('.filter-option input').forEach(input => { input.checked = false; }); updateList(); refreshFilterCounts();
+  state.renderer = 'any'; state.showAll = false; $('search').value = ''; $('preview-renderer').value = 'any';
+  document.querySelectorAll('.filter-option input').forEach(input => { input.checked = false; }); updateList();
 }
 async function loadIntegrationCatalog() {
   const mount = $('integration-catalog');
@@ -977,26 +1126,36 @@ async function loadIntegrationCatalog() {
 async function init() {
   themeInit();
   try {
-    const response = await fetch('./catalog.json', {cache: 'no-store'}); if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const response = await fetch('./gallery.json', {cache: 'no-store'}); if (!response.ok) throw new Error(`HTTP ${response.status}`);
     state.catalog = await response.json();
     if (state.catalog.schemaVersion !== 1 || !Array.isArray(state.catalog.items)) throw new Error('Unsupported catalogue schema');
     if (!state.catalog.language?.schema?.schema || !state.catalog.language?.forms?.kinds) throw new Error('Language reference is missing');
     $('catalog-version').textContent = `CATALOGUE V${state.catalog.schemaVersion}`;
-    renderLanguageReference(); updateGalleryLabels(); renderFullProfileCoverage(); renderReleaseCoverage(); renderCoverage(); setupFilters();
-    void loadIntegrationCatalog();
-    $('secondary-gallery').addEventListener('toggle', event => { state.showSecondary = event.target.open; updateGalleryLabels(); updateList(); });
+    renderLanguageReference(); renderFullProfileCoverage(); renderReleaseCoverage(); renderCoverage(); setupFilters();
+    renderEditDemo(state.catalog.demo);
+    const integrations = $('integrations');
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        if (!entries.some(entry => entry.isIntersecting)) return;
+        observer.disconnect();
+        void loadIntegrationCatalog();
+      }, {rootMargin: '300px'});
+      observer.observe(integrations);
+    } else void loadIntegrationCatalog();
+    $('example-scope').addEventListener('click', () => { state.showAll = !state.showAll; updateList(); });
     $('search').addEventListener('input', event => { state.query = event.target.value; updateList(); });
     $('preview-renderer').addEventListener('change', event => { state.renderer = event.target.value; state.cardRenderers.clear(); updateList(); });
     $('sort-select').addEventListener('change', event => { state.sort = event.target.value; updateList(); });
     $('reset-filters').addEventListener('click', resetFilters); $('empty-reset').addEventListener('click', resetFilters);
     $('copy-umf').addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); copyText($('umf-source').textContent, 'UMF JSON copied'); });
-    $('download-umf').addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); const item = allItems().find(candidate => candidate.id === state.selected); if (item) downloadText(`${item.id}.json`, safeJson(item.document ?? {})); });
+    $('download-umf').addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); const item = state.detailItem; if (item) downloadText(`${item.id}.json`, safeJson(item.document ?? {})); });
+    $('close-comparison').addEventListener('click', () => $('compare-dialog').close());
     $('close-detail').addEventListener('click', () => $('detail-dialog').close());
-    $('detail-dialog').addEventListener('close', () => { state.selected = null; setUrl(null); });
+    $('detail-dialog').addEventListener('close', () => { state.selected = null; state.detailItem = null; state.detailRequest++; setUrl(null); });
     const selectTarget = key => {
       const fromPresentation = state.target === 'excalidraw';
       state.target = key;
-      const item = allItems().find(candidate => candidate.id === state.selected); if (!item) return;
+      const item = state.detailItem; if (!item) return;
       if (fromPresentation && key !== 'excalidraw') {
         state.profileId = previewRoute(item, key)?.profileId ?? null;
         state.view = state.profileId ? 'diagram' : 'native';
@@ -1011,7 +1170,7 @@ async function init() {
     };
     for (const key of DETAIL_TARGETS) $(`tab-${key}`).addEventListener('click', () => selectTarget(key));
     $('profile-select').addEventListener('change', event => {
-      const item = allItems().find(candidate => candidate.id === state.selected); if (!item) return;
+      const item = state.detailItem; if (!item) return;
       const id = event.target.value;
       if (id === 'native') {state.view = 'native'; state.profileId = null;}
       else {
@@ -1024,7 +1183,7 @@ async function init() {
     const selectProfileView = (view, focus = false) => {
       if (!state.profileId) return; state.profileView = view;
       state.view = view;
-      const item = allItems().find(candidate => candidate.id === state.selected);
+      const item = state.detailItem;
       if (item) { renderProfileControls(item); showSelectedTarget(item); setUrl(item.id, state.target, state.profileId, state.view); }
       if (focus) $(`view-${view}`).focus();
     };
