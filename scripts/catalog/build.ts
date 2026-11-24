@@ -10,6 +10,7 @@ import {exportVisual, inspectVisual, interchangeCapabilities, visualForms, type 
 import type {ProjectionCoverage} from '../../src/interchange/annotations';
 import {focusedProfileSource} from './profile-views';
 import {buildIntegrationCatalog} from './integrations';
+import {renderExcalidrawExamples, type ExcalidrawCatalogExample} from './excalidraw';
 import {liniDirectory, verifyLiniRuntime} from '../interchange-runtime';
 import {nativePreviewPresentation, normalizeSvgIntrinsicDimensions, previewPresentationReceipt, type NativePreviewEngine} from './native-preview-presentation';
 import {buildFullProfileVariants, focusedFullProfilePreviewSource, type FullCatalogProfileVariant, type FullProfileTarget} from './full-profiles';
@@ -68,6 +69,7 @@ export interface CatalogItem {
   profileVariants?:CatalogProfileVariant[];
   /** Full interchange profiles remain separate from released and annotated records. */
   fullProfileVariants?:CatalogFullProfileVariant[];
+  excalidraw?: ExcalidrawCatalogExample;
   preferredRelease?:{format:TargetName;profileId:AnnotatedInterchangeProfile};
 }
 export interface VisualCatalog {
@@ -427,6 +429,7 @@ export async function buildCatalog(outputDirectory = 'dist-site'): Promise<Visua
   const catalog = await createCatalogData();
   await mkdir(outputDir, {recursive: true});
   await renderCatalog(catalog, outputDir);
+  await renderExcalidrawExamples(catalog.items, outputDir);
   await buildIntegrationCatalog(outputDir);
   const catalogFile = join(outputDir, 'catalog.json');
   const temporaryFile = join(outputDir, `.catalog.json.${randomUUID()}.tmp`);
@@ -448,5 +451,8 @@ if (import.meta.main) {
     rendered: catalog.items.filter(item => item.targets[format].render?.ok).length,
     unsupported: catalog.items.filter(item => item.targets[format].status === 'unsupported').length,
   }]));
-  console.log(JSON.stringify({items: catalog.items.length, counts}));
+  console.log(JSON.stringify({items: catalog.items.length, counts, excalidraw: {
+    rendered: catalog.items.filter(item => item.excalidraw).length,
+    forms: new Set(catalog.items.filter(item => item.excalidraw).map(item => item.kind + '/' + item.form)).size,
+  }}));
 }

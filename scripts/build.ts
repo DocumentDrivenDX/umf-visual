@@ -5,7 +5,7 @@ import {liniDirectory,verifyLiniRuntime} from './interchange-runtime';
 await mkdir('dist',{recursive:true});
 const result=await Bun.build({entrypoints:['src/index.ts'],outdir:'dist',naming:'index.js',target:'browser',format:'esm',external:['@umf/core']});
 if(!result.success)throw Error(result.logs.join('\n'));
-for(const [entry,name]of [['miro','miro'],['miro/editable','miro-editable'],['powerpoint','powerpoint'],['google-slides','google-slides'],['reconciliation','reconciliation']]){
+for(const [entry,name]of [['miro','miro'],['miro/editable','miro-editable'],['powerpoint','powerpoint'],['google-slides','google-slides'],['reconciliation','reconciliation'],['excalidraw','excalidraw']]){
  const adapter=await Bun.build({entrypoints:['src/adapters/'+entry+'/index.ts'],outdir:'dist',naming:name+'.js',target:'browser',format:'esm',external:['@umf/core']});
  if(!adapter.success)throw Error(adapter.logs.join('\n'));
 }

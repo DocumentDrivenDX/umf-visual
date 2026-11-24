@@ -1,6 +1,6 @@
 {
   "name": "@documentdrivendx/umf-visual",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "private": true,
   "description": "UMF visual vocabulary and format interchange library",
   "license": "MIT OR Apache-2.0",
@@ -26,6 +26,10 @@
     },
     "./schema": "./spec/extensions/visual/1.0.0/schema.json",
     "./manifest": "./spec/extensions/visual/1.0.0/package.json",
+    "./excalidraw": {
+      "types": "./dist/adapters/excalidraw/index.d.ts",
+      "import": "./dist/excalidraw.js"
+    },
     "./miro": {
       "types": "./dist/adapters/miro/index.d.ts",
       "import": "./dist/miro.js"
@@ -69,6 +73,7 @@
     "build": "bun scripts/build.ts",
     "generate": "bun scripts/generate.ts",
     "check:source": "bun scripts/check-source.ts",
+    "test:excalidraw": "bun scripts/excalidraw-browser.ts",
     "test:browser": "bun scripts/browser.ts",
     "test:package": "bun scripts/package-smoke.ts",
     "fetch:lini": "bun scripts/fetch-lini.ts",
@@ -92,10 +97,15 @@
     "saxes": "6.0.0"
   },
   "devDependencies": {
+    "@excalidraw/excalidraw": "0.18.1",
     "@types/bun": "1.4.2",
-    "typescript": "7.0.2",
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
+    "mermaid": "12.2.0",
     "playwright": "1.63.0",
-    "typescript-api": "npm:typescript@5.9.3",
-    "mermaid": "12.2.0"
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "typescript": "7.0.2",
+    "typescript-api": "npm:typescript@5.9.3"
   }
 }

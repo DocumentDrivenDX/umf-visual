@@ -40,6 +40,7 @@ import expressiveSchema from '@documentdrivendx/umf-visual/schema/1.2.0' with {t
 import frozenGallerySchema from '@documentdrivendx/umf-visual/schema/1.3.0' with {type:'json'};
 import gallerySchema from '@documentdrivendx/umf-visual/schema/1.4.0' with {type:'json'};
 import {planMiroExport} from '@documentdrivendx/umf-visual/miro';
+import {compileExcalidrawPresentation,exportExcalidraw,replayExcalidraw} from '@documentdrivendx/umf-visual/excalidraw';
 import {exportPowerPoint,importPowerPoint} from '@documentdrivendx/umf-visual/powerpoint';
 import {observeGoogleSlides,planGoogleSlidesExport} from '@documentdrivendx/umf-visual/google-slides';
 import {hostDigest,admitHostObservation} from '@documentdrivendx/umf-visual/reconciliation';
@@ -87,6 +88,8 @@ if(!normalizedSequenceSource.includes('Keep the authored context')||!normalizedS
 if(planMiroExport(doc).shapes.length!==2)throw Error('Installed Miro entrypoint failed');
 const editable=await planEditableMiroExport(doc,'strict');if(editable.nodes.length!==1)throw Error('Installed editable Miro entrypoint failed');
 const digest=await hostDigest(doc);if(!/^[0-9a-f]{64}$/.test(digest))throw Error('Installed reconciliation entrypoint failed');
+const projectedSketch=compileExcalidrawPresentation(doc);if(projectedSketch.profile!=='umf.visual.excalidraw.presentation/1'||JSON.parse(projectedSketch.text).version!==2)throw Error('Installed Excalidraw presentation compiler failed');
+const sketch=await exportExcalidraw(doc);if(await replayExcalidraw({binding:sketch.binding,currentDocument:doc,expectedRevision:0})!==sketch.text)throw Error('Installed Excalidraw entrypoint failed');
 const ppt=await exportPowerPoint(doc,{mode:'report'});const pptBack=await importPowerPoint(ppt.bytes,{binding:ppt.binding,expectedBindingRevision:ppt.binding.bindingRevision,mode:'report'});if(getVisual(pptBack.document).question!==getVisual(doc).question)throw Error('Installed PowerPoint round trip failed');
 const snapshot={presentationId:'consumer-presentation',revisionId:'consumer-rev-1',pageSize:{width:{magnitude:720,unit:'PT'},height:{magnitude:405,unit:'PT'}},slides:[{objectId:'consumer-slide',pageElements:[]}]};
 const observed=await observeGoogleSlides(snapshot);await admitHostObservation({resource:{host:'google-slides',documentId:'consumer-presentation'},revision:{kind:'host-revision',value:'consumer-rev-1'},captureDigestSha256:observed.captureDigestSha256,payload:snapshot});
@@ -167,7 +170,7 @@ for(const entry of profileCases.filter(p=>p.format==='mermaid'||p.document.exten
 }
 let unknownProfileRefused=false;try{unknownProfileRefused=!exportVisual(profileCases[2].document,{format:'mermaid',profile:'umf.visual.mermaid.unknown/999'}).ok;}catch{unknownProfileRefused=true;}
 if(!unknownProfileRefused)throw Error('Unknown packed-consumer profile was accepted');
-console.log(JSON.stringify({installed:true,valid:report.valid,complete:report.complete,interchange:['dot','mermaid','lini'],portableAdapters:['powerpoint','google-slides','reconciliation','miro/editable'],fullProfileCases:fullCases.length,annotatedProfiles:profileCases.map(p=>p.profile),annotatedSources:['helix-request','catalog-canary-flow'],processRoleVersion:'1.4.0',annotations:true,unknownProfileRefused:true}));`);
+console.log(JSON.stringify({installed:true,valid:report.valid,complete:report.complete,interchange:['dot','mermaid','lini'],portableAdapters:['excalidraw','powerpoint','google-slides','reconciliation','miro/editable'],fullProfileCases:fullCases.length,annotatedProfiles:profileCases.map(p=>p.profile),annotatedSources:['helix-request','catalog-canary-flow'],processRoleVersion:'1.4.0',annotations:true,unknownProfileRefused:true}));`);
 const types=Bun.spawn([resolve('node_modules/.bin/tsc'),'--ignoreConfig','--allowJs','--checkJs','--noEmit','--module','ESNext','--moduleResolution','Bundler','--target','ES2022','--skipLibCheck','consumer.mjs'],{cwd:consumer,stdout:'inherit',stderr:'inherit'});
 if(await types.exited)throw Error('Installed consumer declarations failed');
 for(const runtime of [process.execPath,'node']){

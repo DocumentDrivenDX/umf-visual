@@ -37,6 +37,7 @@ There is no hosted service or database. The library runs inside its consumer.
 | --- | --- | --- | --- | --- |
 | src/extensions/visual | Visual types, validation and edits | CONTRACT-083 API | Released @umf/core and local manifest | UMF internals, sibling checkout, renderer/Node APIs |
 | src/adapters/miro | Network projection, native preservation, atomic reconciliation and injected Web SDK I/O | CONTRACT-084; ./miro | Public core/visual APIs and local helpers | Host APIs, global SDK, vocabulary dependencies on adapters |
+| src/adapters/excalidraw | Editable presentations, network file bindings and exact scene replay | CONTRACT-090; ./excalidraw | Public core/visual APIs and shared JSON helpers | Editor runtime, filesystem and browser automation |
 | src/interchange | Portable native parsing, mapping, source companions and export | CONTRACT-086 | Local visual API, public @umf/core, local shared helpers | Native engines, renderer APIs, host APIs, sibling source |
 | src/presentation | Native drawing-source compilation and visible-view mapping | CONTRACT-089; ./presentation | Public visual/core types, portable local helpers | Native engines, filesystem, Node/Bun APIs, interchange behavior changes |
 | src/renderers/lini | Optional browser execution of the pinned Lini runtime | CONTRACT-089; ./renderers/lini | Portable compiler, browser Fetch/Web Crypto/Blob/WASM, inert XML parser | Node/Bun APIs, eager native initialization, editable interchange claims |

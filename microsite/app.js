@@ -1,7 +1,8 @@
 import {renderIntegrationCatalog} from './integrations.js';
 
 const TARGETS = ['dot', 'mermaid', 'lini'];
-const LABELS = {dot: 'DOT', mermaid: 'Mermaid', lini: 'Lini'};
+const DETAIL_TARGETS = [...TARGETS, 'excalidraw'];
+const LABELS = {dot: 'DOT', mermaid: 'Mermaid', lini: 'Lini', excalidraw: 'Excalidraw'};
 const STATUS = ['supported', 'reported-loss', 'unsupported'];
 const SIX_TARGETS = [
   ['dot', 'DOT'], ['mermaid', 'Mermaid'], ['lini', 'Lini'],
@@ -51,7 +52,7 @@ function updateThemeButton() {
 function setUrl(id = state.selected, target = state.target, profileId = state.profileId, view = state.view) {
   const url = new URL(location.href);
   if (id) url.searchParams.set('id', id); else url.searchParams.delete('id');
-  if (id) url.searchParams.set('target', TARGETS.includes(target) ? target : 'dot'); else url.searchParams.delete('target');
+  if (id) url.searchParams.set('target', DETAIL_TARGETS.includes(target) ? target : 'dot'); else url.searchParams.delete('target');
   if (id && profileId) url.searchParams.set('profile', profileId); else url.searchParams.delete('profile');
   if (id) url.searchParams.set('view', ['native', 'diagram', 'complete'].includes(view) ? view : 'native'); else url.searchParams.delete('view');
   history.replaceState(null, '', url);
@@ -266,6 +267,13 @@ function makeCard(item) {
     cell.append(el('i'), el('span', 'status-label', `${shortTarget} ${abbreviation}`)); strip.append(cell);
   }
   card.append(main, preview, strip);
+  if (item.excalidraw) {
+    const button = el('button', 'icon-button excalidraw-example', 'Excalidraw preview');
+    button.type = 'button';
+    button.setAttribute('aria-label', `Open Excalidraw preview for ${item.title}`);
+    button.addEventListener('click', () => openDetail(item.id, 'excalidraw'));
+    card.append(button);
+  }
   main.addEventListener('click', () => openDetail(item.id));
   card.addEventListener('click', event => { if (!(event.target instanceof Element) || !event.target.closest('.image-enlarge-button,button,a')) openDetail(item.id); });
   return card;
@@ -306,8 +314,8 @@ function openDetail(id, target, profileId = null, requestedView = null) {
       : target === undefined
         ? defaultChoice
         : {target: TARGETS.includes(target) ? target : 'dot', profileId: null};
-  state.selected = item.id; state.target = requestedVariant?.profileId === profileId ? requestedVariant.format : preferred.target;
-  state.profileId = preferred.profileId; state.profileView = requestedView === 'complete' ? 'complete' : 'diagram';
+  state.selected = item.id; state.target = target === 'excalidraw' ? target : preferred.target;
+  state.profileId = state.target === 'excalidraw' ? null : preferred.profileId; state.profileView = requestedView === 'complete' ? 'complete' : 'diagram';
   state.view = ['native', 'diagram', 'complete'].includes(requestedView) ? requestedView : (state.profileId ? 'diagram' : 'native');
   state.lastQualifiedByTarget = Object.create(null);
   if (state.profileId) state.lastQualifiedByTarget[state.target] = state.profileId;
@@ -317,15 +325,14 @@ function openDetail(id, target, profileId = null, requestedView = null) {
   $('detail-question').textContent = item.question || 'No guiding question supplied.';
   $('umf-source').textContent = safeJson(item.document ?? {});
   const provenance = $('provenance'); provenance.textContent = `${item.sourcePath || 'Source path unavailable'}\nSHA-256  ${item.sourceSha256 || 'not supplied'}`;
-  for (const key of TARGETS) { const tab = $(`tab-${key}`); tab.setAttribute('aria-selected', String(key === state.target)); tab.tabIndex = key === state.target ? 0 : -1; }
-  renderProfileControls(item); showSelectedTarget(item); setUrl(item.id, state.target, state.profileId, state.view);
+  showSelectedTarget(item); setUrl(item.id, state.target, state.profileId, state.view);
   const dialog = $('detail-dialog'); if (!dialog.open) dialog.showModal();
 }
 function renderProfileControls(item) {
   const variants = profileVariantsFor(item).filter(candidate => candidate.format === state.target && (isFullProfileVariant(candidate) || candidate.result?.ok));
   const controls = $('qualified-profile-controls');
   controls.hidden = variants.length === 0;
-  $('baseline-label').hidden = state.view !== 'native';
+  $('baseline-label').hidden = state.target === 'excalidraw' || state.view !== 'native';
   $('baseline-label').textContent = `NATIVE BASELINE PROFILE · ${LABELS[state.target]}`;
   if (controls.hidden) return;
   const select = $('profile-select'); select.replaceChildren();
@@ -358,12 +365,20 @@ function renderProfileControls(item) {
   $('view-complete').setAttribute('aria-selected', String(state.view === 'complete')); $('view-complete').tabIndex = state.view === 'complete' ? 0 : -1;
 }
 function showSelectedTarget(item) {
+  for (const key of DETAIL_TARGETS) {
+    const tab = $(`tab-${key}`);
+    tab.setAttribute('aria-selected', String(key === state.target));
+    tab.tabIndex = key === state.target ? 0 : -1;
+  }
+  if (state.target === 'excalidraw') {
+    state.profileId = null; state.view = 'native';
+    renderProfileControls(item); showExcalidraw(item); return;
+  }
   if (state.view !== 'native') {
     const variants = profileVariantsFor(item).filter(candidate => candidate.format === state.target && (isFullProfileVariant(candidate) || candidate.result?.ok));
     let variant = variants.find(candidate => candidate.profileId === state.profileId);
     if (!variant && variants.length === 1 && variants[0]?.result?.ok) {variant = variants[0]; state.profileId = variant.profileId; state.lastQualifiedByTarget[state.target] = variant.profileId;}
     if (variant) {
-      for (const key of TARGETS) { const tab = $(`tab-${key}`); tab.setAttribute('aria-selected', String(key === state.target)); tab.tabIndex = key === state.target ? 0 : -1; }
       renderProfileControls(item); showVariant(item, variant); return;
     }
     renderProfileControls(item); showQualifiedUnavailable(item, variants.length); return;
@@ -653,7 +668,6 @@ function profileApproximationDetails(approximations) {
 function showTarget(item, target) {
   const panel = $('target-panel'); panel.replaceChildren(); panel.setAttribute('aria-labelledby', `tab-${target}`);
   const result = item.targets?.[target];
-  for (const key of TARGETS) { $(`tab-${key}`).setAttribute('aria-selected', String(key === target)); $(`tab-${key}`).tabIndex = key === target ? 0 : -1; }
   if (!result) {
     const status = el('p', 'target-status'); status.append(el('span', 'status-pill unevaluated', 'Not evaluated'));
     panel.append(status, el('p', 'target-explainer', `No ${LABELS[target]} profile result is present for this definition.`)); return;
@@ -685,6 +699,40 @@ function showTarget(item, target) {
     const actions = el('div', 'source-actions'); const download = el('button', 'icon-button', 'Download source'); download.type = 'button'; download.addEventListener('click', () => downloadText(`${item.id}.${target === 'mermaid' ? 'mmd' : target === 'dot' ? 'dot' : 'lini'}`, result.source)); actions.append(download); panel.append(actions);
   }
   addDiagnostics(panel, result.diagnostics); addIdentityMap(panel, result.identityMap);
+}
+function showExcalidraw(item) {
+  const panel = $('target-panel'); panel.replaceChildren(); panel.setAttribute('aria-labelledby', 'tab-excalidraw');
+  const result = item.excalidraw;
+  const source = result?.source;
+  const render = result?.render;
+  const previewUrl = safeRenderPath(render?.svgPath, render?.svgSha256);
+  if (result?.profile !== 'umf.visual.excalidraw.presentation/1' || !previewUrl ||
+      !/^[a-f0-9]{64}$/.test(render?.svgSha256) || !/^[a-f0-9]{64}$/.test(source?.sha256) ||
+      !/^excalidraw\/[a-z0-9_-]+-[a-f0-9]{64}\.excalidraw$/.test(source?.path) ||
+      !source.path.endsWith(`-${source.sha256}.excalidraw`)) {
+    panel.append(el('p', 'target-explainer', 'No verified Excalidraw preview is available for this example.'));
+    return;
+  }
+  panel.append(el('p', 'target-explainer', `Editable scene · opened, saved and rendered in Excalidraw ${render.nativeVersion}`));
+  const preview = el('div', 'render-preview');
+  const image = document.createElement('img');
+  image.src = previewUrl; image.alt = `Excalidraw preview of ${item.title}`;
+  image.addEventListener('error', () => preview.replaceChildren(el('p', 'render-error', 'Excalidraw preview could not be loaded.')));
+  preview.append(image); panel.append(preview);
+  addImageViewerButton(preview, image, `Excalidraw · ${item.title}`, previewUrl);
+  const download = el('a', 'text-link', 'Download .excalidraw');
+  download.href = source.path; download.download = `${item.id}.excalidraw`;
+  const svg = el('a', 'text-link', 'Download SVG'); svg.href = previewUrl; svg.download = `${item.id}.svg`;
+  const actions = el('div', 'source-actions'); actions.append(download, svg); panel.append(actions);
+  panel.append(el('p', 'target-explainer', 'This presentation uses editable drawing elements. Semantic readback requires a separate network export and its binding.'));
+  panel.append(profileApproximationDetails(result.approximations));
+  const omissions = Array.isArray(result.omissions) ? result.omissions : [];
+  if (omissions.length) {
+    const details = document.createElement('details'); details.className = 'identity-details';
+    details.append(el('summary', '', `Fields retained in UMF source · ${omissions.length}`),
+      el('pre', '', omissions.join('\n')));
+    panel.append(details);
+  }
 }
 function downloadText(filename, content) {
   const url = URL.createObjectURL(new Blob([content], {type: 'text/plain;charset=utf-8'})); const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -920,7 +968,7 @@ async function init() {
       }
       renderProfileControls(item); showSelectedTarget(item); setUrl(item.id, key, state.profileId, state.view);
     };
-    for (const key of TARGETS) $(`tab-${key}`).addEventListener('click', () => selectTarget(key));
+    for (const key of DETAIL_TARGETS) $(`tab-${key}`).addEventListener('click', () => selectTarget(key));
     $('profile-select').addEventListener('change', event => {
       const item = allItems().find(candidate => candidate.id === state.selected); if (!item) return;
       const id = event.target.value;
@@ -950,7 +998,9 @@ async function init() {
     document.querySelector('.target-tabs').addEventListener('keydown', event => {
       if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return; event.preventDefault();
       const focusedTarget = event.target instanceof Element ? event.target.closest('[role="tab"]')?.dataset.target : undefined;
-      const index = TARGETS.indexOf(focusedTarget || state.target); const next = TARGETS[(index + (event.key === 'ArrowRight' ? 1 : 2)) % 3];
+      const index = DETAIL_TARGETS.indexOf(focusedTarget || state.target);
+      const count = DETAIL_TARGETS.length, step = event.key === 'ArrowRight' ? 1 : -1;
+      const next = DETAIL_TARGETS[(index + step + count) % count];
       selectTarget(next); $(`tab-${next}`).focus();
     });
     const initialParams = new URLSearchParams(location.search); const initialId = initialParams.get('id'); const initialTarget = initialParams.get('target'); const initialProfile = initialParams.get('profile'); const initialView = initialParams.get('view');

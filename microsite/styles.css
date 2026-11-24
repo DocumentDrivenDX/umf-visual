@@ -43,3 +43,5 @@ dialog{width:min(1180px,calc(100vw - 36px));max-width:none;max-height:calc(100dv
 .baseline-coverage-details{margin-top:18px;border-top:1px solid var(--line);padding-top:13px}.baseline-coverage-details>summary{cursor:pointer;color:var(--muted);font:600 12px var(--display);list-style-position:inside}.baseline-coverage-details>p{color:var(--muted);font-size:11px;line-height:1.5}.baseline-coverage-details .baseline-coverage-grid{margin-top:12px}
 @media(max-width:850px){.full-profile-coverage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.full-profile-coverage-grid{grid-template-columns:minmax(0,1fr)}}
+
+.target-tabs{flex-wrap:wrap}.excalidraw-example{align-self:start;margin:0 0 12px 12px}

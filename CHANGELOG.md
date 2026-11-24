@@ -4,6 +4,15 @@ Releases are tagged `vX.Y.Z` and published as a GitHub Release (tarball + `SHA25
 
 ## Unreleased
 
+## 0.7.0 - 2026-11-24
+
+- Added editable Excalidraw scene export for all 53 microsite examples across all 22 visual forms. The Evidence Library includes scene downloads, native SVG previews, and per-example layout approximations and omitted fields.
+- Added the `@documentdrivendx/umf-visual/excalidraw` entry point. Its presentation compiler emits editable drawing elements. Its bounded `flow/network` adapter can adopt label and connector edits back into `umf.visual` 1.0.0 and 1.1.0 using a saved binding.
+- Verified every catalog scene in Excalidraw 0.18.1 under headless Chromium. The headless example also supports local SVG export.
+- Clean builds restore the existing hash-pinned Lini 1.1.0 runtime from the v0.6.0 release archive.
+
+See the [Excalidraw guide](https://github.com/DocumentDrivenDX/umf-visual/blob/v0.7.0/docs/excalidraw.md) and [microsite examples](https://documentdrivendx.github.io/umf-visual/evidence.html).
+
 ## 0.6.1 - 2026-11-11
 - Tag-driven `release.yml` (tests, build, fresh-install smoke of the packed tarball, GitHub Release with SHA256SUMS and provenance attestation).
   An npm publish step exists but is off by default; the package is still `private` and distributed as a GitHub Release tarball.

@@ -16,8 +16,9 @@ export interface FullProjectionRepresentation {
  coverageModel:'native-concepts-and-annotations'|'visible-record-tree';
  wholeDocumentReadback:true;
 }
-export interface FullScene {
-  format:InterchangeFormat;
+export type PrimitiveSceneFormat = InterchangeFormat | 'excalidraw';
+export interface FullScene<Format extends PrimitiveSceneFormat = InterchangeFormat> {
+  format:Format;
   profile:string;
   version:'1';
   kind:string;

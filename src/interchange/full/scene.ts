@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 import {copyJson,type Document} from '@umf/core';
 import {getVisual,inspectVisual} from '../../extensions/visual';
-import type {InterchangeFormat} from '../types';
 import {compileFullRecords,fullRecordId} from './records';
-import type {FullScene} from './types';
+import type {FullScene,PrimitiveSceneFormat} from './types';
 import {appendAdditionalScene} from './additional-scenes';
 
 const ROOT='/extensions/umf.visual';
 const id=(path:string)=>'v_'+fullRecordId(path).slice(2);
 /** Complete, explicitly qualified primitive fallback projections. */
-export function compileFullScene(input:unknown,format:InterchangeFormat):FullScene {
+export function compileFullScene<Format extends PrimitiveSceneFormat>(input:unknown,format:Format):FullScene<Format> {
  const document=copyJson(input) as unknown as Document,inspection=inspectVisual(document);
  if(!inspection.valid)throw new TypeError('Full projection requires a valid visual document');
  const visual=getVisual(document),records=compileFullRecords(document),paths=new Set(records.map(record=>record.path));
  const record=(path:string)=>paths.has(path)?fullRecordId(path):undefined;
- const scene:FullScene={format,profile:'umf.visual.'+format+'.full/1',version:'1',kind:visual.kind,form:visual.form,records,nodes:[],edges:[],groups:[],approximations:[]};
+ const scene:FullScene<Format>={format,profile:'umf.visual.'+format+'.full/1',version:'1',kind:visual.kind,form:visual.form,records,nodes:[],edges:[],groups:[],approximations:[]};
  const note=(path:string,text?:string,group?:string)=>{
   // These are generated caption/property carriers, not authored note shapes.
   const native=id(path);scene.nodes.push({id:native,shape:format==='dot'?'note':'box',...(record(path)?{recordId:record(path)}:{text:text??path}),...(group?{group}:{})});return native;
