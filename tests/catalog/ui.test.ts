@@ -11,7 +11,9 @@ describe('microsite catalogue UI contract',()=>{
     const reviewHtml=await Bun.file('microsite/reviews.html').text();
     expect(html).toContain('id="language"');
     expect(html).toContain('id="examples"');
-    expect(html).toContain('These are example instances, not language definitions.');
+    expect(html.indexOf('id="examples"')).toBeLessThan(html.indexOf('id="language"'));
+    expect(html).toContain('id="preview-renderer"');
+    expect(app).not.toContain('status-strip');
     expect(html).toContain('A question is required');
     expect(html).toContain('Visual 1.0.0 graph kinds are limited to 15 nodes');
     expect(html).toContain('Visual 1.1.0 through 1.4.0 validation permits up to 500 nodes and 10,000 items in each connection list');
