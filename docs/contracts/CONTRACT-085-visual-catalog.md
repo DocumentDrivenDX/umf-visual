@@ -28,9 +28,8 @@ Its sourcePath is `spec/extensions/visual/schema.json`. Forms sourcePath is
 from the actual exported visualForms table. Both hashes identify exact source
 bytes. The builder MUST check kind/form enum agreement with the schema, while
 qualifying that semantic pairing rules live in TypeScript rather than the flat
-schema enums. The detailed evidence page MUST present this language reference
-before its secondary example gallery and MUST distinguish its counts from
-example counts. CAT-16–CAT-18 and CONTRACT-089 place the curated diagram showcase
+schema enums. The evidence page MUST distinguish language form counts from
+example counts. Its gallery leads with one example for every declared form. CAT-16–CAT-18 and CONTRACT-089 place the curated diagram showcase
 on the primary homepage; the complete reference and conformance interface lives
 at `evidence.html`. Existing example/profile links retain their intent there.
 
@@ -75,6 +74,23 @@ Otherwise it MUST call `allow-reported-loss`; success gives `reported-loss`, and
 failure gives `unsupported`. The record MUST retain the selected actual result.
 A supported status means an export under the recorded mapping profile, not full
 native-format support, rendering success or equivalence outside that example.
+
+### Gallery loading and comparison
+
+The evidence page reads `gallery.json` for language declarations, preview
+routes, coverage totals, and example metadata. The initial index MUST include
+every catalog item and mark exactly one featured item for each declared kind
+and form. Search and kind/form filters operate on the whole index. The
+compact index excludes native source and UMF documents and is bounded to 256
+KiB. Each example's full existing catalog record is a separate, content-addressed
+JSON file. **View evidence** fetches only that record and verifies its
+SHA-256. The complete `catalog.json` remains available for programmatic readers.
+
+A comparison selects two distinct rendered routes for one example. Each
+viewport uses the corresponding SVG and opens evidence with that precise
+target and profile. The comparison requires only index metadata and images.
+The Excalidraw demo uses separately addressed assets and loads its browser
+import code on demand. CONTRACT-090 owns semantic adoption.
 
 ### Opt-in profile variants
 

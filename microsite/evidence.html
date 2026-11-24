@@ -56,8 +56,8 @@
     </section>
 
     <section class="catalogue-section" id="examples" aria-labelledby="catalogue-title">
-      <div class="section-head catalogue-heading"><div><h2 id="catalogue-title">Diagram examples</h2></div><p class="section-description">Switch renderers to compare the same UMF example. Open the evidence to see what the selected view preserves.</p></div>
-      <details id="secondary-gallery" class="secondary-gallery"><summary id="secondary-gallery-summary">Show application and canary examples</summary><p id="sample-scope-note" class="sample-scope-note"></p></details>
+      <div class="section-head catalogue-heading"><div><h2 id="catalogue-title">Diagram examples</h2></div><p class="section-description">See one example of each form, or search all examples. Compare two renderers on the same UMF document.</p></div>
+        <p class="scope-note"><a id="edit-demo-link" href="#excalidraw-demo" hidden>See an Excalidraw edit come back into UMF ↓</a></p>
       <div class="browse-layout">
         <aside class="filter-panel" aria-label="Example filters">
           <div class="filter-top"><span class="filter-title">FILTERS</span><button id="reset-filters" class="reset-button" type="button">Reset</button></div>
@@ -69,10 +69,26 @@
 
         <div class="results-column">
           <div class="results-toolbar"><p id="result-count" aria-live="polite">Loading examples…</p><div class="gallery-options"><label for="preview-renderer">Preview in <select id="preview-renderer"><option value="any">Default view</option><option value="excalidraw">Excalidraw</option><option value="dot">Graphviz (DOT)</option><option value="mermaid">Mermaid</option><option value="lini">Lini</option></select></label><label for="sort-select">Sort <select id="sort-select"><option value="title">Name A–Z</option><option value="kind">Kind</option><option value="form">Form</option></select></label></div></div>
+          <div class="example-browse-actions"><button class="icon-button" id="example-scope" type="button" aria-pressed="false" aria-controls="definition-list">Show all examples</button><p id="example-request-status" role="status"></p></div>
           <div class="definition-list" id="definition-list" aria-label="Example documents"></div>
           <div class="empty-state" id="empty-state" hidden><span aria-hidden="true">⌕</span><h3>No examples match</h3><p>Try clearing a filter or searching for a broader term.</p><button class="button-secondary" id="empty-reset" type="button">Clear filters</button></div>
           <div class="load-error" id="load-error" hidden role="alert">The catalogue could not be loaded. Try refreshing this page.</div>
         </div>
+      </div>
+    </section>
+
+    <section class="edit-demo-section" id="excalidraw-demo" aria-labelledby="demo-title" data-import-module="{{excalidrawModule}}" hidden>
+      <div class="section-head"><div><h2 id="demo-title">From an Excalidraw edit back to UMF</h2></div><p class="section-description">Rename API to Gateway, reconnect the request to Queue, then import the edited scene against its saved binding.</p></div>
+      <div class="comparison-grid" id="demo-scenes"></div>
+      <p class="render-caption" id="demo-runtime"></p>
+      <div class="demo-actions">
+        <button class="button-secondary" id="demo-import" type="button">Import edited scene</button>
+        <div id="demo-downloads"></div>
+      </div>
+      <p id="demo-status" role="status"></p>
+      <div id="demo-result" hidden>
+        <table class="demo-change-table"><caption>Recovered UMF changes</caption><thead><tr><th scope="col">Field</th><th scope="col">Before</th><th scope="col">After</th></tr></thead><tbody id="demo-changes"></tbody></table>
+        <button class="icon-button" id="demo-document" type="button">Download recovered UMF JSON</button>
       </div>
     </section>
 
@@ -113,6 +129,13 @@
     </section>
     <footer><span class="brand-mark small" aria-hidden="true">u<span>·</span>v</span><span>UMF visual language reference</span><span class="site-version">umf-visual {{version}}</span><a href="https://github.com/DocumentDrivenDX/umf-visual" target="_blank" rel="noreferrer">Source and evidence <span aria-hidden="true">↗</span></a><span class="footer-version" id="catalog-version">CATALOGUE V—</span></footer>
   </main>
+
+  <dialog id="compare-dialog" aria-labelledby="compare-title">
+    <div class="detail-shell">
+      <header class="detail-header"><div><h2 id="compare-title"></h2></div><button class="close-button" id="close-comparison" aria-label="Close comparison" type="button">×</button></header>
+      <div class="comparison-grid" id="compare-panels"></div>
+    </div>
+  </dialog>
 
   <dialog id="detail-dialog" aria-labelledby="detail-title">
     <div class="detail-shell">
