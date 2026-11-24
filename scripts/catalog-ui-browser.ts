@@ -235,23 +235,28 @@ try{
     if(!summaryText.includes(ordinaryProfile)||!summaryText.includes(`v${capability.version}`))throw Error(`Coverage summary for ${target} selected the wrong profile or mapping version: ${summaryText}`);
   }
   exercised.push('native counts remain separate from losses and coverage summaries name exact ordinary profiles and mapping versions');
-  const firstCardLabel=await page.locator('.definition-card').first().getAttribute('aria-label');
-  if(!firstCardLabel?.includes('DOT')||!firstCardLabel.includes('Mermaid')||!firstCardLabel.includes('Lini'))throw new Error('Definition card accessible name omits one or more profile outcomes');
+  const firstCard = page.locator('.definition-card').first();
+  if (!(await firstCard.getByRole('heading', {level: 3}).textContent()) ||
+      await firstCard.getByRole('button', {name: 'Excalidraw', exact: true}).getAttribute('aria-pressed') !== 'true') {
+    throw new Error('Example card did not lead with its title and selected preview renderer');
+  }
   await mkdir('.cache',{recursive:true});
   await page.screenshot({path:'.cache/catalog-ui-desktop.png'});
   exercised.push('desktop catalogue screenshot');
   const openFirstCard=page.locator('.definition-main').first();await openFirstCard.focus();await page.keyboard.press('Enter');
   await page.locator('#detail-dialog').waitFor({state:'visible'});
-  if(await page.getByRole('button',{name:/Open .* details/}).count()!==formExamples.length)throw new Error('Each catalog example must expose its own keyboard-focusable details button');
+  if(await page.getByRole('button',{name:/View evidence for /}).count()!==formExamples.length)throw new Error('Each catalog example must expose its own keyboard-focusable details button');
   await page.locator('#close-detail').click();
   exercised.push('catalog cards provide a separate keyboard-accessible details button');
 
   const first=formExamples[0];
   await page.locator('#search').fill(first.id);
   if(await page.locator('.definition-card').count()!==1)throw new Error('Search did not isolate a definition by ID');
-  await page.locator('.definition-card').click();
-  await page.locator('#detail-dialog').waitFor({state:'visible'});
   const firstRelease=first.preferredRelease;
+  const firstRenderer = {dot: 'Graphviz', mermaid: 'Mermaid', lini: 'Lini'}[firstRelease?.format as 'dot' | 'mermaid' | 'lini'] || 'Graphviz';
+  await page.locator('.definition-card').getByRole('button', {name: firstRenderer, exact: true}).click();
+  await page.locator('.definition-main').click();
+  await page.locator('#detail-dialog').waitFor({state:'visible'});
   if(new URL(page.url()).searchParams.get('target')!==(firstRelease?.format||'dot'))throw new Error('Opening a sample did not select its preferred native target');
   const firstFullVariant=firstRelease&&first.fullProfileVariants?.find((variant:any)=>variant.format===firstRelease.format&&variant.result?.status==='supported'&&variant.result?.ok&&fullNativeClean(variant.result?.render)&&fullNativeClean(variant.diagramRender)&&!(variant.result?.diagnostics||[]).some((d:any)=>d.loss||d.severity==='error'));
   const firstPreferredVariant=firstFullVariant||firstRelease&&first.profileVariants?.find((variant:any)=>variant.format===firstRelease.format&&variant.profileId===firstRelease.profileId);
@@ -299,8 +304,8 @@ try{
   await page.keyboard.press('ArrowRight');
   if(new URL(page.url()).searchParams.get('target')!=='dot'||await page.locator('#tab-dot').getAttribute('tabindex')!=='0')throw new Error('Keyboard target selection did not wrap to DOT');
   await page.locator('#close-detail').click();
-  const excalidrawCard = page.getByRole('button', {name: `Open Excalidraw preview for ${first.title}`});
-  await excalidrawCard.click();
+  await page.locator('.definition-card').getByRole('button', {name: 'Excalidraw', exact: true}).click();
+  await page.locator('.definition-main').click();
   if(new URL(page.url()).searchParams.get('target')!=='excalidraw')throw new Error('Example card did not open its Excalidraw preview');
   await page.reload();
   await page.locator('#detail-dialog').waitFor({state:'visible'});
@@ -368,14 +373,11 @@ try{
     await page.locator('#close-detail').click();
   }
 
-  const targetLabel=page.locator('#target-filters').getByLabel('mermaid');
-  await targetLabel.check();
-  const targetStatus=await page.locator('.status-cell').first().textContent();
-  if(!['MER OK','MER LOSS','MER NO','MER —'].includes(targetStatus||''))throw new Error('Target filter did not scope the visible result status strip');
-  const statusLabel=page.locator('#status-filters').getByLabel('Unsupported');
-  await statusLabel.check();
-  const unsupportedForTarget=formExamples.filter(item=>item.targets.mermaid?.status==='unsupported').length;
-  if(await page.locator('.definition-card').count()!==unsupportedForTarget)throw new Error('Target plus status filters returned an unexpected set');
+  await page.locator('#preview-renderer').selectOption('mermaid');
+  if(!await page.locator('.definition-card[data-renderer="mermaid"]').count() ||
+     await page.locator('.definition-card:not([data-renderer="mermaid"])').count()){
+    throw new Error('Gallery renderer filter did not select the actual Mermaid previews');
+  }
   await page.locator('#reset-filters').click();
   if(await page.locator('.definition-card').count()!==formExamples.length)throw new Error('Reset button did not restore form examples');
   await page.locator('#secondary-gallery-summary').click();
@@ -386,8 +388,45 @@ try{
   await page.locator('#secondary-gallery-summary').click();
   await page.waitForFunction(expected=>document.querySelectorAll('.definition-card').length===expected,formExamples.length);
   if(await page.locator('.definition-card').count()!==formExamples.length)throw new Error('Closing secondary gallery did not restore the primary example scope');
-  if(!(await page.locator('.status-cell').first().getAttribute('aria-label'))||!(await page.locator('.status-cell').first().textContent()))throw new Error('Target status matrix lacks a visible or accessible status label');
-  exercised.push('target/status and origin filters','visible accessible profile status matrix');
+  exercised.push('renderer and origin filters');
+
+  const ladder = catalog.items.find(item => item.id === 'visual-forms-helix-request-ladder');
+  const ladderDot = ladder?.fullProfileVariants?.find((variant:any) => variant.format === 'dot');
+  if (!ladderDot?.diagramRender?.ok || ladder.targets.dot.status !== 'unsupported') {
+    throw Error('Expected the request ladder fixture to distinguish its DOT baseline from its full-profile render');
+  }
+  await page.locator('#search').fill(ladder.id);
+  const ladderCard = page.locator('.definition-card');
+  await ladderCard.getByRole('button', {name: 'Graphviz', exact: true}).click();
+  const ladderPreview = ladderCard.getByRole('img');
+  const ladderSrc = await ladderPreview.getAttribute('src');
+  if (!ladderSrc?.includes(ladderDot.diagramRender.svgPath) ||
+      !(await ladderCard.locator('.example-route').textContent())?.includes('Full profile, strict readback verified') ||
+      /DOT NO|MER LOSS|LIN NO/u.test(await ladderCard.innerText())) {
+    throw Error('Ladder preview and displayed Graphviz evidence do not describe the same successful route');
+  }
+  await ladderPreview.evaluate(image => (image as HTMLImageElement).decode());
+  await ladderCard.screenshot({path: '.cache/catalog-ladder-gallery.png'});
+  await ladderCard.getByRole('button', {name: /View evidence for /}).click();
+  if (new URL(page.url()).searchParams.get('profile') !== ladderDot.profileId) {
+    throw Error('View evidence did not open the route shown in the card');
+  }
+  await page.locator('#profile-select').selectOption('native');
+  if (!await page.locator('#target-panel').getByText('Unsupported', {exact:true}).count()) {
+    throw Error('The narrower DOT baseline remains available under its own profile');
+  }
+  await page.locator('#tab-excalidraw').click();
+  await page.locator('#tab-dot').click();
+  if (new URL(page.url()).searchParams.get('profile') !== ladderDot.profileId) {
+    throw Error('Returning from Excalidraw did not choose the actual Graphviz preview route');
+  }
+  await page.locator('#close-detail').click();
+  await ladderCard.getByRole('button', {name: 'Excalidraw', exact: true}).click();
+  const sceneDownload = page.waitForEvent('download');
+  await ladderCard.getByRole('link', {name: 'Download .excalidraw'}).click();
+  if ((await sceneDownload).suggestedFilename() !== ladder.id + '.excalidraw') throw Error('The selected Excalidraw preview cannot be downloaded from the card');
+  exercised.push('request ladder switches between the actual Excalidraw and full Graphviz renders while the narrower baseline remains inspectable');
+  await page.locator('#reset-filters').click();
 
   const loss=catalog.items.find(item=>Object.values(item.targets).some((target:any)=>target.status==='reported-loss'));
   if(loss){const target=Object.entries(loss.targets).find(([,result]:any)=>result.status==='reported-loss')![0];await page.goto(`${baseUrl}?id=${encodeURIComponent(loss.id)}&target=${target}`);await page.locator('#detail-dialog').waitFor({state:'visible'});if(!(await page.locator('#target-panel').getByText('Reported loss').count()))throw new Error('Reported-loss status was not made explicit');exercised.push('reported-loss display');}
@@ -449,6 +488,11 @@ try{
   if(pageWidth>375)throw new Error(`Integration page overflows a 375px mobile viewport (${pageWidth}px)`);
   await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:'.cache/catalog-ui-mobile.png'});
+  await page.locator('#search').fill(ladder.id);
+  const mobileLadder = page.locator('.definition-card');
+  await mobileLadder.getByRole('img').evaluate(image => (image as HTMLImageElement).decode());
+  await mobileLadder.screenshot({path:'.cache/catalog-ladder-gallery-mobile.png'});
+  if (await mobileLadder.evaluate(card => card.scrollWidth > card.clientWidth)) throw Error('Example card overflows on mobile');
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth);
   if(overflow)throw new Error('Mobile layout has horizontal page overflow');
   exercised.push('375px mobile layout');

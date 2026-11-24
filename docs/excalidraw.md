@@ -9,9 +9,10 @@ as a `.excalidraw` file. The result includes an element map, visual
 approximations, and paths to fields retained in the UMF source.
 
 The [microsite examples](https://documentdrivendx.github.io/umf-visual/evidence.html)
-build uses this compiler for all 53 catalog fixtures across 22 forms. Open an
-example's **Excalidraw preview** for the scene download, native SVG and fidelity
-details. The builder opens, saves and renders each scene in Excalidraw 0.18.1
+build uses this compiler for all 53 catalog fixtures across 22 forms. Select
+**Excalidraw** on an example to preview and download the editable scene.
+Choose **View evidence** for the native SVG, layout approximations, and omitted
+fields. The builder opens, saves and renders each scene in Excalidraw 0.18.1
 under headless Chromium.
 
 ## Adopt edits to a network

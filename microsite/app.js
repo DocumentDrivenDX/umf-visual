@@ -3,12 +3,14 @@ import {renderIntegrationCatalog} from './integrations.js';
 const TARGETS = ['dot', 'mermaid', 'lini'];
 const DETAIL_TARGETS = [...TARGETS, 'excalidraw'];
 const LABELS = {dot: 'DOT', mermaid: 'Mermaid', lini: 'Lini', excalidraw: 'Excalidraw'};
+const PREVIEW_LABELS = {...LABELS, dot: 'Graphviz'};
+const PREVIEW_RENDERERS = ['excalidraw', ...TARGETS];
 const STATUS = ['supported', 'reported-loss', 'unsupported'];
 const SIX_TARGETS = [
   ['dot', 'DOT'], ['mermaid', 'Mermaid'], ['lini', 'Lini'],
   ['powerpoint', 'PowerPoint'], ['google-slides', 'Google Slides'], ['miro', 'Miro'],
 ];
-const state = {catalog: null, query: '', kind: new Set(), form: new Set(), profiles: new Set(), status: new Set(), sort: 'title', selected: null, target: 'dot', profileId: null, profileView: 'diagram', view: 'native', lastQualifiedByTarget: Object.create(null), showSecondary: false};
+const state = {catalog: null, query: '', kind: new Set(), form: new Set(), renderer: 'any', cardRenderers: new Map(), sort: 'title', selected: null, target: 'dot', profileId: null, profileView: 'diagram', view: 'native', lastQualifiedByTarget: Object.create(null), showSecondary: false};
 const $ = (id) => document.getElementById(id);
 const el = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = String(text); return node; };
 const safeJson = (value) => JSON.stringify(value, null, 2);
@@ -192,8 +194,6 @@ function setupFilters() {
   const lists = [
     ['kind-filters', 'kind', [...new Set(allItems().map(item => item.kind))].sort()],
     ['form-filters', 'form', [...new Set(allItems().map(item => item.form))].sort()],
-    ['target-filters', 'profiles', TARGETS],
-    ['status-filters', 'status', STATUS],
   ];
   for (const [containerId, key, options] of lists) {
     const box = $(containerId); box.replaceChildren();
@@ -201,9 +201,8 @@ function setupFilters() {
       const label = el('label', 'filter-option'); const input = document.createElement('input'); input.type = 'checkbox'; input.value = option;
       input.dataset.filterKey = key; input.dataset.filterValue = option;
       input.addEventListener('change', () => { input.checked ? state[key].add(option) : state[key].delete(option); updateList(); refreshFilterCounts(); });
-      const count = galleryItems().filter(item => key === 'status' ? (state.profiles.size ? [...state.profiles] : TARGETS).some(target => statusFor(item, target) === option) : key === 'profiles' ? Boolean(item.targets?.[option]) : item[key] === option).length;
-      const filterLabel = key === 'status' ? statusName(option) : option;
-      label.append(input, el('span', '', filterLabel), el('span', 'option-count', count)); box.append(label);
+      const count = galleryItems().filter(item => item[key] === option).length;
+      label.append(input, el('span', '', option), el('span', 'option-count', count)); box.append(label);
     }
   }
 }
@@ -211,7 +210,7 @@ function refreshFilterCounts() {
   document.querySelectorAll('.filter-option input').forEach(input => {
     const key = input.dataset.filterKey; const value = input.dataset.filterValue;
     if (!key || !value) return;
-    const count = galleryItems().filter(item => key === 'status' ? (state.profiles.size ? [...state.profiles] : TARGETS).some(target => statusFor(item, target) === value) : key === 'profiles' ? Boolean(item.targets?.[value]) : item[key] === value).length;
+    const count = galleryItems().filter(item => item[key] === value).length;
     const output = input.parentElement?.querySelector('.option-count'); if (output) output.textContent = String(count);
   });
 }
@@ -219,8 +218,7 @@ function matches(item) {
   if (!state.showSecondary && !isFormFixture(item)) return false;
   if (state.kind.size && !state.kind.has(item.kind)) return false;
   if (state.form.size && !state.form.has(item.form)) return false;
-  if (state.profiles.size && ![...state.profiles].some(target => item.targets?.[target])) return false;
-  if (state.status.size && !(state.profiles.size ? [...state.profiles] : TARGETS).some(target => state.status.has(statusFor(item, target)))) return false;
+  if (state.renderer !== 'any' && !previewRoute(item, state.renderer)) return false;
   const q = normalized(state.query);
   if (!q) return true;
   return normalized([item.id, item.title, item.kind, item.form, item.question, item.sourcePath].join(' ')).includes(q);
@@ -240,42 +238,65 @@ function updateList() {
 }
 function makeCard(item) {
   const card = el('article', 'definition-card');
-  const statusSummary = TARGETS.map(target => `${LABELS[target]} ${statusName(statusFor(item, target))}`).join('; ');
-  card.setAttribute('aria-label', `${item.title}, ${item.kind} ${item.form}; ${statusSummary}`); card.dataset.id = item.id;
-  const main = el('button', 'definition-main'); main.type = 'button'; main.setAttribute('aria-label', `Open ${item.title} details`);
-  const topline = el('div', 'definition-topline'); topline.append(el('span', 'definition-title', item.title), el('span', 'definition-id', item.id));
-  const badges = el('div', 'badges'); badges.append(el('span', 'badge', item.kind), el('span', 'badge', item.form), el('span', 'badge origin-badge', sampleSetLabel(item).toUpperCase()));
-  main.append(topline, el('p', 'definition-question', item.question || 'No guiding question supplied.'), badges);
+  card.dataset.id = item.id;
+  const heading = el('h3', 'definition-title', item.title);
+  heading.id = 'example-title-' + item.id;
+  card.setAttribute('aria-labelledby', heading.id);
+  const header = el('header', 'definition-heading');
+  const badges = el('div', 'badges');
+  badges.append(makeBadge(item.kind), makeBadge(item.form));
+  header.append(badges, heading, el('p', 'definition-question', item.question));
+
+  const routes = new Map(PREVIEW_RENDERERS.map(key => [key, previewRoute(item, key)]).filter(([, route]) => route));
+  const preferred = preferredSelection(item).target;
+  let route = routes.get(state.cardRenderers.get(item.id)) ?? routes.get(state.renderer) ??
+    routes.get('excalidraw') ?? routes.get(preferred) ?? routes.values().next().value;
+  const chooser = el('div', 'example-renderers');
+  chooser.setAttribute('role', 'group');
+  chooser.setAttribute('aria-label', 'Preview renderer');
   const preview = el('div', 'definition-preview');
-  const allowedTargets = state.profiles.size ? TARGETS.filter(target => state.profiles.has(target)) : TARGETS;
-  const preferred = preferredPreview(item);
-  const previewTarget = preferred && allowedTargets.includes(preferred.target) ? preferred.target : allowedTargets.find(target => item.targets?.[target]?.render?.ok && safeRenderPath(item.targets[target].render.svgPath));
-  if (previewTarget) {
-    const isPreferred = preferred?.target === previewTarget && allowedTargets.includes(previewTarget);
-    const render = isPreferred ? preferred.render : item.targets[previewTarget].render;
-    const label = isPreferred ? preferred.label : `${LABELS[previewTarget]} · BASELINE`;
-    const img = document.createElement('img'); img.src = safeRenderPath(render.svgPath, render.svgSha256); img.alt = `${label} native render preview of ${item.title}`; img.loading = 'lazy';
-    img.addEventListener('error', () => { preview.replaceChildren(el('span', 'no-preview', 'PREVIEW UNAVAILABLE')); }); preview.setAttribute('aria-label', `${label} native render preview`); preview.append(img, el('span', 'preview-label', label));
-    addImageViewerButton(preview, img, `${label} · ${item.title}`, safeRenderPath(render.rawSvgPath, render.rawSvgSha256));
-  } else { preview.setAttribute('aria-label', 'No native render was recorded'); preview.append(el('span', 'no-preview', 'NO NATIVE RENDER')); }
-  const strip = el('div', 'status-strip'); strip.setAttribute('aria-label', 'Target profile status');
-  for (const target of TARGETS.filter(key => state.profiles.size === 0 || state.profiles.has(key))) {
-    const status = statusFor(item, target); const cell = el('span', 'status-cell'); cell.dataset.status = status;
-    cell.setAttribute('aria-label', `${LABELS[target]}: ${statusName(status)}`); cell.title = `${LABELS[target]} · ${statusName(status)}`;
-    const abbreviation = status === 'supported' ? 'OK' : status === 'reported-loss' ? 'LOSS' : status === 'unsupported' ? 'NO' : '—';
-    const shortTarget = target === 'mermaid' ? 'MER' : target === 'lini' ? 'LIN' : 'DOT';
-    cell.append(el('i'), el('span', 'status-label', `${shortTarget} ${abbreviation}`)); strip.append(cell);
-  }
-  card.append(main, preview, strip);
-  if (item.excalidraw) {
-    const button = el('button', 'icon-button excalidraw-example', 'Excalidraw preview');
+  const footer = el('div', 'example-footer');
+  const description = el('p', 'example-route');
+  description.setAttribute('aria-live', 'polite');
+  const actions = el('div', 'example-actions');
+  const inspect = el('button', 'icon-button definition-main', 'View evidence'); inspect.type = 'button';
+  inspect.setAttribute('aria-label', `View evidence for ${item.title}`);
+  inspect.addEventListener('click', () => openDetail(item.id, route?.target, route?.profileId));
+  footer.append(description, actions, inspect);
+
+  const buttons = new Map();
+  const show = next => {
+    route = next;
+    card.dataset.renderer = route?.target ?? '';
+    for (const [key, button] of buttons) button.setAttribute('aria-pressed', String(key === route?.target));
+    preview.replaceChildren(); actions.replaceChildren(); description.textContent = '';
+    if (!route) {
+      preview.append(el('p', 'no-preview', 'No rendered preview available.'));
+      return;
+    }
+    const name = PREVIEW_LABELS[route.target];
+    const img = document.createElement('img'); img.src = route.url; img.alt = `${item.title} rendered in ${name}`; img.loading = 'lazy';
+    img.addEventListener('error', () => {
+      if (preview.contains(img)) preview.replaceChildren(el('p', 'no-preview', 'The preview could not be loaded.'));
+    });
+    preview.append(img);
+    addImageViewerButton(preview, img, `${name} · ${item.title}`, route.rawUrl);
+    description.textContent = `${name} · ${route.caption}`;
+    if (route.scene) {
+      const download = el('a', 'text-link', 'Download .excalidraw');
+      download.href = route.scene; download.download = `${item.id}.excalidraw`; actions.append(download);
+    }
+  };
+  for (const [key, available] of routes) {
+    const button = el('button', 'example-renderer', PREVIEW_LABELS[key]);
     button.type = 'button';
-    button.setAttribute('aria-label', `Open Excalidraw preview for ${item.title}`);
-    button.addEventListener('click', () => openDetail(item.id, 'excalidraw'));
-    card.append(button);
+    button.addEventListener('click', () => { state.cardRenderers.set(item.id, key); show(available); });
+    buttons.set(key, button); chooser.append(button);
   }
-  main.addEventListener('click', () => openDetail(item.id));
-  card.addEventListener('click', event => { if (!(event.target instanceof Element) || !event.target.closest('.image-enlarge-button,button,a')) openDetail(item.id); });
+  show(route);
+  card.append(header);
+  if (routes.size) card.append(chooser);
+  card.append(preview, footer);
   return card;
 }
 function makeBadge(text, className = 'badge') { return el('span', className, text); }
@@ -295,13 +316,30 @@ function preferredSelection(item) {
   const variant = (item.profileVariants || []).find(candidate => candidate.format === choice.format && candidate.profileId === choice.profileId);
   return {target: choice.format, profileId: variant?.profileId || null};
 }
-function preferredPreview(item) {
-  const choice = preferredSelection(item);
-  const variant = choice.profileId && profileVariantFor(item, choice.profileId, choice.target);
-  if (variant?.diagramRender?.ok && variant.diagramRender.svgPath) return {target: choice.target, render: variant.diagramRender, label: `${LABELS[choice.target]} · ${isFullProfileVariant(variant) ? 'FULL PROFILE' : 'QUALIFIED DIAGRAM'}`};
-  const baseline = item.targets?.[choice.target]?.render;
-  if (baseline?.ok && baseline.svgPath) return {target: choice.target, render: baseline, label: `${LABELS[choice.target]} · NATIVE BASELINE`};
-  return null;
+function previewRoute(item, target) {
+  if (target === 'excalidraw') {
+    const {profile, source, render} = item.excalidraw ?? {};
+    const url = safeRenderPath(render?.svgPath, render?.svgSha256);
+    if (profile !== 'umf.visual.excalidraw.presentation/1' || !url ||
+        !/^[a-f0-9]{64}$/.test(render?.svgSha256) || !/^[a-f0-9]{64}$/.test(source?.sha256) ||
+        source?.path !== `excalidraw/${item.id}-${source.sha256}.excalidraw` ||
+        !/^excalidraw\/[a-z0-9_-]+-[a-f0-9]{64}\.excalidraw$/.test(source.path)) return null;
+    return {target, profileId: null, url, scene: source.path, caption: 'Editable presentation'};
+  }
+  const visible = render => render?.ok && safeRenderPath(render.svgPath, render.svgSha256);
+  const full = (item.fullProfileVariants || []).find(row => row.format === target && isFullyQualifiedFullProfile(row) && visible(row.diagramRender));
+  const annotated = (item.profileVariants || []).filter(row => row.format === target && row.result?.ok && visible(row.diagramRender));
+  const variant = full ?? annotated.find(row => row.profileId === item.preferredRelease?.profileId) ??
+    annotated.find(row => row.result.status === 'supported') ?? annotated[0];
+  const baseline = item.targets?.[target];
+  const render = variant?.diagramRender ?? baseline?.render;
+  const url = visible(render);
+  if (!url) return null;
+  const caption = full ? 'Full profile, strict readback verified' :
+    variant ? (variant.result.status === 'supported' ? 'Annotation profile' : 'Annotation profile, reported loss') :
+      (baseline.status === 'reported-loss' ? 'Native baseline, reported loss' : 'Native baseline');
+  return {target, profileId: variant?.profileId ?? null, url, caption,
+    rawUrl: safeRenderPath(render.rawSvgPath, render.rawSvgSha256)};
 }
 function openDetail(id, target, profileId = null, requestedView = null) {
   const item = allItems().find(candidate => candidate.id === id); if (!item) return;
@@ -703,13 +741,10 @@ function showTarget(item, target) {
 function showExcalidraw(item) {
   const panel = $('target-panel'); panel.replaceChildren(); panel.setAttribute('aria-labelledby', 'tab-excalidraw');
   const result = item.excalidraw;
-  const source = result?.source;
+  const route = previewRoute(item, 'excalidraw');
   const render = result?.render;
-  const previewUrl = safeRenderPath(render?.svgPath, render?.svgSha256);
-  if (result?.profile !== 'umf.visual.excalidraw.presentation/1' || !previewUrl ||
-      !/^[a-f0-9]{64}$/.test(render?.svgSha256) || !/^[a-f0-9]{64}$/.test(source?.sha256) ||
-      !/^excalidraw\/[a-z0-9_-]+-[a-f0-9]{64}\.excalidraw$/.test(source?.path) ||
-      !source.path.endsWith(`-${source.sha256}.excalidraw`)) {
+  const previewUrl = route?.url;
+  if (!route) {
     panel.append(el('p', 'target-explainer', 'No verified Excalidraw preview is available for this example.'));
     return;
   }
@@ -721,7 +756,7 @@ function showExcalidraw(item) {
   preview.append(image); panel.append(preview);
   addImageViewerButton(preview, image, `Excalidraw · ${item.title}`, previewUrl);
   const download = el('a', 'text-link', 'Download .excalidraw');
-  download.href = source.path; download.download = `${item.id}.excalidraw`;
+  download.href = route.scene; download.download = `${item.id}.excalidraw`;
   const svg = el('a', 'text-link', 'Download SVG'); svg.href = previewUrl; svg.download = `${item.id}.svg`;
   const actions = el('div', 'source-actions'); actions.append(download, svg); panel.append(actions);
   panel.append(el('p', 'target-explainer', 'This presentation uses editable drawing elements. Semantic readback requires a separate network export and its binding.'));
@@ -922,7 +957,8 @@ let toastTimer;
 function toast(message) { const node = $('toast'); node.textContent = message; node.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => node.classList.remove('show'), 1500); }
 async function copyText(text, message) { try { await navigator.clipboard.writeText(text); toast(message); } catch { toast('Clipboard access is unavailable here'); } }
 function resetFilters() {
-  state.query = ''; state.kind.clear(); state.form.clear(); state.profiles.clear(); state.status.clear(); $('search').value = '';
+  state.query = ''; state.kind.clear(); state.form.clear(); state.cardRenderers.clear();
+  state.renderer = 'any'; $('search').value = ''; $('preview-renderer').value = 'any';
   document.querySelectorAll('.filter-option input').forEach(input => { input.checked = false; }); updateList(); refreshFilterCounts();
 }
 async function loadIntegrationCatalog() {
@@ -950,6 +986,7 @@ async function init() {
     void loadIntegrationCatalog();
     $('secondary-gallery').addEventListener('toggle', event => { state.showSecondary = event.target.open; updateGalleryLabels(); updateList(); });
     $('search').addEventListener('input', event => { state.query = event.target.value; updateList(); });
+    $('preview-renderer').addEventListener('change', event => { state.renderer = event.target.value; state.cardRenderers.clear(); updateList(); });
     $('sort-select').addEventListener('change', event => { state.sort = event.target.value; updateList(); });
     $('reset-filters').addEventListener('click', resetFilters); $('empty-reset').addEventListener('click', resetFilters);
     $('copy-umf').addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); copyText($('umf-source').textContent, 'UMF JSON copied'); });
@@ -957,9 +994,13 @@ async function init() {
     $('close-detail').addEventListener('click', () => $('detail-dialog').close());
     $('detail-dialog').addEventListener('close', () => { state.selected = null; setUrl(null); });
     const selectTarget = key => {
+      const fromPresentation = state.target === 'excalidraw';
       state.target = key;
       const item = allItems().find(candidate => candidate.id === state.selected); if (!item) return;
-      if (state.view === 'native') state.profileId = null;
+      if (fromPresentation && key !== 'excalidraw') {
+        state.profileId = previewRoute(item, key)?.profileId ?? null;
+        state.view = state.profileId ? 'diagram' : 'native';
+      } else if (state.view === 'native') state.profileId = null;
       else {
         const variants = profileVariantsFor(item).filter(candidate => candidate.format === key && (isFullProfileVariant(candidate) || candidate.result?.ok));
         const remembered = variants.find(candidate => candidate.profileId === state.lastQualifiedByTarget[key]);
