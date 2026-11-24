@@ -3,7 +3,7 @@
  * These are explicit diagram approximations, not qualified native equivalents. */
 import {visualDateValue,type Visual} from '../../extensions/visual';
 import {fullRecordId} from './records';
-import type {FullEdge,FullGroup,FullNode,FullScene,VisualApproximation} from './types';
+import type {FullEdge,FullGroup,FullNode,FullScene,PrimitiveSceneFormat,VisualApproximation} from './types';
 
 const ROOT='/extensions/umf.visual';
 const nativeId=(path:string)=>'v_'+fullRecordId(path).slice(2);
@@ -11,7 +11,7 @@ const hasOwn=(value:object,key:string)=>Object.hasOwn(value,key);
 
 /** Append a truthful, readable common-primitive fallback for forms outside the
  * first flow/entity/bar/stat/meter slice. Existing families return false. */
-export function appendAdditionalScene(scene:FullScene,visual:Visual):boolean {
+export function appendAdditionalScene(scene:FullScene<PrimitiveSceneFormat>,visual:Visual):boolean {
  const form=visual.form,kind=visual.kind;
  if(kind==='flow'||kind==='structure'&&form==='entities'||kind==='metric'&&['bar','stat','meter'].includes(form))return false;
  const recordPaths=new Set(scene.records.map(row=>row.path));

@@ -1,4 +1,5 @@
 import {createVisualDocument,getVisual} from '../src/extensions/visual/index.js';
+import {compileExcalidrawPresentation,exportExcalidraw,importExcalidraw,replayExcalidraw} from '../src/adapters/excalidraw/index.js';
 import {exportPowerPoint,importPowerPoint} from '../src/adapters/powerpoint/index.js';
 import {planEditableMiroExport} from '../src/adapters/miro/editable/index.js';
 import {observeGoogleSlides,planGoogleSlidesExport} from '../src/adapters/google-slides/index.js';
@@ -9,6 +10,12 @@ export async function runPortableAdaptersBrowserChecks():Promise<Record<string,u
  const document=createVisualDocument({id:'browser-p7',kind:'flow',form:'network',title:'Portable adapters',question:'Does the public API run in a browser?',nodes:[{id:'a',label:'Browser'}]});
  const digest=await hostDigest(document);
  if(!/^[0-9a-f]{64}$/.test(digest))throw Error('Browser reconciliation digest failed');
+
+ const presentation=compileExcalidrawPresentation(document);
+ if(JSON.parse(presentation.text).version!==2||!presentation.elementMap.length)throw Error('Browser Excalidraw presentation compile failed');
+ const scene=await exportExcalidraw(document);
+ const edited=await importExcalidraw(scene.text,{binding:scene.binding,currentDocument:document,expectedRevision:0});
+ if(await replayExcalidraw({binding:edited.binding,currentDocument:edited.document,expectedRevision:1})!==scene.text)throw Error('Browser Excalidraw round trip failed');
 
  const ppt=await exportPowerPoint(document,{mode:'report'});
  const pptReadback=await importPowerPoint(ppt.bytes,{binding:ppt.binding,expectedBindingRevision:ppt.binding.bindingRevision,mode:'report'});
@@ -21,5 +28,5 @@ export async function runPortableAdaptersBrowserChecks():Promise<Record<string,u
  const observed=await observeGoogleSlides(snapshot);
  const slides=await planGoogleSlidesExport(document,observed,{title:{x:20,y:10,width:400,height:35},question:{x:20,y:50,width:400,height:50},nodes:{a:{x:100,y:120,width:180,height:80}}},{namespace:'browser'});
  if(slides.batch.writeControl.requiredRevisionId!=='browser-rev-1'||slides.mappings.length!==3)throw Error('Browser Google Slides planning failed');
- return{reconciliation:true,powerpoint:{bytes:ppt.bytes.length,roundTrip:true},miro:{nodes:miro.nodes.length},googleSlides:{requests:slides.batch.requests.length,revision:slides.batch.writeControl.requiredRevisionId}};
+ return{reconciliation:true,excalidraw:{roundTrip:true},powerpoint:{bytes:ppt.bytes.length,roundTrip:true},miro:{nodes:miro.nodes.length},googleSlides:{requests:slides.batch.requests.length,revision:slides.batch.writeControl.requiredRevisionId}};
 }

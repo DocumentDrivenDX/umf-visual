@@ -50,7 +50,26 @@ try{
     ...(variant.result?.render?.ok&&variant.result.render.svgPath?[{id:item.id,target:`${variant.format} complete`,path:variant.result.render.svgPath,sha256:variant.result.render.svgSha256}]:[]),
     ...(variant.diagramRender?.ok&&variant.diagramRender.svgPath?[{id:item.id,target:`${variant.format} focused`,path:variant.diagramRender.svgPath,sha256:variant.diagramRender.svgSha256}]:[])
   ]));
-  const renderAssets=[...baselineRenderAssets,...profileRenderAssets];
+  const excalidrawAssets = await Promise.all(catalog.items.map(async item => {
+    const example = item.excalidraw;
+    const source = example?.source, render = example?.render;
+    if (example?.profile !== 'umf.visual.excalidraw.presentation/1' || render?.nativeVersion !== '0.18.1' ||
+        !render.chromium || render.elementCount < 3 || !example.approximations?.length || !Array.isArray(example.omissions) ||
+        !/^[a-f0-9]{64}$/.test(source?.sha256) || !/^[a-f0-9]{64}$/.test(render?.svgSha256) ||
+        source.path !== `excalidraw/${item.id}-${source.sha256}.excalidraw` ||
+        render.svgPath !== `renders/${item.id}-excalidraw-${render.svgSha256}.svg`) {
+      throw Error('Missing or invalid Excalidraw catalog receipt for ' + item.id);
+    }
+    const scene = await Bun.file(join(siteRoot, source.path)).text();
+    const svg = await Bun.file(join(siteRoot, render.svgPath)).text();
+    if (createHash('sha256').update(scene).digest('hex') !== source.sha256 ||
+        createHash('sha256').update(svg).digest('hex') !== render.svgSha256 ||
+        JSON.parse(scene).elements.length !== render.elementCount) {
+      throw Error('Excalidraw source or render differs from the native receipt for ' + item.id);
+    }
+    return {id: item.id, target: 'Excalidraw', path: render.svgPath, sha256: render.svgSha256};
+  }));
+  const renderAssets=[...baselineRenderAssets,...profileRenderAssets,...excalidrawAssets];
   if(renderAssets.length<178)throw new Error(`Expected all 178 verified baseline and qualified profile SVG assets, saw ${renderAssets.length}`);
   const assetResults=await page.evaluate(async assets=>Promise.all(assets.map(asset=>new Promise<{id:string;target:string;ok:boolean;width:number;height:number;url:string}>(resolve=>{
     const image=new Image();const url=new URL(asset.path,location.href);if(asset.sha256)url.searchParams.set('v',asset.sha256);
@@ -268,8 +287,25 @@ try{
   if(await page.locator('#tab-mermaid').getAttribute('tabindex')!=='0'||await page.locator('#tab-dot').getAttribute('tabindex')!=='-1')throw new Error('Selected target tab did not receive the roving tab stop');
   await page.getByRole('tab',{name:'Lini'}).focus();
   await page.keyboard.press('ArrowRight');
-  if(new URL(page.url()).searchParams.get('target')!=='dot')throw new Error('Arrow-key target navigation failed');
-  if(await page.locator('#tab-dot').getAttribute('tabindex')!=='0')throw new Error('Keyboard target selection did not update the roving tab stop');
+  if(new URL(page.url()).searchParams.get('target')!=='excalidraw')throw new Error('Arrow-key Excalidraw target navigation failed');
+  if(await page.locator('#tab-excalidraw').getAttribute('tabindex')!=='0')throw new Error('Excalidraw tab did not receive the roving tab stop');
+  const excalidrawPreview = page.locator('#target-panel img');
+  await excalidrawPreview.waitFor();
+  if (!(await excalidrawPreview.evaluate(image => (image as HTMLImageElement).decode().then(() => true))) ||
+      !(await page.getByRole('link', {name: 'Download .excalidraw'}).getAttribute('href'))?.endsWith('.excalidraw') ||
+      !await page.locator('#target-panel').getByText('Fields retained in UMF source', {exact: false}).count()) {
+    throw Error('Excalidraw example lacks its preview, download or projection disclosure.');
+  }
+  await page.keyboard.press('ArrowRight');
+  if(new URL(page.url()).searchParams.get('target')!=='dot'||await page.locator('#tab-dot').getAttribute('tabindex')!=='0')throw new Error('Keyboard target selection did not wrap to DOT');
+  await page.locator('#close-detail').click();
+  const excalidrawCard = page.getByRole('button', {name: `Open Excalidraw preview for ${first.title}`});
+  await excalidrawCard.click();
+  if(new URL(page.url()).searchParams.get('target')!=='excalidraw')throw new Error('Example card did not open its Excalidraw preview');
+  await page.reload();
+  await page.locator('#detail-dialog').waitFor({state:'visible'});
+  if(await page.locator('#tab-excalidraw').getAttribute('aria-selected')!=='true')throw new Error('Excalidraw deep link lost its target');
+  exercised.push(`Excalidraw previews and editable scene downloads for all ${excalidrawAssets.length} examples across ${formCount} forms`);
   await page.locator('#close-detail').click();
   await page.goto(`${baseUrl}?id=${encodeURIComponent(first.id)}&target=mermaid`);
   await page.locator('#detail-dialog').waitFor({state:'visible'});

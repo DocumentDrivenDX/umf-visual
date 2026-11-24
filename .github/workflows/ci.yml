@@ -36,6 +36,7 @@ jobs:
       - run: bun run test:package
       - run: bun run test:native
       - run: bun run test:browser
+      - run: bun run test:excalidraw
       - run: TREE_BUDGET_MB=10 python3 .github/size_guard.py
       - uses: actions/upload-artifact@v4
         if: always()

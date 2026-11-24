@@ -5,7 +5,7 @@ sequences, state machines, timelines, metrics, entities), then compile it to nat
 source, or export/import it through bounded native interchange profiles. Seven kinds and 22 forms.
 Flow: `semantic producer -> umf.visual -> native targets`.
 
-The package is `@documentdrivendx/umf-visual` 0.6.1 (see [CHANGELOG](CHANGELOG.md)). It is distributed as a
+The package is `@documentdrivendx/umf-visual` 0.7.0 (see [CHANGELOG](CHANGELOG.md)). It is distributed as a
 [GitHub release tarball](https://github.com/DocumentDrivenDX/umf-visual/releases); it is not on npm yet.
 Browse the [microsite](https://documentdrivendx.github.io/umf-visual/): a catalog of examples with their `umf.visual`
 payload, native source and rendered output for each target.
@@ -17,6 +17,7 @@ payload, native source and rendered output for each target.
 | Vocabulary `umf.visual` 1.0.0 to 1.4.0, validate/read/write/create/edit APIs | Released; unit-tested. Default authoring model is 1.0.0, newer models are opt-in |
 | Presentation compilers and native interchange for DOT, Mermaid 12.2.0, Lini 1.1.0 | Released; nightly CI renders every catalog example with the real engines (Graphviz, Mermaid in Chromium, Lini WASM) |
 | Browser Lini renderer (`/renderers/lini`) | Released; tested in Chromium |
+| Excalidraw scene v2 | Editable presentations for all 22 catalog forms with reported approximations and omissions. Experimental flow/network edit adoption and exact scene replay. Tested in Excalidraw 0.18.1 under headless Chromium. |
 | PowerPoint, Google Slides, Miro editable adapters | Experimental: planning and import code is unit-tested; no CI job drives a live host |
 
 Native interchange is bounded: unsupported content produces located diagnostics instead of silent loss, and
@@ -26,7 +27,7 @@ retained native source is kept alongside the document. Core comes from the UMF S
 ## Install
 
 ```sh
-npm install ./documentdrivendx-umf-visual-0.6.1.tgz \
+npm install ./documentdrivendx-umf-visual-0.7.0.tgz \
   https://github.com/DocumentDrivenDX/umf/releases/download/umf-v0.5.7/umf-sdk.tgz
 ```
 
@@ -74,6 +75,7 @@ the original source so that exact replay is possible; a changed document never r
 profiles (`umf.visual.<format>.annotated/1`, `umf.visual.<format>.full/1`) cover more of the vocabulary; the public
 `interchangeCapabilities` array lists exactly which. Native input is limited to 256 KiB. See the
 [editable host guide](docs/editable-integrations.md) for the experimental PowerPoint, Slides and Miro adapters.
+See [Excalidraw files and headless rendering](docs/excalidraw.md) for the separate file-based adapter.
 
 ## Develop
 
