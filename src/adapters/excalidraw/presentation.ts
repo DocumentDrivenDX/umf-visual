@@ -7,7 +7,7 @@ import type {VisualApproximation} from '../../interchange/full/types.js';
 import {visualPath} from './profile.js';
 import {arrow, base, label, readScene, writeScene, type Element} from './scene.js';
 import {layoutPresentation} from './presentation-layout.js';
-import {drawMetric, drawSequence} from './presentation-views.js';
+import {drawDateTimeline, drawMetric, drawSequence} from './presentation-views.js';
 
 export const EXCALIDRAW_PRESENTATION = 'umf.visual.excalidraw.presentation/1';
 
@@ -55,7 +55,8 @@ export function compileExcalidrawPresentation(document: Document): ExcalidrawPre
   const visual = getVisual(document);
   const canvas = {elements, bind: (sourcePath: string, nativeId: string, slot: 'text' | 'from' | 'to' = 'text') =>
     elementMap.push({sourcePath, nativeId, slot})};
-  const specialized = drawSequence(visual, canvas, top + 24) ?? drawMetric(visual, canvas, top + 24);
+  const specialized = drawSequence(visual, canvas, top + 24) ?? drawMetric(visual, canvas, top + 24) ??
+    drawDateTimeline(visual, canvas, top + 24);
   if (!specialized) drawPrimitiveScene(scene, elements, top + 24, caption, bind);
   const text = writeScene(elements);
   readScene(text);

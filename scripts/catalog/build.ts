@@ -15,6 +15,8 @@ import {writeGallery} from './gallery';
 import {liniDirectory, verifyLiniRuntime} from '../interchange-runtime';
 import {nativePreviewPresentation, normalizeSvgIntrinsicDimensions, previewPresentationReceipt, type NativePreviewEngine} from './native-preview-presentation';
 import {buildFullProfileVariants, focusedFullProfilePreviewSource, type FullCatalogProfileVariant, type FullProfileTarget} from './full-profiles';
+import {compilePresentation, type PresentationPlan} from '../../src/presentation';
+import type {Document} from '@umf/core';
 
 export type TargetName = InterchangeFormat;
 export interface NativeRender {
@@ -71,6 +73,7 @@ export interface CatalogItem {
   /** Full interchange profiles remain separate from released and annotated records. */
   fullProfileVariants?:CatalogFullProfileVariant[];
   excalidraw?: ExcalidrawCatalogExample;
+  presentations?: Partial<Record<TargetName, {render: NativeRender; plan: PresentationPlan}>>;
   preferredRelease?:{format:TargetName;profileId:AnnotatedInterchangeProfile};
 }
 export interface VisualCatalog {
@@ -194,11 +197,12 @@ export async function createCatalogData(): Promise<VisualCatalog> {
 
 function runtimeError(error: unknown): string { return error instanceof Error ? error.message : String(error); }
 
-async function renderDot(source: string, version: string): Promise<{svg: string; version: string}> {
-  const process = Bun.spawn(['dot', ...nativePreviewPresentation.graphviz.args, '-Tsvg'], {stdin: 'pipe', stdout: 'pipe', stderr: 'pipe'});
+async function renderDot(source: string, version: string, plan?: PresentationPlan): Promise<{svg: string; version: string}> {
+  const command = plan?.execution ? ['neato', '-n2'] : ['dot'];
+  const process = Bun.spawn([...command, ...(plan ? [] : nativePreviewPresentation.graphviz.args), '-Tsvg'], {stdin: 'pipe', stdout: 'pipe', stderr: 'pipe'});
   process.stdin.write(source); process.stdin.end();
   const [svg, stderr, exit] = await Promise.all([new Response(process.stdout).text(), new Response(process.stderr).text(), process.exited]);
-  if (exit !== 0 || !svg.includes('<svg')) throw new Error(stderr.trim() || `Graphviz exited ${exit} without SVG output`);
+  if (exit !== 0 || !svg.includes('<svg') || (plan && stderr.trim())) throw new Error(stderr.trim() || `Graphviz exited ${exit} without SVG output`);
   return {svg, version};
 }
 
@@ -342,6 +346,30 @@ export async function renderCatalog(catalog: VisualCatalog, outputDir: string): 
   const browserVersion = browser.version();
   try {
     for (const item of catalog.items) {
+      item.presentations = {};
+      for (const format of formats) {
+        const backend = format === 'dot' ? 'graphviz' : format;
+        const plan = compilePresentation(item.document as Document, {backend});
+        if (!plan.ok) continue;
+        try {
+          let native: {svg: string; version: string};
+          if (format === 'dot') native = await renderDot(plan.source, graphviz, plan);
+          else if (format === 'mermaid') {
+            native = await renderMermaid(page, plan.source, safeSegment(item.id + '-presentation'));
+            native.version += ' / Chromium ' + browserVersion;
+          } else {
+            const diagnostics = parseLiniDiagnostics(lini.compiler.diagnostics(plan.source, {}));
+            if (diagnostics.length) throw Error(JSON.stringify(diagnostics));
+            native = {svg: lini.compiler.compile(plan.source, {}), version: lini.version};
+          }
+          const render: NativeRender = {ok: true, engine: backend, nativeVersion: native.version};
+          await saveRender(item, format + '-presentation', render, native.svg, outputDir);
+          item.presentations[format] = {render, plan};
+        } catch (error) {
+          console.warn(`Presentation unavailable for ${item.id}/${format}: ${runtimeError(error)}`);
+        }
+        if (externalRequest) throw Error(`External request during gallery presentation rendering: ${externalRequest}`);
+      }
       for (const format of formats) {
         const target = item.targets[format];
         if (!target.ok || target.source === undefined) continue;

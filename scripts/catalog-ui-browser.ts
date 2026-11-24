@@ -2,8 +2,10 @@ import {chromium} from 'playwright';
 import {createHash} from 'node:crypto';
 import {mkdir} from 'node:fs/promises';
 import {join,resolve,sep,extname} from 'node:path';
+import {compilePresentation} from '../src/presentation';
 
 const TARGETS=['dot','mermaid','lini'];
+type GalleryRender = {svgPath: string; svgSha256: string; rawSvgPath: string; rawSvgSha256: string};
 const fullNativeClean=(render:any)=>Boolean(render?.ok&&render.svgPath&&/^[a-f0-9]{64}$/.test(render.svgSha256||'')&&!(render.nativeDiagnostics?.length));
 const siteRoot=resolve('dist-site');
 const baseUrl='https://umf.local/evidence.html';
@@ -12,7 +14,7 @@ const integrationCatalog=await Bun.file(join(siteRoot,'integrations.json')).json
 if(catalog.schemaVersion!==1||!Array.isArray(catalog.items)||catalog.items.length===0||!catalog.language?.schema?.schema||!catalog.language?.forms?.kinds)throw new Error('Build the site first; dist-site/catalog.json is missing or invalid.');
 if(integrationCatalog.schemaVersion!==1||integrationCatalog.complete!==false||integrationCatalog.cases?.length!==6)throw new Error('Build the integration site first; dist-site/integrations.json is missing or invalid.');
 const galleryText=await Bun.file(join(siteRoot,'gallery.json')).text();
-const gallery=JSON.parse(galleryText) as {items:Array<{id:string;kind:string;form:string;featured:boolean;evidence:{path:string;sha256:string};document?:unknown}>};
+const gallery=JSON.parse(galleryText) as {items:Array<{id:string;kind:string;form:string;featured:boolean;evidence:{path:string;sha256:string};document?:unknown;presentations:Record<string,GalleryRender>;excalidraw?:unknown}>};
 const featured=gallery.items.filter(item=>item.featured);
 const formExamples=catalog.items.filter(item=>item.sourcePath.startsWith('fixtures/visual/forms/'));
 const formCount=catalog.language.forms.kinds.reduce((count,kind)=>count+kind.forms.length,0);
@@ -28,6 +30,21 @@ for (const [index, example] of gallery.items.entries()) {
   const bytes = await Bun.file(join(siteRoot, asset.path)).text();
   if (createHash('sha256').update(bytes).digest('hex') !== asset.sha256 || bytes !== JSON.stringify(expected)) {
     throw Error('Gallery evidence differs from the complete catalog for ' + example.id);
+  }
+  if (!Object.keys(example.presentations).length && !example.excalidraw) throw Error('Missing form presentation for ' + example.id);
+  if (Boolean(example.excalidraw) !== expected.excalidraw.formPresentation) throw Error('Mislabelled Excalidraw route for ' + example.id);
+  for (const [format, render] of Object.entries(example.presentations)) {
+    const backend = format === 'dot' ? 'graphviz' : format === 'mermaid' ? 'mermaid' : 'lini';
+    const plan = compilePresentation(expected.document, {backend});
+    if (!plan.ok || plan.source !== expected.presentations[format]?.plan.source ||
+        render.svgPath !== `renders/${example.id}-${format}-presentation-${render.svgSha256}.svg`) {
+      throw Error('Gallery presentation does not match UMF compiler output for ' + example.id + '/' + format);
+    }
+    for (const [path, digest] of [[render.svgPath, render.svgSha256], [render.rawSvgPath, render.rawSvgSha256]]) {
+      if (createHash('sha256').update(await Bun.file(join(siteRoot, path)).bytes()).digest('hex') !== digest) {
+        throw Error('Gallery SVG hash mismatch at ' + path);
+      }
+    }
   }
 }
 const mime:Record<string,string>={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json;charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg'};
@@ -258,7 +275,7 @@ try{
   exercised.push('native counts remain separate from losses and coverage summaries name exact ordinary profiles and mapping versions');
   const firstCard = page.locator('.definition-card').first();
   if (!(await firstCard.getByRole('heading', {level: 3}).textContent()) ||
-      await firstCard.getByRole('button', {name: 'Excalidraw', exact: true}).getAttribute('aria-pressed') !== 'true') {
+      await firstCard.locator('.example-renderer[aria-pressed="true"]').count() !== 1) {
     throw new Error('Example card did not lead with its title and selected preview renderer');
   }
   await mkdir('.cache',{recursive:true});
@@ -326,6 +343,7 @@ try{
   await page.keyboard.press('ArrowRight');
   if(new URL(page.url()).searchParams.get('target')!=='dot'||await page.locator('#tab-dot').getAttribute('tabindex')!=='0')throw new Error('Keyboard target selection did not wrap to DOT');
   await page.locator('#close-detail').click();
+  await page.locator('#search').fill(gallery.items.find(item=>item.form==='milestones')!.id);
   await page.locator('.definition-card').getByRole('button', {name: 'Excalidraw', exact: true}).click();
   await page.locator('.definition-main').click();
   await page.locator('#detail-dialog').waitFor();
@@ -333,7 +351,7 @@ try{
   await page.reload();
   await page.locator('#detail-dialog').waitFor({state:'visible'});
   if(await page.locator('#tab-excalidraw').getAttribute('aria-selected')!=='true')throw new Error('Excalidraw deep link lost its target');
-  exercised.push(`Excalidraw previews and editable scene downloads for all ${excalidrawAssets.length} examples across ${formCount} forms`);
+  exercised.push(`Excalidraw scenes retained in evidence for all ${excalidrawAssets.length} examples across ${formCount} forms`);
   await page.locator('#close-detail').click();
   await page.goto(`${baseUrl}?id=${encodeURIComponent(first.id)}&target=mermaid`);
   await page.locator('#detail-dialog').waitFor({state:'visible'});
@@ -422,58 +440,78 @@ try{
   }
   await page.locator('#search').fill(ladder.id);
   const ladderCard = page.locator('.definition-card');
-  await ladderCard.getByRole('button', {name: 'Graphviz', exact: true}).click();
-  const ladderPreview = ladderCard.getByRole('img');
-  const ladderSrc = await ladderPreview.getAttribute('src');
-  if (!ladderSrc?.includes(ladderDot.diagramRender.svgPath) ||
-      !(await ladderCard.locator('.example-route').textContent())?.includes('Full profile, strict readback verified') ||
-      /DOT NO|MER LOSS|LIN NO/u.test(await ladderCard.innerText())) {
-    throw Error('Ladder preview and displayed Graphviz evidence do not describe the same successful route');
+  if (await ladderCard.getByRole('button', {name: 'Graphviz', exact: true}).count() ||
+      await ladderCard.getByRole('button', {name: 'Mermaid', exact: true}).count()) {
+    throw Error('Interchange-only Graphviz or Mermaid routes appeared as ladder presentations');
   }
-  await ladderPreview.evaluate(image => (image as HTMLImageElement).decode());
+  await ladderCard.getByRole('img').evaluate(image => (image as HTMLImageElement).decode());
   await ladderCard.screenshot({path: '.cache/catalog-ladder-gallery.png'});
   await ladderCard.getByRole('button', {name: /View evidence for /}).click();
   await page.locator('#detail-dialog').waitFor();
+  await page.locator('#tab-dot').click();
   if (new URL(page.url()).searchParams.get('profile') !== ladderDot.profileId) {
-    throw Error('View evidence did not open the route shown in the card');
+    throw Error('The full Graphviz interchange route is missing from evidence');
   }
   await page.locator('#profile-select').selectOption('native');
   if (!await page.locator('#target-panel').getByText('Unsupported', {exact:true}).count()) {
     throw Error('The narrower DOT baseline remains available under its own profile');
   }
-  await page.locator('#tab-excalidraw').click();
-  await page.locator('#tab-dot').click();
-  if (new URL(page.url()).searchParams.get('profile') !== ladderDot.profileId) {
-    throw Error('Returning from Excalidraw did not choose the actual Graphviz preview route');
-  }
   await page.locator('#close-detail').click();
-  await ladderCard.getByRole('button', {name: 'Excalidraw', exact: true}).click();
   const sceneDownload = page.waitForEvent('download');
   await ladderCard.getByRole('link', {name: 'Download .excalidraw'}).click();
   if ((await sceneDownload).suggestedFilename() !== ladder.id + '.excalidraw') throw Error('The selected Excalidraw preview cannot be downloaded from the card');
-  exercised.push('request ladder switches between the actual Excalidraw and full Graphviz renders while the narrower baseline remains inspectable');
+  exercised.push('request ladder uses its form presentations and retains Graphviz interchange evidence');
   const loadedEvidence = requests.filter(path=>path.startsWith('/example-evidence/')).length;
   await ladderCard.getByRole('button', {name: /Compare views for /u}).click();
   const comparison = page.locator('#compare-dialog');
   await comparison.waitFor();
   const left = comparison.getByLabel('Left renderer');
   const right = comparison.getByLabel('Right renderer');
-  if(await left.inputValue()!=='excalidraw'||await right.inputValue()!=='dot')throw Error('Compare did not preserve the clicked renderer and an alternative');
-  await right.selectOption('mermaid');
+  if(await left.inputValue()!=='excalidraw'||await right.inputValue()!=='lini')throw Error('Compare did not preserve the clicked renderer and an alternative');
   await Promise.all((await comparison.getByRole('img').all()).map(image=>image.evaluate(node=>(node as HTMLImageElement).decode())));
   const rightPath = await comparison.getByRole('img').nth(1).getAttribute('src');
-  const ladderMermaid = ladder.fullProfileVariants.find((variant:any)=>variant.format==='mermaid');
-  if(!rightPath?.includes(ladderMermaid.diagramRender.svgPath))throw Error('Comparison used the wrong renderer artifact');
-  if(!await left.locator('option[value="mermaid"]').evaluate(option=>(option as HTMLOptionElement).disabled)) {
-    throw Error('Comparison allowed both panels to select Mermaid');
+  if(!rightPath?.includes(ladder.presentations.lini.render.svgPath))throw Error('Comparison used the wrong renderer artifact');
+  if(!await left.locator('option[value="lini"]').evaluate(option=>(option as HTMLOptionElement).disabled)) {
+    throw Error('Comparison allowed both panels to select Lini');
   }
   const afterComparison = requests.filter(path=>path.startsWith('/example-evidence/')).length;
   if(afterComparison!==loadedEvidence)throw Error(`Comparison loaded full evidence (${loadedEvidence} → ${afterComparison})`);
   await comparison.screenshot({path:'.cache/gallery-compare-desktop.png'});
-  await comparison.getByRole('button',{name:'View evidence for Mermaid'}).click();
+  await comparison.getByRole('button',{name:'View evidence for Lini'}).click();
   await page.locator('#detail-dialog').waitFor();
-  if(new URL(page.url()).searchParams.get('profile')!==ladderMermaid.profileId)throw Error('Comparison did not open evidence for its displayed route');
+  if(new URL(page.url()).searchParams.get('target')!=='lini')throw Error('Comparison did not open evidence for its displayed renderer');
+  const sourceDetails = page.locator('#gallery-presentation-source');
+  await sourceDetails.locator('summary').click();
+  if(await sourceDetails.locator('pre').textContent()!==ladder.presentations.lini.plan.source)throw Error('Evidence did not expose the exact gallery presentation source');
   await page.locator('#close-detail').click();
+
+  const milestones = catalog.items.find(item=>item.form==='milestones');
+  await page.locator('#search').fill(milestones.id);
+  const milestoneCard = page.locator('.definition-card');
+  await milestoneCard.getByRole('button', {name:'Graphviz', exact:true}).click();
+  const fixedTimeline = milestones.presentations.dot;
+  if(fixedTimeline.plan.execution?.layoutEngine!=='neato' ||
+     !(await milestoneCard.getByRole('img').getAttribute('src'))?.includes(fixedTimeline.render.svgPath) ||
+     !(await Bun.file(join(siteRoot,fixedTimeline.render.svgPath)).text()).includes('id="date_axis"')) {
+    throw Error('Milestones did not use the Graphviz calendar axis');
+  }
+  await milestoneCard.getByRole('button', {name:'Mermaid', exact:true}).click();
+  if (!(await milestoneCard.locator('.example-route').innerText()).includes('categorical spacing') ||
+      !milestones.presentations.mermaid.plan.source.includes('block-beta')) throw Error('Mermaid milestones must disclose categorical spacing');
+  await milestoneCard.getByRole('button', {name:'Excalidraw', exact:true}).click();
+  const timelineScene = await Bun.file(join(siteRoot,milestones.excalidraw.source.path)).json();
+  if (!timelineScene.elements.some((element:any)=>element.id==='timeline-axis') ||
+      timelineScene.elements.some((element:any)=>element.type==='arrow')) throw Error('Excalidraw milestones drew a dependency graph');
+  for (const form of ['bar','line','stat','meter']) {
+    const example = catalog.items.find(item=>item.form===form);
+    await page.locator('#search').fill(example.id);
+    const chart = page.locator('.definition-card');
+    if (await chart.getAttribute('data-renderer')!=='lini' ||
+        !(await chart.getByRole('img').getAttribute('src'))?.includes(example.presentations.lini.render.svgPath) ||
+        await chart.getByRole('button', {name:/^(Graphviz|Mermaid)$/u}).count()) throw Error('Metric gallery used an interchange fallback for '+form);
+    await chart.getByRole('img').evaluate(image=>(image as HTMLImageElement).decode());
+  }
+  exercised.push('milestones use a calendar axis or disclosed date cards; acceptance metrics use chart presentations');
 
   const demo = page.locator('#excalidraw-demo');
   await demo.scrollIntoViewIfNeeded();

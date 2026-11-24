@@ -237,9 +237,9 @@ function makeCard(item) {
   header.append(badges, heading, el('p', 'definition-question', item.question));
 
   const routes = new Map(PREVIEW_RENDERERS.map(key => [key, previewRoute(item, key)]).filter(([, route]) => route));
-  const preferred = preferredSelection(item).target;
+  const primary = item.kind === 'metric' || item.kind === 'comparison' ? 'lini' : 'excalidraw';
   let route = routes.get(state.cardRenderers.get(item.id)) ?? routes.get(state.renderer) ??
-    routes.get('excalidraw') ?? routes.get(preferred) ?? routes.values().next().value;
+    routes.get(primary) ?? routes.values().next().value;
   const chooser = el('div', 'example-renderers');
   chooser.setAttribute('role', 'group');
   chooser.setAttribute('aria-label', 'Preview renderer');
@@ -250,7 +250,7 @@ function makeCard(item) {
   const actions = el('div', 'example-actions');
   const inspect = el('button', 'icon-button definition-main', 'View evidence'); inspect.type = 'button';
   inspect.setAttribute('aria-label', `View evidence for ${item.title}`);
-  inspect.addEventListener('click', () => openDetail(item.id, route?.target, route?.profileId));
+  inspect.addEventListener('click', () => openDetail(item.id, route?.target));
   if (routes.size > 1) {
     const compare = el('button', 'icon-button example-compare', 'Compare views'); compare.type = 'button';
     compare.setAttribute('aria-label', `Compare views for ${item.title}`);
@@ -337,7 +337,7 @@ function openComparison(item, selected, routes) {
       const actions = el('div', 'example-footer');
       const inspect = el('button', 'icon-button', 'View evidence'); inspect.type = 'button';
       inspect.setAttribute('aria-label', 'View evidence for ' + name);
-      inspect.addEventListener('click', () => { dialog.close(); void openDetail(item.id, route.target, route.profileId); });
+      inspect.addEventListener('click', () => { dialog.close(); void openDetail(item.id, route.target); });
       actions.append(el('p', 'example-route', route.caption), inspect);
       body.append(preview, actions);
     }
@@ -354,41 +354,35 @@ function isFullyQualifiedFullProfile(variant) {
     !nativeDiagnosticCount(variant.result.render) && !nativeDiagnosticCount(variant.diagramRender) &&
     !(variant.result.hasDiagnosticProblem ?? variant.result.diagnostics?.some(diagnostic => diagnostic.loss || diagnostic.severity === 'error'));
 }
-function preferredSelection(item) {
+function preferredSelection(item, requestedTarget) {
   const choice = item.preferredRelease;
-  const target = choice && TARGETS.includes(choice.format) ? choice.format :
+  const preferredTarget = choice && TARGETS.includes(choice.format) ? choice.format :
     TARGETS.find(format => (item.fullProfileVariants || []).some(variant => variant.format === format && isFullyQualifiedFullProfile(variant))) || 'dot';
+  const target = TARGETS.includes(requestedTarget) ? requestedTarget : preferredTarget;
   const full = (item.fullProfileVariants || []).find(candidate => candidate.format === target && isFullyQualifiedFullProfile(candidate));
   if (full) return {target, profileId: full.profileId};
-  if (!choice || !TARGETS.includes(choice.format)) return {target, profileId: null};
+  if (choice?.format !== target) return {target, profileId: null};
   const variant = (item.profileVariants || []).find(candidate => candidate.format === choice.format && candidate.profileId === choice.profileId);
   return {target: choice.format, profileId: variant?.profileId || null};
 }
+function excalidrawRoute(item) {
+  const {profile, source, render} = item.excalidraw ?? {};
+  const url = safeRenderPath(render?.svgPath, render?.svgSha256);
+  if (profile !== 'umf.visual.excalidraw.presentation/1' || !url ||
+      !/^[a-f0-9]{64}$/.test(render?.svgSha256) || !/^[a-f0-9]{64}$/.test(source?.sha256) ||
+      source?.path !== `excalidraw/${item.id}-${source.sha256}.excalidraw` ||
+      !/^excalidraw\/[a-z0-9_-]+-[a-f0-9]{64}\.excalidraw$/.test(source.path)) return null;
+  return {target: 'excalidraw', url, scene: source.path, caption: 'Editable UMF presentation'};
+}
 function previewRoute(item, target) {
-  if (target === 'excalidraw') {
-    const {profile, source, render} = item.excalidraw ?? {};
-    const url = safeRenderPath(render?.svgPath, render?.svgSha256);
-    if (profile !== 'umf.visual.excalidraw.presentation/1' || !url ||
-        !/^[a-f0-9]{64}$/.test(render?.svgSha256) || !/^[a-f0-9]{64}$/.test(source?.sha256) ||
-        source?.path !== `excalidraw/${item.id}-${source.sha256}.excalidraw` ||
-        !/^excalidraw\/[a-z0-9_-]+-[a-f0-9]{64}\.excalidraw$/.test(source.path)) return null;
-    return {target, profileId: null, url, scene: source.path, caption: 'Editable presentation'};
-  }
-  const visible = render => render?.ok && safeRenderPath(render.svgPath, render.svgSha256);
-  const full = (item.fullProfileVariants || []).find(row => row.format === target && isFullyQualifiedFullProfile(row) && visible(row.diagramRender));
-  const annotated = (item.profileVariants || []).filter(row => row.format === target && row.result?.ok && visible(row.diagramRender));
-  const variant = full ?? annotated.find(row => row.profileId === item.preferredRelease?.profileId) ??
-    annotated.find(row => row.result.status === 'supported') ?? annotated[0];
-  const baseline = item.targets?.[target];
-  const render = variant?.diagramRender ?? baseline?.render;
-  const url = visible(render);
+  if (target === 'excalidraw') return excalidrawRoute(item);
+  const render = item.presentations?.[target];
+  const url = safeRenderPath(render?.svgPath, render?.svgSha256);
   if (!url) return null;
-  const caption = full ? 'Full profile, strict readback verified' +
-    ((full.tier ?? full.representation?.tier) === 'primitive-fallback' ? ' · primitive layout' : '') :
-    variant ? (variant.result.status === 'supported' ? 'Annotation profile' : 'Annotation profile, reported loss') :
-      (baseline.status === 'reported-loss' ? 'Native baseline, reported loss' : 'Native baseline');
-  return {target, profileId: variant?.profileId ?? null, url, caption,
-    rawUrl: safeRenderPath(render.rawSvgPath, render.rawSvgSha256)};
+  const caption = item.kind === 'timeline' && item.form !== 'roadmap' && target === 'mermaid'
+    ? 'Chronological cards · categorical spacing'
+    : 'UMF ' + item.form + ' presentation';
+  return {target, url, caption, rawUrl: safeRenderPath(render.rawSvgPath, render.rawSvgSha256)};
 }
 async function checkedArtifact(asset) {
   const response = await fetch(new URL(asset.path, location.href));
@@ -412,7 +406,7 @@ function loadExampleEvidence(summary) {
   evidenceCache.set(summary.id, request);
   return request;
 }
-async function openDetail(id, target, profileId = null, requestedView = null) {
+async function openDetail(id, target, profileId, requestedView = null) {
   const summary = allItems().find(candidate => candidate.id === id); if (!summary) return;
   const ticket = ++state.detailRequest;
   const status = $('example-request-status');
@@ -427,12 +421,12 @@ async function openDetail(id, target, profileId = null, requestedView = null) {
   status.textContent = '';
   state.detailItem = item;
   const requestedVariant = profileId && profileVariantFor(item, profileId);
-  const defaultChoice = preferredSelection(item);
+  const defaultChoice = preferredSelection(item, target);
   const preferred = requestedVariant
     ? {target: requestedVariant.format, profileId: requestedVariant.profileId}
     : profileId
       ? {target: TARGETS.includes(target) ? target : defaultChoice.target, profileId}
-      : target === undefined
+      : profileId === undefined || target === undefined
         ? defaultChoice
         : {target: TARGETS.includes(target) ? target : 'dot', profileId: null};
   state.selected = item.id; state.target = target === 'excalidraw' ? target : preferred.target;
@@ -490,6 +484,21 @@ function showSelectedTarget(item) {
     const tab = $(`tab-${key}`);
     tab.setAttribute('aria-selected', String(key === state.target));
     tab.tabIndex = key === state.target ? 0 : -1;
+  }
+  const presentationDetails = $('gallery-presentation-source');
+  const presentation = item.presentations?.[state.target];
+  presentationDetails.replaceChildren();
+  presentationDetails.open = false;
+  presentationDetails.hidden = !presentation;
+  if (presentation) {
+    const {plan, render} = presentation;
+    const link = el('a', 'text-link', 'Open gallery SVG');
+    link.href = safeRenderPath(render.svgPath, render.svgSha256);
+    link.target = '_blank'; link.rel = 'noopener';
+    presentationDetails.append(el('summary', '', 'Gallery presentation source'), link,
+      el('p', '', 'The gallery image is generated from the presentation source below. The interchange profile has its own source and render.'),
+      el('pre', 'code-block', plan.source));
+    for (const approximation of plan.approximations) presentationDetails.append(el('p', '', approximation.representation));
   }
   if (state.target === 'excalidraw') {
     state.profileId = null; state.view = 'native';
@@ -824,14 +833,15 @@ function showTarget(item, target) {
 function showExcalidraw(item) {
   const panel = $('target-panel'); panel.replaceChildren(); panel.setAttribute('aria-labelledby', 'tab-excalidraw');
   const result = item.excalidraw;
-  const route = previewRoute(item, 'excalidraw');
+  const route = excalidrawRoute(item);
   const render = result?.render;
   const previewUrl = route?.url;
   if (!route) {
     panel.append(el('p', 'target-explainer', 'No verified Excalidraw preview is available for this example.'));
     return;
   }
-  panel.append(el('p', 'target-explainer', `Editable scene · opened, saved and rendered in Excalidraw ${render.nativeVersion}`));
+  const sceneKind = result.formPresentation ? 'Editable presentation' : 'Editable primitive approximation';
+  panel.append(el('p', 'target-explainer', `${sceneKind} · verified in Excalidraw ${render.nativeVersion}`));
   const preview = el('div', 'render-preview');
   const image = document.createElement('img');
   image.src = previewUrl; image.alt = `Excalidraw preview of ${item.title}`;
@@ -1157,7 +1167,7 @@ async function init() {
       state.target = key;
       const item = state.detailItem; if (!item) return;
       if (fromPresentation && key !== 'excalidraw') {
-        state.profileId = previewRoute(item, key)?.profileId ?? null;
+        state.profileId = preferredSelection(item, key).profileId;
         state.view = state.profileId ? 'diagram' : 'native';
       } else if (state.view === 'native') state.profileId = null;
       else {

@@ -15,6 +15,7 @@ export interface ExcalidrawCatalogExample {
   render: {svgPath: string; svgSha256: string; nativeVersion: string; chromium: string; elementCount: number};
   approximations: ExcalidrawPresentation['approximations'];
   omissions: string[];
+  formPresentation: boolean;
 }
 
 const hash = (text: string) => createHash('sha256').update(text).digest('hex');
@@ -71,7 +72,8 @@ export async function renderExcalidrawExamples(items: CatalogItem[], outputDir: 
         await writeFile(join(outputDir, svgPath), svg);
         item.excalidraw = {profile: plan.profile, source: {path, sha256: sceneSha256},
           render: {svgPath, svgSha256, nativeVersion, chromium, elementCount: rendered.elementCount},
-          approximations: plan.approximations, omissions: plan.omissions};
+          approximations: plan.approximations, omissions: plan.omissions,
+          formPresentation: item.form === 'network' || !plan.approximations.some(approximation => approximation.path === '/extensions/umf.visual/form')};
       } catch (error) {
         throw Error(`Excalidraw catalog example ${item.id} failed: ${String(error)}`);
       }

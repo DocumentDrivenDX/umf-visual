@@ -86,9 +86,18 @@ KiB. Each example's full existing catalog record is a separate, content-addresse
 JSON file. **View evidence** fetches only that record and verifies its
 SHA-256. The complete `catalog.json` remains available for programmatic readers.
 
-A comparison selects two distinct rendered routes for one example. Each
-viewport uses the corresponding SVG and opens evidence with that precise
-target and profile. The comparison requires only index metadata and images.
+A gallery preview MUST use a presentation selected from the authored UMF kind
+and form. A full interchange route can independently preserve the document
+while using primitive graphs to expose values. Those graphs MUST stay in
+interchange evidence and MUST NOT substitute for a form presentation in the
+gallery. Renderer selectors only offer presentation routes with successful
+native renders. Date ledgers disclose categorical spacing when they do not
+draw an elapsed-time axis.
+
+A comparison selects two distinct presentation routes for one example. It
+requires only index metadata and images. **View evidence** opens the selected
+renderer, where presentation source and interchange profile evidence are
+available separately.
 The Excalidraw demo uses separately addressed assets and loads its browser
 import code on demand. CONTRACT-090 owns semantic adoption.
 
